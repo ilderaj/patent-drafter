@@ -350,6 +350,9 @@ body {
 }
 .outline-item:hover { background: var(--accent); }
 .outline-item.active { background: var(--accent); font-weight: 600; }
+.outline-item.has-issue .no { background: var(--destructive); color: #fff; }
+.outline-item.has-issue { color: var(--destructive); }
+.outline-item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .outline-item .no {
   width: 18px; height: 18px; border-radius: 50%; flex: none;
   background: var(--secondary); display: inline-flex; align-items: center; justify-content: center;

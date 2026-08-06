@@ -51,18 +51,20 @@ export function Workbench() {
             </div>
           ))}
           <div className="col-title" style={{ marginTop: 16 }}>段落</div>
-          <div className="outline-item active">
-            <span className="no">1</span>
-            权利要求 1（独立）
-          </div>
-          <div className="outline-item">
-            <span className="no">2</span>
-            权利要求 2（从属）
-          </div>
-          <div className="outline-item">
-            <span className="no">3</span>
-            权利要求 3（从属）
-          </div>
+          {claims.map((c) => (
+            <div
+              key={c.id}
+              className={`outline-item ${c.id === claim.id ? "active" : ""} ${c.sources.some((s) => s.kind === "none") ? "has-issue" : ""}`}
+              onClick={() => setSelected(c.id)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelected(c.id); } }}
+            >
+              <span className="no">{c.id.slice(1)}</span>
+              {c.label.replace(/^权利要求 /, "")}
+              {c.sources.some((s) => s.kind === "none") ? <span className="warn" style={{ marginLeft: "auto", fontSize: 11 }}>!无来源</span> : null}
+            </div>
+          ))}
         </div>
 
         <div className="wb-col">

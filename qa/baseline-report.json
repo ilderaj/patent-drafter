@@ -1,0 +1,251 @@
+{
+  "generatedAt": "2026-08-06 23:05:01",
+  "fixtureRefs": [
+    "baseline-claims-graph.json",
+    "baseline-spec-structure.json",
+    "baseline-problems.json"
+  ],
+  "outputUnderTest": "demo-generated.json",
+  "summary": {
+    "total": 39,
+    "passed": 39,
+    "failed": 0
+  },
+  "verdict": "PASS",
+  "results": [
+    {
+      "id": "REF-1",
+      "name": "定稿夹具：10 条权利要求",
+      "pass": true,
+      "detail": "actual=10"
+    },
+    {
+      "id": "REF-2",
+      "name": "定稿夹具：独立权利要求恰 1 条",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "REF-3",
+      "name": "定稿夹具：全部引用关系合法",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "REF-4",
+      "name": "定稿夹具：无多项引多项违规",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "REF-5",
+      "name": "定稿夹具：五段式章节齐全",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "REF-6",
+      "name": "定稿夹具：附图说明 6 图",
+      "pass": true,
+      "detail": "actual=6"
+    },
+    {
+      "id": "REF-7",
+      "name": "定稿夹具：摘要 294 字 ≤ 300",
+      "pass": true,
+      "detail": "294<=300"
+    },
+    {
+      "id": "REF-8",
+      "name": "交底问题清单 8 项",
+      "pass": true,
+      "detail": "P1-P8"
+    },
+    {
+      "id": "S-1",
+      "name": "生成输出：权利要求 10 条（对齐定稿）",
+      "pass": true,
+      "detail": "actual=10"
+    },
+    {
+      "id": "S-2",
+      "name": "生成输出：独立权利要求恰 1 条（产品型）",
+      "pass": true,
+      "detail": "权利要求 1（独立）"
+    },
+    {
+      "id": "S-3",
+      "name": "生成输出：全部从属引用合法",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "S-4",
+      "name": "生成输出：从属链符合策略（网关→主板→尺寸→固定位→插卡槽→阀门）",
+      "pass": true,
+      "detail": "c2/c4/c5/c6/c8/c10 顺序"
+    },
+    {
+      "id": "F-1",
+      "name": "独立权利要求覆盖定稿全部核心特征（11/11）",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "F-2",
+      "name": "生成输出不包含交底噪声（NB/CAT.1/485/电表网关）",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "F-3",
+      "name": "生成输出不含宣传语（彻底/尽显/时尚/破解）",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "F-4",
+      "name": "生成输出不含页脚模板残留",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "A-1",
+      "name": "每条权利要求都有来源标注（10/10）",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "A-2",
+      "name": "无来源特征被精确检出（恰 1 处：权9 插卡槽水通路）",
+      "pass": true,
+      "detail": "c9"
+    },
+    {
+      "id": "A-3",
+      "name": "审校矩阵同步标记无来源（权9）",
+      "pass": true,
+      "detail": "权9"
+    },
+    {
+      "id": "A-4",
+      "name": "导出门禁生效：存在 error 级审校项 → 正式导出被阻止",
+      "pass": true,
+      "detail": "errors=1"
+    },
+    {
+      "id": "A-5",
+      "name": "支持矩阵区分 材料原文/用户确认/无来源 三态",
+      "pass": true,
+      "detail": "source,source,user,none"
+    },
+    {
+      "id": "A-6",
+      "name": "尺寸参数经 Intake 确认后进入权利要求（权5 用户确认）",
+      "pass": true,
+      "detail": "c5 → user"
+    },
+    {
+      "id": "D-1",
+      "name": "说明书五段式齐全且顺序一致",
+      "pass": true,
+      "detail": "技术领域/背景技术/实用新型内容/附图说明/具体实施方式"
+    },
+    {
+      "id": "D-2",
+      "name": "附图说明枚举图1-图6 与附图数量一致",
+      "pass": true,
+      "detail": "figures=6"
+    },
+    {
+      "id": "D-3",
+      "name": "摘要 ≤300 字（不含字数标注）",
+      "pass": true,
+      "detail": "chars=145"
+    },
+    {
+      "id": "G-1",
+      "name": "附图 6 张且标题与附图说明一一对应",
+      "pass": true,
+      "detail": "系统结构图 / 外部结构图 / 主控板电路连接框图 / 蓝牙模块电路原理图 / 470模块电路原理图 / 射频模块电路原理图"
+    },
+    {
+      "id": "G-2",
+      "name": "机械图/电路图走 Drawing Brief（非自由生成）",
+      "pass": true,
+      "detail": "auto=2, brief=4"
+    },
+    {
+      "id": "G-3",
+      "name": "Drawing Brief 含附图标记表（热水表本体/插卡槽/阀门）",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "G-4",
+      "name": "附图标记与说明书引用一致（本体 1）",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "T-1",
+      "name": "生成输出无「智慧网关/智能网关」混用",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "T-2",
+      "name": "三模术语统一（射频/蓝牙mesh/470）",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "id": "P-1",
+      "name": "P1 主题摇摆 → Intake Q1 确认保护对象",
+      "pass": true,
+      "detail": "Q1"
+    },
+    {
+      "id": "P-2",
+      "name": "P2 制式冲突 → Intake Q3 以三模为准并剔除 NB",
+      "pass": true,
+      "detail": "Q3"
+    },
+    {
+      "id": "P-3",
+      "name": "P3 摘要噪声 → 生成摘要无残留（D-3 关联）",
+      "pass": true,
+      "detail": "见 D-3/F-4"
+    },
+    {
+      "id": "P-4",
+      "name": "P4 电表网关噪声 → 生成输出已剔除（F-2 关联）",
+      "pass": true,
+      "detail": "见 F-2"
+    },
+    {
+      "id": "P-5",
+      "name": "P5 宣传语 → 生成输出已剔除（F-3 关联）",
+      "pass": true,
+      "detail": "见 F-3"
+    },
+    {
+      "id": "P-6",
+      "name": "P6 编号混乱 → 附图说明/附图标题一致（G-1 关联）",
+      "pass": true,
+      "detail": "见 G-1"
+    },
+    {
+      "id": "P-7",
+      "name": "P7 尺寸无来源 → Intake Q2 确认来源",
+      "pass": true,
+      "detail": "Q2"
+    },
+    {
+      "id": "P-8",
+      "name": "P8 定稿新增结构 → 权8/权9 标记待确认/无来源（A-2 关联）",
+      "pass": true,
+      "detail": "见 A-2"
+    }
+  ]
+}
