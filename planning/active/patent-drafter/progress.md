@@ -38,6 +38,22 @@
 - git add + commit 本轮新文件（需升级权限）。
 - 最终汇报：展示 .pen 与 2-3 张预览，等待设计批准。
 
+## Session: 2026-08-06 23:xx UTC+8（goal 延续·证据核验轮）
+
+### 已完成（本轮全部为 live 证据，非 README 转述）
+- 交付物清单核验：docs/ 9 篇齐全（product-spec 含需求修正表、architecture ADR-001~009、threat-model T1-T13、baseline-analysis 五段结构）。
+- .pen 完整性：JSON 可解析，22 顶层节点，16 屏 + 2 移动端 + 5 组件 ID 全部存在，17 张预览 PNG 齐全。
+- 无泄漏核验：git ls-files 无 fixtures/private、无 .doc、无 sk- 密钥模式；git grep 无密钥串。
+- Spike 实跑：
+  - bridge-loopback-spike：`node bridge_server.mjs` 自检实跑——evil origin 403 / 白名单 PNA preflight 204 / 白名单 POST 200 带 token，全通过。
+  - deepseek-spike：`node provider_contract.mjs` → SPIKE_C_PASS（含 schema 拒收坏输出）。
+  - rules-spike：`node rules_check.mjs` → 32 passed / 0 failed，ALL PASS。
+  - parser-spike：textutil 实转 private/.doc → 16,289 字节文本，抽检到"（蓝牙/射频卡/470无线）"标题括注、系统/产品摇摆、NB 混杂等 baseline 观察点。
+
+### 状态
+- 第一阶段全部交付 + 汇报已发出（上轮），本轮补强证据后仍处于**等待用户设计批准**（强制门，不代用户关闭）。
+- 批准后待办不变：apps/web + apps/bridge 实现、Safari 真机 loopback、CNIPA 2026 联网核对、境内可达性实测。
+
 ### 决策日志
 - 任务 ID：patent-drafter；单 authority root = `/Users/jared/Personal Projects/Patent`。
 - 附件策略：原始 DOC 移入 fixtures/private/（gitignore），docs/examples 保留引用或移除；生成脱敏结构化 fixture 于 fixtures/sanitized/。
