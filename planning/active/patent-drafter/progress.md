@@ -75,6 +75,19 @@
 - git add + commit 本轮变更。
 - 等待设计批准（不变）。
 
+## Session: 2026-08-06 23:xx UTC+8（goal 延续·中文 OCR 验证轮）
+
+### 已完成
+- 之前"沙箱受限需真机验证"的 macOS Vision 中文 OCR 现已实测通过（当前环境 danger-full-access）：
+  - 生成含中文的测试图（AppKit 渲染"共享热水表 三模通讯 蓝牙mesh 470无线 NB-IoT"）；
+  - `vision_ocr.swift`（zh-Hans）识别全部命中，conf≈0.50；NB-IoT 误识为 NB-loT（大小写易混淆，已知怪癖）；
+  - 语言参数化已验证：默认 `zh-Hans,en-US` 生效；仅 `en-US` 时中文返回空（符合预期）。
+- spikes/parser-spike/vision_ocr.swift 增加可选语言参数；README 更新结论（中文 OCR 已验证，去掉"需真机验证"）。
+
+### 待办
+- git add + commit。
+- 等待设计批准（不变）。
+
 ### 决策日志
 - 任务 ID：patent-drafter；单 authority root = `/Users/jared/Personal Projects/Patent`。
 - 附件策略：原始 DOC 移入 fixtures/private/（gitignore），docs/examples 保留引用或移除；生成脱敏结构化 fixture 于 fixtures/sanitized/。

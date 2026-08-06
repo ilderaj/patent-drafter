@@ -62,3 +62,12 @@
 
 ### 技术备注
 - CNIPA 主站 col 频道页为动态加载，静态 curl 拿不到列表；站点搜索接口（jsearchfront）超时；决定全文 PDF/页面在微信生态内，需验证码。逐条文本核对留待后续。
+
+## Findings Record: 2026-08-06 23:xx UTC+8（中文 OCR 验证）
+
+### macOS Vision 中文 OCR 实测结论
+- 环境权限升级后（danger-full-access），沙箱限制不再存在；`VNRecognizeTextRequest` + `zh-Hans` 直接可用。
+- 实测：中文短句（含术语"蓝牙mesh/470无线/NB-IoT"）全部识别，整体置信度 ~0.50；
+- 易混淆点：NB-IoT → NB-loT（I/l 大小写），需在管线中做术语归一化（term normalization）而非原样入库；
+- 语言参数化：recognitionLanguages 传 `zh-Hans,en-US` 组合有效；仅 en-US 对中文无输出。
+- 对 Bridge 设计的影响：macOS 侧 OCR 决策（Vision 优先）从"计划"升级为"已验证"；中文术语归一化表成为解析管线必备组件。

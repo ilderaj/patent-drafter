@@ -3,9 +3,12 @@ import Vision
 import ImageIO
 
 guard CommandLine.arguments.count > 1 else {
-    print("ERR: no image path"); exit(1)
+    print("ERR: usage: swift vision_ocr.swift <image> [langs]"); exit(1)
 }
 let path = CommandLine.arguments[1]
+let langs = CommandLine.arguments.count > 2
+    ? CommandLine.arguments[2].split(separator: ",").map(String.init)
+    : ["zh-Hans", "en-US"]
 let url = URL(fileURLWithPath: path)
 guard let src = CGImageSourceCreateWithURL(url as CFURL, nil),
       let cg = CGImageSourceCreateImageAtIndex(src, 0, nil) else {
@@ -21,7 +24,7 @@ let request = VNRecognizeTextRequest { req, err in
     }
 }
 request.recognitionLevel = .accurate
-request.recognitionLanguages = ["en-US"]
+request.recognitionLanguages = langs
 request.usesLanguageCorrection = true
 let handler = VNImageRequestHandler(cgImage: cg, options: [:])
 do {
