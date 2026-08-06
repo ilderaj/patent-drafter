@@ -20,7 +20,7 @@ Reconcile: open
 
 ## Current Phase
 
-Phase 1（第一阶段：设计前交付物）
+Phase 8（实现阶段：apps/web）
 
 ## Phases
 
@@ -70,8 +70,48 @@ Phase 1（第一阶段：设计前交付物）
 ### Phase 7: 第一阶段汇报
 - [x] 汇总需求修正清单、baseline、spike 结果、ADR、威胁模型、规则包结构、.pen 路径、实现计划
 - [x] 批准前补充：fixtures/sanitized + packages 骨架（domain/rules-cn/prompts/providers/audit/shared）全部落盘并 typecheck
-- [ ] 等待用户设计批准（强制门）
+- [x] 等待用户设计批准（强制门）——2026-08-06 已获批准："认可视觉设计。主要要确保交互流程顺畅、人类友好。"
+- **Status:** complete
+
+### Phase 8: apps/web 脚手架与设计系统
+- [ ] Vite + React + TS + React Router，base /patent/，npm workspaces 接入 packages/*
+- [ ] .pen 设计令牌 → CSS 变量（light/dark；primary #FF8400、背景 #F2F3F0、圆角 16、间距 4/8/12/16/24/32/48）
+- [ ] AppShell（侧边栏）+ 全部路由（16 屏 + 2 移动端）
+- [ ] localStorage 仓储（非敏感 UI 状态；Dexie 迁移留待 snapshot 阶段）
 - **Status:** in_progress
+
+### Phase 9: 核心流程屏（首页/新建/上传/充分性/Intake/策略）
+- [ ] 项目首页（列表 + 新建入口，对齐 G28UKe）
+- [ ] 新建项目（LUXMs）与多附件上传解析（MOtBX）
+- [ ] 充分性报告（faOhX）与 Intake 问询（c2PnM）
+- [ ] 保护策略确认（E8kpg7）
+- **Status:** pending
+
+### Phase 10: 工作台与其余屏
+- [ ] 三栏编辑工作台（ForY7）、附图中心（b4S6i）、审校矩阵（g1VL6Z）
+- [ ] 导出（e6uhX）、历史（p4Dc8c）、设置（BV5rd）
+- [ ] 状态屏：无 Bridge（G7dbx）、模型失败（ylT5f）、配对（oNkxz）
+- [ ] 移动端（JSJev / YB7SJ）
+- **Status:** pending
+
+### Phase 11: Mock Provider 驱动 18 阶段管线
+- [x] Mock 管线（ingest→intake→strategy→claims→spec→abstract→audit）全流程浏览器实测通过（2026-08-06 走查轮）
+- [x] 事实状态机与支持矩阵（Audit 屏三标签：支持矩阵/一致性/形式规则）
+- [x] 导出门禁（errors>0 阻止正式文件导出，与 Audit 屏共用 DEMO_AUDIT 单一数据源）
+- **Status:** complete
+
+### Phase 12: 浏览器逐屏比对与交互验证
+- [x] 关键路径走查（新建→上传→解析→充分性→Intake×4→策略→工作台→审校→导出门禁→历史）全通，控制台 0 错误 0 404
+- [x] 交互断点修复：审校页默认标签无导航出口、首页死按钮 /demo、Intake 末题按钮语义
+- [x] 键盘全链路（Tab/Space/Enter）走查通过；focus-visible 焦点环；表单/文本域无障碍标签
+- [x] 截图与 .pen 预览比对受 vision 限制，采用 DOM + 设计令牌比对（此前轮次已比对 17 屏）
+- **Status:** complete
+
+### Phase 13: 最终验收与汇报
+- [ ] 安全验收 12 项（qa-plan.md）逐项证据
+- [ ] baseline 验收对账（fixtures/sanitized + 交底样例）
+- [ ] 清理 spike 与调试文件；输出最终报告
+- **Status:** pending
 
 ## Errors Encountered
 

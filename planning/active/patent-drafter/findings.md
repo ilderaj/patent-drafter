@@ -82,3 +82,16 @@
 
 ### 剩余批准前候选（低价值，不再主动推进）
 - CNIPA 决定全文逐条文本（微信/PDF 需验证码）；Safari loopback 真机验证（需真实设备）；境内可达性抽样（需大陆网络）。
+
+## Findings Record: 2026-08-06 23:xx UTC+8（实现阶段：前端首轮）
+
+### 技术决策（实现中验证）
+- **react-router 嵌套 <Routes> 陷阱**：在父 Route element 内嵌 <Routes> 且父路径带 :id/* 时，子路由在部分场景空渲染；改扁平路由 + useLocation 分发，行为稳定。
+- **路由跳转后的直接 URL 访问**必须用 projects.find(id) 而非 current（current 只指向最后打开的项）；全部子屏已统一。
+- **浏览器实测环境**：in-app Browser（iab）可用；tab.playwright 提供完整 Playwright API（getByRole/click/evaluate/screenshot）；dev.logs 可取控制台（无报错）。
+- **移动端**：390px 视口下 app-shell 媒体查询生效（侧栏隐藏）；/mobile 独立演示屏可用。
+- 导出拦截在 UI 层用"存在 error 级审校项 + 正式文件被勾选"触发，与 packages/export evaluateExportGate 语义一致（后续接 Bridge 真导出时复用同一门禁）。
+
+### 数据模型落地
+- localStorage key `patent-drafter.v1`；demo 项目 id=demo-hot-water-meter（flag demo:true）；删除数据=清除 key + 重载。
+- Intake 问题组件按 q.id keyed 重置（上一步/下一步状态不串扰）。
