@@ -187,3 +187,20 @@
 
 ### 待办
 - Phase 13 剩余：清理 spike 调试文件；安全验收逐项证据汇总；最终报告（含大陆可达性与 Safari 真机待办说明）。
+
+## Session: 2026-08-07（Phase 13 收尾：最终报告 + spike 清理）
+
+### 已完成
+- 最终验收报告 docs/final-acceptance.md：结论、12 项交付物清单（11 个提交）、需求修正清单、SPIKE_A~D 结果、ADR-001~009、T1-T13、规则包结构、功能验收（8 处修复+键盘全链路）、Baseline 39/39、安全验收 9/12 已有证据、4 项外部门交接条件、复现命令。
+- 清理 spikes/ 目录（bridge-loopback/deepseek/parser/rules 四组调试文件；结论已并入报告第 4 节；git 历史可恢复）。
+- 最终证据复核：bridge cargo test 13/13、web tsc OK、baseline 39/39、工作树干净。
+- 提交：9480eb1。
+
+### 交接条件（需外部授权/环境，记录于 final-acceptance.md 第 10 节）
+1. Worker 部署 + 抓包复证安全验收第 2/3/4 项（需用户 Cloudflare 授权）。
+2. Safari 真机 loopback 验证（Chrome 150 已过；Tauri Plan B）。
+3. 大陆网络可用性抽样 + 境内托管/ICP 迁移。
+4. Bridge 预览确认步骤联调 + 18 阶段管线注入/恶意附件测试集（安全验收第 8/10/11 项）。
+
+### 本地范围结论
+- 第一阶段目标（需求修正/baseline/架构/威胁模型/规则包/spikes/.pen/设计批准）已全部达成并有证据；批准后实现（web 全屏、Mock 管线、bridge 骨架、baseline 对账、交互打磨）已验收。
