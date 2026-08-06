@@ -8,6 +8,7 @@ use axum::routing::{delete, get, post};
 use axum::{Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::sync::Arc;
 
 use crate::auth::{origin_guard, session_guard, SharedAuth};
@@ -114,11 +115,39 @@ async fn credentials_configured(State(s): State<AppState>) -> impl IntoResponse 
 
 async fn chat(
     State(s): State<AppState>,
+    headers: axum::http::HeaderMap,
     Json(req): Json<ChatRequest>,
 ) -> Result<Json<Value>, (StatusCode, String)> {
     let meter = Meter::default();
     let rid = crate::log::request_id();
     let path = "/api/providers/deepseek/chat";
+
+    // 发送预览确认门（安全验收第 8 项）：必须先确认将发送的确切载荷（哈希绑定）。
+    let canonical = canonical_request(&req);
+    let required = sha256_hex(&canonical);
+    let confirmed = headers
+        .get("x-preview-confirm")
+        .and_then(|v| v.to_str().ok())
+        .map(|v| v == required)
+        .unwrap_or(false);
+    if !confirmed {
+        let preview = json!({
+            "error": "preview_required",
+            "message": "请先确认将发送的模型请求内容",
+            "requiredConfirm": required,
+            "preview": {
+                "model": req.model,
+                "messageCount": req.messages.len(),
+                "contentPreview": req.messages.first().map(|m| {
+                    let c = m.content.chars().take(200).collect::<String>();
+                    format!("{}: {}", m.role, c)
+                }).unwrap_or_default(),
+            }
+        });
+        meter.done("POST", path, 428, &rid);
+        return Err((StatusCode::PRECONDITION_REQUIRED, preview.to_string()));
+    }
+
     let result = match s.provider.chat(&req).await {
         Ok(r) => Ok(Json(json!({
             "model": r.model,
@@ -137,4 +166,27 @@ async fn chat(
     };
     meter.done("POST", path, status, &rid);
     result
+}
+
+/// 将请求映射为确定性的规范字符串（预览确认哈希的绑定对象）。
+fn canonical_request(req: &ChatRequest) -> String {
+    let mut s = String::new();
+    if let Some(m) = &req.model {
+        s.push_str("model:");
+        s.push_str(m);
+        s.push('\n');
+    }
+    for m in &req.messages {
+        s.push_str(&m.role);
+        s.push(':');
+        s.push_str(&m.content);
+        s.push('\n');
+    }
+    s
+}
+
+fn sha256_hex(s: &str) -> String {
+    let mut h = Sha256::new();
+    h.update(s.as_bytes());
+    format!("{:x}", h.finalize())
 }

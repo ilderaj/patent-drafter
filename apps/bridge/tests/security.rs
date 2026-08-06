@@ -236,7 +236,7 @@ async fn credentials_roundtrip_without_plaintext_in_response() {
 }
 
 #[tokio::test]
-async fn chat_route_uses_mock_provider_without_real_key() {
+async fn chat_requires_preview_confirm_before_send() {
     let app = router(state());
     let token = pair_token(&app, "http://localhost:5173").await;
     let body = Body::from(
@@ -260,9 +260,68 @@ async fn chat_route_uses_mock_provider_without_real_key() {
         )
         .await
         .unwrap();
+    assert_eq!(resp.status(), StatusCode::PRECONDITION_REQUIRED, "preview confirm must be required");
+    let (_, body) = body_text(resp).await;
+    let v: serde_json::Value = serde_json::from_str(&body).unwrap();
+    assert_eq!(v["error"], "preview_required");
+    let required = v["requiredConfirm"].as_str().unwrap().to_string();
+    assert!(v["preview"]["contentPreview"].as_str().unwrap().contains("hello"));
+
+    // 带上正确的确认哈希后放行（Mock Provider，无真实 Key）
+    let body = Body::from(
+        serde_json::json!({
+            "model": "deepseek-chat",
+            "messages": [{"role": "user", "content": "hello"}]
+        })
+        .to_string(),
+    );
+    let resp = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::POST)
+                .uri("/api/providers/deepseek/chat")
+                .header("content-type", "application/json")
+                .header("origin", HeaderValue::from_static("http://localhost:5173"))
+                .header("x-session-token", HeaderValue::from_str(&token).unwrap())
+                .header("x-preview-confirm", HeaderValue::from_str(&required).unwrap())
+                .body(body)
+                .unwrap(),
+        )
+        .await
+        .unwrap();
     assert_eq!(resp.status(), StatusCode::OK);
     let (_, body) = body_text(resp).await;
     assert!(body.contains("mock"), "mock provider response expected: {body}");
+}
+
+#[tokio::test]
+async fn chat_rejects_wrong_preview_hash() {
+    let app = router(state());
+    let token = pair_token(&app, "http://localhost:5173").await;
+    let body = Body::from(
+        serde_json::json!({
+            "model": "deepseek-chat",
+            "messages": [{"role": "user", "content": "hello"}]
+        })
+        .to_string(),
+    );
+    let resp = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::POST)
+                .uri("/api/providers/deepseek/chat")
+                .header("content-type", "application/json")
+                .header("origin", HeaderValue::from_static("http://localhost:5173"))
+                .header("x-session-token", HeaderValue::from_str(&token).unwrap())
+                .header("x-preview-confirm", HeaderValue::from_static("deadbeef"))
+                .body(body)
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::PRECONDITION_REQUIRED);
 }
 
 #[tokio::test]
