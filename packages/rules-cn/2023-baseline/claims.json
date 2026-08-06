@@ -1,0 +1,78 @@
+{
+  "rulePackVersion": "cnipa-2023-baseline",
+  "rules": [
+    {
+      "ruleId": "CLAIM-IND-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "atLeastOneIndependent",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（权利要求书）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "权利要求书应至少包含一项独立权利要求",
+      "remediation": "补充独立权利要求"
+    },
+    {
+      "ruleId": "CLAIM-REF-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "refsExistAndForward",
+      "sourceDocument": "专利法实施细则",
+      "sourceSection": "待填充（从属权利要求引用）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "从属权利要求只能引用在前的权利要求",
+      "remediation": "修正引用关系"
+    },
+    {
+      "ruleId": "CLAIM-REF-002",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "multiDependentNotBaseOfMulti",
+      "sourceDocument": "专利法实施细则",
+      "sourceSection": "待填充（多项从属权利要求的引用限制）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "引用多项的从属权利要求不得作为另一项多项从属权利要求的引用基础",
+      "remediation": "改为单项引用或调整引用结构"
+    },
+    {
+      "ruleId": "CLAIM-REF-003",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "noCircularRefs",
+      "sourceDocument": "专利法实施细则",
+      "sourceSection": "待填充（引用关系）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "权利要求引用关系不得循环",
+      "remediation": "修正引用关系"
+    },
+    {
+      "ruleId": "CLAIM-SUP-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "featuresSupportedInSpec",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（权利要求以说明书为依据）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "权利要求中的每个技术特征应在说明书中得到支持",
+      "remediation": "补充说明书支持或调整权利要求"
+    },
+    {
+      "ruleId": "CLAIM-SUP-002",
+      "patentType": ["utility_model", "invention"],
+      "severity": "warning",
+      "deterministicCheck": "specNotBeyondDisclosure",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（不得超出原始记载）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "说明书不得超出原始记载（交底）范围",
+      "remediation": "删除超出记载的内容或补充交底依据"
+    }
+  ]
+}
+

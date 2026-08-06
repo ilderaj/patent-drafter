@@ -1,0 +1,26 @@
+{
+  "fixtureId": "baseline-claims-001",
+  "source": "fixtures/private/final-shared-hot-water-meter-2023.10.27.doc",
+  "sanitized": true,
+  "note": "技术特征已占位化，仅保留结构",
+  "patentType": "utility_model",
+  "titlePlaceholder": "一种基于[三模通讯]的共享[热水表]",
+  "claims": [
+    { "no": 1, "kind": "independent", "refs": [], "features": ["[热水表本体]", "[控制主板]", "[控制器]", "[射频通信模块]", "[蓝牙mesh通信模块]", "[470通信模块]", "[射频卡连接]", "[自组网]", "[470连网关]", "[网关连云端]", "[云端连远程控制器]"] },
+    { "no": 2, "kind": "dependent", "refs": [1], "features": ["[网关WiFi/4G上行]", "[网关连远程控制器]"] },
+    { "no": 3, "kind": "dependent", "refs": [1], "features": ["[网关本体]", "[网关控制器]", "[网关470模块]", "[网关蓝牙mesh模块]", "[模块连接关系]"] },
+    { "no": 4, "kind": "dependent", "refs": [1, 2, 3], "features": ["[主板竖向插接]", "[上壳插接]", "[下壳插接]"] },
+    { "no": 5, "kind": "dependent", "refs": [1, 2, 3], "features": ["[长度87.9mm]", "[宽度75.23mm]"] },
+    { "no": 6, "kind": "dependent", "refs": [1, 2, 3], "features": ["[底部内凹固定位]"] },
+    { "no": 7, "kind": "dependent", "refs": [6], "features": ["[固定位宽度35.6mm]"] },
+    { "no": 8, "kind": "dependent", "refs": [1, 2, 3], "features": ["[侧面竖向插卡槽]", "[射频模块朝向插卡槽]"] },
+    { "no": 9, "kind": "dependent", "refs": [8], "features": ["[插卡槽上端开口]", "[插卡槽下端水通路]"] },
+    { "no": 10, "kind": "dependent", "refs": [1, 2, 3], "features": ["[手动阀门]", "[阀门位于水路进水端]"] }
+  ],
+  "expectedRuleResults": {
+    "independentCount": 1,
+    "allRefsValid": true,
+    "multiDependentAsBaseViolations": []
+  }
+}
+

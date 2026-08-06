@@ -1,0 +1,151 @@
+{
+  "rulePackVersion": "cnipa-2023-baseline",
+  "effectiveFrom": "2023-01-01",
+  "rules": [
+    {
+      "ruleId": "COM-TITLE-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "warning",
+      "deterministicCheck": "titleLengthMax25",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（名称一般不超过25个字）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "发明/实用新型名称一般不得超过25个字",
+      "remediation": "精简名称"
+    },
+    {
+      "ruleId": "COM-TITLE-002",
+      "patentType": ["utility_model", "invention"],
+      "severity": "warning",
+      "deterministicCheck": "titleNoPromoWords",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（名称应清楚表明主题）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "名称不得含宣传性词语",
+      "remediation": "去除宣传词"
+    },
+    {
+      "ruleId": "COM-SECT-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "specSectionsComplete",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（说明书撰写顺序）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "说明书章节不完整：需含技术领域、背景技术、发明/实用新型内容、附图说明、具体实施方式",
+      "remediation": "补全缺失章节"
+    },
+    {
+      "ruleId": "COM-SECT-002",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "abstractMax300",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（摘要全文不超过300字）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "说明书摘要不得超过300字",
+      "remediation": "精简摘要"
+    },
+    {
+      "ruleId": "COM-SECT-003",
+      "patentType": ["utility_model", "invention"],
+      "severity": "warning",
+      "deterministicCheck": "abstractNoPromoNoNoise",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（摘要内容要求）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "摘要不得包含宣传语或非技术内容",
+      "remediation": "清理摘要"
+    },
+    {
+      "ruleId": "COM-TERM-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "warning",
+      "deterministicCheck": "termConsistency",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（用语一致）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "同一技术术语在权利要求与说明书中应保持一致",
+      "remediation": "统一术语"
+    },
+    {
+      "ruleId": "COM-REF-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "numeralBidirectionalMatch",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（附图标记）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "说明书与附图中的附图标记应双向一致",
+      "remediation": "核对附图标记"
+    },
+    {
+      "ruleId": "COM-REF-002",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "figureNumbersSequential",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（附图编号）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "图号应连续且附图说明与图一一对应",
+      "remediation": "核对图号"
+    },
+    {
+      "ruleId": "COM-NOISE-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "warning",
+      "deterministicCheck": "noPromoNoiseContent",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（说明书内容要求）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "正文不得含宣传语、页脚模板残留或主题外领域内容",
+      "remediation": "剔除噪声内容"
+    },
+    {
+      "ruleId": "COM-EFFECT-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "warning",
+      "deterministicCheck": "effectSupportedByFeatures",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（有益效果）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "有益效果应与技术特征对应，不得无依据断言",
+      "remediation": "删除无支持的效果断言或补充依据"
+    },
+    {
+      "ruleId": "AI-INV-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "inventorsNaturalPerson",
+      "sourceDocument": "专利法实施细则",
+      "sourceSection": "待填充（发明人资格）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "发明人必须是自然人，AI 不得列为发明人",
+      "remediation": "修正发明人信息"
+    },
+    {
+      "ruleId": "AI-INV-002",
+      "patentType": ["utility_model", "invention"],
+      "severity": "info",
+      "deterministicCheck": "aiAssistedReviewConfirmed",
+      "sourceDocument": "产品内部规则",
+      "sourceSection": "产品元数据",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": null,
+      "userMessage": "AI 辅助生成内容需人工审阅确认后方可导出",
+      "remediation": "完成人工审阅确认"
+    }
+  ]
+}
+

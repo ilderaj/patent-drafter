@@ -1,0 +1,24 @@
+{
+  "fixtureId": "baseline-spec-001",
+  "source": "fixtures/private/final-shared-hot-water-meter-2023.10.27.doc",
+  "sanitized": true,
+  "sections": [
+    { "name": "技术领域", "expected": true, "noiseFlag": false },
+    { "name": "背景技术", "expected": true, "noiseFlag": false, "priorArtMentioned": true },
+    { "name": "实用新型内容", "expected": true, "noiseFlag": false },
+    { "name": "附图说明", "expected": true, "noiseFlag": false },
+    { "name": "具体实施方式", "expected": true, "noiseFlag": false }
+  ],
+  "abstract": { "charCount": 294, "maxAllowed": 300, "noiseFlag": false, "promoFlag": false },
+  "figures": [
+    { "no": 1, "descPlaceholder": "[系统结构图]" },
+    { "no": 2, "descPlaceholder": "[外部结构图]" },
+    { "no": 3, "descPlaceholder": "[主控板电路连接框图]" },
+    { "no": 4, "descPlaceholder": "[蓝牙模块电路原理图]" },
+    { "no": 5, "descPlaceholder": "[470模块电路原理图]" },
+    { "no": 6, "descPlaceholder": "[射频模块电路原理图]" }
+  ],
+  "numerals": ["1"],
+  "termConsistency": { "terms": ["[热水表470通信模块]", "[智能网关]"], "consistent": true }
+}
+

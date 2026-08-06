@@ -1,0 +1,17 @@
+{
+  "fixtureId": "baseline-problems-001",
+  "source": "fixtures/private/jiaodi-shared-hot-water-meter-2022.12.14.doc",
+  "sanitized": true,
+  "note": "交底问题清单，用于 detect_conflicts / assess_readiness 回归",
+  "expectedProblems": [
+    { "id": "P1", "kind": "subject_swing", "detail": "系统与产品之间摇摆", "expectedSeverity": "high" },
+    { "id": "P2", "kind": "scheme_contradiction", "detail": "[NB] 与 [蓝牙/470] 制式冲突", "expectedSeverity": "high" },
+    { "id": "P3", "kind": "noise_summary", "detail": "摘要混入页脚/模板残留", "expectedSeverity": "medium" },
+    { "id": "P4", "kind": "noise_domain", "detail": "电表网关规格混入（[CAT.1]/[485]/[USB]）", "expectedSeverity": "medium" },
+    { "id": "P5", "kind": "promo_language", "detail": "宣传式断言（[彻底][尽显] 等）", "expectedSeverity": "medium" },
+    { "id": "P6", "kind": "reference_mismatch", "detail": "附图/实施方式编号混乱", "expectedSeverity": "high" },
+    { "id": "P7", "kind": "unsupported_parameter", "detail": "尺寸参数无来源（[87.9mm] 等）", "expectedSeverity": "medium" },
+    { "id": "P8", "kind": "unsupported_structure", "detail": "定稿新增结构（[水通路][手动阀门]）交底无来源", "expectedSeverity": "high" }
+  ],
+  "readinessBaseline": { "factCount": 14, "sourceBacked": 8, "needsConfirmation": 6, "coveragePercent": 62 }
+}

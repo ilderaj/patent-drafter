@@ -1,0 +1,42 @@
+{
+  "rulePackVersion": "cnipa-2023-baseline",
+  "rules": [
+    {
+      "ruleId": "UM-OBJ-001",
+      "patentType": ["utility_model"],
+      "severity": "error",
+      "deterministicCheck": "productObjectEligible",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（实用新型保护客体）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "实用新型保护产品的形状、构造或者其结合，方法不属于实用新型客体",
+      "remediation": "改为产品型权利要求或转发明专利"
+    },
+    {
+      "ruleId": "UM-FIG-001",
+      "patentType": ["utility_model"],
+      "severity": "error",
+      "deterministicCheck": "figuresRequired",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（实用新型必须有附图）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "实用新型专利申请必须有说明书附图",
+      "remediation": "补充说明书附图"
+    },
+    {
+      "ruleId": "UM-CLAIM-001",
+      "patentType": ["utility_model"],
+      "severity": "error",
+      "deterministicCheck": "independentClaimProductOnly",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（实用新型权利要求）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "实用新型独立权利要求应仅限产品型",
+      "remediation": "将方法类独立权利要求改写为产品型"
+    }
+  ]
+}
+

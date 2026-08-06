@@ -33,26 +33,27 @@ Phase 1（第一阶段：设计前交付物）
 
 ### Phase 2: 规划三件套与仓库骨架
 - [x] 创建 planning/active/patent-drafter/ 三件套
-- [ ] git init + .gitignore（private fixtures）
-- [ ] 创建 docs/、fixtures/private/、fixtures/sanitized/、spikes/ 目录
-- **Status:** in_progress
+- [x] git init + .gitignore（private fixtures）；首次提交 55fee39
+- [x] 创建 docs/、fixtures/private/、fixtures/sanitized/、spikes/ 目录
+- [x] 批准前骨架：fixtures/sanitized/、packages/domain|rules-cn|prompts|providers|audit|shared（tsc 5.9.3 全绿）
+- **Status:** complete
 
 ### Phase 3: baseline 分析（docs/baseline-analysis.md）
-- [ ] 交底 vs 定稿结构对比：主题摇摆、NB/470/蓝牙混杂、摘要噪声、电表网关噪声、问题-特征-效果重映射
-- [ ] 定稿结构拆解：10 条权利要求树、说明书五段式、6 张附图、附图标记
-- [ ] 输出"系统应识别问题"验收清单对账
-- **Status:** pending
+- [x] 交底 vs 定稿结构对比：主题摇摆、NB/470/蓝牙混杂、摘要噪声、电表网关噪声、问题-特征-效果重映射
+- [x] 定稿结构拆解：10 条权利要求树、说明书五段式、6 张附图、附图标记
+- [x] 输出"系统应识别问题"验收清单对账
+- **Status:** complete
 
 ### Phase 4: 架构决策与文档（docs/*.md）
-- [ ] product-spec.md（需求修正清单 + 产品边界）
-- [ ] architecture.md（Web + Bridge 双端、provider 抽象、起草管线 18 阶段）
-- [ ] data-model.md（核心领域模型 + 事实状态机）
-- [ ] threat-model.md（Keychain/配对/CORS/注入）
-- [ ] privacy-boundaries.md
-- [ ] rules-mapping.md（规则包结构 + 2026 核对计划）
-- [ ] deployment.md（Cloudflare Worker Static Assets + 大陆可达性）
-- [ ] qa-plan.md（安全验收 12 项 + baseline 验收）
-- **Status:** pending
+- [x] product-spec.md（需求修正清单 + 产品边界）
+- [x] architecture.md（Web + Bridge 双端、provider 抽象、起草管线 18 阶段）
+- [x] data-model.md（核心领域模型 + 事实状态机）
+- [x] threat-model.md（Keychain/配对/CORS/注入）
+- [x] privacy-boundaries.md
+- [x] rules-mapping.md（规则包结构 + 2026 核对计划）
+- [x] deployment.md（Cloudflare Worker Static Assets + 大陆可达性）
+- [x] qa-plan.md（安全验收 12 项 + baseline 验收）
+- **Status:** complete
 
 ### Phase 5: Phase 0 Spikes（spikes/）
 - [x] Spike A: Loopback Bridge 可行性（Chrome 150 实测通过；Safari 待真机验证）
@@ -68,6 +69,7 @@ Phase 1（第一阶段：设计前交付物）
 
 ### Phase 7: 第一阶段汇报
 - [x] 汇总需求修正清单、baseline、spike 结果、ADR、威胁模型、规则包结构、.pen 路径、实现计划
+- [x] 批准前补充：fixtures/sanitized + packages 骨架（domain/rules-cn/prompts/providers/audit/shared）全部落盘并 typecheck
 - [ ] 等待用户设计批准（强制门）
 - **Status:** in_progress
 

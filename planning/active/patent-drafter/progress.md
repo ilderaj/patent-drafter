@@ -18,6 +18,26 @@
 - CNIPA 官方文本核对需联网（规则包 2026-01-01 版本）。
 - Safari loopback 真机验证。
 
+## Session: 2026-08-06 23:xx UTC+8（批准前补充轮）
+
+### 已完成
+- fixtures/sanitized/：README + 3 个脱敏 JSON（claims-graph / problems / spec-structure），python3 json 校验通过。
+- packages/domain/：核心领域模型 TypeScript 类型，tsc 5.9.3 --noEmit 通过。
+- packages/rules-cn/：README + 2023-baseline 4 个 JSON（common/invention/claims/utility-model）+ 2026-01-01 placeholder。
+- packages/prompts/：README + version.json + system-core + 11 个阶段 prompt 草稿。
+- packages/providers/：LLMProvider 契约骨架（getCapabilities/listModels/generateStructured/streamText/cancel + capability flags + DeepSeekLocalBridgeProvider/CodexLocalProvider 占位），tsc 通过。
+- packages/audit/：确定性审校引擎骨架（RulePack/CheckRegistry/支持矩阵/审计报告），tsc 通过（paths 指向 @patent/domain）。
+- packages/shared/：Result/newId/sha256Hex/versioning/invariant 无依赖工具，tsc 通过。
+- 全部包 typecheck：npx 会误装 tsc 包，改用本机缓存的 typescript@5.9.3 二进制验证，4 包 0 错误。
+
+### 决策
+- 骨架期无根 package.json/workspaces；跨包导入用 tsconfig paths 保离线 typecheck，正式构建时改 workspace 依赖。
+- .harness/ 为 runtime 钩子状态，不纳入版本库（.gitignore + rm --cached）。
+
+### 待办
+- git add + commit 本轮新文件（需升级权限）。
+- 最终汇报：展示 .pen 与 2-3 张预览，等待设计批准。
+
 ### 决策日志
 - 任务 ID：patent-drafter；单 authority root = `/Users/jared/Personal Projects/Patent`。
 - 附件策略：原始 DOC 移入 fixtures/private/（gitignore），docs/examples 保留引用或移除；生成脱敏结构化 fixture 于 fixtures/sanitized/。

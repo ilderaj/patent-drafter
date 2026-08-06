@@ -1,0 +1,30 @@
+{
+  "rulePackVersion": "cnipa-2023-baseline",
+  "rules": [
+    {
+      "ruleId": "INV-OBJ-001",
+      "patentType": ["invention"],
+      "severity": "error",
+      "deterministicCheck": "objectEligible",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（发明专利保护客体）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "发明应为产品、方法或其改进的技术方案",
+      "remediation": "按客体要求调整权利要求"
+    },
+    {
+      "ruleId": "INV-ALGO-001",
+      "patentType": ["invention"],
+      "severity": "warning",
+      "deterministicCheck": "algorithmBoundToTechnical",
+      "sourceDocument": "专利审查指南（2023）",
+      "sourceSection": "待填充（算法类发明）",
+      "effectiveFrom": "2023-01-01",
+      "effectiveTo": null,
+      "userMessage": "算法类权利要求应与技术特征结合（软硬结合）",
+      "remediation": "补充技术特征或硬件结合表述"
+    }
+  ]
+}
+

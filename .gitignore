@@ -13,7 +13,9 @@ build/
 .env.*
 !.env.example
 
+# Runtime 钩子状态（规划系统自管，不入库）
+.harness/
+
 # 设计中间产物
 design/*.tmp
 spikes/*/node_modules/
-

@@ -31,3 +31,19 @@
 - CNIPA 2025 年修改《专利审查指南》，2026-01-01 施行（来自既有对话引用的官方信息，未在本机核实，需联网核对）。
 - 规则包必须版本化：2023-baseline + 2026-01-01。
 
+## Findings Record: 2026-08-06 23:xx UTC+8（批准前补充）
+
+### 工具链事实
+- `npx tsc` 会误装 `tsc@2.0.4`（错误包）；真实编译器在 `~/.npm/_npx/952f9bf55a4c6785/node_modules/typescript/bin/tsc`（5.9.3）。后续 typecheck 直接调用该二进制。
+- npm 网络实际可达（npx 能装包），但不可依赖；骨架保持零运行时依赖。
+
+### 包间依赖
+- packages/audit 引用 @patent/domain 的 FactStatus；通过 tsconfig paths（baseUrl=. + paths）离线解析，避免 node_modules/workspace 安装。
+
+### 规则包与提示词现状
+- 2023-baseline JSON 已落 4 类规则（common/invention/claims/utility-model），sourceSection 待官方文本核对后填充。
+- 11 个阶段 prompt 草稿与 18 阶段管线一一对应；audit_formal_rules 复用 audit 包确定性检查。
+- PROTO_CHECK_NAMES 列了 16 个确定性检查名（来自 spikes/rules-spike 32 项 PASS 的收敛子集）。
+
+### 承诺边界重申
+- 批准前只允许隔离技术骨架；产品前端（apps/web、apps/bridge）零代码，待用户批准 .pen 后开工。
