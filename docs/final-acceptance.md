@@ -18,7 +18,7 @@
 | 交互走查 | 8 处修复、键盘全链路 | qa/walk.mjs + qa/screens/ |
 | 功能验收（Mock 管线） | 通过 | 浏览器实测（见第 8 节） |
 | Baseline 验收对账 | 39/39 PASS | qa/baseline-check.mjs + qa/baseline-report.json |
-| 安全验收 | 9/12 已有证据，3 项待部署 | docs/security-acceptance-evidence.md |
+| 安全验收 | 10/12 已有本地证据（含预览门/恶意附件/注入防线），2/3/4 项待部署 | docs/security-acceptance-evidence.md |
 
 ## 2. 交付物清单（git 提交）
 
@@ -34,6 +34,8 @@ ab9c114 feat(web): 交互走查修复（8 处）
 24e3f26 feat: baseline 验收对账 - 单一事实源 + 39/39 PASS
 ce8a190 feat(bridge): Rust+Axum loopback 骨架 - 13 项安全测试
 7452b0b docs: 安全验收 12 项证据映射
+02f1a53 feat: 安全验收补证 - parsers 恶意附件防护 14/14、Bridge 预览强制门、注入防线
+9480eb1 docs: 最终验收报告；清理 spike 调试文件
 ```
 
 ## 3. 需求修正清单（摘要）
@@ -84,22 +86,22 @@ packages/rules-cn/
 
 qa/baseline-check.mjs 对定稿夹具自检（10 条权利要求/引用合法/五段式/6 图）与生成输出对账：独立项覆盖定稿 11 项核心特征、噪声（NB/CAT.1/485/电表网关/宣传语/页脚）零残留、无来源特征精确检出 1 处并被导出门禁拦截、P1-P8 交底问题全部有对应处理证据。报告：docs/baseline-acceptance.md。
 
-## 10. 安全验收（12 项，9 项已有证据）
+## 10. 安全验收（12 项，10/12 已有本地证据）
 
-详见 docs/security-acceptance-evidence.md。已有证据：Key 不进浏览器存储（代码审计）、Bridge loopback-only（代码+进程实测）、CORS 无通配（403 测试）、session 过期（测试）、日志无正文（测试+采样）、CI Mock Provider（13 项集成测试零真实 Key）。
+详见 docs/security-acceptance-evidence.md。已有证据：Key 不进浏览器存储（代码审计）、Bridge loopback-only（代码+进程实测）、CORS 无通配（403 测试）、session 过期（测试）、日志无正文（测试+采样）、每次模型发送的预览强制门（Bridge chat 路由 428 + 载荷哈希绑定，2 项测试）、恶意附件防护（parsers guard 14/14）、CI Mock Provider（14 项集成测试零真实 Key）。
 
 **交接条件（需外部授权/环境）：**
 
 1. Worker 部署 + 抓包复证第 2/3/4 项（Key/专利文件不经过 vibing.paymond.me）——需用户在 Cloudflare 授权部署。
 2. Safari 真机 loopback 验证（Phase 0 遗留；Chrome 150 已过，Tauri 为 Plan B）。
 3. 大陆网络可用性抽样 + 境内托管/ICP 迁移文档（docs/deployment.md 已含）。
-4. Bridge 预览确认步骤联调（第 8 项）与 18 阶段管线注入/恶意附件测试集（第 10/11 项）。
+4. 18 阶段管线注入/恶意附件测试集与真实 DeepSeek 联调（第 8/10/11 项）：Bridge 侧预览强制门与 parsers 防护模块已实现并通过本地测试，剩余为真实模型驱动的端到端联调。
 
 ## 11. 复现命令
 
 ```bash
 npm run build -w @patent/web          # Web typecheck + build
-cd apps/bridge && cargo test          # Bridge 13 项安全测试
+cd apps/bridge && cargo test          # Bridge 14 项安全测试
 node qa/baseline-check.mjs            # Baseline 验收 39/39
 node qa/walk.mjs flow                 # 关键路径交互走查
 ```

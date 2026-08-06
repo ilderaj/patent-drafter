@@ -20,7 +20,7 @@
 ## 本机可立即复证的命令
 
 ```bash
-# Bridge 安全测试（13 项，含 1/6/7/9/12 证据）
+# Bridge 安全测试（14 项，含 1/6/7/8/9/12 证据）
 cd apps/bridge && cargo test
 
 # 真实进程冒烟（5/6/7/9 证据）
@@ -41,5 +41,5 @@ cd apps/bridge && cargo test chat_       # → 2 项预览门测试 PASS
 ## 待办（部署后补证）
 
 - 第 2/3/4 项：Cloudflare Worker 部署后抓包复证。
-- 第 8 项：Bridge chat 预览确认步骤联调。
+- 第 8 项：Bridge 侧强制门已实现并测试（428 + 载荷哈希），剩余 web 端与真实模型联调。
 - 第 10/11 项：18 阶段管线 + parsers 集成测试集。

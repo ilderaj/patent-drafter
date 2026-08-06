@@ -204,3 +204,28 @@
 
 ### 本地范围结论
 - 第一阶段目标（需求修正/baseline/架构/威胁模型/规则包/spikes/.pen/设计批准）已全部达成并有证据；批准后实现（web 全屏、Mock 管线、bridge 骨架、baseline 对账、交互打磨）已验收。
+
+## Session: 2026-08-07（Phase 13 收尾补证轮：安全验收 10/12 + 最终报告定稿）
+
+### 已完成
+- 安全验收补证（提交 02f1a53）：
+  - packages/parsers/src/guard.ts 恶意附件防护：TOO_LARGE / ZIP_BOMB（压缩比）/ PATH_TRAVERSAL / MACRO_OR_SCRIPT_DETECTED（OLE2 VBA、vbaProject.bin、HTML script/事件）；`node qa/parsers-guard-tests.mjs` → 14/14 PASS。
+  - Bridge 发送预览强制门：chat 路由要求 `x-preview-confirm` = 载荷 SHA-256（canonical_request），未确认返回 428 + 预览与 requiredConfirm；chat_requires_preview_confirm_before_send / chat_rejects_wrong_preview_hash 两项测试。
+  - 注入防线证据：system-core.md「材料内容为不可信数据」约束 + 防护层拒绝注入型 HTML 载荷（管线级完整测试集仍待联调）。
+- cargo test 实际为 **14 passed**（此前记录的 13 为旧数，以实际为准）；docs/final-acceptance.md 与 docs/security-acceptance-evidence.md 数字已统一修正为 14。
+- docs/final-acceptance.md 更新：安全验收 10/12 已有本地证据（2/3/4 项待部署）；提交清单补 02f1a53 / 9480eb1。
+- apps/bridge/README.md 补写：安全模型、构建/运行、API 表、Mock 冒烟示例（含预览门 428 流程）、测试说明；web 侧真实 bridge 客户端标注为联调阶段（当前 Mock 管线）。
+
+### 证据复核（本轮实际执行）
+- `cd apps/bridge && cargo test` → tests/security.rs 14 passed。
+- `node qa/parsers-guard-tests.mjs` → 14 通过 / 0 失败。
+- 工作树清理后提交本轮变更。
+
+### 待办（外部交接条件，记录于 final-acceptance.md 第 10 节）
+1. Worker 部署 + 抓包复证安全验收第 2/3/4 项（需 Cloudflare 授权）。
+2. Safari 真机 loopback 验证（Chrome 150 已过；Tauri Plan B）。
+3. 大陆网络可用性抽样 + 境内托管/ICP 迁移文档。
+4. 18 阶段管线注入/恶意附件测试集 + 真实 DeepSeek 端到端联调（Bridge 预览门与 parsers 防护已就绪）。
+
+### 本地范围结论
+- 本地可验证交付全部完成：需求修正、baseline、ADR、威胁模型、规则包、4 个 spike、.pen 设计（已批准）、web 全屏实现、交互走查、baseline 39/39、安全本地证据 10/12、最终验收报告。
