@@ -108,10 +108,10 @@ Phase 8（实现阶段：apps/web）
 - **Status:** complete
 
 ### Phase 13: 最终验收与汇报
-- [ ] 安全验收 12 项（qa-plan.md）逐项证据
-- [ ] baseline 验收对账（fixtures/sanitized + 交底样例）
+- [x] baseline 验收对账：qa/baseline-check.mjs 可执行脚本 39/39 PASS，docs/baseline-acceptance.md（2026-08-07）
+- [~] 安全验收 12 项取证载体：apps/bridge 骨架完成（13 项安全测试全绿 + 真实进程冒烟）；完整取证待 Bridge 后续轮次（导出/解析/加密 vault）
 - [ ] 清理 spike 与调试文件；输出最终报告
-- **Status:** pending
+- **Status:** in_progress
 
 ## Errors Encountered
 

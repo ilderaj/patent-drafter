@@ -167,3 +167,23 @@
 - 安全验收 12 项需 Bridge 实现后逐项取证（当前为 mock 前端里程碑，Key 路径/配对/CORS 等证据依赖 apps/bridge）。
 - baseline 验收对账（交底样例 → 生成结果 vs 定稿结构）。
 - 清理 spike 与调试文件；最终报告。
+
+## Session: 2026-08-07（Phase 13 前半：baseline 验收 + Bridge 骨架）
+
+### 已完成 1：baseline 验收对账（39/39 PASS）
+- demo 生成输出落成单一事实源 fixtures/sanitized/demo-generated.json（10 条权利要求树、五段式说明书、6 图、摘要、审校摘要、Intake 问题），apps/web data.ts 直接导入（tsconfig resolveJsonModule），"应用看到的"与"验收验证的"同一份数据。
+- 工作台段落列表从 claims 派生（此前硬编码 1/2/3），权9 带"!无来源"标记 + 红色编号。
+- qa/baseline-check.mjs 可执行验收：定稿夹具自检（REF-1~8）、权利要求结构（S-1~4）、核心特征覆盖 11/11（F-1~4）、支持关系与无来源门禁（A-1~6）、五段式（D-1~3）、附图 6 张与标记（G-1~4）、术语（T-1~2）、P1-P8 问题回归（P-1~8）——39/39 通过，输出 qa/baseline-report.json + docs/baseline-acceptance.md。
+
+### 已完成 2：apps/bridge Rust 骨架（安全验收载体）
+- Cargo 单 crate（axum 0.8 + tokio + reqwest/rustls + security-framework(macOS) + async-trait）。
+- 能力：127.0.0.1-only 绑定；Origin 严格白名单（vibing.paymond.me + localhost:5173）；OPTIONS 预检含 PNA（Access-Control-Allow-Private-Network）；一次性配对码（5min、存哈希）；32B 会话 token（30min、存哈希、可撤销）；Keychain 凭据（macOS GenericPassword，含 Mock 存储用于 CI）；DeepSeek provider（Key 从凭据存储取，错误只报状态不报正文）；MockProvider（PATENT_BRIDGE_MOCK=1，CI 无真实 Key）；无正文诊断日志（method/path/status/ms/rid）。
+- 13 项集成测试全绿：恶意源 403、缺 Origin 403、允许源 200+CORS、PNA 预检 204、配对换会话、配对码一次性、受保护路由 401、凭据往返无明文泄漏、mock chat、会话撤销、无通配 CORS、token 过期、日志无 Key/正文。
+- 真实进程冒烟（PATENT_BRIDGE_MOCK=1）：healthz 200 / evil 403 / 配对→token / status 200 / 无 token 401 / chat 200 / 日志内容干净。
+- 提交：ce8a190（bridge）、24e3f26（baseline）。
+
+### 决策
+- Bridge 安全验收逐步推进：本骨架覆盖 qa-plan 第 1/3/5/6/7/9/12 项的核心证据；第 2/4 项（Key 不出现在浏览器→Worker 请求、专利文件不经过 Worker）属部署层验证，需 Worker 部署后抓包取证；第 8 项（每次模型发送可预览）为 Web 层功能，已有设置开关，待 Bridge 真导出联调；第 10/11 项（Prompt Injection/恶意附件）依赖解析器与管线，parsers 包已含拒绝原因，待管线集成测试。
+
+### 待办
+- Phase 13 剩余：清理 spike 调试文件；安全验收逐项证据汇总；最终报告（含大陆可达性与 Safari 真机待办说明）。
