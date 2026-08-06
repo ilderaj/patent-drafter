@@ -88,6 +88,18 @@
 - git add + commit。
 - 等待设计批准（不变）。
 
+## Session: 2026-08-06 23:xx UTC+8（goal 延续·parsers/export 骨架轮）
+
+### 已完成
+- packages/parsers/：解析契约骨架（ParseLimits/DEFAULT_LIMITS、Parser、ParseRejection 含 ZIP bomb/宏/路径穿越拒绝原因、OcrEngine、OCR 术语归一化 normalizeOcrText——由 spike B 实测驱动）。
+- packages/export/：导出契约骨架（ExportManifest、evaluateExportGate 硬门禁：unsupported/blocking 拒绝导出、PatentPackVault .patentpack 接口）。
+- 推荐仓库结构中 packages/* 现已全部落位：domain / rules-cn / prompts / providers / audit / shared / parsers / export。
+- 6 包 tsc 5.9.3 --noEmit 全部 0 错误（parsers 走 paths → domain/shared；export 走 paths → domain/audit）。
+
+### 待办
+- git add + commit。
+- 等待设计批准（不变）。
+
 ### 决策日志
 - 任务 ID：patent-drafter；单 authority root = `/Users/jared/Personal Projects/Patent`。
 - 附件策略：原始 DOC 移入 fixtures/private/（gitignore），docs/examples 保留引用或移除；生成脱敏结构化 fixture 于 fixtures/sanitized/。

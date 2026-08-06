@@ -71,3 +71,14 @@
 - 易混淆点：NB-IoT → NB-loT（I/l 大小写），需在管线中做术语归一化（term normalization）而非原样入库；
 - 语言参数化：recognitionLanguages 传 `zh-Hans,en-US` 组合有效；仅 en-US 对中文无输出。
 - 对 Bridge 设计的影响：macOS 侧 OCR 决策（Vision 优先）从"计划"升级为"已验证"；中文术语归一化表成为解析管线必备组件。
+
+## Findings Record: 2026-08-06 23:xx UTC+8（parsers/export 骨架）
+
+### 包结构收口
+- 目标结构 packages/ 8 包全部落位；audit/parsers/export 通过 tsconfig paths 引用 domain（含 audit 链式引用），离线 typecheck 保持 0 错误。
+- parsers 的 ParseRejection 覆盖恶意输入（TOO_LARGE/ZIP_BOMB/MACRO_OR_SCRIPT_DETECTED/PATH_TRAVERSAL），解析器不得对恶意输入抛异常。
+- export 的 evaluateExportGate 是"unsupported 禁止导出"硬规则的可执行原型（与 domain 事实状态机联动）。
+- OCR 术语归一化表（NB-IoT 大小写混淆等）从 spike 实测沉淀为 parsers 包代码。
+
+### 剩余批准前候选（低价值，不再主动推进）
+- CNIPA 决定全文逐条文本（微信/PDF 需验证码）；Safari loopback 真机验证（需真实设备）；境内可达性抽样（需大陆网络）。
