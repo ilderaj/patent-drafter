@@ -1,0 +1,33 @@
+# 隐私边界
+
+## 1. 数据流向（MVP）
+
+| 数据 | 流向 | 说明 |
+|------|------|------|
+| API Key | 用户录入 → OS Keychain → Bridge → DeepSeek（认证） | 永不进浏览器存储/Cloudflare/日志 |
+| 交底材料 | 用户本机 → Bridge 解析 → DeepSeek（仅选中片段） | 不经过 Cloudflare/应用服务器 |
+| 生成内容 | DeepSeek → Bridge Vault → 浏览器渲染 | 不经过 Cloudflare |
+| 项目历史 | Bridge Vault（本地） | 导出/导入走加密 .patentpack |
+| 用户确认/回答 | 浏览器 → Bridge | 本地闭环 |
+| 互联网补充 | 白名单站点 → Bridge → external_context | 默认关闭，用户批准后执行 |
+| UI 状态 | 浏览器 Dexie | 仅非敏感（视图状态、最近项目 ID 等） |
+
+## 2. 必读告知（产品内明示）
+
+- API Key 会作为认证信息发送给 DeepSeek；被选中的材料片段也会发送给 DeepSeek 处理。
+- 清除浏览器数据只清除 WebApp 本地状态；Key 与 Vault 不受影响，需单独删除。
+- 提供显式"删除本机凭据""删除项目数据"功能。
+
+## 3. 临时会话模式
+
+- 可选：不保存 Key（每次启动重新录入）；不写入 Vault（会话内临时项目）。
+
+## 4. 错误与日志
+
+- 日志不含专利正文、不含 Key、不含可识别材料片段。
+- 错误上报（如 Sentry 自托管或本地）去敏后再发送。
+
+## 5. 多人共享同一网址
+
+- 同一公网网址可服务多用户；每个用户各自的 Bridge/Key/Vault/历史完全隔离。
+- WebApp 无账号体系，不做云端数据聚合。

@@ -1,0 +1,19 @@
+# 私有附件（专利交底与定稿样本）永不入库
+fixtures/private/
+
+# 本地产物
+node_modules/
+dist/
+build/
+.DS_Store
+*.log
+
+# 本机密钥与凭据
+.env
+.env.*
+!.env.example
+
+# 设计中间产物
+design/*.tmp
+spikes/*/node_modules/
+
