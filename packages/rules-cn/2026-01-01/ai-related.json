@@ -1,0 +1,85 @@
+{
+  "rulePackVersion": "cnipa-2026-01-01",
+  "effectiveFrom": "2026-01-01",
+  "meta": {
+    "decisionName": "《国家知识产权局关于修改〈专利审查指南〉的决定》",
+    "orderNumber": "国家知识产权局令第八十四号",
+    "adopted": "2025-09-18（第5次局务会议审议通过）",
+    "published": "2025-11-10",
+    "effectiveFrom": "2026-01-01",
+    "sources": [
+      "http://www.nipso.cn/onews.asp?id=56862（国家知识产权战略网转载决定）",
+      "https://www.guangde.gov.cn/OpennessContent/show/3633758.html（广德市人民政府转载官方说明）",
+      "https://so.html5.qq.com/page/real/search_news?docid=70000021_1486929c1f163352（中国新闻网 2025-11-28：CNIPA 例行发布会，首设“人工智能、大数据”专章）",
+      "央视新闻（经钛媒体转引，2025-11-13）"
+    ],
+    "verifiedAt": "2026-08-06",
+    "verificationScope": "决定名称/局令号/公布与施行日期/修改三大方向（AI 专章、比特流专章、植物品种客体）已核对；逐条修改文本（精确节号）待 CNIPA 官方全文或《国务院公报》文本后填充",
+    "outOfMvpScope": [
+      "比特流（流媒体）专利申请专门规定：不在 MVP 支持领域，记录不纳入规则",
+      "植物品种定义与客体扩大：不在 MVP 支持领域（化学/生物/中药明确排除），记录不纳入规则"
+    ]
+  },
+  "rules": [
+    {
+      "ruleId": "AI-INV-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "error",
+      "deterministicCheck": "inventorNaturalPerson",
+      "sourceDocument": "专利审查指南（2026-01-01 施行版）",
+      "sourceSection": "发明人相关要求；2026 新增“人工智能、大数据”专章强化（精确节号待官方全文核对）",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": null,
+      "userMessage": "发明人必须且只能是自然人；不得填写单位、集体或人工智能名称",
+      "remediation": "请求书中填写真实自然人发明人，删除任何 AI/单位/集体署名"
+    },
+    {
+      "ruleId": "AI-INV-002",
+      "patentType": ["utility_model", "invention"],
+      "severity": "warning",
+      "deterministicCheck": "aiDisclosureConfirmed",
+      "sourceDocument": "专利审查指南（2026-01-01 施行版）+ 产品合规要求",
+      "sourceSection": "2026 新增“人工智能、大数据”专章（伦理审查与披露要求方向）；精确节号待官方全文核对",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": null,
+      "userMessage": "AI 辅助生成内容必须经人工审阅确认后方可进入提交文件",
+      "remediation": "在 UI/审阅报告/项目元数据中记录 AI 辅助标识与人工确认记录；正文不插入免责声明"
+    },
+    {
+      "ruleId": "AI-DISC-001",
+      "patentType": ["invention"],
+      "severity": "error",
+      "deterministicCheck": "aiDisclosureComplete",
+      "sourceDocument": "专利审查指南（2026-01-01 施行版）",
+      "sourceSection": "2026 新增“人工智能、大数据”专章：针对模型“黑盒”问题明确模型构建、模型训练等情形下说明书撰写要求与充分公开判断标准",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": null,
+      "userMessage": "AI 类发明说明书应披露技术方案（模型构建、训练等实现细节），避免公开不充分",
+      "remediation": "补充模型结构、训练数据/过程、输入输出关系的可实现描述；不足时向用户提问而非由模型补写"
+    },
+    {
+      "ruleId": "AI-ETH-001",
+      "patentType": ["utility_model", "invention"],
+      "severity": "warning",
+      "deterministicCheck": "aiEthicsStatement",
+      "sourceDocument": "专利审查指南（2026-01-01 施行版）",
+      "sourceSection": "2026 新增“人工智能、大数据”专章：人工智能相关数据采集、规则设置等技术方案的实施应符合法律、社会公德和公共利益要求",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": null,
+      "userMessage": "涉及 AI 数据采集/规则设置的技术方案需符合法律、社会公德与公共利益（合法性/道德性）",
+      "remediation": "审阅报告提示伦理合规风险点，交人工判断"
+    },
+    {
+      "ruleId": "AI-EXAM-001",
+      "patentType": ["invention"],
+      "severity": "info",
+      "deterministicCheck": "aiInventiveContribution",
+      "sourceDocument": "专利审查指南（2026-01-01 施行版）",
+      "sourceSection": "2026 新增“人工智能、大数据”专章：创造性判断考虑算法特征对技术方案的贡献（案例化标准）",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": null,
+      "userMessage": "AI 发明创造性判断需说明算法特征与技术特征的结合贡献",
+      "remediation": "草稿阶段提示撰写时明确算法特征对技术方案的贡献；不承诺授权"
+    }
+  ]
+}

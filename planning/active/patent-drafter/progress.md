@@ -54,6 +54,27 @@
 - 第一阶段全部交付 + 汇报已发出（上轮），本轮补强证据后仍处于**等待用户设计批准**（强制门，不代用户关闭）。
 - 批准后待办不变：apps/web + apps/bridge 实现、Safari 真机 loopback、CNIPA 2026 联网核对、境内可达性实测。
 
+## Session: 2026-08-06 23:xx UTC+8（goal 延续·CNIPA 2026 联网核对轮）
+
+### 已完成
+- 网络连通性确认：CNIPA（200）、npm registry（200）可达，之前的"网络受限"假设已失效。
+- CNIPA 2025 修改《专利审查指南》核对完成（多源官方证据）：
+  - 决定名称：《国家知识产权局关于修改〈专利审查指南〉的决定》，局令第八十四号；
+  - 2025-09-18 第 5 次局务会议审议通过，2025-11-10 公布（申长雨签署），2026-01-01 施行；
+  - 三大修改方向：首设"人工智能、大数据"专章（伦理审查 / AI 申请文件披露撰写要求 / 创造性案例化）、比特流专章、植物品种客体；
+  - 来源：国家知识产权战略网 nipso.cn、广德市人民政府转载官方说明、中国新闻网 2025-11-28 CNIPA 发布会报道、央视新闻（钛媒体转引）。
+- packages/rules-cn/2026-01-01/：placeholder.json → ai-related.json（AI-INV-001/002、AI-DISC-001、AI-ETH-001、AI-EXAM-001，含 meta 来源与核对范围），README 更新核对记录；JSON 校验通过。
+- docs/rules-mapping.md 与 packages/rules-cn/README.md 待办更新：元数据核对完成，逐条全文（精确节号）仍待决定全文。
+- packages/prompts/system-core.md 追加 2026 AI 专章约束锚点。
+
+### 决策
+- 比特流、植物品种修改超出 MVP 支持领域，仅在 meta.outOfMvpScope 记录排除，不建规则。
+- 逐条修改文本来源（微信/CNIPA PDF）需验证码，标记为后续轮次待办，不在本轮硬啃。
+
+### 待办
+- git add + commit 本轮变更。
+- 等待设计批准（不变）。
+
 ### 决策日志
 - 任务 ID：patent-drafter；单 authority root = `/Users/jared/Personal Projects/Patent`。
 - 附件策略：原始 DOC 移入 fixtures/private/（gitignore），docs/examples 保留引用或移除；生成脱敏结构化 fixture 于 fixtures/sanitized/。
