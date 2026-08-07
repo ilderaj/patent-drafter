@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "patent-drafter",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./apps/web/dist",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [
+    { "pattern": "vibing.paymond.me/patent", "zone_name": "paymond.me" },
+    { "pattern": "vibing.paymond.me/patent/*", "zone_name": "paymond.me" }
+  ]
+}

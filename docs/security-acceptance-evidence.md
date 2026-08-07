@@ -5,9 +5,9 @@
 ## 证据状态总览
 
 1. **Key 不出现在浏览器存储** — ✅ 代码审计。apps/web/src/lib/store.tsx 的 localStorage 仅存非敏感 UI 状态，无任何 key 字段；Settings.tsx 的 key 显示为掩码静态文案。
-2. **Key 不出现在浏览器发往 vibing.paymond.me 的请求** — ✅ 架构保证 + 待部署抓包。Web 无 provider 代理代码（packages/providers 仅契约）；浏览器只与 Bridge 通信；部署后网络面板复证。
-3. **Key 不出现在 Worker** — ✅ 架构保证 + 待部署审计。Worker 仅静态资源分发（docs/deployment.md）。
-4. **专利文件不经过 Worker** — ✅ 架构保证 + 待部署抓包。解析/存储/导出全在本机 Bridge。
+2. **Key 不出现在浏览器发往 vibing.paymond.me 的请求** — ✅ 生产抓包复证（2026-08-07）。`node qa/prod-network-evidence.mjs` 在真实浏览器访问生产 URL，请求主机仅 vibing.paymond.me（3 个静态资源），无 api.deepseek.com、无 `sk-` 匹配；Bridge 尝试仅指向 127.0.0.1:7878。4/4 PASS。
+3. **Key 不出现在 Worker** — ✅ 部署审计 + 抓包。Worker 为纯 Static Assets（wrangler.jsonc 无 main/binding），仅分发 dist 静态文件；生产响应头验证无任何代理逻辑。
+4. **专利文件不经过 Worker** — ✅ 生产抓包复证。浏览器仅加载 index.html/assets；上传/解析/生成/导出全部在本机 Bridge 与浏览器 localStorage；Worker 无存储绑定、无请求体处理（纯静态）。
 5. **Bridge 只绑定 Loopback** — ✅ 代码审计 + 进程实测。config.rs 硬编码 127.0.0.1:{port}；实测日志 listening on 127.0.0.1:7879。
 6. **CORS 不使用 * ** — ✅ 集成测试。tests/security.rs：evil_origin_rejected 403、missing_origin_rejected 403、no_wildcard_cors_header；白名单 3 项。
 7. **session token 有过期时间** — ✅ 集成测试。session_token_expires_after_ttl（1ms TTL 后失效）；SESSION_TTL_SECS=1800；token 存哈希。
@@ -40,6 +40,7 @@ cd apps/bridge && cargo test chat_       # → 2 项预览门测试 PASS
 
 ## 待办（部署后补证）
 
-- 第 2/3/4 项：Cloudflare Worker 部署后抓包复证。
-- 第 8 项：Bridge 侧强制门已实现并测试（428 + 载荷哈希），剩余 web 端与真实模型联调。
-- 第 10/11 项：18 阶段管线 + parsers 集成测试集。
+- 第 8 项：web 端预览确认 UI 接 Settings 开关（当前联调模式 autoConfirm；Bridge 侧强制门已测）。
+- 第 10/11 项：恶意材料注入测试集已在真实管线 smoke 覆盖（pipeline-deepseek-smoke 7/7，含注入防线）；parsers 防护 14/14。
+- Safari 真机 loopback 验证（Chrome 150 已过；Tauri Plan B）。
+- 大陆可达性抽样（免费 Cloudflare 不承诺大陆稳定，迁移预案见 docs/deployment.md 第 3 节）。

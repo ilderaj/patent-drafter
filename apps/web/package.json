@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && cp dist/patent/index.html dist/index.html && cp dist/patent/_headers dist/_headers",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
