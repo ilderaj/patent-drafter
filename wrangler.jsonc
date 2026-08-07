@@ -15,7 +15,8 @@
     }
   ],
   "vars": {
-    "RATE_LIMIT_PER_DAY": "60"
+    "RATE_LIMIT_PER_DAY": "300",
+    "PREVIEW_GATE_ENABLED": "false"
   },
   "routes": [
     { "pattern": "vibing.paymond.me/patent", "zone_name": "paymond.me" },

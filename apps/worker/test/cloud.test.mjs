@@ -179,6 +179,59 @@ test("wrong preview hash still gets 428", async () => {
   assert.equal(upstreamCalled, false);
 });
 
+test("preview gate disabled: single send reaches upstream without a confirm hash", async () => {
+  const env = makeEnv({ PREVIEW_GATE_ENABLED: "false" });
+  let upstreamCalled = false;
+  const deps = makeDeps({
+    fetchImpl: async () => {
+      upstreamCalled = true;
+      return new Response(JSON.stringify({ choices: [{ message: { content: "{\"ok\":true}" } }] }), { status: 200 });
+    },
+  });
+  const w = createWorker(env, deps);
+  const { sessionToken } = await (await login(w, "test-password-123")).json();
+  const r = await w.fetch(chatRequest(sessionToken));
+  assert.equal(r.status, 200);
+  const body = await r.json();
+  assert.equal(body.content, "{\"ok\":true}");
+  assert.equal(upstreamCalled, true);
+});
+
+test("streaming request passes the SSE stream straight through", async () => {
+  const env = makeEnv({ PREVIEW_GATE_ENABLED: "false" });
+  const chunks = [
+    'data: {"choices":[{"delta":{"reasoning_content":"thinking"}}]}',
+    'data: {"choices":[{"delta":{"content":"{\\"ok\\":true}"}}]}',
+    "data: [DONE]",
+  ].join("\n\n");
+  const deps = makeDeps({
+    fetchImpl: async (url, init) => {
+      // The upstream body must carry the stream flags.
+      const sent = JSON.parse(init.body);
+      assert.equal(sent.stream, true);
+      assert.deepEqual(sent.stream_options, { include_usage: true });
+      return new Response(chunks, { status: 200, headers: { "content-type": "text/event-stream" } });
+    },
+  });
+  const w = createWorker(env, deps);
+  const { sessionToken } = await (await login(w, "test-password-123")).json();
+  const streamReq = new Request(CHAT, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-session-token": sessionToken },
+    body: JSON.stringify({
+      model: "deepseek-v4-flash",
+      messages: [{ role: "user", content: "hi" }],
+      stream: true,
+    }),
+  });
+  const r = await w.fetch(streamReq);
+  assert.equal(r.status, 200);
+  assert.match(r.headers.get("content-type") ?? "", /text\/event-stream/);
+  const text = await r.text();
+  assert.ok(text.includes('{\\"ok\\":true}'));
+  assert.ok(text.includes("[DONE]"));
+});
+
 test("daily chat rate limit returns 429 after the configured cap", async () => {
   const env = makeEnv(); // RATE_LIMIT_PER_DAY = 3
   const w = createWorker(env, makeDeps());

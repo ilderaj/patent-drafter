@@ -16,6 +16,13 @@
 - Route：`vibing.paymond.me/patent*`，所有路径回退到 SPA（`/patent`、`/patent/`、`/patent/projects/:id`）。
 - 静态资源全部打包进 Worker 资产；无第三方 CDN；无外部字体；CSP 收紧。
 - 云端模式（默认）：LLM Key（DEEPSEEK_API_KEY，OpenCode Go）仅存于 Worker secrets；共享访问密码（ACCESS_PASSWORD）门禁；HMAC 无状态会话 12h；登录每 IP 每小时 10 次、聊天每日 60 次（KV 限速）；预览确认门（428 + SHA-256 绑定）后才转发模型请求。
+
+### 验证期放宽配置（2026-08-07 生产事故修复）
+
+- 聊天每日限额：`RATE_LIMIT_PER_DAY` 从 60 调至 **300**（验证期；完整起草一次 26 次请求，60 只够一次+一次重试，已在生产中耗尽导致 429 阻塞）。验证期结束后调回 60。
+- 预览确认门：`PREVIEW_GATE_ENABLED=false`（验证期）。浏览器管线为 autoConfirm 模式（无人工预览环节），428 往返使每次阶段调用翻倍；关闭后单次直达上游。恢复安全基线时置回 `true`（或删除该 var 用默认值）。
+- SSE 流式：客户端请求带 `stream:true` 时，Worker 透传上游 SSE 流（`text/event-stream`），推理阶段连接持续活跃——修复"大提示词阶段上游 TTFB 70s+ 导致浏览器侧 Failed to fetch"的根因（非流式时连接在长等待中被掐断）。
+- 客户端 provider：单发自动降级（预览门关闭时一次往返）、连接级失败自动重试一次、240s 超时、`max_tokens=16000` 防无限推理。
 - Worker 不落盘任何专利内容；日志仅元数据（method/path/status/ms），无 key/密码/正文。
 - 本地 Bridge 模式保留为可选（配对 + macOS Keychain），首次引导可在设置页切换。
 - PWA：Service Worker scope 限定 `/patent/`，缓存壳资源。

@@ -29,6 +29,8 @@ export interface Env {
   DEEPSEEK_API_KEY: string;
   DEEPSEEK_BASE_URL?: string;
   RATE_LIMIT_PER_DAY?: string;
+  /** "false" disables the 428 preview-confirm round-trip (validation-period easing; default on). */
+  PREVIEW_GATE_ENABLED?: string;
 }
 
 export interface Deps {
@@ -52,6 +54,7 @@ interface ChatRequestBody {
   messages: ChatMessage[];
   response_format?: unknown;
   temperature?: number;
+  stream?: boolean;
 }
 
 function json(body: unknown, status = 200, extraHeaders: Record<string, string> = {}): Response {
@@ -208,33 +211,45 @@ async function handleChat(req: Request, env: Env, deps: Deps, rid: string): Prom
 
   // Preview-confirm gate (security acceptance item 8): the client must echo
   // the SHA-256 of the exact canonical payload before anything is sent.
-  const required = await sha256Hex(canonicalRequest(body));
-  const confirmed = req.headers.get("x-preview-confirm");
-  if (!confirmed || !safeEqualHex(confirmed, required)) {
-    const first = body.messages[0];
-    done(428);
-    return json(
-      {
-        error: "preview_required",
-        message: "请先确认将发送的模型请求内容",
-        requiredConfirm: required,
-        preview: {
-          model: body.model,
-          messageCount: body.messages.length,
-          contentPreview: first ? `${first.role}: ${[...first.content].slice(0, 200).join("")}` : "",
+  // PREVIEW_GATE_ENABLED=false (validation-period easing) skips the round-trip;
+  // autoConfirm browser flows never show a human preview anyway.
+  if (env.PREVIEW_GATE_ENABLED !== "false") {
+    const required = await sha256Hex(canonicalRequest(body));
+    const confirmed = req.headers.get("x-preview-confirm");
+    if (!confirmed || !safeEqualHex(confirmed, required)) {
+      const first = body.messages[0];
+      done(428);
+      return json(
+        {
+          error: "preview_required",
+          message: "请先确认将发送的模型请求内容",
+          requiredConfirm: required,
+          preview: {
+            model: body.model,
+            messageCount: body.messages.length,
+            contentPreview: first ? `${first.role}: ${[...first.content].slice(0, 200).join("")}` : "",
+          },
         },
-      },
-      428,
-    );
+        428,
+      );
+    }
   }
 
   const upstreamBase = env.DEEPSEEK_BASE_URL ?? "https://opencode.ai/zen/go/v1";
+  const wantStream = body.stream === true;
   const upstreamBody: Record<string, unknown> = {
     model: body.model ?? "deepseek-v4-flash",
     messages: body.messages.map((m) => ({ role: m.role, content: m.content })),
   };
   if (body.response_format) upstreamBody.response_format = body.response_format;
   if (typeof body.temperature === "number") upstreamBody.temperature = body.temperature;
+  if (wantStream) {
+    // Streaming keeps the client connection active during the reasoning phase
+    // (upstream TTFB can exceed a minute for large prompts), which is what
+    // caused production "Failed to fetch" connection drops.
+    upstreamBody.stream = true;
+    upstreamBody.stream_options = { include_usage: true };
+  }
 
   let upstream: Response;
   try {
@@ -252,6 +267,18 @@ async function handleChat(req: Request, env: Env, deps: Deps, rid: string): Prom
     // forwarded or logged (it may echo sensitive context).
     done(502);
     return json({ error: "upstream_error", message: `deepseek http ${upstream.status}` }, 502);
+  }
+  if (wantStream) {
+    // Pass the SSE stream straight through; the client parses the chunks.
+    done(200);
+    return new Response(upstream.body, {
+      status: 200,
+      headers: {
+        "content-type": "text/event-stream; charset=utf-8",
+        "cache-control": "no-cache",
+        "x-accel-buffering": "no",
+      },
+    });
   }
   let content = "";
   let usage: unknown;

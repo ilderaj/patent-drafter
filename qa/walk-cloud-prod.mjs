@@ -6,7 +6,12 @@ import { chromium } from '/Users/jared/.npm/_npx/420ff84f11983ee5/node_modules/p
 
 const EXE = '/Users/jared/Library/Caches/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
 const BASE = 'https://vibing.paymond.me/patent/';
-const PASSWORD = process.env.PATENT_CLOUD_PASSWORD ?? 'ZYq1prvg5oVfuZ';
+// The production access password must be injected — never hardcoded in the repo.
+const PASSWORD = process.env.PATENT_CLOUD_PASSWORD;
+if (!PASSWORD) {
+  console.error('PATENT_CLOUD_PASSWORD env var is required (e.g. PATENT_CLOUD_PASSWORD=... node qa/walk-cloud-prod.mjs)');
+  process.exit(2);
+}
 
 const browser = await chromium.launch({ executablePath: EXE, headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
