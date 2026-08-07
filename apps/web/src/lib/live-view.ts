@@ -52,7 +52,7 @@ export function liveProjectView(p: Project): Project {
       label: `权利要求 ${c.number}`,
       text: c.text,
       sources: c.features.map((f) => ({
-        label: f.text.slice(0, 42),
+        label: f.status === "user_confirmed" ? `${f.text.slice(0, 42)}（用户确认）` : f.text.slice(0, 42),
         kind: (f.status === "source_backed" ? "source" : f.status === "user_confirmed" ? "user" : "none") as "source" | "user" | "none",
       })),
     }));

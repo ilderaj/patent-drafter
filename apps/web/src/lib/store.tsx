@@ -32,6 +32,8 @@ interface AppStore extends AppState {
   confirmStrategy: (id: string) => void;
   /** User confirms the source of an unsupported feature (unblocks the export gate). */
   confirmClaimSource: (id: string, claimId: string) => void;
+  /** Persist claim text edits; for live projects the draft_claims context stays in sync. */
+  saveClaimText: (id: string, claimId: string, text: string) => void;
   regenerateClaim: (id: string, claimId: string) => void;
   /** Start a real pipeline project from pasted disclosure text. */
   startLive: (id: string, title: string, text: string) => Promise<void>;
@@ -260,6 +262,33 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [update],
   );
 
+  const saveClaimText = useCallback(
+    (id: string, claimId: string, text: string) => {
+      update((s) => ({
+        ...s,
+        projects: s.projects.map((p) => {
+          if (p.id !== id) return p;
+          const claims = p.claims.map((c) => (c.id === claimId ? { ...c, text } : c));
+          if (!p.live) return { ...p, claims, updatedAt: now() };
+          // Live pipeline: write the edit back into the draft_claims context so
+          // derived views (workbench/audit/export) stay consistent until the
+          // next pipeline run regenerates the stage.
+          const ctx: PipelineContext = { ...p.live.ctx, results: { ...p.live.ctx.results } };
+          const claimsOut = ctx.results.draft_claims?.output as
+            | { claims: Array<{ number: number; text: string }> }
+            | undefined;
+          const num = Number(claimId.replace("live-claim-", ""));
+          if (claimsOut) {
+            claimsOut.claims = claimsOut.claims.map((c) => (c.number === num ? { ...c, text } : c));
+            (ctx.results as Record<string, { output?: unknown }>).draft_claims = { ...ctx.results.draft_claims!, output: claimsOut };
+          }
+          return liveProjectView({ ...p, claims, live: { ...p.live, ctx }, updatedAt: now() });
+        }),
+      }));
+    },
+    [update],
+  );
+
   /** Shared live-pipeline executor: loads the project, runs, saves back. */
   const withLive = useCallback(
     async (id: string, fn: (ctx: PipelineContext) => Promise<string>) => {
@@ -420,6 +449,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       completeIntake,
       confirmStrategy,
       confirmClaimSource,
+      saveClaimText,
       regenerateClaim,
       startLive,
       runLiveTo,
@@ -440,6 +470,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       completeIntake,
       confirmStrategy,
       confirmClaimSource,
+      saveClaimText,
       regenerateClaim,
       startLive,
       runLiveTo,

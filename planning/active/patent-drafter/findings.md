@@ -179,3 +179,20 @@
 - "确认来源"是用户声明（按"用户补充"处理），非材料来源；demo 项目确认后 localStorage 持久化，resetDemo 可恢复回归案例。
 - live 项目确认只作用于视图与门禁（UI 层放行），LLM 原始输出不被篡改；重新审校会重新评估该特征。
 - 门禁文案不再承诺"删除该特征"（该路径需重新审校流程，第一阶段不提供一键删除）。
+
+## Findings Record: 2026-08-08（工作台显示与交互缺陷修复轮）
+
+### 用户报告（生产截图 OCR 确认）
+- 工作台页面（真实 live 项目：声纹识别专利）段落列表显示 "ive-claim-1" 等乱码编号；标题恒为"权利要求 1（独立）"不随选中变化；实时检查显示热水表 demo 的硬编码项（"插卡槽水通路无来源"、摘要 294 字）；用户问"段落和说明怎么修改"。
+
+### 缺陷清单（全部已修复）
+1. **段落编号 slice(1) bug**：`c.id.slice(1)` 对 live id（live-claim-N）输出 "ive-claim-N"；demo 恰好输出 1..10。改为从 label 正则提取编号。
+2. **标题硬编码**：恒显"权利要求 1（独立）"；改为显示选中 claim 的 label（demo："权利要求 9（从属）"；live："权利要求 3"）。
+3. **实时检查硬编码 demo 内容**：静态五项（术语「智慧网关」/摘要 294 字等）与 live 项目无关；改为 project.audit.checks 驱动（demo 与 live 都真实），audit 为空显示"暂无审校结果"。
+4. **起草大纲 done 静态**：说明书/摘要/附图 done 硬编码 false；改为按 claims/specSections/abstractText/figures 实际数据动态判定。
+5. **live 编辑持久性**：编辑文本只在 project.claims（下次 runLiveTo 派生覆盖），且"修改后保存即生成新版本快照"文案不实；新增 store `saveClaimText`：live 项目编辑同步写回 ctx.results.draft_claims.output（派生视图一致），文案改为诚实的"修改已自动保存；重新起草将覆盖"。
+6. **live 确认来源标签**：live-view 派生 sources label 对 user_confirmed 加"（用户确认）"后缀（此前仅 demo 显示"用户确认"）。
+
+### 部署与缓存根治
+- 边缘缓存反复陈旧：/patent/ HTML Cache-Control 从 no-cache 改 **no-store**（_headers），部署后边缘不再缓存 HTML（实测 GET 头变 no-store），今后每次部署用户刷新即得新版，无需重复部署/等待。
+- 生产验证：新 bundle BlpIBS4P；工作台 5/5（编号 1..10、标题联动、实时检查为审校数据、选中权9标题更新）；pageerrors none。dev 回归：walk-workbench 15/15 + walk-gate-fix 12/12。

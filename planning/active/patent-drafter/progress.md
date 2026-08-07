@@ -354,3 +354,13 @@
 - 隐患：用户生产 localStorage 里已存的 demo 项目是旧结构（audit rows 无 claimId），确认来源联动不上 → 补充文本子串匹配兜底（fuzzyHit：特征名窗口 ≥3 字命中 claim 文本，覆盖"插卡槽的下端设有…水通路"式改写）。dev 旧数据模拟 4/4 PASS。
 - 重新部署（version 809450f8，commit 见 git log）：dist hash CCz-xmZw；首次 deploy 后 /patent/ HTML 被边缘缓存为旧版（cf-cache-status HIT 旧 ETag），无可用 purge token（wrangler OAuth/Keychain token 均无 API 权限），再次 deploy 后边缘刷新（新 hash 生效）。
 - 生产最终验证 7/7：新 bundle 引用 + 新数据门禁闭环 4/4 + 旧数据兜底 3/3；pageerrors none。
+
+## Session: 2026-08-08（工作台显示与交互修复轮）
+
+### 用户报告（截图 OCR：真实 live 项目工作台）
+- 段落编号 "ive-claim-1"、标题恒"权利要求 1（独立）"、实时检查全是热水表 demo 硬编码；询问段落/说明如何修改。
+
+### 已完成（修复 6 项 + 缓存根治，浏览器验证 15/15 + 门禁回归 12/12）
+- 编号从 label 提取（demo/live 均 1..N）；标题随选中联动；实时检查 audit.checks 驱动 + 空态；大纲 done 动态化；saveClaimText 让 live 编辑写回 ctx 并修正文案；live 确认来源标签加"（用户确认）"。
+- _headers：/patent/* Cache-Control no-cache → no-store，根治边缘 HTML 缓存陈旧（实测生效）。
+- 部署生产 version d90d3a17（bundle BlpIBS4P）；生产验证 5/5；截图 qa/screens/wb-fixed-demo*.png、prod-wb-fixed.png。
