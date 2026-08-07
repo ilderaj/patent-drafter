@@ -196,3 +196,46 @@
 ### 部署与缓存根治
 - 边缘缓存反复陈旧：/patent/ HTML Cache-Control 从 no-cache 改 **no-store**（_headers），部署后边缘不再缓存 HTML（实测 GET 头变 no-store），今后每次部署用户刷新即得新版，无需重复部署/等待。
 - 生产验证：新 bundle BlpIBS4P；工作台 5/5（编号 1..10、标题联动、实时检查为审校数据、选中权9标题更新）；pageerrors none。dev 回归：walk-workbench 15/15 + walk-gate-fix 12/12。
+
+## Findings Record: 2026-08-08（门禁空括号根因 + 性能优化 + 完整 UAT 轮）
+
+### 用户报告
+- 生产导出提示「审校门禁：存在无来源特征（插卡槽水通路）」（声纹专利真实项目），
+  且门禁文案承诺的"工作台确认来源/删除特征"交互不存在。
+
+### 门禁空括号根因（真实复现定位）
+- 用真实交底书（/tmp/jiaodi.txt，16,289B）在生产跑全管线（qa/walk-cloud-full.mjs）：
+  门禁 errors=10 但全部为一致性/形式类错误（"权利要求8提及NB网络但说明书未出现"、
+  "附图标记列表为空"等），**不存在无来源特征**——LLM 把特征全部标为 source_backed。
+- `noneFeatures` 过滤 status==="none" 得空数组 → join() 渲染空括号。
+- 用户看到"插卡槽水通路"是旧 demo fallback（`project.audit ?? DEMO_AUDIT`）误伤 +
+  无确认出路的复合缺陷（12 节已修），本轮补上"非空括号文案回退"最后一环。
+
+### 修复（生产已验证 5/5）
+- live-view.ts：错误 findings 只有含「来源/unsupported」关键词才补成可确认行，
+  一致性错误不再误标为无来源。
+- Export.tsx：无 none 特征时文案回退「存在 N 项必须处理的审校问题（如：…）」，
+  「去处理」直达 /audit。
+- Audit.tsx：支持矩阵无来源行「确认来源」（不受 claimId 限制）+ 一致性/形式 tab
+  err 项「确认已处理」；store 新增 confirmAuditFeature(id, featureText)，
+  confirmFeatureSources 统一 live/本地（live 改 ctx features + fuzzyHit 过滤 findings）。
+
+### 性能优化（生产实测 2026-08-08）
+- thinking 禁用：deepseek-bridge-provider 默认发 thinking:{type:"disabled"}；
+  worker 透传 thinking/reasoning_effort（apps/worker/src/index.ts）。
+- 并行化：runner.ts runUntil 拓扑波次（spec∥figures、audit×3）。
+- 同 prompt 实测：thinking on 20.9s/762KB vs off 3.8s/87KB → **-81.8% 耗时、
+  -88.6% SSE 体积**（早前一轮 57.6s→10.8s，-81.3%，比例稳定）。
+- 全流程（真实交底+8 题作答）：Intake 60.4s → 策略 60.7s → 起草+审校 63s →
+  工作台渲染 133.8s；修复前基线 160-240s → **~124s（约 -48%）**。
+- 质量未退化：claims=10、schema 全过、pipeline 10/10、worker 15/15。
+
+### UAT 回归（2026-08-08）
+- qa/walk.mjs 全链路 exit 0；walk-workbench 15/15；walk-gate-fix 12/12；
+  pipeline 10/10；worker 15/15；web build 与线上 hash 一致（index-BTkYmV5l.js）。
+- 文档：docs/uat-reconcile-2026-08-08.md（验收清单/回归表/性能对照/已知限制）。
+
+### 残余风险
+- 首次生产走查偶发 intake 超时（609s 无题目，重跑即恢复）——上游长尾抖动，
+  provider 已有 240s 超时 + 1 次重试；前端暂无失败重试 UI。
+- 预览门保持关闭（验证期）；max_tokens 16000 可降 8000；prompt 仍有精简空间。

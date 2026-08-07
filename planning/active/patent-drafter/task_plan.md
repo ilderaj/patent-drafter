@@ -20,7 +20,7 @@ Reconcile: open
 
 ## Current Phase
 
-Phase 8（实现阶段：apps/web）
+Phase 14（生产验证期：门禁/交互修复 + 性能优化，已上线，reconcile open）
 
 ## Phases
 
@@ -116,6 +116,15 @@ Phase 8（实现阶段：apps/web）
 - [x] Worker 部署：vibing.paymond.me/patent 上线（纯 Static Assets + CSP），安全验收第 2/3/4 项生产抓包复证 → 12/12
 - [x] 生产验证：用户 Chrome 走查生产 URL 全功能（demo 工作台/审校/门禁/历史/规则）
 - **Status:** completed
+
+### Phase 14: 生产验证期事故修复与性能优化（2026-08-07 ~ 2026-08-08）
+- [x] 生产 429 事故：KV 计数重置 + 限额 300/天 + 预览门开关 + SSE 流式 + 重试/超时（commit 88e7bcc / f6abb9f）
+- [x] 导出门禁死胡同：确认来源/确认已处理交互 + 移除 demo fallback 误伤（commit 4f8f76e / d833204 / 7433d6c）
+- [x] 工作台显示/交互 6 项修复 + _headers no-store 缓存根治（commit dabb274，生产 5/5）
+- [x] 门禁空括号根因（真实复现：errors 全为一致性/形式类，无 none 特征）+ 文案回退与去处理直达（生产验证 5/5）
+- [x] 性能优化：thinking 禁用（实测 -81.8%）+ 管线波次并行（全流程 ~124s，-48%）
+- [x] 完整 UAT 回归（walk 全链路/workbench 15/15/gate 12/12/pipeline 10/10/worker 15/15）+ docs/uat-reconcile-2026-08-08.md
+- **Status:** completed（reconcile 文档已产出；剩余可选优化项见 uat-reconcile §7）
 
 ### 外部环境待办（不阻塞，已记录 final-acceptance 第 10 节）
 - 生产浏览器本地网络授权（macOS TCC + Chrome Local Network Access；本机 Chrome ERR_BLOCKED_BY_CLIENT 已记录）

@@ -364,3 +364,30 @@
 - 编号从 label 提取（demo/live 均 1..N）；标题随选中联动；实时检查 audit.checks 驱动 + 空态；大纲 done 动态化；saveClaimText 让 live 编辑写回 ctx 并修正文案；live 确认来源标签加"（用户确认）"。
 - _headers：/patent/* Cache-Control no-cache → no-store，根治边缘 HTML 缓存陈旧（实测生效）。
 - 部署生产 version d90d3a17（bundle BlpIBS4P）；生产验证 5/5；截图 qa/screens/wb-fixed-demo*.png、prod-wb-fixed.png。
+
+## Session: 2026-08-08（门禁空括号根因 + 性能优化 + 完整 UAT 轮）
+
+### 用户报告
+- 生产导出再次被拦：「审校门禁：存在无来源特征（插卡槽水通路）」——
+  用户生产环境用自己的交底书（声纹专利）真实复现；并要求完整 UAT 与功能 reconcile、
+  性能提速 ≥50%。
+
+### 完成（全部生产实测）
+- **空括号根因**：真实交底全管线 dump（claims=10、errors=10 全为一致性/形式类、
+  noneClaims=[]）→ noneFeatures 空数组 join 出空括号；demo fallback 误伤已在上轮修掉，
+  本轮补文案回退 + 归类修正。
+- **修复部署**：Export 文案回退「存在 N 项必须处理的审校问题（如：…）」+「去处理」直达；
+  Audit 一致性/形式 err 项「确认已处理」；生产验证 5/5（含 errors→0、导出放行）。
+- **性能**：thinking 禁用 + runner 波次并行；同 prompt off 3.8s vs on 20.9s（-81.8%、
+  SSE -88.6%）；全流程 133.8s 到工作台（旧基线 160-240s）。
+- **UAT**：walk.mjs 全链路 / workbench 15/15 / gate-fix 12/12 / pipeline 10/10 /
+  worker 15/15；本地 build hash 与线上 index-BTkYmV5l.js 一致。
+- **文档**：docs/uat-reconcile-2026-08-08.md（清单/回归/性能对照/已知限制 §7）。
+
+### 备注
+- 首次生产走查偶发 intake 超时（609s），诊断轮 48s 即达、重跑全 PASS——上游长尾抖动。
+- 本轮未 commit：worker thinking 透传、provider thinking off、runner 并行、
+  web 门禁文案/确认已处理、qa/walk-cloud-full.mjs、docs/uat-reconcile、
+  planning 三件套 → 下一步 git add + commit。
+- 后续可选：max_tokens 16000→8000、prompt 精简（system-core/claim-skeleton）、
+  前端 intake 失败重试 UI。
