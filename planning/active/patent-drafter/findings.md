@@ -115,3 +115,43 @@
 - **边缘缓存旧 bundle**：/patent/assets/* immutable max-age 1 年；重新部署同名 hash 资产后，边缘可能仍服务旧 JS（表现为本地 preview 通过、生产失败）。重新构建（hash 变化）后正常；生产验证以部署后全新会话为准。
 - **登录限速实测**：每 IP 每小时 10 次 login（KV 2h TTL）在反复测试下触发 429（"尝试次数过多"）——安全机制按预期工作；自动化验证应复用 12h sessionToken 而非重复登录。
 - OpenCode Go deepseek-v4-flash 推理模型实测：intake/facts/conflicts/readiness 四阶段 schema-valid JSON，90s 到达 intake 屏；response_format json_object 有效。
+
+## Findings Record: 2026-08-07 21:00 UTC+8（生产事故分析：draft_claim_skeleton Failed to fetch）
+
+### 事故现象
+- 用户在生产 URL（vibing.paymond.me/patent）起草声纹认证专利，点击「确认并起草」后弹窗：
+  「起草失败：[draft_claim_skeleton] stage failed: Failed to fetch」（截图 OCR 确认，页面为生产域名 alert）。
+- 触发链路：Strategy 屏 → runLiveTo("audit_formal_rules") → PipelineRunner.runUntil 顺序执行全部未缓存 LLM 阶段；
+  每个 LLM 阶段 = 2 次 chat 请求（428 预览 + 确认），autoConfirm=true，无 max_tokens、无客户端超时。
+
+### 证据链（全部实测）
+- 生产 Worker 健康：healthz 200、错误密码 401、正确密码（walk-cloud-prod.mjs 内硬编码 ZYq1prvg5oVfuZ）200。
+- 线上代码 == 本地 HEAD（b16d8bb）：通过 API 下载激活版本（2941ed6d, 10:08Z）bundle 比对，bumpCounter/限速/预览门/fetch.bind 全部一致。
+- 429 根因（当前阻塞）：KV `chat:2026-08-07` 计数 = 70 > 60/天上限（API 直读权威值；wrangler CLI 读的是过期缓存 "8"，勿再依赖 CLI 读 KV）。
+  - 消耗构成：部署前验证 8（17:44:17Z 最后写入）、部署风暴期（17:46-18:08 共 10 次部署）验证性请求、用户晚间会话 + 失败重试。
+  - 登录限速键仅有本机探测 IP（103.23.89.253 / 114.37.193.66），用户晚间未重新 login（复用早上 12h 会话），与计数爬升不矛盾。
+- "Failed to fetch" 根因（连接级失败，非业务响应）：skeleton 是管线最大提示词（完整发明模型 + 策略 + schema，约 50-150KB）；
+  上游 opencode.ai 推理模型实测：50KB → 13.5s；100KB（49,032 prompt tokens）→ **TTFB 72.7s**（6,267 reasoning tokens）；
+  等待 70s+ 期间浏览器↔边缘连接被掐断 → fetch reject → runner 包装为 "stage failed: Failed to fetch"。
+- 排除项：CPU 超限（免费 standard 账户 10ms/请求，但 512KB 体 parse+stringify+encode <1ms，实测）；墙钟时长（官方文档 HTTP 请求无限制）；
+  CSP（connect-src 含 'self' 与 127.0.0.1:7878）；512KB 请求体守卫（413 为干净响应）；上游不可达（502 为干净响应）。
+
+### 关键数字
+- 全管线 13 个 LLM 阶段 × 2 次请求 = 26 次/完整起草；60/天 限额对一次完整起草 + 一次重试即告罄（预览确认门让消耗翻倍）。
+- KV 计数值权威读取方式：Cloudflare API `GET /accounts/{id}/storage/kv/namespaces/{ns}/values/chat%3A2026-08-07`（wrangler kv key get 可能返回过期缓存）。
+
+### 待办/修复建议（未实施，待用户确认）
+- 立即解阻：重置 chat 计数（KV put 0）或提高 RATE_LIMIT_PER_DAY（需 redeploy）或等 UTC 0 点（08:00 CST）键滚动。
+- 代码修复方向：客户端 fetch 超时 + 重试；大提示词阶段限制 max_tokens 或换非推理模型；SSE 流式保持连接活跃；
+  精简 skeleton 输入（仅引用相关事实，剔除长 refs/quote）；预览确认门做成可选以省一半配额。
+
+## Findings Record: 2026-08-07 23:00 UTC+8（修复实施完成）
+
+### 实施事实（用户批准"全部实施+验证期调高"）
+- 部署 Version a49a0b02；vars：RATE_LIMIT_PER_DAY=300、PREVIEW_GATE_ENABLED=false。
+- SSE 流式实测（经 Worker 生产路径）：50KB 提示词首字节 2.55s（非流式 TTFB 13.5-72.7s），1.8MB SSE 全程连接活跃。
+- 预览门关闭后单发直达（无 428 往返）；Provider 保留 428 自动降级（兼容预览门开启状态）。
+- max_tokens=16000：防推理失控；schema 校验失败时 runner 已有一次修复重试。
+- 连接级重试 1 次 + 240s 超时：HTTP 错误（429/401/502）绝不重试，仅网络层失败重试。
+- KV 计数权威读写均为 Cloudflare API（wrangler kv key get 有过期缓存问题，已弃用）。
+- 遗留：git 历史 commit 中含旧生产密码（walk-cloud-prod.mjs 曾硬编码），建议用户后续 rotate ACCESS_PASSWORD。

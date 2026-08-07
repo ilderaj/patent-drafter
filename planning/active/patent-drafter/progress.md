@@ -288,3 +288,45 @@
   - 附件双通道：生产实测 txt（102 字）、docx（57 字）、pdf（79 字）提取 + 与粘贴文本合并计数。
 - 修复：Worker fetch bind（Illegal invocation）；pdfjs v6 destroy→cleanup + useSystemFonts + isEvalSupported=false；docs 三件套（deployment/privacy-boundaries/threat-model）同步云端模式。
 - 剩余：qa/walk-cloud-prod.mjs 作为生产走查脚本保留；intake 之后的完整 18 阶段起草可在真实使用中验证（每阶段 1-4 分钟）。
+
+## Session: 2026-08-07 20:30-21:30 UTC+8（生产事故分析轮——只读，未改生产）
+
+### 用户报告
+- 生产环境起草报错：「起草失败：[draft_claim_skeleton] stage failed: Failed to fetch」（截图，声纹认证专利，OCR 确认）。
+
+### 已完成（全部只读 + 少量上游直连测速）
+- OCR 读取截图（macOS Vision，spikes 已清理故用临时 swift stdin 脚本）。
+- 生产健康检查：站点 200、healthz/login 正常；线上 bundle 与本地 HEAD 一致（API 下载激活版本 2941ed6d 比对）。
+- KV 权威计数（Cloudflare API 直读）：chat:2026-08-07 = **70 > 60** → 当前所有 chat 请求 429（今日已达上限）。
+  - wrangler CLI 读取返回过期缓存 "8"，已确认不可信；后续一律用 API 读。
+- "Failed to fetch" 根因定位：skeleton = 管线最大提示词（完整发明模型+策略+schema）；上游推理模型实测
+  50KB→13.5s、100KB（49,032 tokens）→ **TTFB 72.7s**（6,267 reasoning tokens，无 max_tokens）；长等待期间浏览器↔边缘连接被掐断。
+- 排除项：CPU 超限（512KB 体 <1ms 实测）、墙钟时长（官方无限制）、CSP、413、502（均干净响应，非连接级失败）。
+- 配额消耗结构：13 LLM 阶段 × 2（预览+确认）= 26 次/完整起草；部署风暴期（17:46-18:08 共 10 次部署）验证 + 用户重试耗尽 60/天。
+- 用户晚间未重新 login（登录键仅有本机探测 IP），复用早上 12h 会话，与计数爬升不矛盾。
+
+### 状态
+- 生产当前"全 429 阻塞"；恢复选项：重置计数 / 提高限额 / 等 UTC 零点（08:00 CST）。
+- 修复方向（未实施，待用户确认）：客户端超时+重试、max_tokens 或非推理模型、SSE 流式、精简 skeleton 输入、预览门可选。
+
+## Session: 2026-08-07 21:30-23:00 UTC+8（生产事故修复实施轮——用户批准"全部实施+调高限额"）
+
+### 已完成并部署（Version a49a0b02, 2026-08-07T15:1xZ）
+- **立即解阻**：KV `chat:2026-08-07` 70→0（Cloudflare API PUT，权威路径）；生产 chat 即刻恢复。
+- **限额调高**：RATE_LIMIT_PER_DAY 60→300（验证期；完整起草 26 次/轮，60 只够一次+重试）。wrangler.jsonc vars + 部署。
+- **预览门开关**：PREVIEW_GATE_ENABLED=false（验证期）。关闭后单发直达上游（省一半配额与延迟）；恢复基线置 true。
+- **SSE 流式**：Worker 透传上游 SSE（stream:true 时 content-type text/event-stream）；provider 流式消费（readSseContent 解析 delta.content，忽略 reasoning）。
+- **Provider 加固**：单发自动降级（428 时回退 prepareSend+sendConfirmed）、连接级失败重试 1 次、240s 超时（AbortController）、max_tokens=16000。
+- **walk-cloud-prod.mjs**：密码硬编码移除 → PATENT_CLOUD_PASSWORD 环境变量（缺省报错退出）。历史 commit 中仍存在旧密码，建议后续 rotate。
+- **文档**：docs/deployment.md 增"验证期放宽配置"小节。
+- **测试**：apps/worker 15/15 全绿（新增 preview-gate-off 直通 + SSE 透传两例）；providers/pipeline/web typecheck 0 错；web build 通过。
+
+### 生产验证（部署后实测）
+- healthz 200；login 200；**单发 chat（无 confirm 头）200 直达上游**（首次 428 系部署传播延迟，重试即 200）。
+- 流式 chat 200，SSE 透传正常（data: [DONE] + usage 块）。
+- **50KB 提示词流式：首字节 2.55s、总 114.5s、1.8MB SSE**（对比非流式 TTFB 13.5s/72.7s）——连接全程活跃，Failed to fetch 根因消除。
+- 计数：重置后 4 次（428 1 + 单发 1 + 流式小 1 + 流式大 1），300/天上限下余量充足。
+
+### 备注
+- skeleton 输入复核：buildInventionModel 输出本身已精简（仅 statement，无 refs/quote），无需额外裁剪。
+- git：commit 88e7bcc（worker/providers/qa/docs/wrangler）+ 本轮 planning 更新。
