@@ -229,3 +229,31 @@
 
 ### 本地范围结论
 - 本地可验证交付全部完成：需求修正、baseline、ADR、威胁模型、规则包、4 个 spike、.pen 设计（已批准）、web 全屏实现、交互走查、baseline 39/39、安全本地证据 10/12、最终验收报告。
+
+## Session: 2026-08-07（真实联调 + Cloudflare 部署 + 生产验证轮）
+
+### 已完成 1：web 真实 Bridge 桥接 + 全链路走查（提交 1f3b45d）
+- apps/web 真实管线：bridge.ts（配对/会话/凭据状态，dev proxy 同源）、pipeline.ts（浏览器 18 阶段 runner + 内联 prompt 包）、live-view.ts（ctx→Project 派生）、store startLive/answerLiveIntake/runLiveTo。
+- 屏：Upload 粘贴+开始真实起草、LiveIntake 一屏提交、Strategy live 分支、Settings 真实 Bridge 状态/配对、Export live .md 草案包下载。
+- 修复：audit_formal_rules 独立 prompt（此前错误复用 audit-consistency.md）；blob 下载需 appendChild 后 click；策略确认后一次 runLiveTo("audit_formal_rules")（起草+审校一气呵成，1-4 分钟）。
+- qa/walk-live.mjs 真实 DeepSeek 全链路 **20/20 PASS**：真实审校 findings support=8 / consistency=6 / formal=16、errors=21 → 导出门禁正确拦截并给"去处理"路径；截图 qa/screens/live-*.png。
+
+### 已完成 2：Cloudflare Worker 部署（提交 5307ce5）
+- wrangler.jsonc：纯 Static Assets（无 main/binding），assets=apps/web/dist，not_found_handling=single-page-application，routes vibing.paymond.me/patent + /patent/*（zone paymond.me）。
+- 构建布局：vite outDir=dist/patent（base=/patent/），build 脚本复制 SPA fallback 副本 dist/index.html + dist/_headers；_headers 严格 CSP（connect-src 仅 'self'+127.0.0.1:7878）+ nosniff + DENY + no-referrer + assets 不可变缓存。
+- 已部署：worker patent-drafter，version cbadb2b1；生产实测 /patent/ 200+CSP、/patent 307、SPA fallback 200、assets immutable。
+- 域名根路径既有服务（matters 307）未受影响。
+
+### 已完成 3：安全验收第 2/3/4 项生产抓包复证（12/12）
+- qa/prod-network-evidence.mjs 真实浏览器访问生产 URL：请求主机仅 vibing.paymond.me（3 静态资源）、无 api.deepseek.com、无 sk- 匹配、bridge 尝试仅 127.0.0.1:7878 → 4/4 PASS。
+
+### 已完成 4：生产前端全流程验证（提交 5eb54f4）
+- 用户 Chrome 走查生产 URL：demo 工作台（10 条权利要求+无来源标记）、审校（38/3/1 + 一致性标签）、导出门禁拦截+去处理、历史、规则页全部正常；截图 qa/screens/prod-*.png。
+
+### 结论（外部环境事项，不阻塞）
+- 生产环境浏览器直连 127.0.0.1:7878 需两层授权：macOS 本地网络权限 + Chrome Local Network Access（本机 Chrome 现返回 ERR_BLOCKED_BY_CLIENT，in-app Browser 无 TCC 权限）；授权后与开发走同一代码路径。首次引导文案已在 Settings。
+- Safari 真机 loopback、大陆可达性抽样仍为外部环境待办（final-acceptance 第 10 节已记录）。
+- 真实 LLM 全链路（20/20）在开发环境完成（同一前端代码，差异仅 bridge 端点）。
+
+### 提交
+1f3b45d（web 桥接+全链路）→ 5307ce5（Worker 部署）→ 5eb54f4（生产验证+文档）

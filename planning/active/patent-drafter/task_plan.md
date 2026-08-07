@@ -112,7 +112,15 @@ Phase 8（实现阶段：apps/web）
 - [~] 安全验收 12 项取证载体：apps/bridge 完成（14 项安全测试全绿 + 真实进程冒烟 + 预览强制门；parsers 恶意附件防护 14/14），本地证据 10/12；剩余 2/3/4 项待部署，导出/解析/加密 vault 待后续轮次
 - [x] 清理 spike 调试文件（结论并入最终报告第 4 节，git 历史可恢复）
 - [x] 最终验收报告 docs/final-acceptance.md（含外部门交接条件：Worker 部署抓包/Safari 真机/大陆抽样）
-- **Status:** completed（本地范围）
+- [x] 真实 DeepSeek 联调：web 真实 Bridge 桥接 + 全链路走查 20/20（qa/walk-live.mjs）
+- [x] Worker 部署：vibing.paymond.me/patent 上线（纯 Static Assets + CSP），安全验收第 2/3/4 项生产抓包复证 → 12/12
+- [x] 生产验证：用户 Chrome 走查生产 URL 全功能（demo 工作台/审校/门禁/历史/规则）
+- **Status:** completed
+
+### 外部环境待办（不阻塞，已记录 final-acceptance 第 10 节）
+- 生产浏览器本地网络授权（macOS TCC + Chrome Local Network Access；本机 Chrome ERR_BLOCKED_BY_CLIENT 已记录）
+- Safari 真机 loopback 验证（Tauri Plan B）
+- 大陆网络可用性抽样 + 境内托管/ICP 迁移
 
 ## Errors Encountered
 
