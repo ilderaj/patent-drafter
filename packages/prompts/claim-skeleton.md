@@ -19,8 +19,11 @@
 
 ```ts
 {
-  independent: { features: Array<{ text: string; source: FactStatus }> };
-  dependents: Array<{ parentRefs: number[]; features: Array<{ text: string; source: FactStatus }> }>;
+  claims: Array<{
+    number: number;
+    independent: boolean;
+    parentRefs: number[]; // 引用在前的权利要求编号；独立权利要求为空数组
+    features: Array<{ text: string; factId?: string; status: "source_backed" | "user_confirmed" | "external_context" | "unsupported" }>;
+  }>;
 }
 ```
-

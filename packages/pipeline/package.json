@@ -1,0 +1,23 @@
+{
+  "name": "@patent/pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@patent/audit": "0.0.1",
+    "@patent/domain": "0.0.1",
+    "@patent/providers": "0.0.1",
+    "@patent/shared": "0.0.1",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

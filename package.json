@@ -10,5 +10,8 @@
     "dev": "npm run dev -w @patent/web",
     "build": "npm run build -w @patent/web",
     "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.9"
   }
 }
