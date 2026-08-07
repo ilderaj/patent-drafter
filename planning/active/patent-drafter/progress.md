@@ -349,3 +349,8 @@
 
 ### 待办
 - [x] wrangler deploy 生产（version a6589276，commit 4f8f76e）；生产验证 4/4 PASS：门禁仍拦截 → 工作台「确认来源」按钮出现 → 标签变「用户确认」→ 导出放行；pageerrors none。
+
+### 追加（存量数据兜底 + 边缘缓存刷新）
+- 隐患：用户生产 localStorage 里已存的 demo 项目是旧结构（audit rows 无 claimId），确认来源联动不上 → 补充文本子串匹配兜底（fuzzyHit：特征名窗口 ≥3 字命中 claim 文本，覆盖"插卡槽的下端设有…水通路"式改写）。dev 旧数据模拟 4/4 PASS。
+- 重新部署（version 809450f8，commit 见 git log）：dist hash CCz-xmZw；首次 deploy 后 /patent/ HTML 被边缘缓存为旧版（cf-cache-status HIT 旧 ETag），无可用 purge token（wrangler OAuth/Keychain token 均无 API 权限），再次 deploy 后边缘刷新（新 hash 生效）。
+- 生产最终验证 7/7：新 bundle 引用 + 新数据门禁闭环 4/4 + 旧数据兜底 3/3；pageerrors none。

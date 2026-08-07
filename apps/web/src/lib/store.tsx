@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { IntakeAnswer, PatentType, Project, ProjectFile } from "./types";
+import type { AuditRow, IntakeAnswer, PatentType, Project, ProjectFile } from "./types";
 import { demoProject, emptyProject, statusLabelOf } from "./data";
 import { newId } from "@patent/shared";
 import type { PipelineContext } from "@patent/pipeline";
@@ -224,12 +224,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           );
           let audit = p.audit;
           if (audit) {
-            const confirmed = audit.rows.filter((r) => r.claimId === claimId && r.status === "none").length;
+            const claim = p.claims.find((c) => c.id === claimId);
+            // Match by claimId first, then by feature text inside the claim body
+            // (covers audit rows persisted before claimId existed). The claim
+            // body may reword the feature (e.g. "插卡槽的下端设有…水通路"), so
+            // fall back to substring windows of the feature name.
+            const fuzzyHit = (text: string, feature: string): boolean => {
+              if (text.includes(feature)) return true;
+              for (let len = Math.min(6, feature.length); len >= 3; len--) {
+                for (let i = 0; i + len <= feature.length; i++) {
+                  if (text.includes(feature.slice(i, i + len))) return true;
+                }
+              }
+              return false;
+            };
+            const hit = (r: AuditRow) =>
+              r.status === "none" &&
+              (r.claimId === claimId || (claim ? fuzzyHit(claim.text, r.feature) : false));
+            const confirmed = audit.rows.filter(hit).length;
             if (confirmed > 0) {
               audit = {
                 ...audit,
                 rows: audit.rows.map((r) =>
-                  r.claimId === claimId && r.status === "none" ? { ...r, status: "user" as const, source: "用户确认" } : r,
+                  hit(r) ? { ...r, status: "user" as const, source: "用户确认" } : r,
                 ),
                 errors: Math.max(0, audit.errors - confirmed),
                 passed: audit.passed + confirmed,
