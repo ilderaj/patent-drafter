@@ -129,10 +129,13 @@ export function liveProjectView(p: Project): Project {
       warnings,
       errors,
       rows: featureRows,
-      checks: findings.slice(0, 8).map((f) => ({
-        icon: (f.severity === "error" ? "err" : f.severity === "warning" ? "warn" : "ok") as "ok" | "warn" | "err",
-        text: f.message,
-      })),
+      checks: [...findings]
+        .sort((a, b) => (a.severity === "error" ? -1 : 0) - (b.severity === "error" ? -1 : 0))
+        .slice(0, 12)
+        .map((f) => ({
+          icon: (f.severity === "error" ? "err" : f.severity === "warning" ? "warn" : "ok") as "ok" | "warn" | "err",
+          text: f.message,
+        })),
     };
   }
 

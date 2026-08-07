@@ -391,3 +391,26 @@
   planning 三件套 → 下一步 git add + commit。
 - 后续可选：max_tokens 16000→8000、prompt 精简（system-core/claim-skeleton）、
   前端 intake 失败重试 UI。
+
+## Session: 2026-08-08 晚（用户真实项目第二轮生产验收 + checks 截断修复）
+
+### 用户报告
+- 用户再次报告「审校门禁：存在无来源特征（）」空括号；在侧边栏 browser 打开
+  生产实例并上传自己的声纹认证专利交底书（项目 prj_KWc0sIzc），要求完整验证。
+
+### 复现与验收（全程使用用户真实项目与数据，未注入 demo）
+- 策略页点击「确认并起草」→ 起草+审校 ~65s 完成：claims=11、errors=3/warnings=8。
+- 审校 dump：noneFeatures=[]（15 个特征全 source_backed；3 个 error 均一致性/形式类）
+  → 导出页实测门禁文案为「存在 3 项必须处理的审校问题（如：附图说明声明本申请
+  不包含附图但附图清单有 5 幅…）」——**无空括号**（用户看到的空括号为修复前旧版）。
+- 闭环：去处理 → 形式规则 tab「确认已处理」×2 → errors 3→1→0 → 导出放行
+  「✓ 已在本机生成导出包」。
+
+### 附带缺陷修复（checks 截断）
+- 发现：live-view 的 audit.checks 仅 slice(0,8) 渲染，第 9 条以后的 err 项最初
+  无「确认已处理」按钮（实测确认前 2 个后第 3 个浮出，不死锁，但为稳妥修复）。
+- 修复：checks 改为 err 优先排序后 slice(0,12)（sort 稳定，err 内部顺序不变）；
+  门禁 errorChecks[0] 从此总能取到具体问题。
+- 回归：walk-gate-fix 12/12 PASS、tsc 0 错、build 通过。
+- 部署：Version 0977468a-4911-48fa-89bf-9e215718b679，线上 index-Dkv1hPmW.js；
+  用户 tab 刷新后数据完整保留（claims=11、errors=0、rows=15）。
