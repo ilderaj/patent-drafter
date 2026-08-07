@@ -7,6 +7,7 @@ dist/
 build/
 .DS_Store
 *.log
+*.tsbuildinfo
 
 # 本机密钥与凭据
 .env
