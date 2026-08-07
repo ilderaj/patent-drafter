@@ -1,10 +1,21 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "patent-drafter",
+  "main": "apps/worker/src/index.ts",
   "compatibility_date": "2026-08-01",
   "assets": {
     "directory": "./apps/web/dist",
+    "binding": "ASSETS",
     "not_found_handling": "single-page-application"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT",
+      "id": "632acafdeea74f2ca9cc8a4fa22a4ead"
+    }
+  ],
+  "vars": {
+    "RATE_LIMIT_PER_DAY": "60"
   },
   "routes": [
     { "pattern": "vibing.paymond.me/patent", "zone_name": "paymond.me" },

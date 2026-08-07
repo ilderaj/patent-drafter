@@ -5,8 +5,8 @@
 | 数据 | 流向 | 说明 |
 |------|------|------|
 | API Key | 用户录入 → OS Keychain → Bridge → DeepSeek（认证） | 永不进浏览器存储/Cloudflare/日志 |
-| 交底材料 | 用户本机 → Bridge 解析 → DeepSeek（仅选中片段） | 不经过 Cloudflare/应用服务器 |
-| 生成内容 | DeepSeek → Bridge Vault → 浏览器渲染 | 不经过 Cloudflare |
+| 交底材料 | 用户本机解析/合并 → 经加密通道发送至模型服务（OpenCode Go） | 服务端不保存专利内容；传输经 HTTPS |
+| 生成内容 | 模型服务 → Worker 透传 → 浏览器渲染 | 服务端不落盘，仅透传 |
 | 项目历史 | Bridge Vault（本地） | 导出/导入走加密 .patentpack |
 | 用户确认/回答 | 浏览器 → Bridge | 本地闭环 |
 | 互联网补充 | 白名单站点 → Bridge → external_context | 默认关闭，用户批准后执行 |

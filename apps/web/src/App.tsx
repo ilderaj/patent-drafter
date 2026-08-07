@@ -8,6 +8,7 @@ import { Rules } from "./screens/Rules";
 import { Settings } from "./screens/Settings";
 import { NoBridge, Pairing } from "./screens/StateScreens";
 import { MobileHome, MobileWorkbench } from "./screens/MobileScreens";
+import { Unlock } from "./screens/Unlock";
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
           </Route>
           <Route path="/nobridge" element={<NoBridge />} />
           <Route path="/pairing" element={<Pairing />} />
+          <Route path="/unlock" element={<Unlock />} />
           <Route path="/mobile" element={<MobileHome />} />
           <Route path="/mobile/workbench" element={<MobileWorkbench />} />
           <Route path="*" element={<Home />} />

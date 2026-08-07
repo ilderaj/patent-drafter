@@ -95,3 +95,23 @@
 ### 数据模型落地
 - localStorage key `patent-drafter.v1`；demo 项目 id=demo-hot-water-meter（flag demo:true）；删除数据=清除 key + 重载。
 - Intake 问题组件按 q.id keyed 重置（上一步/下一步状态不串扰）。
+
+## Findings Record: 2026-08-07（DeepSeek 额度实测）
+- 官方余额接口 GET https://api.deepseek.com/user/balance（Keychain patent-bridge key）：is_available=false，total_balance=-0.07 CNY（充值余额 -0.07，赠送 0.00）。
+- 真实最小调用（deepseek-chat, max_tokens=1）返回 Insufficient Balance（invalid_request_error）→ 此前"上传交底书没成功解析 / Failed to fetch"的真实链路根因之一是账户欠费，非代码问题。
+- Worker 限速实现复核：login 每 IP 每小时 10 次（KV 2h TTL）、chat 每日 60 次（RATE_LIMIT_PER_DAY，KV 48h TTL），429 用例已覆盖，apps/worker 测试 13/13 全绿。
+- 恢复条件：DeepSeek 账户需充值（哪怕小额）后方可继续真实链路验证。
+
+## Findings Record: 2026-08-07（LLM provider 切换：OpenCode Go DeepSeek V4 Flash）
+- OpenCode Go 官方文档（opencode.ai/docs/go/）：端点 https://opencode.ai/zen/go/v1（OpenAI 兼容），模型 ID `deepseek-v4-flash`，key 为 OpenCode Zen 订阅 key。DeepSeek V4 Flash 定价 $0.30/$0.60 per 1M（cached read/write 便宜），Go 订阅限额 5h/$12、周/$30、月/$60，估算每月 ~15.8 万请求（典型用量）。
+- 实测（2026-08-07）：`GET /zen/go/v1/models` 200；`POST /chat/completions` model=deepseek-v4-flash 200，`response_format: json_object` 有效（返回 `{"ok":true}`，finish_reason=stop）；响应含 `reasoning_content` 字段（推理模型），content 在推理完成后填充——max_tokens 过小时 content 可能为空，真实管线 prompt 大不受影响。
+- 旧 DeepSeek 官方 key（Keychain patent-bridge）欠费 -0.07 CNY 不可用，已弃用。
+- 代码变更：Worker 默认 upstreamBase=opencode.ai/zen/go/v1、默认 model=deepseek-v4-flash（env 可覆盖）；providers 包默认 model=deepseek-v4-flash；测试断言同步；.dev.vars 更新（本地仅供开发）。apps/worker 13/13 全绿、providers typecheck 0 错、apps/web build 通过。
+- 本地限制：workerd 出站仍被拦（host curl/node fetch 可通，wrangler dev 内 502 upstream_unreachable）——真实上游链路以生产部署为准。
+
+## Findings Record: 2026-08-07（生产部署排障三连）
+- **Workers fetch this 绑定**：`{ fetchImpl: fetch }` 在 Workers 里属性调用抛 "Illegal invocation"（node 测试不暴露）。必须 `fetch.bind(globalThis)` 注入。测试 13/13 覆盖不到此问题，生产 diag 端点定位。
+- **pdfjs v6 legacy build 无 destroy**：`pdf.min.mjs` 的 PDFDocumentProxy 只有 cleanup()，`doc.destroy()` 抛错导致 PDF 解析"文件可能已损坏"假失败；须 `typeof doc.destroy === "function"` 兼容。另需 `useSystemFonts: true`（CSP 禁外部字体数据）+ `isEvalSupported: false`（CSP 无 unsafe-eval）。
+- **边缘缓存旧 bundle**：/patent/assets/* immutable max-age 1 年；重新部署同名 hash 资产后，边缘可能仍服务旧 JS（表现为本地 preview 通过、生产失败）。重新构建（hash 变化）后正常；生产验证以部署后全新会话为准。
+- **登录限速实测**：每 IP 每小时 10 次 login（KV 2h TTL）在反复测试下触发 429（"尝试次数过多"）——安全机制按预期工作；自动化验证应复用 12h sessionToken 而非重复登录。
+- OpenCode Go deepseek-v4-flash 推理模型实测：intake/facts/conflicts/readiness 四阶段 schema-valid JSON，90s 到达 intake 屏；response_format json_object 有效。

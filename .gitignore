@@ -12,6 +12,10 @@ build/
 .env
 .env.*
 !.env.example
+.dev.vars
+
+# Wrangler 本地状态
+.wrangler/
 
 # Runtime 钩子状态（规划系统自管，不入库）
 .harness/

@@ -4,18 +4,21 @@
 
 | 资产 | 位置 | 保密性 | 完整性 |
 |------|------|--------|--------|
-| DeepSeek API Key | 本机 Keychain | 高 | 高 |
+| LLM API Key（OpenCode Go） | Worker secrets（云端模式，默认）/ 本机 Keychain（本地 Bridge 模式） | 高 | 高 |
 | 专利交底材料/项目正文 | Bridge 加密 Vault + 浏览器内存 | 高 | 高 |
 | 用户历史项目/快照 | Bridge Vault | 高 | 高 |
 | 生成结果 | Bridge Vault | 高 | 高 |
-| session token | 浏览器内存 + Bridge | 中 | 高 |
+| session token | 浏览器 localStorage（HMAC 无状态，12h 过期） | 中 | 高 |
 | WebApp 静态资源 | Cloudflare | 低 | 高 |
 
 信任边界：
 
 1. **浏览器 ↔ Bridge**（loopback，短 token，Origin 白名单）
 2. **Bridge ↔ DeepSeek**（用户 Key，HTTPS，材料片段）
-3. **浏览器 ↔ Cloudflare**（仅静态资源，无专利内容）
+3. **浏览器 ↔ Cloudflare Worker**（云端模式：共享密码门 + HMAC 会话 + 预览确认门；材料经 HTTPS 转发，服务端不落盘）
+4. **Worker ↔ OpenCode Go**（服务端 Key，仅透传模型请求；上游错误只报状态码）
+
+云端模式信任根降级点：Key 信任根从 macOS Keychain 变为 Cloudflare 账号（需 2FA 保护）；材料在传输路径上经过 Worker 转发（不保存）。
 
 ## 2. 威胁清单与缓解
 
@@ -34,6 +37,8 @@
 | T11 | 互联网补充污染发明事实 | 中 | external_context 单独隔离；不自动改权利要求；需用户批准 |
 | T12 | Cloudflare Worker 被篡改分发恶意 JS | 中 | 静态资产不可信输入最小化；SRI/版本固定；定期审计 |
 | T13 | 附件内容被发送到非预期服务 | 高 | 模型调用仅 Bridge→DeepSeek；每次发送前预览（用户确认） |
+| T14 | 共享密码泄露导致余额被刷 | 中 | 登录限速（每 IP 每小时 10 次）+ 聊天限速（每日 60 次）+ Go 订阅月度硬额度 + 日志无正文 |
+| T15 | 云端 Worker 出站被中间人/篡改上游 | 中 | HTTPS 直连 opencode.ai；Key 仅用于 Bearer 头；不解析上游正文到日志 |
 
 ## 3. 安全验收映射（详见 qa-plan.md）
 

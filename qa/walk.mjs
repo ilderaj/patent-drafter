@@ -96,35 +96,25 @@ if (cmd === 'flow') {
   await dump('upload');
   await shot('03-upload');
   await a11y('upload');
-  await clickText('载入示例交底');
-  await clickText('开始解析');
+  // Attachment + text dual channel: upload a real file, then paste text.
+  await page.setInputFiles('input[type="file"]', {
+    name: '交底示例.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('一种基于三模通讯的共享热水表，包括热水表本体与控制主板；控制主板连接射频、蓝牙与 470MHz 通讯模块。'),
+  });
+  await page.waitForTimeout(900);
+  await fillPlaceholder(
+    '在此粘贴技术交底内容（例如：产品结构、通讯方式、技术效果等）。支持多个段落，每段一行。',
+    '补充说明：蓝牙 mesh 自组网，470MHz 连接网关。',
+  );
+  await dump('upload-filled');
+  await shot('03b-upload-filled');
 
-  // Readiness
-  await dump('readiness');
-  await shot('04-readiness');
-  await a11y('readiness');
-  await clickText(/开始 Intake|开始补充|补充信息/);
-
-  // Intake: answer 4 questions
-  for (let i = 0; i < 4; i++) {
-    await dump(`intake-${i + 1}`);
-    const radio = page.locator('.radio-card, [class*="radio"]').first();
-    if (await radio.count()) await radio.click();
-    await page.waitForTimeout(150);
-    const nextBtn = page.getByRole('button').filter({ hasText: /下一个问题|完成补充/ }).first();
-    if (await nextBtn.count()) await nextBtn.click();
-    await page.waitForTimeout(300);
-  }
-  await shot('05-intake-end');
-
-  // Strategy
-  await dump('strategy');
-  await shot('06-strategy');
-  await a11y('strategy');
-  const chk = page.locator('input[type="checkbox"]').first();
-  if (await chk.count()) { await chk.check(); await page.waitForTimeout(150); }
-  const confirmBtn = page.getByRole('button').filter({ hasText: /确认|开始起草/ }).first();
-  if (await confirmBtn.count()) await confirmBtn.click();
+  // Demo project covers the remaining screens (workbench/audit/export/history).
+  await go();
+  await page.evaluate(() => localStorage.clear());
+  await go();
+  await clickText('载入示例项目（热水表）');
   await page.waitForTimeout(400);
 
   // Workbench
@@ -194,41 +184,25 @@ if (cmd === 'keys') {
   await page.waitForTimeout(400);
   console.log(`[keys] after Enter url: ${await page.evaluate(() => location.pathname)}`);
 
-  // 2) Intake options: Tab into radio-card, Space to select, Enter on next
-  await clickText('载入示例交底');
-  await clickText('开始解析');
-  await clickText('开始补充信息（4 个问题）');
-  for (let q = 0; q < 4; q++) {
-    await page.keyboard.press('Tab'); // first option
-    await page.keyboard.press('Space'); // select
-    await page.waitForTimeout(120);
-    const t = await tabUntil(q === 3 ? '完成补充' : '下一个问题');
-    console.log(`[keys] intake q${q + 1} focused: ${t}`);
-    await page.keyboard.press('Enter');
-    await page.waitForTimeout(300);
-  }
-  console.log(`[keys] after intake url: ${await page.evaluate(() => location.pathname)}`);
+  // 2) Upload: textarea focusable, Tab reaches the primary action (disabled
+  //    without an authenticated provider in headless mode).
+  const textareaActive = await page.evaluate(() => {
+    const t = document.querySelector('textarea[aria-label="粘贴交底文本"]');
+    t?.focus();
+    return document.activeElement === t;
+  });
+  console.log(`[keys] upload textarea focusable: ${textareaActive}`);
+  const reachedDraft = await tabUntil('开始真实起草');
+  console.log(`[keys] reached primary action: ${reachedDraft}`);
 
-  // 3) Strategy: Tab to checkbox, Space check, Tab to confirm, Enter
-  const tabUntilType = async (type, max = 24) => {
-    for (let i = 0; i < max; i++) {
-      const t = await page.evaluate(() => document.activeElement?.type || '');
-      if (t === type) return t;
-      await page.keyboard.press('Tab');
-      await page.waitForTimeout(40);
-    }
-    return '(not found)';
-  };
-  const cbType = await tabUntilType('checkbox');
-  console.log(`[keys] strategy reached: checkbox(${cbType})`);
-  const cb = await page.evaluate(() => document.activeElement?.type);
-  await page.keyboard.press('Space');
-  await page.waitForTimeout(120);
-  const confirmTxt = await tabUntil('确认并生成权利要求骨架');
-  console.log(`[keys] strategy confirm reached: ${confirmTxt}`);
-  await page.keyboard.press('Enter');
+  // 3) Demo workbench keyboard walk: Tab lands on first claim edit.
+  await go();
+  await page.evaluate(() => localStorage.clear());
+  await go();
+  await clickText('载入示例项目（热水表）');
   await page.waitForTimeout(400);
-  console.log(`[keys] after strategy url: ${await page.evaluate(() => location.pathname)}`);
+  const reachedClaim = await tabUntil('权利要求', 40);
+  console.log(`[keys] demo workbench reached: ${reachedClaim}`);
 }
 
 if (cmd === 'tour') {

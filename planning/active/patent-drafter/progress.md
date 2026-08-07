@@ -257,3 +257,34 @@
 
 ### 提交
 1f3b45d（web 桥接+全链路）→ 5307ce5（Worker 部署）→ 5eb54f4（生产验证+文档）
+
+## Session: 2026-08-07（云端化可行性分析轮——待用户决策）
+
+### 背景
+- 用户反馈 Bridge + API Key 对朋友用户门槛过高（生产 URL 直连 loopback 被 Chrome PNA 拦截，in-app Browser 无 TCC 权限），提出改为云端持 Key + 密码门禁，仅分析不实施。
+
+### 分析结论（已在对话中交付，未实施）
+- 可行且改动面小：现有部署已是 Cloudflare Worker（纯静态），前端经 provider 抽象层；升级为带计算 Worker（wrangler secret 存 DeepSeek Key + `/api/providers/deepseek/chat` 路由 + 密码校验 + 频率限制），前端 bridge.ts 加云端同源模式。预览确认门语义可从 Rust bridge 移植到 Worker。
+- 门禁两选项：共享密码（零配置，泄露=任何人可烧余额，换密码需逐个通知）vs Cloudflare Access 免费档（邮箱 OTP、按人撤销、有审计，推荐）。
+- 安全模型降级点：Key 信任根从 macOS Keychain 变为 Cloudflare 账号（需 2FA）；「材料不经过任何服务器」承诺失效（privacy-boundaries.md 与设置页文案须改）；新增风险「密码泄露刷余额」以 Worker 频率限制 + DeepSeek 硬额度 + 无正文日志三道闸约束。
+- 可保边界：朋友项目数据仍在各自浏览器 localStorage，云端不落专利内容；Key 不进浏览器（T1 不破）。
+- 工作量预估：Phase 14 规模（Worker 计算路由 + 前端云端模式 + threat-model/privacy-boundaries/deployment 三文档改写 + 安全测试移植）。
+
+### 状态
+- 等待用户决策：方向（云端化与否）+ 门禁方式（共享密码 / Cloudflare Access）。决策后开工。
+
+## Session: 2026-08-07（LLM provider 切换轮：OpenCode Go DeepSeek V4 Flash）
+- 用户提供 OpenCode Go key，要求把云端 Worker 的 LLM provider 从 DeepSeek 官方 API 切到 OpenCode Go 的 deepseek-v4-flash。
+- 完成：Worker 默认端点/模型切换（env 可覆盖）、providers 包默认模型、cloud.test.mjs 断言更新、.dev.vars 更新、前端 demo 历史文案同步；apps/worker 测试 13/13 全绿；providers typecheck 0 错；apps/web build 通过；上游真实调用验证（node/curl，json_object 可用）。
+- 本地 wrangler dev 冒烟：healthz 200、错误密码 401、正确密码 200、预览门 428 正常；确认后 502 系 workerd 本地出站被拦（已知限制）。
+- 待部署（需用户确认）：wrangler secret put DEEPSEEK_API_KEY（新 key）/ACCESS_PASSWORD/SESSION_SECRET → wrangler deploy → 生产验证解锁+起草真实链路。
+
+## Session: 2026-08-07（生产部署 + 全链路验证轮）
+- 部署：wrangler secret put（DEEPSEEK_API_KEY=OpenCode Go key / ACCESS_PASSWORD=ZYq1prvg5oVfuZ / SESSION_SECRET）→ wrangler deploy version 2941ed6d。
+- 生产验证（真实浏览器 + curl）：
+  - 密码门：healthz 200、错误密码 401、正确密码 200 + 12h sessionToken；登录限速 429 实测（每 IP 每小时 10 次）。
+  - 预览确认门：428→200 交替，7 次请求 body 字节一致（hash 绑定可靠）。
+  - 真实管线：extract_invention_facts → conflict → sufficiency → intake questions 四阶段全部 schema-valid，90s 到 intake 屏（deepseek-v4-flash）。
+  - 附件双通道：生产实测 txt（102 字）、docx（57 字）、pdf（79 字）提取 + 与粘贴文本合并计数。
+- 修复：Worker fetch bind（Illegal invocation）；pdfjs v6 destroy→cleanup + useSystemFonts + isEvalSupported=false；docs 三件套（deployment/privacy-boundaries/threat-model）同步云端模式。
+- 剩余：qa/walk-cloud-prod.mjs 作为生产走查脚本保留；intake 之后的完整 18 阶段起草可在真实使用中验证（每阶段 1-4 分钟）。

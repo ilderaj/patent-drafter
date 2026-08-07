@@ -6,7 +6,7 @@ import { PipelineRunner } from "@patent/pipeline";
 import { mockPipelineContext } from "@patent/pipeline";
 import type { PipelineContext, StageResult } from "@patent/pipeline";
 import type { PipelineStage } from "@patent/domain";
-import { getSessionToken, bridgeBase } from "./bridge";
+import { getSessionToken, bridgeBase, detectProviderMode } from "./bridge";
 
 // Inline prompt pack (Vite ?raw). Keys are file names used by packages/prompts.
 import systemCore from "../../../../packages/prompts/system-core.md?raw";
@@ -44,7 +44,10 @@ export const PROMPTS: Record<string, string> = {
 export const RULE_PACK_VERSION = "cnipa-2026-01-01";
 export const PROMPT_VERSION = "0.1.0";
 
-export function createBrowserRunner(autoConfirm: boolean): PipelineRunner {
+export async function createBrowserRunner(autoConfirm: boolean): Promise<PipelineRunner> {
+  // Ensure the provider mode (cloud Worker vs local Bridge) has been probed
+  // before resolving the base URL; cached after the first call.
+  await detectProviderMode();
   const provider = new DeepSeekLocalBridgeProvider({
     baseUrl: bridgeBase(),
     getSessionToken,

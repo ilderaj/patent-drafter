@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useStore } from "../lib/store";
+import { fetchStatus, getProviderMode } from "../lib/bridge";
 
 const NAV = [
   { to: "/projects", icon: "▦", label: "项目" },
@@ -10,6 +12,12 @@ const NAV = [
 export function AppShell() {
   const { bridgeMode, setBridgeMode } = useStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    void fetchStatus().then((s) => {
+      setBridgeMode(s.bridgeConnected && s.authenticated ? "connected" : s.bridgeConnected ? "pairing" : "none");
+    });
+  }, [setBridgeMode]);
 
   return (
     <div className="app-shell">
@@ -29,16 +37,20 @@ export function AppShell() {
         <div className="bridge-status">
           <span className={`status-dot ${bridgeMode === "connected" ? "ok" : "off"}`} />
           {bridgeMode === "connected" ? (
-            "本机 Bridge 已连接"
+            getProviderMode() === "cloud" ? (
+              "云端已解锁"
+            ) : (
+              "本机 Bridge 已连接"
+            )
           ) : (
             <button
               className="btn btn-ghost btn-sm"
               onClick={() => {
                 setBridgeMode("pairing");
-                navigate("/pairing");
+                navigate(getProviderMode() === "cloud" ? "/unlock" : "/pairing");
               }}
             >
-              本机 Bridge 未连接 · 去配对
+              {getProviderMode() === "cloud" ? "云端未解锁 · 输入密码" : "本机 Bridge 未连接 · 去配对"}
             </button>
           )}
         </div>

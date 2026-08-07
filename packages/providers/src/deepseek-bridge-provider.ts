@@ -52,7 +52,7 @@ export class DeepSeekLocalBridgeProvider implements LLMProvider {
   constructor(options: DeepSeekBridgeProviderOptions) {
     this.options = options;
     this.baseUrl = options.baseUrl ?? "http://127.0.0.1:7878";
-    this.model = options.model ?? "deepseek-chat";
+    this.model = options.model ?? "deepseek-v4-flash";
   }
 
   async getCapabilities(): Promise<ProviderCapabilities> {
@@ -68,7 +68,7 @@ export class DeepSeekLocalBridgeProvider implements LLMProvider {
 
   async listModels(): Promise<ProviderModel[]> {
     const caps = await this.getCapabilities();
-    return [{ id: this.model, displayName: "DeepSeek (via local Bridge)", capabilities: caps, defaultFor: "structured" }];
+    return [{ id: this.model, displayName: "DeepSeek V4 Flash", capabilities: caps, defaultFor: "structured" }];
   }
 
   async generateStructured<T>(request: StructuredRequest<T>, _schema: Schema<T>): Promise<T> {
@@ -122,7 +122,7 @@ export class DeepSeekLocalBridgeProvider implements LLMProvider {
 
   private async post(path: string, body: unknown, extraHeaders: Record<string, string> = {}): Promise<Response> {
     const token = this.options.getSessionToken();
-    if (!token) throw new ProviderError("bridge session token missing: pair with the local bridge first", "AUTH_FAILED");
+    if (!token) throw new ProviderError("会话缺失：请先解锁（云端）或与本机 Bridge 配对", "AUTH_FAILED");
     return fetch(`${this.baseUrl}${path}`, {
       method: "POST",
       headers: {

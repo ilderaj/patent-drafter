@@ -11,6 +11,8 @@
   "dependencies": {
     "@patent/pipeline": "0.1.0",
     "@patent/providers": "0.0.1",
+    "fflate": "^0.8.3",
+    "pdfjs-dist": "^6.2.108",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.0",

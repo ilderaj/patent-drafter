@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { IntakeAnswer, PatentType, Project, ProjectFile } from "./types";
-import { INTAKE_QUESTIONS, READINESS_DIMENSIONS, demoProject, emptyProject, statusLabelOf } from "./data";
+import { demoProject, emptyProject, statusLabelOf } from "./data";
 import { newId } from "@patent/shared";
 import type { PipelineContext } from "@patent/pipeline";
 import type { PipelineStage } from "@patent/domain";
@@ -25,8 +25,7 @@ interface AppStore extends AppState {
   createProject: (name: string, type: PatentType) => string;
   loadDemo: () => void;
   updateProject: (id: string, patch: Partial<Project>) => void;
-  addFiles: (id: string, files: ProjectFile[]) => void;
-  runParse: (id: string) => void;
+  patchFile: (id: string, fileId: string, patch: Partial<ProjectFile>) => void;
   proceedFromReadiness: (id: string) => void;
   answerIntake: (id: string, answer: IntakeAnswer) => void;
   completeIntake: (id: string) => void;
@@ -124,29 +123,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [update],
   );
 
-  const addFiles = useCallback(
-    (id: string, files: ProjectFile[]) => {
-      patchProject(id, { files: [...files], status: "uploading", statusLabel: "解析中" });
+  /** Functional file patch: reads the latest project state (parse results). */
+  const patchFile = useCallback(
+    (id: string, fileId: string, patch: Partial<ProjectFile>) => {
+      update((s) => ({
+        ...s,
+        projects: s.projects.map((p) =>
+          p.id === id
+            ? { ...p, files: (p.files ?? []).map((f) => (f.id === fileId ? { ...f, ...patch } : f)) }
+            : p,
+        ),
+      }));
     },
-    [patchProject],
-  );
-
-  /** Mock 解析：短暂进度后进入充分性报告。 */
-  const runParse = useCallback(
-    (id: string) => {
-      patchProject(id, {
-        files: [],
-        status: "readiness",
-        statusLabel: statusLabelOf("readiness"),
-        coverage: 62,
-        coverageNote:
-          "已识别 14 项事实，其中 8 项有材料来源；需要补充 6 项才能进入起草。存在 3 处需要确认的矛盾。",
-        dimensions: READINESS_DIMENSIONS,
-        intakeNote: "当前材料不足以直接起草。系统将先通过 4 个问题补充信息并确认 3 处矛盾。",
-        intakeQuestions: INTAKE_QUESTIONS,
-      });
-    },
-    [patchProject],
+    [update],
   );
 
   const proceedFromReadiness = useCallback(
@@ -239,7 +228,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             : x,
         ),
       }));
-      const runner = createBrowserRunner(true);
+      const runner = await createBrowserRunner(true);
       try {
         await runner.runUntil(ctx, "generate_intake_questions");
         const intakeOut = ctx.results.generate_intake_questions?.output as {
@@ -284,7 +273,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     async (id: string, answers: Record<string, string>) => {
       await withLive(id, async (ctx) => {
         ctx.userAnswers = answers;
-        const runner = createBrowserRunner(true);
+        const runner = await createBrowserRunner(true);
         await runner.runUntil(ctx, "merge_user_confirmations");
         return "merge_user_confirmations";
       });
@@ -295,7 +284,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const runLiveTo = useCallback(
     async (id: string, stage: string) => {
       await withLive(id, async (ctx) => {
-        const runner = createBrowserRunner(true);
+        const runner = await createBrowserRunner(true);
         await runner.runUntil(ctx, stage as PipelineStage);
         return stage;
       });
@@ -342,8 +331,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       loadDemo,
       resetDemo,
       updateProject: patchProject,
-      addFiles,
-      runParse,
+      patchFile,
       proceedFromReadiness,
       answerIntake,
       completeIntake,
@@ -362,8 +350,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       loadDemo,
       resetDemo,
       patchProject,
-      addFiles,
-      runParse,
+      patchFile,
       proceedFromReadiness,
       answerIntake,
       completeIntake,

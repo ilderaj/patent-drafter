@@ -19,6 +19,21 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      // Dev-only: proxy the cloud API to a local `wrangler dev` instance
+      // (127.0.0.1:8787). When no dev worker is running, answer 502 quickly so
+      // mode detection falls back to the local loopback bridge.
+      "/patent/api": {
+        target: "http://127.0.0.1:8787",
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on("error", (_err, _req, res) => {
+            if (res && !res.headersSent) {
+              res.writeHead(502, { "content-type": "application/json" });
+              res.end(JSON.stringify({ error: "cloud dev worker unreachable" }));
+            }
+          });
+        },
+      },
       // Dev-only: headless Chrome for Testing lacks macOS Local Network (TCC)
       // permission for direct loopback fetches. Production uses the real
       // http://127.0.0.1:7878 origin (verified via Spike A on Chrome 150).
