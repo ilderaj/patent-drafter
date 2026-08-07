@@ -373,6 +373,20 @@ body {
 .src-tag.source { background: #e6f3e9; color: #1e6b34; }
 .src-tag.user { background: #e8edf8; color: #2b4a8a; }
 .src-tag.none { background: #fde8e1; color: #a32c0c; }
+.src-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: var(--space-3);
+  padding: 10px 12px;
+  border: 1px solid var(--destructive, #d9534f);
+  border-radius: var(--radius-md, 12px);
+  background: color-mix(in srgb, var(--destructive, #d9534f) 6%, transparent);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--foreground);
+}
 @media (prefers-color-scheme: dark) {
   .src-tag.source { background: #16301d; color: #7ed490; }
   .src-tag.user { background: #1c2842; color: #9db8e8; }

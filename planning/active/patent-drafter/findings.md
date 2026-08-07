@@ -155,3 +155,27 @@
 - 连接级重试 1 次 + 240s 超时：HTTP 错误（429/401/502）绝不重试，仅网络层失败重试。
 - KV 计数权威读写均为 Cloudflare API（wrangler kv key get 有过期缓存问题，已弃用）。
 - 遗留：git 历史 commit 中含旧生产密码（walk-cloud-prod.mjs 曾硬编码），建议用户后续 rotate ACCESS_PASSWORD。
+
+## Findings Record: 2026-08-08（生产导出门禁死胡同事故：确认来源路径缺失 + demo fallback 误伤）
+
+### 用户报告
+- 生产环境导出报「审校门禁：存在无来源特征（插卡槽水通路）。正式申请文件导出已被阻止，请先在工作台确认来源或删除该特征。」——用户无法继续导出。
+
+### 根因（双缺陷复合）
+1. **门禁文案承诺的出路不存在**：Export 屏提示"到工作台确认来源或删除该特征"，但 Workbench 只有文本编辑；ClaimSource.kind 三态（source/user/none）虽预留了 `user`（"用户确认"），全应用没有任何把 `none → user` 的交互；Audit 矩阵行只读。demo 项目（权9 插卡槽下端水通路，errors=1，回归案例）一旦导出即永久死锁。
+2. **demo 审校数据 fallback 误伤任意项目**：`project.audit ?? DEMO_AUDIT` 使所有无审校数据的项目（新建/未审校）套用热水表 demo 的 errors=1 与"插卡槽水通路"特征——用户项目被错误内容拦截，且同样无出路。（12 节修复"门禁与审校不一致"时统一到 DEMO_AUDIT 的副作用。）
+
+### 修复（已实施，浏览器实测 12/12 PASS）
+- `types.ts`：AuditRow 增可选 `claimId`；fixture demo-generated.json 4 行审校行补齐 claimId 映射（c1/c1/c5/c9）；live-view 派生 rows 带 `live-claim-N`。baseline-check 39/39 不受影响。
+- store 新增 `confirmClaimSource(id, claimId)`：
+  - 本地/demo 项目：claims.sources `none → {label:"用户确认", kind:"user"}`；audit.rows 对应 claimId 行 `none → user`、`errors-1/passed+1`。
+  - live 项目：改 ctx.results.draft_claims features `none → user_confirmed`，并从三阶段 audit findings 中过滤"含该特征文本的 error"；随后 liveProjectView 重派生（下次重跑审校会重新判定，语义正确）。
+- Workbench：选中含 none source 的 claim 时显示"确认来源"卡片按钮（含说明文案）；实时检查"无来源"行动态化（确认后消失）。
+- Audit 屏：支持矩阵无来源行内"确认来源"按钮（claimId 存在时）；audit 为空显示"暂无审校结果"空态（不再借用 demo 数据）。
+- Export：移除 `?? DEMO_AUDIT` fallback（无审校数据不拦截，避免误伤）；门禁文案特征名动态化（demo 显示"插卡槽下端水通路"）。
+- 验证：qa/walk-gate-fix.mjs 12/12 PASS（demo 确认来源→门禁解除→导出放行；新项目审校空态+导出不拦；矩阵行内按钮存在）；baseline 39/39；parsers 14/14；web build + typecheck 0 错。
+
+### 语义边界
+- "确认来源"是用户声明（按"用户补充"处理），非材料来源；demo 项目确认后 localStorage 持久化，resetDemo 可恢复回归案例。
+- live 项目确认只作用于视图与门禁（UI 层放行），LLM 原始输出不被篡改；重新审校会重新评估该特征。
+- 门禁文案不再承诺"删除该特征"（该路径需重新审校流程，第一阶段不提供一键删除）。

@@ -330,3 +330,22 @@
 ### 备注
 - skeleton 输入复核：buildInventionModel 输出本身已精简（仅 statement，无 refs/quote），无需额外裁剪。
 - git：commit 88e7bcc（worker/providers/qa/docs/wrangler）+ 本轮 planning 更新。
+
+## Session: 2026-08-08（生产导出门禁死胡同修复轮）
+
+### 用户报告
+- 生产导出被拦：「审校门禁：存在无来源特征（插卡槽水通路）。正式申请文件导出已被阻止，请先在工作台确认来源或删除该特征。」
+
+### 根因
+- 门禁文案承诺的"工作台确认来源/删除特征"在 UI 上不存在（全应用无 none→user 交互）→ demo/任何有审校 error 的项目导出永久死锁。
+- `project.audit ?? DEMO_AUDIT` 把热水表 demo 的 errors=1 与特征名套到所有无审校数据项目上（12 节修复的副作用）。
+
+### 已完成（浏览器实测 12/12 + baseline 39/39 + parsers 14/14 + build 通过）
+- store `confirmClaimSource`：本地项目联动 claims.sources + audit.rows/errors；live 项目改 ctx features 状态 + 过滤对应 error findings 后重派生（不篡改 LLM 原始输出）。
+- Workbench 选中无来源 claim 显示「确认来源」按钮；Audit 支持矩阵行内同款按钮；audit 为空显示"暂无审校结果"空态。
+- Export 移除 demo fallback（无审校不拦）；门禁文案动态列出实际无来源特征名。
+- demo-generated.json rows 补 claimId（c1/c1/c5/c9），live-view 派生同步带 claimId。
+- qa/walk-gate-fix.mjs 新增回归脚本（12/12）；console 仅剩 dev proxy 探测噪声（bridge/worker 未运行，环境性）。
+
+### 待办
+- wrangler deploy 生产（修复用户实际遇到的事故）；生产验证（demo 确认来源→导出放行）。

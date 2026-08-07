@@ -78,6 +78,8 @@ export interface AuditRow {
   status: "source" | "user" | "none";
   source: string;
   position: string;
+  /** Claim id this row maps to (present when the row can be resolved to a claim). */
+  claimId?: string;
 }
 
 export interface AuditCheck {

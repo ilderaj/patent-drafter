@@ -30,6 +30,8 @@ interface AppStore extends AppState {
   answerIntake: (id: string, answer: IntakeAnswer) => void;
   completeIntake: (id: string) => void;
   confirmStrategy: (id: string) => void;
+  /** User confirms the source of an unsupported feature (unblocks the export gate). */
+  confirmClaimSource: (id: string, claimId: string) => void;
   regenerateClaim: (id: string, claimId: string) => void;
   /** Start a real pipeline project from pasted disclosure text. */
   startLive: (id: string, title: string, text: string) => Promise<void>;
@@ -175,6 +177,70 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       });
     },
     [patchProject],
+  );
+
+  const confirmClaimSource = useCallback(
+    (id: string, claimId: string) => {
+      update((s) => ({
+        ...s,
+        projects: s.projects.map((p) => {
+          if (p.id !== id) return p;
+          if (p.live) {
+            // Live pipeline: flip the feature status inside the context and drop
+            // matching "no source" audit findings; re-derive the view snapshot.
+            const ctx: PipelineContext = { ...p.live.ctx, results: { ...p.live.ctx.results } };
+            const claimsOut = ctx.results.draft_claims?.output as
+              | { claims: Array<{ number: number; text: string; features: Array<{ text: string; status: string }> }> }
+              | undefined;
+            const num = Number(claimId.replace("live-claim-", ""));
+            const claim = claimsOut?.claims.find((c) => c.number === num);
+            const confirmedTexts = (claim?.features ?? []).map((f) => f.text);
+            if (claimsOut && claim) {
+              claimsOut.claims = claimsOut.claims.map((c) =>
+                c.number === num
+                  ? { ...c, features: c.features.map((f) => (f.status === "none" ? { ...f, status: "user_confirmed" } : f)) }
+                  : c,
+              );
+              (ctx.results as Record<string, { output?: unknown }>).draft_claims = { ...ctx.results.draft_claims!, output: claimsOut };
+            }
+            if (confirmedTexts.length) {
+              for (const stage of ["audit_support", "audit_consistency", "audit_formal_rules"] as const) {
+                const r = ctx.results[stage] as { output?: { findings: Array<{ severity: string; message: string }> } } | undefined;
+                if (r?.output?.findings) {
+                  const findings = r.output.findings.filter(
+                    (f) => !(f.severity === "error" && confirmedTexts.some((t) => f.message.includes(t))),
+                  );
+                  (ctx.results as Record<string, { output?: unknown }>)[stage] = { ...r, output: { ...r.output, findings } };
+                }
+              }
+            }
+            return liveProjectView({ ...p, live: { ...p.live, ctx } });
+          }
+          // Local/mock project: update claim sources and the stored audit in place.
+          const claims = p.claims.map((c) =>
+            c.id === claimId
+              ? { ...c, sources: c.sources.map((src) => (src.kind === "none" ? { label: "用户确认", kind: "user" as const } : src)) }
+              : c,
+          );
+          let audit = p.audit;
+          if (audit) {
+            const confirmed = audit.rows.filter((r) => r.claimId === claimId && r.status === "none").length;
+            if (confirmed > 0) {
+              audit = {
+                ...audit,
+                rows: audit.rows.map((r) =>
+                  r.claimId === claimId && r.status === "none" ? { ...r, status: "user" as const, source: "用户确认" } : r,
+                ),
+                errors: Math.max(0, audit.errors - confirmed),
+                passed: audit.passed + confirmed,
+              };
+            }
+          }
+          return { ...p, claims, audit };
+        }),
+      }));
+    },
+    [update],
   );
 
   /** Shared live-pipeline executor: loads the project, runs, saves back. */
@@ -336,6 +402,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       answerIntake,
       completeIntake,
       confirmStrategy,
+      confirmClaimSource,
       regenerateClaim,
       startLive,
       runLiveTo,
@@ -355,6 +422,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       answerIntake,
       completeIntake,
       confirmStrategy,
+      confirmClaimSource,
       regenerateClaim,
       startLive,
       runLiveTo,

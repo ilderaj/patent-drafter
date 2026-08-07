@@ -136,10 +136,10 @@
     "warnings": 3,
     "errors": 1,
     "rows": [
-      { "feature": "控制主板集成控制器与三通信模块", "status": "source", "source": "交底 · 定稿 p.1", "position": "权1 / 实施方式" },
-      { "feature": "蓝牙mesh 自组网（控制器/远程控制器/网关）", "status": "source", "source": "交底 · 摘要", "position": "权1 / 摘要" },
-      { "feature": "长度 87.9mm、宽度 75.23mm", "status": "user", "source": "Intake 回答 #2", "position": "权5 / 实施例" },
-      { "feature": "插卡槽下端水通路", "status": "none", "source": "—", "position": "权9" }
+      { "feature": "控制主板集成控制器与三通信模块", "status": "source", "source": "交底 · 定稿 p.1", "position": "权1 / 实施方式", "claimId": "c1" },
+      { "feature": "蓝牙mesh 自组网（控制器/远程控制器/网关）", "status": "source", "source": "交底 · 摘要", "position": "权1 / 摘要", "claimId": "c1" },
+      { "feature": "长度 87.9mm、宽度 75.23mm", "status": "user", "source": "Intake 回答 #2", "position": "权5 / 实施例", "claimId": "c5" },
+      { "feature": "插卡槽下端水通路", "status": "none", "source": "—", "position": "权9", "claimId": "c9" }
     ],
     "checks": [
       { "icon": "ok", "text": "特征与来源匹配" },

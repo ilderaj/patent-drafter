@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../lib/store";
 import { Button, Notice, PageHeader } from "../components/ui";
-import { DEMO_AUDIT } from "../lib/data";
 
 const FILES = [
   { name: "专利申请文件草案合集.docx", note: "全部文件打包", fmt: "DOCX" },
@@ -25,7 +24,8 @@ export function ExportScreen() {
   const [done, setDone] = useState(false);
   const [unsupportedBlocked, setUnsupportedBlocked] = useState(false);
   if (!project) return null;
-  const audit = project.audit ?? DEMO_AUDIT;
+  const audit = project.audit;
+  const noneFeatures = (audit?.rows ?? []).filter((r) => r.status === "none").map((r) => r.feature);
 
   return (
     <>
@@ -58,7 +58,7 @@ export function ExportScreen() {
       {unsupportedBlocked ? (
         <div className="notice mt-4" style={{ borderColor: "var(--destructive)" }}>
           <span className="ic">!</span>
-          审校门禁：存在无来源特征（插卡槽水通路）。正式申请文件导出已被阻止，请先在工作台确认来源或删除该特征。
+          审校门禁：存在无来源特征（{noneFeatures.join("、")}）。正式申请文件导出已被阻止，请先在工作台确认该特征来源。
           <Button size="sm" variant="secondary" onClick={() => navigate(`/projects/${project.id}`)}>
             去处理
           </Button>
@@ -73,7 +73,7 @@ export function ExportScreen() {
         <Button
           onClick={() => {
             const anyFormal = Object.entries(selected).some(([n, v]) => v && !n.includes("patentpack"));
-            if (anyFormal && audit.errors > 0) {
+            if (anyFormal && audit && audit.errors > 0) {
               setUnsupportedBlocked(true);
               return;
             }

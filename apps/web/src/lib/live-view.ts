@@ -102,12 +102,13 @@ export function liveProjectView(p: Project): Project {
       warnings,
       errors,
       rows: (ctx.results.draft_claims?.output as { claims: Array<{ features: Array<{ text: string; status: string }> }> } | undefined)?.claims.flatMap(
-        (c) =>
+        (c, ci) =>
           c.features.map((f) => ({
             feature: f.text,
             status: (f.status === "source_backed" ? "source" : f.status === "user_confirmed" ? "user" : "none") as "source" | "user" | "none",
             source: f.status,
             position: "",
+            claimId: `live-claim-${ci + 1}`,
           })),
       ) ?? [],
       checks: findings.slice(0, 8).map((f) => ({

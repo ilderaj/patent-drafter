@@ -13,7 +13,7 @@ const OUTLINE = [
 
 export function Workbench() {
   const { id } = useParams();
-  const { projects, updateProject, regenerateClaim } = useStore();
+  const { projects, updateProject, regenerateClaim, confirmClaimSource } = useStore();
   const project = projects.find((p) => p.id === id) ?? null;
   const [selected, setSelected] = useState("c1");
   if (!project) return null;
@@ -88,6 +88,16 @@ export function Workbench() {
                 <span key={i} className={`src-tag ${s.kind}`}>{s.label}</span>
               ))}
             </div>
+            {claim.sources.some((s) => s.kind === "none") ? (
+              <div className="src-confirm">
+                <span>
+                  该特征在交底材料中无直接来源。确认后按「用户补充」处理，可解除导出门禁；如需删除该特征，请直接编辑上方文本。
+                </span>
+                <Button size="sm" variant="secondary" onClick={() => confirmClaimSource(project.id, claim.id)}>
+                  确认来源
+                </Button>
+              </div>
+            ) : null}
             {claim.stale ? (
               <div className="stale-note">
                 已检测到上一阶段答案更新，此段需要重新生成以保持一致性。
@@ -110,7 +120,9 @@ export function Workbench() {
             <div className="check-item"><span className="ok">✓</span>引用关系合法</div>
             <div className="check-item"><span className="warn">!</span>术语「智慧网关/智能网关」不一致</div>
             <div className="check-item"><span className="ok">✓</span>摘要 294 字（≤300）</div>
-            <div className="check-item"><span className="warn">!</span>插卡槽水通路无来源（需确认）</div>
+            {claims.some((c) => c.sources.some((s) => s.kind === "none")) ? (
+              <div className="check-item"><span className="warn">!</span>存在无来源特征（需确认）</div>
+            ) : null}
           </div>
           <div className="col-title" style={{ marginTop: 12 }}>其他文档</div>
           <div className="card pad-4" style={{ padding: 16 }}>
