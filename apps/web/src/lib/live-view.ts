@@ -97,20 +97,38 @@ export function liveProjectView(p: Project): Project {
     const errors = findings.filter((f) => f.severity === "error").length;
     const warnings = findings.filter((f) => f.severity === "warning").length;
     const passed = findings.filter((f) => f.severity === "info").length;
+    const featureRows: Array<{ feature: string; status: "source" | "user" | "none"; source: string; position: string; claimId?: string }> =
+      (ctx.results.draft_claims?.output as { claims: Array<{ features: Array<{ text: string; status: string }> }> } | undefined)
+      ?.claims.flatMap((c, ci) =>
+        c.features.map((f) => ({
+          feature: f.text,
+          status: (f.status === "source_backed" ? "source" : f.status === "user_confirmed" ? "user" : "none") as "source" | "user" | "none",
+          source: f.status,
+          position: "",
+          claimId: `live-claim-${ci + 1}`,
+        })),
+      ) ?? [];
+    // Unsupported-feature findings (mentions of 来源/unsupported) that do not
+    // map to a claim feature surface as confirmable rows (status none), so the
+    // export gate names them and the audit screen can offer a confirm action.
+    for (const f of findings) {
+      if (f.severity !== "error") continue;
+      if (!/来源|unsupported/i.test(f.message)) continue;
+      if (!featureRows.some((r) => r.feature === f.message || f.message.includes(r.feature))) {
+        featureRows.push({
+          feature: f.message.length > 48 ? `${f.message.slice(0, 48)}…` : f.message,
+          status: "none",
+          source: f.stage,
+          position: f.stage,
+          claimId: undefined,
+        });
+      }
+    }
     out.audit = {
       passed,
       warnings,
       errors,
-      rows: (ctx.results.draft_claims?.output as { claims: Array<{ features: Array<{ text: string; status: string }> }> } | undefined)?.claims.flatMap(
-        (c, ci) =>
-          c.features.map((f) => ({
-            feature: f.text,
-            status: (f.status === "source_backed" ? "source" : f.status === "user_confirmed" ? "user" : "none") as "source" | "user" | "none",
-            source: f.status,
-            position: "",
-            claimId: `live-claim-${ci + 1}`,
-          })),
-      ) ?? [],
+      rows: featureRows,
       checks: findings.slice(0, 8).map((f) => ({
         icon: (f.severity === "error" ? "err" : f.severity === "warning" ? "warn" : "ok") as "ok" | "warn" | "err",
         text: f.message,

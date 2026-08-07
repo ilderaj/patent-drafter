@@ -48,10 +48,21 @@ export class PipelineRunner {
   async runUntil(ctx: PipelineContext, target: PipelineStage): Promise<PipelineContext> {
     const targetIdx = STAGES.findIndex((s) => s.id === target);
     if (targetIdx < 0) throw new PipelineError(target, `unknown stage`);
-    for (let i = 0; i <= targetIdx; i++) {
-      const def = STAGES[i];
-      if (ctx.results[def.id]) continue; // cached — do not overwrite user-visible results
-      ctx.results[def.id] = await this.runStage(ctx, def);
+    // Topological wave execution: stages whose dependencies are all satisfied
+    // run concurrently (e.g. spec ∥ figures, the three audit stages ∥), which
+    // cuts wall-clock time for the drafting pipeline without changing output.
+    let remaining = STAGES.slice(0, targetIdx + 1).filter((s) => !ctx.results[s.id]);
+    while (remaining.length > 0) {
+      const ready = remaining.filter((s) => s.deps.every((d) => ctx.results[d] !== undefined));
+      if (ready.length === 0) {
+        throw new PipelineError(target, `unresolvable stage dependencies: ${remaining.map((s) => s.id).join(",")}`);
+      }
+      await Promise.all(
+        ready.map(async (def) => {
+          ctx.results[def.id] = await this.runStage(ctx, def);
+        }),
+      );
+      remaining = remaining.filter((s) => ctx.results[s.id] === undefined);
     }
     return ctx;
   }

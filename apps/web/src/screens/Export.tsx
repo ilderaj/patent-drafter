@@ -26,6 +26,7 @@ export function ExportScreen() {
   if (!project) return null;
   const audit = project.audit;
   const noneFeatures = (audit?.rows ?? []).filter((r) => r.status === "none").map((r) => r.feature);
+  const errorChecks = (audit?.checks ?? []).filter((c) => c.icon === "err").map((c) => c.text);
 
   return (
     <>
@@ -58,8 +59,14 @@ export function ExportScreen() {
       {unsupportedBlocked ? (
         <div className="notice mt-4" style={{ borderColor: "var(--destructive)" }}>
           <span className="ic">!</span>
-          审校门禁：存在无来源特征（{noneFeatures.join("、")}）。正式申请文件导出已被阻止，请先在工作台确认该特征来源。
-          <Button size="sm" variant="secondary" onClick={() => navigate(`/projects/${project.id}`)}>
+          审校门禁：
+          {noneFeatures.length > 0
+            ? `存在无来源特征（${noneFeatures.join("、")}）。`
+            : `存在 ${audit?.errors ?? 0} 项必须处理的审校问题${
+                errorChecks.length > 0 ? `（如：${errorChecks[0].slice(0, 48)}…）` : ""
+              }。`}
+          正式申请文件导出已被阻止，请先在审校矩阵确认已处理或在工作台处理问题。
+          <Button size="sm" variant="secondary" onClick={() => navigate(`/projects/${project.id}/audit`)}>
             去处理
           </Button>
         </div>

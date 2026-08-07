@@ -7,7 +7,7 @@ const TABS = ["支持矩阵", "一致性", "形式规则"];
 
 export function AuditScreen() {
   const { id } = useParams();
-  const { projects, confirmClaimSource } = useStore();
+  const { projects, confirmAuditFeature } = useStore();
   const [tab, setTab] = useState("支持矩阵");
   const project = projects.find((p) => p.id === id) ?? null;
   if (!project) return null;
@@ -58,8 +58,8 @@ export function AuditScreen() {
                     <td className="muted">{r.source}</td>
                     <td className="muted">{r.position}</td>
                     <td>
-                      {r.status === "none" && r.claimId ? (
-                        <Button size="sm" variant="secondary" onClick={() => confirmClaimSource(project.id, r.claimId!)}>
+                      {r.status === "none" ? (
+                        <Button size="sm" variant="secondary" onClick={() => confirmAuditFeature(project.id, r.feature)}>
                           确认来源
                         </Button>
                       ) : null}
@@ -71,11 +71,16 @@ export function AuditScreen() {
           ) : (
             <div className="card mt-4" style={{ maxWidth: 560 }}>
               {audit.checks.map((c, i) => (
-                <div className="check-item" key={i}>
+                <div className="check-item" key={i} style={{ alignItems: "flex-start" }}>
                   <span className={c.icon === "ok" ? "ok" : c.icon === "warn" ? "warn" : "err"}>
                     {c.icon === "ok" ? "✓" : "!"}
                   </span>
-                  {c.text}
+                  <span className="grow" style={{ flex: 1 }}>{c.text}</span>
+                  {c.icon === "err" ? (
+                    <Button size="sm" variant="secondary" onClick={() => confirmAuditFeature(project.id, c.text)}>
+                      确认已处理
+                    </Button>
+                  ) : null}
                 </div>
               ))}
             </div>

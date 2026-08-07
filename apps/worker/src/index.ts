@@ -55,6 +55,10 @@ interface ChatRequestBody {
   response_format?: unknown;
   temperature?: number;
   stream?: boolean;
+  /** DeepSeek-style reasoning switch (e.g. { type: "disabled" }). */
+  thinking?: unknown;
+  /** OpenAI-compatible reasoning effort (low/medium/high). */
+  reasoning_effort?: string;
 }
 
 function json(body: unknown, status = 200, extraHeaders: Record<string, string> = {}): Response {
@@ -243,6 +247,8 @@ async function handleChat(req: Request, env: Env, deps: Deps, rid: string): Prom
   };
   if (body.response_format) upstreamBody.response_format = body.response_format;
   if (typeof body.temperature === "number") upstreamBody.temperature = body.temperature;
+  if (body.thinking !== undefined) upstreamBody.thinking = body.thinking;
+  if (body.reasoning_effort !== undefined) upstreamBody.reasoning_effort = body.reasoning_effort;
   if (wantStream) {
     // Streaming keeps the client connection active during the reasoning phase
     // (upstream TTFB can exceed a minute for large prompts), which is what

@@ -15,6 +15,8 @@ export interface BridgeChatRequest {
   max_tokens?: number;
   /** Ask the bridge to stream the completion (keeps the connection alive on slow stages). */
   stream?: boolean;
+  /** DeepSeek-style reasoning switch; { type: "disabled" } skips the reasoning pass. */
+  thinking?: unknown;
 }
 
 export interface BridgeChatResponse {
@@ -32,6 +34,8 @@ export interface PreviewInfo {
 export interface DeepSeekBridgeProviderOptions {
   baseUrl?: string;
   model?: string;
+  /** Default true: stages send thinking: {type:"disabled"} to cut latency. */
+  thinkingDisabled?: boolean;
   /** Returns the current short-lived bridge session token (never the API key). */
   getSessionToken: () => string | null;
   /**
@@ -88,6 +92,10 @@ export class DeepSeekLocalBridgeProvider implements LLMProvider {
       temperature: request.temperature,
       max_tokens: MAX_TOKENS,
       stream: true,
+      // Skip the reasoning pass: pipeline stages only consume delta.content,
+      // and the reasoning tokens dominate wall-clock time (and cost) without
+      // contributing to the structured output.
+      thinking: this.options.thinkingDisabled !== false ? { type: "disabled" } : undefined,
     };
     let resp: BridgeChatResponse;
     if (this.options.autoConfirm) {

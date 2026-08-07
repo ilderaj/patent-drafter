@@ -14,6 +14,76 @@ function now(): string {
   return new Date().toISOString().slice(0, 16).replace("T", " ");
 }
 
+/** Substring-window match: the claim body may reword a feature
+ * (e.g. "插卡槽的下端设有…水通路" vs feature "插卡槽下端水通路"). */
+function fuzzyHit(text: string, feature: string): boolean {
+  if (text.includes(feature)) return true;
+  for (let len = Math.min(6, feature.length); len >= 3; len--) {
+    for (let i = 0; i + len <= feature.length; i++) {
+      if (text.includes(feature.slice(i, i + len))) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Apply a user confirmation of the given feature texts (or a whole claim):
+ * flips "none" status to user-confirmed in claims, audit rows, and (for live
+ * projects) the draft_claims context + matching audit findings.
+ */
+function confirmFeatureSources(p: Project, claimId: string | undefined, texts: string[]): Project {
+  if (p.live) {
+    const ctx: PipelineContext = { ...p.live.ctx, results: { ...p.live.ctx.results } };
+    const claimsOut = ctx.results.draft_claims?.output as
+      | { claims: Array<{ number: number; text: string; features: Array<{ text: string; status: string }> }> }
+      | undefined;
+    if (claimsOut) {
+      claimsOut.claims = claimsOut.claims.map((c) => ({
+        ...c,
+        features: c.features.map((f) =>
+          f.status === "none" && texts.some((t) => f.text === t || f.text.includes(t) || t.includes(f.text))
+            ? { ...f, status: "user_confirmed" }
+            : f,
+        ),
+      }));
+      (ctx.results as Record<string, { output?: unknown }>).draft_claims = { ...ctx.results.draft_claims!, output: claimsOut };
+    }
+    for (const stage of ["audit_support", "audit_consistency", "audit_formal_rules"] as const) {
+      const r = ctx.results[stage] as { output?: { findings: Array<{ severity: string; message: string }> } } | undefined;
+      if (r?.output?.findings) {
+        const findings = r.output.findings.filter(
+          (f) => !(f.severity === "error" && texts.some((t) => fuzzyHit(f.message, t))),
+        );
+        (ctx.results as Record<string, { output?: unknown }>)[stage] = { ...r, output: { ...r.output, findings } };
+      }
+    }
+    return liveProjectView({ ...p, live: { ...p.live, ctx } });
+  }
+  // Local/mock project: update claim sources and the stored audit in place.
+  const claims = p.claims.map((c) => {
+    const target = claimId ? c.id === claimId : c.sources.some((s) => s.kind === "none") && texts.some((t) => fuzzyHit(c.text, t));
+    return target
+      ? { ...c, sources: c.sources.map((src) => (src.kind === "none" ? { label: "用户确认", kind: "user" as const } : src)) }
+      : c;
+  });
+  let audit = p.audit;
+  if (audit) {
+    const hit = (r: AuditRow): boolean =>
+      r.status === "none" &&
+      (claimId ? r.claimId === claimId : texts.some((t) => r.feature === t || r.feature.includes(t) || t.includes(r.feature)));
+    const confirmed = audit.rows.filter(hit).length;
+    if (confirmed > 0) {
+      audit = {
+        ...audit,
+        rows: audit.rows.map((r) => (hit(r) ? { ...r, status: "user" as const, source: "用户确认" } : r)),
+        errors: Math.max(0, audit.errors - confirmed),
+        passed: audit.passed + confirmed,
+      };
+    }
+  }
+  return { ...p, claims, audit };
+}
+
 interface AppState {
   projects: Project[];
   currentId: string | null;
@@ -32,6 +102,8 @@ interface AppStore extends AppState {
   confirmStrategy: (id: string) => void;
   /** User confirms the source of an unsupported feature (unblocks the export gate). */
   confirmClaimSource: (id: string, claimId: string) => void;
+  /** Confirm a single audit row (feature text) regardless of claim linkage. */
+  confirmAuditFeature: (id: string, featureText: string) => void;
   /** Persist claim text edits; for live projects the draft_claims context stays in sync. */
   saveClaimText: (id: string, claimId: string, text: string) => void;
   regenerateClaim: (id: string, claimId: string) => void;
@@ -187,76 +259,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ...s,
         projects: s.projects.map((p) => {
           if (p.id !== id) return p;
-          if (p.live) {
-            // Live pipeline: flip the feature status inside the context and drop
-            // matching "no source" audit findings; re-derive the view snapshot.
-            const ctx: PipelineContext = { ...p.live.ctx, results: { ...p.live.ctx.results } };
-            const claimsOut = ctx.results.draft_claims?.output as
-              | { claims: Array<{ number: number; text: string; features: Array<{ text: string; status: string }> }> }
-              | undefined;
-            const num = Number(claimId.replace("live-claim-", ""));
-            const claim = claimsOut?.claims.find((c) => c.number === num);
-            const confirmedTexts = (claim?.features ?? []).map((f) => f.text);
-            if (claimsOut && claim) {
-              claimsOut.claims = claimsOut.claims.map((c) =>
-                c.number === num
-                  ? { ...c, features: c.features.map((f) => (f.status === "none" ? { ...f, status: "user_confirmed" } : f)) }
-                  : c,
-              );
-              (ctx.results as Record<string, { output?: unknown }>).draft_claims = { ...ctx.results.draft_claims!, output: claimsOut };
-            }
-            if (confirmedTexts.length) {
-              for (const stage of ["audit_support", "audit_consistency", "audit_formal_rules"] as const) {
-                const r = ctx.results[stage] as { output?: { findings: Array<{ severity: string; message: string }> } } | undefined;
-                if (r?.output?.findings) {
-                  const findings = r.output.findings.filter(
-                    (f) => !(f.severity === "error" && confirmedTexts.some((t) => f.message.includes(t))),
-                  );
-                  (ctx.results as Record<string, { output?: unknown }>)[stage] = { ...r, output: { ...r.output, findings } };
-                }
-              }
-            }
-            return liveProjectView({ ...p, live: { ...p.live, ctx } });
-          }
-          // Local/mock project: update claim sources and the stored audit in place.
-          const claims = p.claims.map((c) =>
-            c.id === claimId
-              ? { ...c, sources: c.sources.map((src) => (src.kind === "none" ? { label: "用户确认", kind: "user" as const } : src)) }
-              : c,
-          );
-          let audit = p.audit;
-          if (audit) {
-            const claim = p.claims.find((c) => c.id === claimId);
-            // Match by claimId first, then by feature text inside the claim body
-            // (covers audit rows persisted before claimId existed). The claim
-            // body may reword the feature (e.g. "插卡槽的下端设有…水通路"), so
-            // fall back to substring windows of the feature name.
-            const fuzzyHit = (text: string, feature: string): boolean => {
-              if (text.includes(feature)) return true;
-              for (let len = Math.min(6, feature.length); len >= 3; len--) {
-                for (let i = 0; i + len <= feature.length; i++) {
-                  if (text.includes(feature.slice(i, i + len))) return true;
-                }
-              }
-              return false;
-            };
-            const hit = (r: AuditRow) =>
-              r.status === "none" &&
-              (r.claimId === claimId || (claim ? fuzzyHit(claim.text, r.feature) : false));
-            const confirmed = audit.rows.filter(hit).length;
-            if (confirmed > 0) {
-              audit = {
-                ...audit,
-                rows: audit.rows.map((r) =>
-                  hit(r) ? { ...r, status: "user" as const, source: "用户确认" } : r,
-                ),
-                errors: Math.max(0, audit.errors - confirmed),
-                passed: audit.passed + confirmed,
-              };
-            }
-          }
-          return { ...p, claims, audit };
+          const claim = p.claims.find((c) => c.id === claimId);
+          const texts = (p.audit?.rows ?? [])
+            .filter((r) => r.status === "none" && (r.claimId === claimId || (claim ? fuzzyHit(claim.text, r.feature) : false)))
+            .map((r) => r.feature);
+          return confirmFeatureSources(p, claimId, texts);
         }),
+      }));
+    },
+    [update],
+  );
+
+  const confirmAuditFeature = useCallback(
+    (id: string, featureText: string) => {
+      update((s) => ({
+        ...s,
+        projects: s.projects.map((p) => (p.id === id ? confirmFeatureSources(p, undefined, [featureText]) : p)),
       }));
     },
     [update],
@@ -449,6 +467,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       completeIntake,
       confirmStrategy,
       confirmClaimSource,
+      confirmAuditFeature,
       saveClaimText,
       regenerateClaim,
       startLive,
@@ -470,6 +489,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       completeIntake,
       confirmStrategy,
       confirmClaimSource,
+      confirmAuditFeature,
       saveClaimText,
       regenerateClaim,
       startLive,
