@@ -348,4 +348,4 @@
 - qa/walk-gate-fix.mjs 新增回归脚本（12/12）；console 仅剩 dev proxy 探测噪声（bridge/worker 未运行，环境性）。
 
 ### 待办
-- wrangler deploy 生产（修复用户实际遇到的事故）；生产验证（demo 确认来源→导出放行）。
+- [x] wrangler deploy 生产（version a6589276，commit 4f8f76e）；生产验证 4/4 PASS：门禁仍拦截 → 工作台「确认来源」按钮出现 → 标签变「用户确认」→ 导出放行；pageerrors none。
