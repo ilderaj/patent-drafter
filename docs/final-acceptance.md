@@ -4,7 +4,7 @@
 
 ## 1. 结论
 
-本地可验证的交付全部完成并通过验收；**需要外部环境或授权的事项（Worker 部署抓包、Safari 真机、大陆网络抽样）已在第 10 节明确列出交接条件**。
+本地可验证的交付全部完成并通过验收；**Worker 已部署至 vibing.paymond.me/patent 并完成生产验证（含安全验收第 2/3/4 项抓包复证）**；剩余外部环境事项（浏览器本地网络授权、Safari 真机、大陆网络抽样）见第 10 节。
 
 | 验收域 | 结果 | 证据 |
 |---|---|---|
@@ -18,7 +18,9 @@
 | 交互走查 | 8 处修复、键盘全链路 | qa/walk.mjs + qa/screens/ |
 | 功能验收（Mock 管线） | 通过 | 浏览器实测（见第 8 节） |
 | Baseline 验收对账 | 39/39 PASS | qa/baseline-check.mjs + qa/baseline-report.json |
-| 安全验收 | 10/12 已有本地证据（含预览门/恶意附件/注入防线），2/3/4 项待部署 | docs/security-acceptance-evidence.md |
+| 安全验收 | 12/12 证据齐备（2/3/4 项已由生产抓包复证） | docs/security-acceptance-evidence.md |
+| 生产部署 | vibing.paymond.me/patent 上线（Worker Static Assets） | qa/prod-network-evidence.mjs + qa/screens/prod-*.png |
+| 真实 DeepSeek 端到端 | 20/20 PASS（上传→intake→策略→起草+审校→门禁） | qa/walk-live.mjs + qa/screens/live-*.png |
 
 ## 2. 交付物清单（git 提交）
 
@@ -86,16 +88,20 @@ packages/rules-cn/
 
 qa/baseline-check.mjs 对定稿夹具自检（10 条权利要求/引用合法/五段式/6 图）与生成输出对账：独立项覆盖定稿 11 项核心特征、噪声（NB/CAT.1/485/电表网关/宣传语/页脚）零残留、无来源特征精确检出 1 处并被导出门禁拦截、P1-P8 交底问题全部有对应处理证据。报告：docs/baseline-acceptance.md。
 
-## 10. 安全验收（12 项，10/12 已有本地证据）
+## 10. 安全验收（12/12 证据齐备）
 
-详见 docs/security-acceptance-evidence.md。已有证据：Key 不进浏览器存储（代码审计）、Bridge loopback-only（代码+进程实测）、CORS 无通配（403 测试）、session 过期（测试）、日志无正文（测试+采样）、每次模型发送的预览强制门（Bridge chat 路由 428 + 载荷哈希绑定，2 项测试）、恶意附件防护（parsers guard 14/14）、CI Mock Provider（14 项集成测试零真实 Key）。
+详见 docs/security-acceptance-evidence.md。本地证据：Key 不进浏览器存储（代码审计）、Bridge loopback-only（代码+进程实测）、CORS 无通配（403 测试）、session 过期（测试）、日志无正文（测试+采样）、每次模型发送的预览强制门（Bridge chat 路由 428 + 载荷哈希绑定，2 项测试）、恶意附件防护（parsers guard 14/14）、CI Mock Provider（14 项集成测试零真实 Key）。生产抓包（qa/prod-network-evidence.mjs，真实浏览器访问生产 URL）复证第 2/3/4 项：全部请求仅发往 vibing.paymond.me（3 个静态资源），无 api.deepseek.com、无 sk- 匹配、Bridge 尝试仅指向 127.0.0.1:7878；Worker 为纯静态资产无任何代理逻辑。
 
-**交接条件（需外部授权/环境）：**
+**已完成：**
 
-1. Worker 部署 + 抓包复证第 2/3/4 项（Key/专利文件不经过 vibing.paymond.me）——需用户在 Cloudflare 授权部署。
+1. **Worker 部署 + 生产抓包复证第 2/3/4 项** ✅：wrangler 部署 Worker Static Assets（patent-drafter，version cbadb2b1），路由 vibing.paymond.me/patent + /patent/*，SPA fallback、严格 CSP、不可变缓存均实测；网络面板 4/4 PASS。
+2. **18 阶段管线真实 DeepSeek 端到端联调** ✅：qa/walk-live.mjs 真实浏览器 + 真实 Key 全链路 20/20 PASS（配对→上传→intake→策略→起草+审校 8 LLM 阶段→工作台→审校 8/6/16 findings→导出门禁拦截）；audit_formal_rules 独立 prompt 补齐。
+
+**仍为外部环境事项（不阻塞主流程）：**
+
+1. 生产环境浏览器直连本机 Bridge 需要浏览器本地网络授权：macOS 本地网络权限（系统设置）+ 浏览器 Local Network Access 授权（Chrome 当前返回 ERR_BLOCKED_BY_CLIENT，in-app Browser 无 TCC 权限）；授权后生产与开发走同一代码路径（差异仅 bridge 端点）。首次使用引导文案已在 Settings 页。
 2. Safari 真机 loopback 验证（Phase 0 遗留；Chrome 150 已过，Tauri 为 Plan B）。
 3. 大陆网络可用性抽样 + 境内托管/ICP 迁移文档（docs/deployment.md 已含）。
-4. 18 阶段管线注入/恶意附件测试集与真实 DeepSeek 联调（第 8/10/11 项）：Bridge 侧预览强制门与 parsers 防护模块已实现并通过本地测试，剩余为真实模型驱动的端到端联调。
 
 ## 11. 复现命令
 
