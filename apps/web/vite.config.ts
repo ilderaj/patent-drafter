@@ -9,10 +9,32 @@ export default defineConfig({
     alias: {
       "@patent/domain": fileURLToPath(new URL("../../packages/domain/src/index.ts", import.meta.url)),
       "@patent/shared": fileURLToPath(new URL("../../packages/shared/src/index.ts", import.meta.url)),
+      "@patent/providers": fileURLToPath(new URL("../../packages/providers/src/index.ts", import.meta.url)),
+      "@patent/pipeline": fileURLToPath(new URL("../../packages/pipeline/src/index.ts", import.meta.url)),
+      // Browser-safe shims for node-only imports inside packages/*.
+      "node:fs/promises": fileURLToPath(new URL("./src/shims/empty.ts", import.meta.url)),
+      "node:path": fileURLToPath(new URL("./src/shims/empty.ts", import.meta.url)),
     },
   },
   server: {
     port: 5173,
+    proxy: {
+      // Dev-only: headless Chrome for Testing lacks macOS Local Network (TCC)
+      // permission for direct loopback fetches. Production uses the real
+      // http://127.0.0.1:7878 origin (verified via Spike A on Chrome 150).
+      "/bridge": {
+        target: "http://127.0.0.1:7878",
+        changeOrigin: false,
+        rewrite: (p) => p.replace(/^\/bridge/, ""),
+        configure: (proxy) => {
+          // Same-origin fetches carry no Origin header; re-inject the dev
+          // origin so the bridge's strict allowlist still applies.
+          proxy.on("proxyReq", (proxyReq) => {
+            proxyReq.setHeader("Origin", "http://localhost:5173");
+          });
+        },
+      },
+    },
   },
   build: {
     outDir: "dist",

@@ -16,7 +16,9 @@
     "baseUrl": ".",
     "paths": {
       "@patent/domain": ["../../packages/domain/src/index.ts"],
-      "@patent/shared": ["../../packages/shared/src/index.ts"]
+      "@patent/shared": ["../../packages/shared/src/index.ts"],
+      "@patent/providers": ["../../packages/providers/src/index.ts"],
+      "@patent/pipeline": ["../../packages/pipeline/src/index.ts"]
     }
   },
   "include": ["src", "vite.config.ts"]

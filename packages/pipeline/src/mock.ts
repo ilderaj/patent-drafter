@@ -128,9 +128,9 @@ export function mockPipelineContext(projectId = "demo", title = "一种基于三
     title,
     assets: [],
     chunks: [
-      { id: "c1", assetId: "a1", chunkIndex: 0, kind: "paragraph", text: "共享热水表，包括表体、计量部件与三模通讯模块。", page: 1, contentHash: "h1" },
-      { id: "c2", assetId: "a1", chunkIndex: 1, kind: "paragraph", text: "支持蓝牙mesh、470MHz 无线与 NB-IoT 三种通讯方式。", page: 2, contentHash: "h2" },
-      { id: "c3", assetId: "a1", chunkIndex: 2, kind: "paragraph", text: "集中抄表效率提升。", page: 3, contentHash: "h3" },
+      { id: "c1", assetId: "a1", chunkIndex: 0, kind: "paragraph" as const, text: "共享热水表，包括表体、计量部件与三模通讯模块。", page: 1, contentHash: "h1" },
+      { id: "c2", assetId: "a1", chunkIndex: 1, kind: "paragraph" as const, text: "支持蓝牙mesh、470MHz 无线与 NB-IoT 三种通讯方式。", page: 2, contentHash: "h2" },
+      { id: "c3", assetId: "a1", chunkIndex: 2, kind: "paragraph" as const, text: "集中抄表效率提升。", page: 3, contentHash: "h3" },
     ],
     userAnswers: {},
     results: {},

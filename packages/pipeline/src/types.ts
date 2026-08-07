@@ -37,8 +37,13 @@ export interface PipelineContext {
 }
 
 export interface PipelineOptions {
-  /** Directory containing packages/prompts markdown files. */
-  promptsDir: string;
+  /**
+   * Directory containing packages/prompts markdown files (Node only).
+   * Mutually exclusive with `prompts`; browsers pass an inline map instead.
+   */
+  promptsDir?: string;
+  /** Inline prompt file contents keyed by file name (browser builds). */
+  prompts?: Record<string, string>;
   rulePackVersion: string;
   promptVersion: string;
 }

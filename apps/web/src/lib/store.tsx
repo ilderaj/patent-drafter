@@ -3,8 +3,16 @@ import type { ReactNode } from "react";
 import type { IntakeAnswer, PatentType, Project, ProjectFile } from "./types";
 import { INTAKE_QUESTIONS, READINESS_DIMENSIONS, demoProject, emptyProject, statusLabelOf } from "./data";
 import { newId } from "@patent/shared";
+import type { PipelineContext } from "@patent/pipeline";
+import type { PipelineStage } from "@patent/domain";
+import { createBrowserRunner, newLiveContext, RULE_PACK_VERSION, PROMPT_VERSION } from "./pipeline";
+import { liveProjectView } from "./live-view";
 
 const LS_KEY = "patent-drafter.v1";
+
+function now(): string {
+  return new Date().toISOString().slice(0, 16).replace("T", " ");
+}
 
 interface AppState {
   projects: Project[];
@@ -24,6 +32,12 @@ interface AppStore extends AppState {
   completeIntake: (id: string) => void;
   confirmStrategy: (id: string) => void;
   regenerateClaim: (id: string, claimId: string) => void;
+  /** Start a real pipeline project from pasted disclosure text. */
+  startLive: (id: string, title: string, text: string) => Promise<void>;
+  /** Run the live pipeline up to and including `stage` (cached stages are skipped). */
+  runLiveTo: (id: string, stage: string) => Promise<void>;
+  /** Persist user answers into the live intake and continue to merge. */
+  answerLiveIntake: (id: string, answers: Record<string, string>) => Promise<void>;
   setBridgeMode: (mode: AppState["bridgeMode"]) => void;
   deleteProject: (id: string) => void;
   resetDemo: () => void;
@@ -174,6 +188,121 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [patchProject],
   );
 
+  /** Shared live-pipeline executor: loads the project, runs, saves back. */
+  const withLive = useCallback(
+    async (id: string, fn: (ctx: PipelineContext) => Promise<string>) => {
+      const p = state.projects.find((x) => x.id === id);
+      if (!p?.live) throw new Error("project is not a live pipeline project");
+      const ctx: PipelineContext = { ...p.live.ctx, results: { ...p.live.ctx.results } };
+      update((s) => ({
+        ...s,
+        projects: s.projects.map((x) =>
+          x.id === id ? { ...x, live: { ...x.live!, running: true, error: undefined } } : x,
+        ),
+      }));
+      try {
+        const reached = await fn(ctx);
+        update((s) => ({
+          ...s,
+          projects: s.projects.map((x) =>
+            x.id === id ? liveProjectView({ ...x, live: { ...x.live!, ctx, reached, running: false }, updatedAt: now() }) : x,
+          ),
+        }));
+        return;
+      } catch (e) {
+        update((s) => ({
+          ...s,
+          projects: s.projects.map((x) =>
+            x.id === id ? { ...x, live: { ...x.live!, running: false, error: (e as Error).message } } : x,
+          ),
+        }));
+        throw e;
+      }
+    },
+    [state.projects, update],
+  );
+
+  const startLive = useCallback(
+    async (id: string, title: string, text: string) => {
+      const ctx = newLiveContext(title, text);
+      update((s) => ({
+        ...s,
+        projects: s.projects.map((x) =>
+          x.id === id
+            ? {
+                ...x,
+                status: "readiness",
+                statusLabel: "分析交底材料",
+                intakeQuestions: [],
+                live: { ctx, reached: "ingest_sources", running: true, disclosure: text },
+              }
+            : x,
+        ),
+      }));
+      const runner = createBrowserRunner(true);
+      try {
+        await runner.runUntil(ctx, "generate_intake_questions");
+        const intakeOut = ctx.results.generate_intake_questions?.output as {
+          questions: Array<{ id: string; question: string; options?: string[]; required: boolean }>;
+        };
+        const readinessOut = ctx.results.assess_readiness?.output as { readiness: string; coverage: number };
+        update((s) => ({
+          ...s,
+          projects: s.projects.map((x) =>
+            x.id === id
+              ? {
+                  ...x,
+                  status: "intake",
+                  statusLabel: "补充确认",
+                  coverage: Math.round((readinessOut?.coverage ?? 0.5) * 100),
+                  intakeQuestions: (intakeOut?.questions ?? []).map((q, i) => ({
+                    id: i + 1,
+                    question: q.question,
+                    source: q.required ? "必答" : "可选",
+                    options: q.options ?? [],
+                    notePlaceholder: "补充说明（可选）",
+                  })),
+                  live: { ...x.live!, ctx, reached: "generate_intake_questions", running: false },
+                }
+              : x,
+          ),
+        }));
+      } catch (e) {
+        update((s) => ({
+          ...s,
+          projects: s.projects.map((x) =>
+            x.id === id ? { ...x, live: { ...x.live!, running: false, error: (e as Error).message } } : x,
+          ),
+        }));
+        throw e;
+      }
+    },
+    [update],
+  );
+
+  const answerLiveIntake = useCallback(
+    async (id: string, answers: Record<string, string>) => {
+      await withLive(id, async (ctx) => {
+        ctx.userAnswers = answers;
+        const runner = createBrowserRunner(true);
+        await runner.runUntil(ctx, "merge_user_confirmations");
+        return "merge_user_confirmations";
+      });
+    },
+    [withLive],
+  );
+
+  const runLiveTo = useCallback(
+    async (id: string, stage: string) => {
+      await withLive(id, async (ctx) => {
+        const runner = createBrowserRunner(true);
+        await runner.runUntil(ctx, stage as PipelineStage);
+        return stage;
+      });
+    },
+    [withLive],
+  );
+
   const regenerateClaim = useCallback(
     (id: string, claimId: string) => {
       update((s) => ({
@@ -220,6 +349,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       completeIntake,
       confirmStrategy,
       regenerateClaim,
+      startLive,
+      runLiveTo,
+      answerLiveIntake,
       setBridgeMode,
       deleteProject,
     }),
@@ -237,6 +369,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       completeIntake,
       confirmStrategy,
       regenerateClaim,
+      startLive,
+      runLiveTo,
+      answerLiveIntake,
       setBridgeMode,
       deleteProject,
     ],

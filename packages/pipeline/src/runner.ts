@@ -34,7 +34,14 @@ export class PipelineRunner {
     this.provider = provider;
     this.options = options;
     this.overrides = overrides;
-    this.systemPrompt = readFile(join(options.promptsDir, "system-core.md"), "utf8");
+    this.systemPrompt = this.loadPrompt("system-core.md");
+  }
+
+  private loadPrompt(fileName: string): Promise<string> {
+    const inline = this.options.prompts?.[fileName];
+    if (inline !== undefined) return Promise.resolve(inline);
+    if (!this.options.promptsDir) throw new Error(`prompt file ${fileName} not provided (promptsDir or prompts required)`);
+    return readFile(join(this.options.promptsDir!, fileName), "utf8");
   }
 
   /** Run every uncached stage from the start of the pipeline up to and including `target`. */
@@ -123,7 +130,7 @@ export class PipelineRunner {
     if (!def.promptFile) throw new PipelineError(def.id, "no prompt file");
     const [system, stage] = await Promise.all([
       this.systemPrompt,
-      readFile(join(this.options.promptsDir, def.promptFile), "utf8"),
+      this.loadPrompt(def.promptFile),
     ]);
     const input = def.inputOf(ctx);
     const lines = [

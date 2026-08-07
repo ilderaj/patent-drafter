@@ -124,4 +124,17 @@ export interface Project {
   audit?: AuditSummary;
   versions: VersionRecord[];
   demo?: boolean;
+  /** Real pipeline project (DeepSeek via local Bridge). */
+  live?: LiveProjectState;
+}
+
+export interface LiveProjectState {
+  /** Pipeline working state incl. per-stage results (persisted locally for now). */
+  ctx: import("@patent/pipeline").PipelineContext;
+  /** Highest stage reached so far. */
+  reached: string;
+  running: boolean;
+  error?: string;
+  /** Disclosure text pasted by the user (MVP ingestion). */
+  disclosure: string;
 }

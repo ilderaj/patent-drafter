@@ -79,6 +79,32 @@ export function ExportScreen() {
             }
             setUnsupportedBlocked(false);
             setDone(true);
+            if (project.live) {
+              const ctx = project.live.ctx;
+              const claimsOut = ctx.results.draft_claims?.output as { claims: Array<{ text: string }> } | undefined;
+              const specOut = ctx.results.draft_specification?.output as { sections: Array<{ section: string; content: string }> } | undefined;
+              const abstractOut = ctx.results.draft_abstract?.output as { abstract: string } | undefined;
+              const lines: string[] = ["# 专利申请文件草案包（本机生成）", ""];
+              lines.push("## 权利要求书", ...(claimsOut?.claims.map((c) => c.text) ?? []), "");
+              const titles: Record<string, string> = {
+                technical_field: "技术领域",
+                background: "背景技术",
+                summary: "发明内容",
+                figures_desc: "附图说明",
+                embodiments: "具体实施方式",
+              };
+              lines.push("## 说明书", ...(specOut?.sections.flatMap((s) => [`### ${titles[s.section] ?? s.section}`, s.content, ""]) ?? []));
+              if (abstractOut?.abstract) lines.push("## 说明书摘要", abstractOut.abstract, "");
+              const blob = new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `${project.name || "patent-draft"}-草案包.md`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              URL.revokeObjectURL(url);
+            }
             updateProject(project.id, {
               versions: [
                 {

@@ -307,7 +307,7 @@ export const STAGES: StageDef[] = [
   {
     id: "audit_formal_rules",
     kind: "llm",
-    promptFile: "audit-consistency.md",
+    promptFile: "audit-formal-rules.md",
     deps: ["draft_claims", "draft_abstract"],
     schema: schemas.audit_formal_rules,
     needsUserInput: false,
