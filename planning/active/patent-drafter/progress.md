@@ -457,5 +457,23 @@
   （33 commits）无共同祖先；PR #1 以替换树方式呈现完整实现，原历史保留。
 
 ### 待办（外部）
-- PR #1 合并（需用户确认；合并后 origin/main = 当前实现）。
+- 仓库迁移确认：新 repo ilderaj/patent-drafter（private）承接本项目；
+  patent-writer 视为不同项目（其上临时 PR #1 已关闭）。
 - 后续可选：Tailwind 化（契约已就绪）、bundle 拆包（告警 500KB 阈值）。
+
+## Session: 2026-08-09（仓库迁移轮：独立 repo）
+
+### 已完成
+- 用户指令：新开 GitHub repo 承接本地 WebApp 项目，与 patent-writer 视为不同项目。
+- 新建私有 repo **ilderaj/patent-drafter**（https://github.com/ilderaj/patent-drafter）。
+- 本地 main 重建为干净线性历史（40 commits：33 原始 + 5 UX 重构 + planning 收尾 +
+  prod 截图；不含 patent-writer 2026-06 旧快照与合并残留），与已部署树一致
+  （clean-main vs codex/ux-replace 仅多 4 张生产截图）。
+- origin 重指向 https://github.com/ilderaj/patent-drafter.git，main 已推送
+  （远端 HEAD = 4a03de6）。
+- patent-writer 上临时 PR #1 已关闭（附迁移说明注释）。
+- 本地 main-legacy 分支保留（含旧合并历史，可随时删除）。
+
+### 状态
+- 仓库现状：ilderaj/patent-drafter（private，main = 当前生产实现全量历史）；
+  生产部署不受影响（Version 8eddf272 已在线）。

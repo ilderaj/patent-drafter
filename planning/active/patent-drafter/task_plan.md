@@ -134,8 +134,9 @@ Phase 14（生产验证期：门禁/交互修复 + 性能优化，已上线，re
 - [x] docs/ux-tokens.md：UX 基本 token 与组件标准（含 shadcn 映射表与禁项）
 - [x] pencil：design/patent-drafter-v2.pen 关键屏重构 + 预览导出
 - [x] 回归：typecheck/build/walk.mjs/walk-gate-fix.mjs 全绿 + 浏览器截图走查
-- [x] git：branch → commit → push（remote patent-writer；远端 main 为 2026-06 旧快照、
-  无共同祖先，改为 codex/ux-replace 完整替换树）→ PR #1
+- [x] git：独立仓库迁移——新 repo ilderaj/patent-drafter（private）已创建，
+  本地 main 重建为干净线性历史（40 commits，不携带 patent-writer 旧快照）并推送；
+  patent-writer 上临时 PR #1 已关闭（视为不同项目）
 - [x] 生产部署：wrangler deploy Version 8eddf272（index-D8SjM_iC.js）+ 生产冒烟 4 屏通过
 - **Status:** completed（PR #1 待合并；合并注意：--allow-unrelated-histories 或直接接受替换）
 
