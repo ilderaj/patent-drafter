@@ -5,6 +5,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "noEmit": true,
@@ -18,7 +19,9 @@
       "@patent/domain": ["../../packages/domain/src/index.ts"],
       "@patent/shared": ["../../packages/shared/src/index.ts"],
       "@patent/providers": ["../../packages/providers/src/index.ts"],
-      "@patent/pipeline": ["../../packages/pipeline/src/index.ts"]
+      "@patent/pipeline": ["../../packages/pipeline/src/index.ts"],
+      "@patent/export/notes": ["../../packages/export/src/notes.ts"],
+      "@patent/export": ["../../packages/export/src/index.ts"]
     }
   },
   "include": ["src", "vite.config.ts"]

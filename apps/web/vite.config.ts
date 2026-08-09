@@ -11,6 +11,8 @@ export default defineConfig({
       "@patent/shared": fileURLToPath(new URL("../../packages/shared/src/index.ts", import.meta.url)),
       "@patent/providers": fileURLToPath(new URL("../../packages/providers/src/index.ts", import.meta.url)),
       "@patent/pipeline": fileURLToPath(new URL("../../packages/pipeline/src/index.ts", import.meta.url)),
+      "@patent/export/notes": fileURLToPath(new URL("../../packages/export/src/notes.ts", import.meta.url)),
+      "@patent/export": fileURLToPath(new URL("../../packages/export/src/index.ts", import.meta.url)),
       // Browser-safe shims for node-only imports inside packages/*.
       "node:fs/promises": fileURLToPath(new URL("./src/shims/empty.ts", import.meta.url)),
       "node:path": fileURLToPath(new URL("./src/shims/empty.ts", import.meta.url)),
