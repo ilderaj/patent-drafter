@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, FileText, Loader2, UploadCloud } from "lucide-react";
 import { useStore } from "../lib/store";
-import { Button, Card, Notice, PageHeader } from "../components/ui";
+import { Button, Card, Notice, PageHeader, Skeleton, Textarea } from "../components/ui";
 import type { ProjectFile } from "../lib/types";
 import { fetchStatus, type BridgeStatus } from "../lib/bridge";
 import { extractFileText } from "../lib/extract";
@@ -108,7 +109,8 @@ export function Upload() {
         sub="支持 DOCX / PDF / TXT / MD 附件与直接粘贴文本，可同时使用。附件仅在本机浏览器中解析，不会上传。"
         actions={
           <Button variant="ghost" onClick={() => navigate("/projects")}>
-            ← 返回项目
+            <ArrowLeft size={14} />
+            返回项目
           </Button>
         }
       />
@@ -126,6 +128,9 @@ export function Upload() {
           onFiles(e.dataTransfer.files);
         }}
       >
+        <div className="drop-ic">
+          <UploadCloud size={26} />
+        </div>
         <div>拖放文件到此处，或点击选择</div>
         <div className="hint">DOCX · PDF · TXT · MD（单个 ≤ 50MB）；旧版 .doc 与图片请另存或粘贴文字</div>
         <input
@@ -146,7 +151,9 @@ export function Upload() {
         <div className="stack-3 mt-5">
           {project.files.map((f) => (
             <div className="file-row" key={f.id}>
-              <span className="ficon">▤</span>
+              <span className="ficon">
+                <FileText size={16} />
+              </span>
               <span className="grow" style={{ minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {f.name}
@@ -155,6 +162,7 @@ export function Upload() {
                   {f.kind} · {f.sizeLabel} · {f.detail}
                 </div>
               </span>
+              {f.parseStatus === "parsing" ? <Skeleton style={{ width: 56, height: 12 }} /> : null}
               <span className="muted" style={{ fontSize: 12, color: f.parseStatus === "failed" ? "var(--destructive)" : undefined }}>
                 {STATUS_TEXT[f.parseStatus]}
               </span>
@@ -184,7 +192,7 @@ export function Upload() {
             ? " 已连接 Bridge，但尚未配对或配置 API Key。"
             : ""}
         </p>
-        <textarea
+        <Textarea
           value={pasteText}
           onChange={(e) => setPasteText(e.target.value)}
           rows={8}
@@ -201,7 +209,14 @@ export function Upload() {
             <Button onClick={() => navigate(`/unlock?next=${encodeURIComponent(location.pathname)}`)}>输入访问密码</Button>
           ) : (
             <Button disabled={!project || readyChars < 20 || busy || parsing || !bridgeState?.bridgeConnected} onClick={() => void startDraft()}>
-              {busy ? "分析中…" : "开始真实起草"}
+              {busy ? (
+                <>
+                  <Loader2 size={14} className="spin" />
+                  分析中…
+                </>
+              ) : (
+                "开始真实起草"
+              )}
             </Button>
           )}
         </div>

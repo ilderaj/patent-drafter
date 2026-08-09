@@ -30,7 +30,7 @@ export function Readiness() {
       />
       <div className="card" style={{ marginBottom: 16 }}>
         <div className="row" style={{ gap: 16 }}>
-          <b style={{ fontSize: 20, fontWeight: 600 }}>{project.coverage}% 覆盖</b>
+          <b style={{ fontSize: 24, fontWeight: 600, fontFamily: "var(--font-display)" }}>{project.coverage}% 覆盖</b>
           <span className="muted" style={{ fontSize: 12, flex: 1 }}>
             {project.coverageNote}
           </span>

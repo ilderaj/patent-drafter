@@ -1,6 +1,25 @@
 import { useEffect, useState } from "react";
+import { KeyRound, Lock, ShieldAlert } from "lucide-react";
 import { useStore } from "../lib/store";
-import { Button, Card, PageHeader, Switch } from "../components/ui";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  PageHeader,
+  Separator,
+  Switch,
+} from "../components/ui";
 import {
   cloudLogin,
   confirmPairing,
@@ -12,12 +31,23 @@ import {
   type BridgeStatus,
 } from "../lib/bridge";
 
+function SwitchRow({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="row-between" style={{ padding: "10px 0" }}>
+      <span className="grow" style={{ fontSize: 13 }}>
+        {label}
+      </span>
+      <Switch checked={checked} onCheckedChange={onChange} aria-label={label} />
+    </div>
+  );
+}
+
 export function Settings() {
   const { deleteProject, setBridgeMode } = useStore();
   const [preview, setPreview] = useState(true);
   const [sessionOnly, setSessionOnly] = useState(false);
   const [webResearch, setWebResearch] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [status, setStatus] = useState<BridgeStatus | null>(null);
   const [pairing, setPairing] = useState<{ code: string; expiresInSecs: number } | null>(null);
   const [keyInput, setKeyInput] = useState("");
@@ -52,27 +82,35 @@ export function Settings() {
       />
       <div className="stack-5" style={{ maxWidth: 640 }}>
         <Card>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>模型来源</div>
-          <div className="card pad-4 mt-3" style={{ background: "var(--muted)" }}>
+          <CardHeader>
+            <CardTitle>模型来源</CardTitle>
+            <CardDescription>选择凭据托管方式，材料与草稿始终只在本机保存</CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="row-between">
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 500 }}>
-                  {isCloud ? "DeepSeek（云端安全通道）" : "DeepSeek（经本机 Bridge）"}
-                </div>
-                <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
-                  {status === null
-                    ? "正在检测模型通道…"
-                    : !status.bridgeConnected
-                      ? isCloud
-                        ? "云端服务不可达——请稍后再试"
-                        : "未检测到 Bridge——请先启动本机 Patent Bridge（127.0.0.1:7878）"
-                      : status.authenticated
+              <div className="row" style={{ gap: 12 }}>
+                <span className="project-icon" style={{ width: 36, height: 36 }}>
+                  {isCloud ? <Lock size={16} /> : <KeyRound size={16} />}
+                </span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>
+                    {isCloud ? "DeepSeek（云端安全通道）" : "DeepSeek（经本机 Bridge）"}
+                  </div>
+                  <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+                    {status === null
+                      ? "正在检测模型通道…"
+                      : !status.bridgeConnected
                         ? isCloud
-                          ? "云端已连接 · 已解锁（会话 12 小时有效）"
-                          : `Bridge 已连接${status.credentialConfigured ? " · Key 已配置（macOS 钥匙串）" : " · 尚未配置 API Key"}`
-                        : isCloud
-                          ? "云端已连接 · 尚未解锁"
-                          : "Bridge 已连接 · 尚未配对"}
+                          ? "云端服务不可达——请稍后再试"
+                          : "未检测到 Bridge——请先启动本机 Patent Bridge（127.0.0.1:7878）"
+                        : status.authenticated
+                          ? isCloud
+                            ? "云端已连接 · 已解锁（会话 12 小时有效）"
+                            : `Bridge 已连接${status.credentialConfigured ? " · Key 已配置（macOS 钥匙串）" : " · 尚未配置 API Key"}`
+                          : isCloud
+                            ? "云端已连接 · 尚未解锁"
+                            : "Bridge 已连接 · 尚未配对"}
+                  </div>
                 </div>
               </div>
               {isCloud ? (
@@ -111,172 +149,212 @@ export function Settings() {
               )}
             </div>
             {isCloud && status && status.bridgeConnected && !status.authenticated ? (
-              <div className="mt-3" style={{ borderTop: "1px solid var(--border)", paddingTop: 12 }}>
-                <div style={{ fontSize: 13, marginBottom: 8 }}>输入访问密码解锁（由服务拥有者提供）</div>
-                <div className="row" style={{ gap: 8 }}>
-                  <input
-                    type="password"
-                    value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && passwordInput) {
+              <>
+                <Separator className="mt-3" />
+                <div className="mt-3">
+                  <div style={{ fontSize: 13, marginBottom: 8 }}>输入访问密码解锁（由服务拥有者提供）</div>
+                  <div className="row" style={{ gap: 8 }}>
+                    <Input
+                      type="password"
+                      value={passwordInput}
+                      onChange={(e) => setPasswordInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && passwordInput) {
+                          setBusy(true);
+                          cloudLogin(passwordInput)
+                            .then(async () => {
+                              setPasswordInput("");
+                              setMsg("已解锁");
+                              await refresh();
+                            })
+                            .catch((err) => setMsg(`解锁失败：${(err as Error).message}`))
+                            .finally(() => setBusy(false));
+                        }
+                      }}
+                      placeholder="访问密码"
+                      aria-label="访问密码"
+                      style={{ flex: 1 }}
+                    />
+                    <Button
+                      size="sm"
+                      disabled={busy || !passwordInput}
+                      onClick={async () => {
                         setBusy(true);
-                        cloudLogin(passwordInput)
-                          .then(async () => {
-                            setPasswordInput("");
-                            setMsg("已解锁");
-                            await refresh();
-                          })
-                          .catch((err) => setMsg(`解锁失败：${(err as Error).message}`))
-                          .finally(() => setBusy(false));
-                      }
-                    }}
-                    placeholder="访问密码"
-                    aria-label="访问密码"
-                    style={{ flex: 1, fontSize: 13, padding: "6px 10px" }}
-                  />
-                  <Button
-                    size="sm"
-                    disabled={busy || !passwordInput}
-                    onClick={async () => {
-                      setBusy(true);
-                      try {
-                        await cloudLogin(passwordInput);
-                        setPasswordInput("");
-                        setMsg("已解锁");
-                        await refresh();
-                      } catch (e) {
-                        setMsg(`解锁失败：${(e as Error).message}`);
-                      } finally {
-                        setBusy(false);
-                      }
-                    }}
-                  >
-                    解锁
-                  </Button>
+                        try {
+                          await cloudLogin(passwordInput);
+                          setPasswordInput("");
+                          setMsg("已解锁");
+                          await refresh();
+                        } catch (e) {
+                          setMsg(`解锁失败：${(e as Error).message}`);
+                        } finally {
+                          setBusy(false);
+                        }
+                      }}
+                    >
+                      解锁
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              </>
             ) : null}
             {!isCloud && pairing ? (
-              <div className="mt-3" style={{ borderTop: "1px solid var(--border)", paddingTop: 12 }}>
-                <div style={{ fontSize: 13 }}>
-                  配对码：<span className="mono" style={{ letterSpacing: 2, fontWeight: 600 }}>{pairing.code}</span>
-                  <span className="muted" style={{ fontSize: 12 }}>（{pairing.expiresInSecs}s 内有效，一次性）</span>
+              <>
+                <Separator className="mt-3" />
+                <div className="mt-3">
+                  <div style={{ fontSize: 13 }}>
+                    配对码：<span className="mono" style={{ letterSpacing: 2, fontWeight: 600 }}>{pairing.code}</span>
+                    <span className="muted" style={{ fontSize: 12 }}>（{pairing.expiresInSecs}s 内有效，一次性）</span>
+                  </div>
+                  <div className="row mt-2" style={{ justifyContent: "flex-end" }}>
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        setBusy(true);
+                        try {
+                          await confirmPairing(pairing.code);
+                          setPairing(null);
+                          setBridgeMode("connected");
+                          await refresh();
+                        } catch (e) {
+                          setMsg(`配对失败：${(e as Error).message}`);
+                        } finally {
+                          setBusy(false);
+                        }
+                      }}
+                    >
+                      确认配对
+                    </Button>
+                  </div>
                 </div>
-                <div className="row mt-2" style={{ justifyContent: "flex-end" }}>
-                  <Button
-                    size="sm"
-                    onClick={async () => {
-                      setBusy(true);
-                      try {
-                        await confirmPairing(pairing.code);
-                        setPairing(null);
-                        setBridgeMode("connected");
-                        await refresh();
-                      } catch (e) {
-                        setMsg(`配对失败：${(e as Error).message}`);
-                      } finally {
-                        setBusy(false);
-                      }
-                    }}
-                  >
-                    确认配对
-                  </Button>
-                </div>
-              </div>
+              </>
             ) : null}
             {!isCloud && status?.bridgeConnected && status.authenticated && !status.credentialConfigured ? (
-              <div className="mt-3" style={{ borderTop: "1px solid var(--border)", paddingTop: 12 }}>
-                <div style={{ fontSize: 13, marginBottom: 8 }}>配置 DeepSeek API Key（仅写入本机钥匙串）</div>
-                <div className="row" style={{ gap: 8 }}>
-                  <input
-                    type="password"
-                    value={keyInput}
-                    onChange={(e) => setKeyInput(e.target.value)}
-                    placeholder="sk-…"
-                    aria-label="DeepSeek API Key"
-                    style={{ flex: 1, fontFamily: "monospace", fontSize: 12 }}
-                  />
-                  <Button
-                    size="sm"
-                    disabled={busy || keyInput.trim().length < 8}
-                    onClick={async () => {
-                      setBusy(true);
-                      try {
-                        await storeApiKey(keyInput.trim());
-                        setKeyInput("");
-                        await refresh();
-                        setMsg("Key 已保存到本机钥匙串");
-                      } catch (e) {
-                        setMsg(`保存失败：${(e as Error).message}`);
-                      } finally {
-                        setBusy(false);
-                      }
-                    }}
-                  >
-                    保存
-                  </Button>
+              <>
+                <Separator className="mt-3" />
+                <div className="mt-3">
+                  <div style={{ fontSize: 13, marginBottom: 8 }}>配置 DeepSeek API Key（仅写入本机钥匙串）</div>
+                  <div className="row" style={{ gap: 8 }}>
+                    <Input
+                      type="password"
+                      value={keyInput}
+                      onChange={(e) => setKeyInput(e.target.value)}
+                      placeholder="sk-…"
+                      aria-label="DeepSeek API Key"
+                      style={{ flex: 1, fontFamily: "var(--font-mono)", fontSize: 12 }}
+                    />
+                    <Button
+                      size="sm"
+                      disabled={busy || keyInput.trim().length < 8}
+                      onClick={async () => {
+                        setBusy(true);
+                        try {
+                          await storeApiKey(keyInput.trim());
+                          setKeyInput("");
+                          await refresh();
+                          setMsg("Key 已保存到本机钥匙串");
+                        } catch (e) {
+                          setMsg(`保存失败：${(e as Error).message}`);
+                        } finally {
+                          setBusy(false);
+                        }
+                      }}
+                    >
+                      保存
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              </>
             ) : null}
             {!isCloud && status?.bridgeConnected && status.credentialConfigured ? (
-              <div className="row-between mt-3" style={{ borderTop: "1px solid var(--border)", paddingTop: 12 }}>
-                <span style={{ fontSize: 13 }}>API Key</span>
-                <div className="row" style={{ gap: 12 }}>
-                  <span className="mono muted" style={{ fontSize: 12 }}>sk-••••••••••••（已配置）</span>
-                  <button
-                    className="link-button"
-                    style={{ fontSize: 12 }}
-                    onClick={async () => {
-                      await deleteApiKey();
-                      await refresh();
-                    }}
-                  >
-                    删除 Key
-                  </button>
+              <>
+                <Separator className="mt-3" />
+                <div className="row-between mt-3">
+                  <span style={{ fontSize: 13 }}>API Key</span>
+                  <div className="row" style={{ gap: 12 }}>
+                    <span className="mono muted" style={{ fontSize: 12 }}>sk-••••••••••••（已配置）</span>
+                    <button
+                      className="link-button"
+                      style={{ fontSize: 12 }}
+                      onClick={async () => {
+                        await deleteApiKey();
+                        await refresh();
+                      }}
+                    >
+                      删除 Key
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </>
             ) : null}
             {isCloud && status?.authenticated ? (
-              <div className="mt-3" style={{ borderTop: "1px solid var(--border)", paddingTop: 12 }}>
-                <span className="muted" style={{ fontSize: 12 }}>
-                  DeepSeek Key 由服务拥有者在云端托管；你的浏览器只持有 12 小时有效的访问会话。
-                </span>
-              </div>
+              <>
+                <Separator className="mt-3" />
+                <div className="mt-3">
+                  <span className="muted" style={{ fontSize: 12 }}>
+                    DeepSeek Key 由服务拥有者在云端托管；你的浏览器只持有 12 小时有效的访问会话。
+                  </span>
+                </div>
+              </>
             ) : null}
             {msg ? <div className="muted" style={{ fontSize: 12, marginTop: 8 }}>{msg}</div> : null}
-          </div>
+          </CardContent>
         </Card>
         <Card>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>隐私与数据</div>
-          <div className="mt-2">
-            <Switch checked={preview} onChange={setPreview} label="每次模型调用前预览将发送内容" />
-            <Switch checked={sessionOnly} onChange={setSessionOnly} label="临时会话模式（不保存 Key，关闭后清除）" />
-            <Switch checked={webResearch} onChange={setWebResearch} label="互联网补充研究（默认关闭，逐次批准检索词）" />
-          </div>
+          <CardHeader>
+            <CardTitle>隐私与数据</CardTitle>
+            <CardDescription>本地偏好与调用行为设置，全部只保存在本机</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SwitchRow label="每次模型调用前预览将发送内容" checked={preview} onChange={setPreview} />
+            <Separator />
+            <SwitchRow label="临时会话模式（不保存 Key，关闭后清除）" checked={sessionOnly} onChange={setSessionOnly} />
+            <Separator />
+            <SwitchRow label="互联网补充研究（默认关闭，逐次批准检索词）" checked={webResearch} onChange={setWebResearch} />
+          </CardContent>
         </Card>
-        <Card style={{ borderColor: "var(--destructive)" }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--destructive)" }}>删除本机数据（不可恢复）</div>
-          <p className="muted" style={{ fontSize: 12, margin: "8px 0 16px", lineHeight: 1.7 }}>
-            删除全部项目、材料与快照。API Key 需在钥匙串中单独删除。建议先导出 .patentpack 备份。
-          </p>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              if (!confirmDelete) {
-                setConfirmDelete(true);
-                return;
-              }
-              deleteProject("demo-hot-water-meter");
-              localStorage.removeItem("patent-drafter.v1");
-              window.location.pathname = "/patent/projects";
-              location.reload();
-            }}
-          >
-            {confirmDelete ? "再次点击确认清空全部数据" : "删除本机数据"}
-          </Button>
+        <Card style={{ borderColor: "color-mix(in srgb, var(--destructive) 40%, var(--border))" }}>
+          <CardHeader>
+            <CardTitle style={{ color: "var(--destructive)" }}>删除本机数据（不可恢复）</CardTitle>
+            <CardDescription>
+              删除全部项目、材料与快照。API Key 需在钥匙串中单独删除。建议先导出 .patentpack 备份。
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
+              删除本机数据
+            </Button>
+          </CardContent>
         </Card>
       </div>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>确认清空全部数据？</DialogTitle>
+            <DialogDescription>
+              此操作将删除全部项目、上传材料与历史快照，且无法恢复。若还没有导出备份，请先返回导出 .patentpack 备份。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="ghost">取消</Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                deleteProject("demo-hot-water-meter");
+                localStorage.removeItem("patent-drafter.v1");
+                window.location.pathname = "/patent/projects";
+                location.reload();
+              }}
+            >
+              <ShieldAlert size={14} />
+              确认清空
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { CheckCircle2, FileText, ShieldAlert } from "lucide-react";
 import { useStore } from "../lib/store";
-import { Button, Notice, PageHeader } from "../components/ui";
+import { Badge, Button, Notice, PageHeader } from "../components/ui";
 
 const FILES = [
   { name: "专利申请文件草案合集.docx", note: "全部文件打包", fmt: "DOCX" },
@@ -47,18 +48,23 @@ export function ExportScreen() {
                 disabled={isBlocked}
                 onChange={(e) => setSelected((s) => ({ ...s, [f.name]: e.target.checked }))}
               />
+              <span className="ficon">
+                <FileText size={16} />
+              </span>
               <span className="grow">
                 <span style={{ fontSize: 13, fontWeight: 500 }}>{f.name}</span>
                 <span className="muted" style={{ fontSize: 12, marginLeft: 10 }}>{f.note}</span>
               </span>
-              <span className="badge mono" style={{ fontSize: 11 }}>{f.fmt}</span>
+              <Badge variant="outline" className="mono" style={{ fontSize: 11 }}>{f.fmt}</Badge>
             </label>
           );
         })}
       </div>
       {unsupportedBlocked ? (
-        <div className="notice mt-4" style={{ borderColor: "var(--destructive)" }}>
-          <span className="ic">!</span>
+        <div className="notice mt-4" style={{ borderColor: "color-mix(in srgb, var(--destructive) 45%, transparent)" }}>
+          <span className="ic">
+            <ShieldAlert size={14} />
+          </span>
           审校门禁：
           {noneFeatures.length > 0
             ? `存在无来源特征（${noneFeatures.join("、")}）。`
@@ -124,7 +130,14 @@ export function ExportScreen() {
             });
           }}
         >
-          {done ? "✓ 已在本机生成导出包" : "在本机生成导出包"}
+          {done ? (
+            <>
+              <CheckCircle2 size={15} />
+              已在本机生成导出包
+            </>
+          ) : (
+            "在本机生成导出包"
+          )}
         </Button>
       </div>
     </>

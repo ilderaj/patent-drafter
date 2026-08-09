@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
 import { useStore } from "../lib/store";
 import { Badge, Button, EmptyState, PageHeader } from "../components/ui";
 import { TYPE_LABEL, statusLabelOf } from "../lib/data";
@@ -42,7 +43,10 @@ export function Home() {
         sub="所有起草记录保存在本机，不上传云端"
         actions={
           <>
-            <Button onClick={() => navigate("/new")}>＋ 新建项目</Button>
+            <Button onClick={() => navigate("/new")}>
+              <Plus size={15} />
+              新建项目
+            </Button>
           </>
         }
       />
@@ -57,7 +61,6 @@ export function Home() {
         ))}
         {projects.length === 0 ? (
           <EmptyState
-            icon="▦"
             title="还没有项目"
             sub="新建项目并上传交底材料，或先浏览一个示例项目熟悉流程"
             action={

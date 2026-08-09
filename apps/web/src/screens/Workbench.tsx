@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { AlertCircle, AlertTriangle, Check, CheckCircle2 } from "lucide-react";
 import { useStore } from "../lib/store";
-import { Button, TextArea } from "../components/ui";
+import { Badge, Button, Textarea } from "../components/ui";
 import { DEMO_CLAIMS, DEMO_SPEC, DEMO_ABSTRACT } from "../lib/data";
 import type { ClaimDraft } from "../lib/types";
 
@@ -38,14 +39,14 @@ export function Workbench() {
         <div>
           <div style={{ fontSize: 13, fontWeight: 600 }}>{project.name}</div>
           <div className="row mt-1" style={{ gap: 8 }}>
-            <span className="badge">{project.statusLabel}</span>
+            <Badge>{project.statusLabel}</Badge>
             <span className="muted" style={{ fontSize: 12 }}>已保存 {project.updatedAt.slice(11) || "14:32"}</span>
           </div>
         </div>
         <div className="row">
-          <Link to={`/projects/${project.id}/figures`} className="btn btn-secondary btn-sm">附图中心</Link>
-          <Link to={`/projects/${project.id}/audit`} className="btn btn-secondary btn-sm">审校矩阵</Link>
-          <Link to={`/projects/${project.id}/export`} className="btn btn-primary btn-sm">导出</Link>
+          <Link to={`/projects/${project.id}/figures`} className="btn btn-outline btn-sm">附图中心</Link>
+          <Link to={`/projects/${project.id}/audit`} className="btn btn-outline btn-sm">审校矩阵</Link>
+          <Link to={`/projects/${project.id}/export`} className="btn btn-default btn-sm">导出</Link>
         </div>
       </div>
 
@@ -56,7 +57,11 @@ export function Workbench() {
             <div key={o.no} className={`outline-item ${o.done ? "done" : ""} ${o.name === "权利要求书" ? "active" : ""}`}>
               <span className="no">{o.no}</span>
               {o.name}
-              {o.done ? <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--primary-foreground)" }}>✓</span> : null}
+              {o.done ? (
+                <span style={{ marginLeft: "auto", display: "inline-flex", color: "var(--primary)" }}>
+                  <Check size={12} strokeWidth={3} />
+                </span>
+              ) : null}
             </div>
           ))}
           <div className="col-title" style={{ marginTop: 16 }}>段落</div>
@@ -71,7 +76,12 @@ export function Workbench() {
             >
               <span className="no">{claimNo(c)}</span>
               {claimSuffix(c)}
-              {c.sources.some((s) => s.kind === "none") ? <span className="warn" style={{ marginLeft: "auto", fontSize: 11 }}>!无来源</span> : null}
+              {c.sources.some((s) => s.kind === "none") ? (
+                <span className="warn" style={{ marginLeft: "auto", fontSize: 11, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                  <AlertCircle size={11} />
+                  无来源
+                </span>
+              ) : null}
             </div>
           ))}
         </div>
@@ -82,7 +92,7 @@ export function Workbench() {
             <span className="muted" style={{ fontSize: 11 }}>可编辑</span>
           </div>
           <div className="claim-card">
-            <TextArea
+            <Textarea
               value={claim.text}
               aria-label={`${claim.id} 内容编辑`}
               onChange={(e) => saveClaimText(project.id, claim.id, e.target.value)}
@@ -122,11 +132,11 @@ export function Workbench() {
         <div className="wb-col">
           <div className="col-title">实时检查</div>
           <div className="card pad-4" style={{ padding: 16 }}>
-            {checks.length > 0 ? (
+              {checks.length > 0 ? (
               checks.map((c, i) => (
                 <div className="check-item" key={i}>
-                  <span className={c.icon === "ok" ? "ok" : c.icon === "warn" ? "warn" : "err"}>
-                    {c.icon === "ok" ? "✓" : "!"}
+                  <span className={c.icon === "ok" ? "ok" : c.icon === "warn" ? "warn" : "err"} style={{ display: "inline-flex", marginTop: 2 }}>
+                    {c.icon === "ok" ? <CheckCircle2 size={13} /> : c.icon === "warn" ? <AlertTriangle size={13} /> : <AlertCircle size={13} />}
                   </span>
                   {c.text}
                 </div>
@@ -137,7 +147,12 @@ export function Workbench() {
               </div>
             )}
             {claims.some((c) => c.sources.some((s) => s.kind === "none")) ? (
-              <div className="check-item"><span className="warn">!</span>存在无来源特征（需确认）</div>
+              <div className="check-item">
+                <span className="warn" style={{ display: "inline-flex", marginTop: 2 }}>
+                  <AlertCircle size={13} />
+                </span>
+                存在无来源特征（需确认）
+              </div>
             ) : null}
           </div>
           <div className="col-title" style={{ marginTop: 12 }}>其他文档</div>

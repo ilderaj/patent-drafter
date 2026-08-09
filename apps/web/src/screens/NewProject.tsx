@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../lib/store";
-import { Button, Card, Field, PageHeader, RadioCard, TextInput } from "../components/ui";
+import { Button, Card, Field, Input, PageHeader, RadioCardItem, RadioGroup } from "../components/ui";
 import { TYPE_HINT, TYPE_LABEL } from "../lib/data";
 import type { PatentType } from "../lib/types";
 
@@ -25,7 +25,7 @@ export function NewProject() {
       <PageHeader title="新建项目" sub="先填写基本信息，下一步再上传交底材料" />
       <Card className="stack-5" style={{ maxWidth: 640 }}>
         <Field label="项目名称">
-          <TextInput
+          <Input
             placeholder="例如：一种基于三模通讯的共享热水表"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -34,21 +34,21 @@ export function NewProject() {
         </Field>
         <div>
           <div className="field-label">专利类型</div>
-          <div className="stack-3">
+          <RadioGroup value={type} onValueChange={(v) => setType(v as PatentType)}>
             {TYPES.map((t) => (
-              <RadioCard
+              <RadioCardItem
                 key={t.id}
-                selected={type === t.id}
-                onClick={() => !t.disabled && setType(t.id)}
+                value={t.id}
+                disabled={t.disabled}
               >
                 <div style={{ fontSize: 14, fontWeight: 600 }}>{t.name}</div>
                 <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>{t.note}</div>
-              </RadioCard>
+              </RadioCardItem>
             ))}
-          </div>
+          </RadioGroup>
         </div>
         <Field label="技术领域（可选，帮助选择规则包）">
-          <TextInput
+          <Input
             placeholder="例如：智慧水表 / 物联网通信"
             value={domain}
             onChange={(e) => setDomain(e.target.value)}

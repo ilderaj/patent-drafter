@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useStore } from "../lib/store";
-import { Button, PageHeader, RadioCard, TextArea } from "../components/ui";
+import { Button, PageHeader, RadioCardItem, RadioGroup, Textarea } from "../components/ui";
 import type { IntakeAnswer, IntakeQuestion, Project } from "../lib/types";
 
 function QuestionStep({
@@ -25,16 +26,16 @@ function QuestionStep({
         <h2 style={{ fontSize: 17, fontWeight: 600, margin: 0, lineHeight: 1.5 }}>{q.question}</h2>
         <div className="muted" style={{ fontSize: 12, marginTop: 8 }}>{q.source}</div>
       </div>
-      <div className="stack-3">
+      <RadioGroup value={choice ?? ""} onValueChange={(o) => { setChoice(o); setError(false); }}>
         {q.options.map((o) => (
-          <RadioCard key={o} selected={choice === o} onClick={() => { setChoice(o); setError(false); }}>
+          <RadioCardItem key={o} value={o}>
             <span style={{ fontSize: 13 }}>{o}</span>
-          </RadioCard>
+          </RadioCardItem>
         ))}
-      </div>
+      </RadioGroup>
       <div>
         <div className="field-label">补充说明（可选）</div>
-        <TextArea placeholder={q.notePlaceholder} value={note} onChange={(e) => setNote(e.target.value)} />
+        <Textarea placeholder={q.notePlaceholder} value={note} onChange={(e) => setNote(e.target.value)} />
       </div>
       <div className="row" style={{ justifyContent: "flex-end" }}>
         <Button
@@ -100,7 +101,8 @@ export function Intake() {
       />
       <div className="row mt-3" style={{ justifyContent: "flex-end", maxWidth: 720 }}>
         <Button variant="ghost" disabled={idx === 0} onClick={() => setIdx(idx - 1)}>
-          ← 上一步
+          <ArrowLeft size={14} />
+          上一步
         </Button>
       </div>
     </>
@@ -127,16 +129,16 @@ function LiveIntake({ project, onSubmit }: { project: Project; onSubmit: (a: Rec
                 <h2 style={{ fontSize: 15, fontWeight: 600, margin: 0, lineHeight: 1.5 }}>{q.question}</h2>
                 <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>{q.source}</div>
               </div>
-              <div className="stack-2">
+              <RadioGroup value={val} onValueChange={(o) => setAnswers((a) => ({ ...a, [q.id]: o }))}>
                 {q.options.map((o) => (
-                  <RadioCard key={o} selected={val === o} onClick={() => setAnswers((a) => ({ ...a, [q.id]: o }))}>
+                  <RadioCardItem key={o} value={o}>
                     <span style={{ fontSize: 13 }}>{o}</span>
-                  </RadioCard>
+                  </RadioCardItem>
                 ))}
-              </div>
+              </RadioGroup>
               <div>
                 <div className="field-label">补充说明（可选，将作为已确认事实进入起草）</div>
-                <TextArea
+                <Textarea
                   placeholder={q.notePlaceholder}
                   value={q.options.includes(val) ? "" : val}
                   onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
@@ -160,7 +162,14 @@ function LiveIntake({ project, onSubmit }: { project: Project; onSubmit: (a: Rec
               }
             }}
           >
-            {busy ? "处理中…" : "提交回答，生成保护策略"}
+            {busy ? (
+              <>
+                <Loader2 size={14} className="spin" />
+                处理中…
+              </>
+            ) : (
+              "提交回答，生成保护策略"
+            )}
           </Button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Plus } from "lucide-react";
 import { useStore } from "../lib/store";
 import { Badge, Button } from "../components/ui";
 
@@ -10,7 +11,9 @@ export function MobileHome() {
     <div>
       <div className="mobile-top">
         <h1>专利起草助手</h1>
-        <button className="btn btn-primary btn-sm" onClick={() => navigate("/new")}>＋</button>
+        <Button size="sm" onClick={() => navigate("/new")} aria-label="新建项目">
+          <Plus size={14} />
+        </Button>
       </div>
       <div className="row" style={{ padding: "12px 16px", gap: 8, overflowX: "auto" }}>
         <span className="chip active">全部</span>
@@ -51,7 +54,9 @@ export function MobileWorkbench() {
   return (
     <div>
       <div className="mobile-top">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate("/projects")}>←</button>
+        <Button variant="ghost" size="sm" onClick={() => navigate("/projects")} aria-label="返回项目">
+          <ArrowLeft size={14} />
+        </Button>
         <h1>权利要求 1</h1>
         <Button size="sm">保存</Button>
       </div>
@@ -62,8 +67,8 @@ export function MobileWorkbench() {
           <span className="src-tag source">材料原文 p.3</span>
           <span className="src-tag user">用户确认</span>
         </div>
-        <div className="notice mt-4" style={{ borderColor: "#f5d9a8" }}>
-          <span className="ic" style={{ color: "#b37400" }}>!</span>
+        <div className="notice mt-4" style={{ borderColor: "color-mix(in srgb, var(--warning) 30%, transparent)" }}>
+          <span className="ic" style={{ color: "var(--warning)" }}>!</span>
           术语「智慧网关/智能网关」不一致
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { AlertTriangle, Link2 } from "lucide-react";
 import { useStore } from "../lib/store";
 import { Button } from "../components/ui";
 
@@ -8,7 +9,9 @@ export function NoBridge() {
   return (
     <div className="state-screen">
       <div className="state-card">
-        <div className="big-ic">⌁</div>
+        <div className="big-ic">
+          <Link2 size={24} />
+        </div>
         <h2>需要本机安全服务才能继续</h2>
         <p>
           Patent Bridge 用于安全保存模型凭据、在本机解析专利材料并调用 DeepSeek。
@@ -34,7 +37,9 @@ export function ModelError() {
   return (
     <div className="state-screen">
       <div className="state-card">
-        <div className="big-ic" style={{ color: "var(--destructive)" }}>!</div>
+        <div className="big-ic" style={{ color: "var(--destructive)" }}>
+          <AlertTriangle size={24} />
+        </div>
         <h2>模型调用失败</h2>
         <p>
           DeepSeek 返回错误：额度不足或网络不可达（错误码 402）。

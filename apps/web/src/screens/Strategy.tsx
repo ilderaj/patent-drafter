@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useStore } from "../lib/store";
-import { Button, Card, PageHeader } from "../components/ui";
+import { Badge, Button, Card, Checkbox, Label, PageHeader } from "../components/ui";
 
 export function Strategy() {
   const { id } = useParams();
@@ -27,7 +28,7 @@ export function Strategy() {
           <div className="row" style={{ alignItems: "flex-start", gap: 16 }}>
             <span className="field-label" style={{ margin: 0, minWidth: 72 }}>建议类型</span>
             <div>
-              <span className="badge">{typeLabel}</span>
+              <Badge>{typeLabel}</Badge>
               <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>{typeOut?.rationale}</div>
             </div>
           </div>
@@ -37,13 +38,18 @@ export function Strategy() {
             <div className="kv"><dt>排除范围</dt><dd>{(strategyOut?.exclusions ?? []).join("；") || "无"}</dd></div>
             <div className="kv"><dt>主要风险</dt><dd>{(strategyOut?.riskNotes ?? []).join("；")}</dd></div>
           </dl>
-          <label className="check-row" style={{ borderTop: "1px solid var(--border)" }}>
-            <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
-            <span style={{ fontSize: 13 }}>我确认以上保护策略，按此起草权利要求与说明书</span>
-          </label>
+          <div className="check-row" style={{ borderTop: "1px solid var(--border)" }}>
+            <Checkbox id="strategy-confirm" checked={confirmed} onCheckedChange={(v) => setConfirmed(v === true)} />
+            <Label htmlFor="strategy-confirm" style={{ fontSize: 13, cursor: "pointer" }}>
+              我确认以上保护策略，按此起草权利要求与说明书
+            </Label>
+          </div>
           {busy ? <div className="muted" style={{ fontSize: 12 }}>正在起草权利要求、说明书、附图规划、摘要并完成审校（约 2-3 分钟，请勿关闭页面）…</div> : null}
           <div className="row" style={{ justifyContent: "flex-end" }}>
-            <Button variant="ghost" onClick={() => navigate(`/projects/${project.id}/intake`)}>← 返回补充信息</Button>
+            <Button variant="ghost" onClick={() => navigate(`/projects/${project.id}/intake`)}>
+              <ArrowLeft size={14} />
+              返回补充信息
+            </Button>
             <Button
               disabled={!confirmed || busy}
               onClick={async () => {
@@ -57,7 +63,14 @@ export function Strategy() {
                 }
               }}
             >
-              {busy ? "起草中…" : "确认并起草"}
+              {busy ? (
+                <>
+                  <Loader2 size={14} className="spin" />
+                  起草中…
+                </>
+              ) : (
+                "确认并起草"
+              )}
             </Button>
           </div>
         </Card>
@@ -81,7 +94,7 @@ export function Strategy() {
         <div className="row" style={{ alignItems: "flex-start", gap: 16 }}>
           <span className="field-label" style={{ margin: 0, minWidth: 72 }}>建议类型</span>
           <div>
-            <span className="badge">{s.type}</span>
+            <Badge>{s.type}</Badge>
             <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>{s.reason}</div>
           </div>
         </div>
@@ -90,17 +103,16 @@ export function Strategy() {
           <div className="kv"><dt>从属扩展</dt><dd>{s.dependentChain}</dd></div>
           <div className="kv"><dt>主要风险</dt><dd>{s.risks}</dd></div>
         </dl>
-        <label className="check-row" style={{ borderTop: "1px solid var(--border)" }}>
-          <input
-            type="checkbox"
-            checked={confirmed}
-            onChange={(e) => setConfirmed(e.target.checked)}
-          />
-          <span style={{ fontSize: 13 }}>{s.confirmText}</span>
-        </label>
+        <div className="check-row" style={{ borderTop: "1px solid var(--border)" }}>
+          <Checkbox id="strategy-confirm" checked={confirmed} onCheckedChange={(v) => setConfirmed(v === true)} />
+          <Label htmlFor="strategy-confirm" style={{ fontSize: 13, cursor: "pointer" }}>
+            {s.confirmText}
+          </Label>
+        </div>
         <div className="row" style={{ justifyContent: "flex-end" }}>
           <Button variant="ghost" onClick={() => navigate(`/projects/${project.id}/intake`)}>
-            ← 返回补充信息
+            <ArrowLeft size={14} />
+            返回补充信息
           </Button>
           <Button
             disabled={!confirmed}
