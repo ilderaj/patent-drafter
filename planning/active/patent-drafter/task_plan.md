@@ -127,16 +127,17 @@ Phase 14（生产验证期：门禁/交互修复 + 性能优化，已上线，re
 - **Status:** completed（reconcile 文档已产出；剩余可选优化项见 uat-reconcile §7）
 
 ### Phase 15: UX 重构轮（2026-08-09，用户指令：参考 opencodex.me + cursor.com 重构视觉、shadcn 对齐交互组件、落地 tokens/标准、pencil .pen、kill-ai-slop 审计、push/PR/部署；不得影响现有功能）
-- [ ] 参考站视觉语言提取（opencodex 文档式克制 / cursor 暖纸色 + 橙色点缀）→ 新 token 体系
-- [ ] shadcn/ui 对齐：components/ui/* 组件库（button/card/badge/input/textarea/switch/checkbox/radio/tabs/dialog 等 radix 基元）+ lucide 图标
-- [ ] 全屏视觉重构（styles.css tokens + 组件化改造，16 屏 + 移动端）
-- [ ] kill-ai-slop 扫描审计 + 修复（icon 字形 → lucide；过圆角收敛；mono 保留注明）
-- [ ] docs/ux-tokens.md：UX 基本 token 与组件标准（含 shadcn 映射表与禁项）
-- [ ] pencil：design/patent-drafter-v2.pen 关键屏重构 + 预览导出
-- [ ] 回归：typecheck/build/walk.mjs/walk-gate-fix.mjs 全绿 + 浏览器截图走查
-- [ ] git：branch codex/ux-refactor → commit → push（remote patent-writer）→ PR
-- [ ] 生产部署：wrangler deploy + 生产验证
-- **Status:** in_progress
+- [x] 参考站视觉语言提取（opencodex 文档式克制 / cursor 暖纸色 + 橙色点缀）→ 新 token 体系
+- [x] shadcn/ui 对齐：components/ui/* 组件库（button/card/badge/input/textarea/switch/checkbox/radio/tabs/dialog 等 radix 基元）+ lucide 图标
+- [x] 全屏视觉重构（styles.css tokens + 组件化改造，16 屏 + 移动端）
+- [x] kill-ai-slop 扫描审计 + 修复（icon 字形 → lucide；过圆角收敛；mono 保留注明）
+- [x] docs/ux-tokens.md：UX 基本 token 与组件标准（含 shadcn 映射表与禁项）
+- [x] pencil：design/patent-drafter-v2.pen 关键屏重构 + 预览导出
+- [x] 回归：typecheck/build/walk.mjs/walk-gate-fix.mjs 全绿 + 浏览器截图走查
+- [x] git：branch → commit → push（remote patent-writer；远端 main 为 2026-06 旧快照、
+  无共同祖先，改为 codex/ux-replace 完整替换树）→ PR #1
+- [x] 生产部署：wrangler deploy Version 8eddf272（index-D8SjM_iC.js）+ 生产冒烟 4 屏通过
+- **Status:** completed（PR #1 待合并；合并注意：--allow-unrelated-histories 或直接接受替换）
 
 ### 外部环境待办（不阻塞，已记录 final-acceptance 第 10 节）
 - 生产浏览器本地网络授权（macOS TCC + Chrome Local Network Access；本机 Chrome ERR_BLOCKED_BY_CLIENT 已记录）

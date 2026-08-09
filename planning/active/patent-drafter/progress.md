@@ -414,3 +414,48 @@
 - 回归：walk-gate-fix 12/12 PASS、tsc 0 错、build 通过。
 - 部署：Version 0977468a-4911-48fa-89bf-9e215718b679，线上 index-Dkv1hPmW.js；
   用户 tab 刷新后数据完整保留（claims=11、errors=0、rows=15）。
+
+## Session: 2026-08-09（Phase 15 UX 重构轮完成）
+
+### 本轮定位
+- 用户指令：参考 opencodex.me/zh-cn + cursor.com 重构 WebApp 前端视觉；所有交互
+  组件按 shadcn/ui 标准化对齐重构；重构内容落地为本项目 UX token 与标准；pencil
+  落地 .pen；kill-ai-slop 审计去 slop；完成 push/PR/生产部署；不改变现有功能。
+
+### 已完成
+- **参考站视觉提取**（headless Chromium 截图 + CSS 提取）：两站收敛于
+  「暖纸色 + 炭墨 + 橙/金单点缀 + 小圆角 + 发丝边框 + 药丸按钮」。
+- **新令牌体系**：背景 #F2F3F0（绿灰）→ #F7F6F2（暖纸色）、墨色 #1b1915、
+  品牌橙 #FF8400 保留、圆角 16→12/8、发丝边框 + 微阴影、衬线 display 标题
+  （Iowan/Palatino/Georgia/Songti SC）、明暗双主题全套。
+- **shadcn 对齐组件库**：components/ui/*.tsx（Button variant×size×asChild、
+  Card 组合、Badge variants、Input/Textarea/Label、radix Switch/Checkbox/
+  RadioGroup/Tabs/Dialog/Separator/Progress/Skeleton、Field/Notice/PageHeader/
+  EmptyState）+ lucide 图标全量替换字形图标。依赖新增 12 个标准包，
+  bundle gzip 155KB（+46KB）。
+- **Settings 删除确认**：双击确认 → radix Dialog（ADR-UX-004）。
+- **kill-ai-slop**：初始 3 组 10 命中 → 图标组清零；剩余功能性圆形/mono/
+  链接下划线逐项确认保留；dialog overlay blur 移除。
+- **docs/ux-tokens.md**：令牌表（明/暗）、组件契约、shadcn 映射表、
+  ADR-UX-001~004、禁项清单、维护检查。
+- **pencil v2**：design/patent-drafter-v2.pen（4 屏：项目首页/三栏工作台/
+  审校矩阵/导出）+ design/v2-previews/v2-overview.png（pencil CLI 0.3.2，
+  codex agent，QA 通过）。
+- **回归**：tsc 0 错；build 通过（index-D8SjM_iC.js）；walk flow/keys/tour 全通；
+  walk-gate-fix 12/12 PASS；新版截图 qa/screens/ux-*.png 视觉检查通过。
+- **git**：main → codex/ux-refactor（5 commits）→ 因远端 main（2026-06 旧快照）
+  无共同祖先，GitHub 拒绝 PR → 改 codex/ux-replace（以 origin/main 为基底、
+  完整替换树，255 增/230 删）→ PR #1 已开
+  （https://github.com/ilderaj/patent-writer/pull/1）。
+- **生产部署**：wrangler deploy Version 8eddf272（index-D8SjM_iC.js），
+  生产冒烟 4 屏通过（首页/工作台/审校/设置/规则，控制台仅 CF beacon 噪声）。
+
+### 决策记录
+- 不引入 Tailwind（ADR-UX-001）：shadcn 对齐落在 API/令牌/无障碍契约层，
+  避免 16 屏 + 键盘链路 + 门禁流程的迁移回归风险。
+- 远端历史处理：远程 main 为 2026-06 旧快照（51 commits），与本地权威实现
+  （33 commits）无共同祖先；PR #1 以替换树方式呈现完整实现，原历史保留。
+
+### 待办（外部）
+- PR #1 合并（需用户确认；合并后 origin/main = 当前实现）。
+- 后续可选：Tailwind 化（契约已就绪）、bundle 拆包（告警 500KB 阈值）。
