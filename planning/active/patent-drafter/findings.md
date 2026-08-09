@@ -262,3 +262,53 @@
 - 起草+审校阶段（用户项目实测）：~65s，旧基线 150s+ → **-55%+**。
 - 全流程（含 8 题作答）：~124-134s vs 旧 160-240s → **约 -45%~-48%**（作答环节
   为人工交互，不可压缩；单次与起草阶段均超过 50% 目标）。
+
+## Findings Record: 2026-08-09（UX 重构轮：参考站语言提取 + shadcn 对齐实施）
+
+### 参考站视觉语言（实测提取）
+- opencodex.me/zh-cn：Astro/Starlight 文档站。白/暖灰表面（#ffffff/#f4f4f4）、
+  文字 #393939、圆角 8/12/999、玻璃导航、克制单一强调。headless Chromium 截图
+  确认：白色背景、黑色文字、药丸按钮、⌘K 搜索框。
+- cursor.com：暖纸色背景（#f7f7f4/#EDECEC）、暖炭墨（#3C3935/#26251e/#14120b）、
+  金/橙点缀（#C08532/#C9A227，链接与主按钮橙）、衬线 display 字体（Iowan Old
+  Style/Palatino/Georgia）、小圆角、发丝边框、极简阴影。截图确认：米白背景 +
+  炭黑标题 + 橙色链接/按钮 + 药丸按钮。
+- 收敛结论：两站均收敛到「暖纸色 + 炭墨 + 橙/金单点缀 + 小圆角 + 发丝边框 +
+  药丸按钮」；与本项目已批准的橙色主色 #FF8400 方向一致 → 保留品牌橙，
+  背景 #F2F3F0（绿灰）→ #F7F6F2（暖纸色），圆角 16 → 12/8，卡片加微阴影。
+
+### 技术决策（已实施）
+- 新增依赖（shadcn 标准栈）：lucide-react、class-variance-authority、clsx、
+  @radix-ui/react-{switch,checkbox,radio-group,tabs,separator,progress,dialog,slot,label}。
+  bundle 497KB（gzip 155KB），比旧版 +46KB gzip（radix+lucide），构建告警级别不变。
+- 组件库重构：components/ui.tsx（单文件）→ components/ui/*.tsx（shadcn 契约：
+  Button variant×size×asChild、Card 组合、Badge variant、Switch/Checkbox/RadioGroup/
+  Tabs/Dialog radix 基元、Separator/Skeleton/Progress、Field/Notice/PageHeader/
+  EmptyState）+ index.ts 桶导出；旧导入路径 ../components/ui 不变。
+- 图标：AppShell 导航（Folder/ScrollText/Settings）、状态图标（CheckCircle2/
+  AlertCircle/AlertTriangle）、上传（UploadCloud/FileText）、删除确认 Dialog 等
+  全部 lucide；emoji/字形图标清零。
+- 排版：--font-display 衬线（Iowan/Palatino/Georgia/Songti SC）用于页标题、
+  Logo 与统计数字；正文保持无衬线。
+- Settings 删除数据：双击确认 → radix Dialog 二次确认（ADR-UX-004）。
+- kill-ai-slop 扫描：初始 3 组 10 命中（emoji 图标/过圆角/mono）→ 重构后
+  图标组清零；剩余命中全部为功能性圆形（radio 点/状态点/开关拇指/编号圆）、
+  真实链接下划线、mono（配对码/规则 ID/Key 输入），已逐项确认保留；
+  dialog overlay 的 backdrop-blur 移除（玻璃拟态禁项）。
+
+### 回归证据（全部实测）
+- tsc 0 错；vite build 通过（index-BeEWX8pl.js）。
+- qa/walk.mjs flow：新建→上传→示例→工作台→审校→导出（门禁拦截 blocked-by-audit:
+  true）→历史 全通；a11y OK；keys 段 autofocus/radio Tab/Enter 提交/textarea 聚焦全通
+  （"reached primary action" 为 log-only 且按钮在无 Bridge 时 disabled，非回归）。
+- qa/walk.mjs tour：demo 工作台/附图/审校/导出/历史/规则/nobridge/移动端全部渲染。
+- qa/walk-gate-fix.mjs：12/12 PASS（确认来源→门禁解除→导出放行闭环）。
+- 新版截图 qa/screens/ux-*.png（9 张）视觉检查通过：暖纸色、橙色点缀、
+  发丝边框、卡片微阴影。
+
+### 待办
+- pencil v2 .pen 生成中；docs/ux-tokens.md 已落地（令牌/组件契约/shadcn 映射/
+  禁项/ADR）。
+- git：branch codex/ux-refactor → commit → push（remote 待添加：ilderaj/patent-writer
+  PRIVATE，历史与本地无关，PR 描述需说明合并注意）→ PR。
+- wrangler deploy + 生产验证。
