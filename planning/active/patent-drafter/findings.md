@@ -312,3 +312,43 @@
 - git：branch codex/ux-refactor → commit → push（remote 待添加：ilderaj/patent-writer
   PRIVATE，历史与本地无关，PR 描述需说明合并注意）→ PR。
 - wrangler deploy + 生产验证。
+
+## Findings Record: 2026-08-09（真实多文件导出：swf_executor 执行 + Chief 验收）
+
+### 需求闭环
+- 用户裁决：导出屏 UI 承诺 7 类文件必须真实生成（此前仅单一 md，demo 甚至不下载）。
+- 执行路由：ChiefOps 派发 swf_executor 可见 worker（Assignment Packet，绑定哈希核验全绿），
+  worker 内可自用 subagent；Chief 独立复测后接受 candidate，规划写回由 Chief 执行。
+
+### 实现事实（worker 证据 + Chief 抽查复核）
+- packages/export 从类型骨架变为真实构建器：docx.ts（手写最小 OOXML + fflate zip，
+  零新增依赖）、pdf.ts（pdf-lib + 浏览器 canvas 整页栅格化；pdf-lib 标准字体遇中文
+  抛错，故中文页 canvas 绘制）、patentpack.ts（WebCrypto PBKDF2-SHA-256 200,000 次 +
+  AES-256-GCM，信封纯 base64 无明文）、assembly/notes/zip/base64/figures。
+- Export.tsx：勾选真实决定产物；patentpack 触发口令 dialog；版本 note 列出真实文件名
+  + 当前日期；列表说明（条数/字数/图号）按项目数据派生；空选报错；门禁语义与
+  「去处理」路径不变；导出路径零网络请求（隐私承诺保持）。
+- demo/本地项目从"不下载"修复为与 live 同源导出。
+- 交付形态：全部选中文件打包为单个 `<项目名>-草案包.zip`（规避浏览器多下载拦截）。
+
+### 测试证据（Chief 独立复测过的项标 ★）
+- ★ 单测 44/44（docx 合法 zip + document.xml；PDF %PDF 可解析页数；patentpack 往返
+  一致/错口令拒绝/无明文；未选中文件不产出；note 派生与空数据 fallback）。
+- ★ typecheck 0 错；★ qa/export-files.mjs 29/29（vite preview 生产构建实测）；
+  ★ walk-gate-fix 12/12；walk.mjs flow/tour/keys exit 0；baseline-check 39/39；
+  parsers-guard 14/14；build 通过。
+- bundle：旧单文件 155.12 kB gzip → 新 index-DDo8WyK1.js 182.57 + index-BeuGjq2T.js
+  161.07 = 343.64 kB gzip（+~189 kB，主要 pdf-lib）；动态 import 未形成独立异步
+  chunk，两文件均首屏加载（如实记录，后续可 manualChunks/Worker 化再优化）。
+
+### 已知限制（如实记录）
+1. PDF 正文为整页图像（canvas），中文不可选中/检索；可选中需 fontkit + 中文字体子集
+   （+1MB+ gzip），列为后续路径。
+2. brief 模式附图（无用户图纸）输出占位页并提示「需上传图纸」，不伪造附图。
+3. patentpack 口令不落盘，忘记无法找回（无服务器设计使然）。
+4. 单 zip 下载依赖浏览器允许该站点下载（一次点击一个下载）。
+5. 开发期发现的既有 postcss/tailwindcss 配置残留与本切片无关（配置文件已不存在）。
+
+### 状态
+- Chief 验收：ACCEPT。分支 codex/multi-file-export（e6661e8/b7ba258/c22d25a/0a37bfa），
+  未 push。push + 合并 + wrangler deploy 属外部人工门，等待用户授权。

@@ -477,3 +477,62 @@
 ### 状态
 - 仓库现状：ilderaj/patent-drafter（private，main = 当前生产实现全量历史）；
   生产部署不受影响（Version 8eddf272 已在线）。
+
+## Session: 2026-08-09（用户提问轮：生产导出包形态取证）
+
+### 问题
+- 用户问：导出的"草案包"在生产环境只是一个 md 文件吗？附带生产导出页截图
+  （7 个可选文件：DOCX 合集/权利要求书/说明书/说明书摘要/附图 PDF/审阅报告 PDF/
+  patentpack）与本机下载的 test2-草案包.md。
+
+### 取证结论（全部现场证据）
+- **是，生产实际导出产物 = 单一 md 文件**：apps/web/src/screens/Export.tsx 仅有一个
+  下载分支（live 项目），`new Blob(...)` + `text/markdown;charset=utf-8`，文件名
+  `${项目名}-草案包.md`，内容 = 权利要求书 + 说明书五段 + 说明书摘要。
+- 线上 bundle 复证：生产 index-D8SjM_iC.js（Version 8eddf272）全 bundle 仅
+  **1 处 Blob + 1 处 createObjectURL + 1 处 草案包.md**；`.docx`/`.pdf`/
+  patentpack 字符串只出现在文件列表 UI 标签，无任何生成代码。
+- 勾选状态仅用于：①门禁判断（anyFormal + audit.errors>0 拦截）；②版本记录
+  note「导出：N 个文件」（与真实产物不符，文案虚报数量）。
+- 非 live 项目（demo/本地）：点击生成只显示完成态，**不下载任何文件**。
+- packages/export 仅类型骨架（ExportManifest/PatentPackVault 接口），DOCX/PDF/
+  patentpack 生成为设计目标形态（.pen/架构承诺），第一阶段未实现。
+
+### 待办（未实施，等待用户决策）
+- 若需与 UI 承诺一致：实现真实多文件导出（DOCX/PDF/patentpack）或收敛 UI 文案为
+  "导出 md 草案包"；二选一后更新 ux-tokens/验收文档。
+
+## Session: 2026-08-09（ChiefOps 轮：真实多文件导出——swf_executor 执行 + 验收）
+
+### 用户指令
+- 用户裁决第一轮结论：实现真实多文件导出，要求完整测试 + 验证 + 功能 reconcile；
+  指定 $chiefops 主 session + @swf_executor 可见 worker（worker 可自用 subagent）。
+
+### Chief 派发（Assignment Packet）
+- 绑定哈希：task_plan 4c91a905 / findings 07e0d7a0 / progress b3bf49ab / HEAD 360a23c
+  （worker 动工前核验一致，无 binding_mismatch）。
+- 切片边界：packages/export + apps/web Export 屏 + qa + docs；禁 push/部署/planning
+  写回；门禁与隐私语义不得变。
+
+### Worker 执行结果（candidate done，receipt 落盘）
+- 变更：packages/export/src 8 个新模块 + tests 293 行；apps/web Export.tsx 重写 +
+  export-render.ts；qa/export-files.mjs 292 行；docs/export-files-acceptance.md；
+  4 commits（e6661e8/b7ba258/c22d25a/0a37bfa，分支 codex/multi-file-export）。
+- 单测 44/44；export-files 29/29 ×2（dev + 生产构建 preview）；walk-gate-fix 12/12；
+  walk.mjs flow/tour/keys 0；baseline 39/39；parsers 14/14；tsc 0；build 通过。
+- bundle：155.12 → 343.64 kB gzip（+189 kB，pdf-lib；动态导入未拆异步 chunk 已如实记录）。
+
+### Chief 独立验收（全部实测）
+- ★ 单测 44/44 复跑；★ typecheck 0 错；★ qa/export-files.mjs 对生产构建 preview
+  (4173) 复跑 29/29；★ walk-gate-fix 12/12 复跑（console 502/500 为既知 dev-proxy
+  探测噪声）；代码抽查：patentpack PBKDF2-200k+AES-GCM 信封无明文、门禁语义保留、
+  版本记录真实文件名、导出路径无网络调用。
+- 验收结论：**ACCEPT**。
+
+### 规划写回（Chief）
+- task_plan.md：新增 Phase 16（completed，部署待授权）；Current Phase 更新。
+- findings.md：新增 2026-08-09 多文件导出记录（实现/测试/限制）。
+
+### 待办（人工门，等待用户授权）
+- push codex/multi-file-export → 合并 main → wrangler deploy 生产 → 生产冒烟验证
+  （建议顺带 rotate 旧生产密码事项仍挂账）。

@@ -20,7 +20,7 @@ Reconcile: open
 
 ## Current Phase
 
-Phase 14（生产验证期：门禁/交互修复 + 性能优化，已上线，reconcile open）
+Phase 16（真实多文件导出：已实现并验收，push/生产部署待用户授权）
 
 ## Phases
 
@@ -139,6 +139,16 @@ Phase 14（生产验证期：门禁/交互修复 + 性能优化，已上线，re
   patent-writer 上临时 PR #1 已关闭（视为不同项目）
 - [x] 生产部署：wrangler deploy Version 8eddf272（index-D8SjM_iC.js）+ 生产冒烟 4 屏通过
 - **Status:** completed（PR #1 待合并；合并注意：--allow-unrelated-histories 或直接接受替换）
+
+### Phase 16: 真实多文件导出（2026-08-09，用户指令：实现真实多文件导出 + 完整测试 + 功能 reconcile）
+- [x] 导出构建器（packages/export）：真实 OOXML docx ×4、pdf-lib PDF ×2（canvas 栅格化）、WebCrypto PBKDF2-200k + AES-256-GCM patentpack；fflate zip 打包单文件下载
+- [x] Export 屏重写：勾选真实决定产物；patentpack 口令 dialog；版本记录真实文件名 + 当前日期；UI 说明按项目数据派生；门禁语义不变
+- [x] demo/本地项目导出（此前不下载任何文件）与 live 项目同源支持
+- [x] 测试：单测 44/44、qa/export-files.mjs 29/29（dev + 生产构建两轮）、walk-gate-fix 12/12、walk.mjs flow/tour/keys、baseline 39/39、parsers 14/14、tsc 0 错、build 通过
+- [x] 证据：docs/export-files-acceptance.md + .harness receipts（multi-file-export-2026-08-09.json）；Chief 独立复测通过（单测/typecheck/浏览器 29/29/门禁 12/12）
+- [x] git：分支 codex/multi-file-export（4 commits：e6661e8/b7ba258/c22d25a/0a37bfa）
+- [ ] push + 合并 main + wrangler deploy 生产（**人工门，等待用户授权**）
+- **Status:** completed（代码与验收完成；部署待授权）
 
 ### 外部环境待办（不阻塞，已记录 final-acceptance 第 10 节）
 - 生产浏览器本地网络授权（macOS TCC + Chrome Local Network Access；本机 Chrome ERR_BLOCKED_BY_CLIENT 已记录）
