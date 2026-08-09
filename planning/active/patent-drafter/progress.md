@@ -536,3 +536,25 @@
 ### 待办（人工门，等待用户授权）
 - push codex/multi-file-export → 合并 main → wrangler deploy 生产 → 生产冒烟验证
   （建议顺带 rotate 旧生产密码事项仍挂账）。
+
+## Session: 2026-08-09（部署授权轮：push + 合并 + 生产部署 + 生产冒烟）
+
+### 用户授权
+- 用户确认授权：push → 合并 main → wrangler deploy 生产 → 生产冒烟。
+
+### 执行结果（全部实测）
+- push codex/multi-file-export（远端新建分支）→ main fast-forward 360a23c..6b1f281
+  → push main；本地重建 dist 后 wrangler deploy **Version 43c96d1f-d5b2-4b47-a65c-9996425ab9f3**
+  （上传 index-DDo8WyK1.js / index-BeuGjq2T.js / index.html，KV/路由不变）。
+- 传播窗口期教训：部署后数秒内边缘仍服务旧 bundle（首次 curl 旧 HTML
+  index-D8SjM_iC.js；首轮生产 qa 失败恰为旧 bundle：硬编码 294 字 + demo 无下载→
+  超时）。传播稳定后复测全绿，非产品缺陷。
+- **生产冒烟：EXPORT_BASE=https://vibing.paymond.me/patent/ node qa/export-files.mjs
+  → 29/29 PASS**：demo 门禁拦截→确认来源→子集 5 文件→全量 7 文件（docx 合法 zip、
+  PDF 页数、patentpack 同口令解密 10 claims、信封无明文）→live ctx 派生导出；
+  生产数据探针：demo abstractLen=177（派生说明 177 字）、errors=1、确认来源按钮在位。
+- console 噪声：CF beacon 被应用自身 CSP（script-src 'self'）拦截 + 401，属既有环境噪声。
+
+### 状态
+- Phase 16 全闭环：实现 → 测试 → Chief 验收 → 用户授权 → 部署 → 生产验证 29/29。
+- 遗留挂账（非本切片）：旧生产密码 rotate、PDF 文本可选中（fontkit）、bundle 拆包优化。

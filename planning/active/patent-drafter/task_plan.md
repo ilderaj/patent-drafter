@@ -20,7 +20,7 @@ Reconcile: open
 
 ## Current Phase
 
-Phase 16（真实多文件导出：已实现并验收，push/生产部署待用户授权）
+Phase 16（真实多文件导出：已实现、验收、生产部署并冒烟通过）
 
 ## Phases
 
@@ -147,8 +147,9 @@ Phase 16（真实多文件导出：已实现并验收，push/生产部署待用�
 - [x] 测试：单测 44/44、qa/export-files.mjs 29/29（dev + 生产构建两轮）、walk-gate-fix 12/12、walk.mjs flow/tour/keys、baseline 39/39、parsers 14/14、tsc 0 错、build 通过
 - [x] 证据：docs/export-files-acceptance.md + .harness receipts（multi-file-export-2026-08-09.json）；Chief 独立复测通过（单测/typecheck/浏览器 29/29/门禁 12/12）
 - [x] git：分支 codex/multi-file-export（4 commits：e6661e8/b7ba258/c22d25a/0a37bfa）
-- [ ] push + 合并 main + wrangler deploy 生产（**人工门，等待用户授权**）
-- **Status:** completed（代码与验收完成；部署待授权）
+- [x] push + 合并 main + wrangler deploy 生产（Version 43c96d1f；用户授权后执行）
+- [x] 生产验证：qa/export-files.mjs 对生产 URL 29/29 PASS（含门禁/子集/全量/patentpack 解密/live 派生）
+- **Status:** completed（实现 + 验收 + 生产部署 + 生产冒烟全部闭环）
 
 ### 外部环境待办（不阻塞，已记录 final-acceptance 第 10 节）
 - 生产浏览器本地网络授权（macOS TCC + Chrome Local Network Access；本机 Chrome ERR_BLOCKED_BY_CLIENT 已记录）
