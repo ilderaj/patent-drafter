@@ -1,0 +1,5218 @@
+{
+  "version": "2.17",
+  "children": [
+    {
+      "type": "frame",
+      "id": "H3dC4b",
+      "x": 0,
+      "y": 0,
+      "name": "Screen 1 / 项目首页",
+      "clip": true,
+      "width": 1440,
+      "height": 1024,
+      "fill": "$bg",
+      "children": [
+        {
+          "type": "frame",
+          "id": "CCK89",
+          "name": "Left Sidebar",
+          "width": 272,
+          "height": "fill_container",
+          "fill": "#f2eee6",
+          "stroke": "$hairline",
+          "strokeWidth": {
+            "right": 1
+          },
+          "layout": "vertical",
+          "gap": 28,
+          "padding": [
+            28,
+            24,
+            24,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "dQgsU",
+              "name": "Brand",
+              "width": "fill_container",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "CXC3X",
+                  "name": "橙色 专 Logo",
+                  "width": 42,
+                  "height": 42,
+                  "fill": "$accent",
+                  "cornerRadius": 12,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "OAY1z",
+                      "name": "Logo Character",
+                      "fill": "#ffffff",
+                      "content": "专",
+                      "fontFamily": "$font-display",
+                      "fontSize": 25,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "XB57L",
+                  "name": "Brand Text",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "EM4Y8",
+                      "name": "App Name",
+                      "fill": "$ink",
+                      "content": "专利起草助手",
+                      "fontFamily": "$font-body",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Z6izgP",
+                      "name": "Workspace Label",
+                      "fill": "$muted",
+                      "content": "本机私有工作区",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "t7zGS",
+              "name": "Sidebar Navigation",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Gtl6S",
+                  "name": "Nav / 项目",
+                  "width": "fill_container",
+                  "fill": "$accent-soft",
+                  "cornerRadius": 999,
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "zISDH",
+                      "name": "Icon / 项目",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "folder",
+                      "library": "lucide",
+                      "fill": "$accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "yPQEH",
+                      "name": "Label / 项目",
+                      "fill": "$ink",
+                      "content": "项目",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "kHdnd",
+                  "name": "Nav / 规则与规范",
+                  "width": "fill_container",
+                  "fill": "#00000000",
+                  "cornerRadius": 999,
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "sHw42",
+                      "name": "Icon / 规则与规范",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "book-open",
+                      "library": "lucide",
+                      "fill": "$muted"
+                    },
+                    {
+                      "type": "text",
+                      "id": "tkhq1",
+                      "name": "Label / 规则与规范",
+                      "fill": "$muted",
+                      "content": "规则与规范",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "c0N45I",
+                  "name": "Nav / 模型与隐私",
+                  "width": "fill_container",
+                  "fill": "#00000000",
+                  "cornerRadius": 999,
+                  "gap": 10,
+                  "padding": [
+                    10,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "p6a9sb",
+                      "name": "Icon / 模型与隐私",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "shield",
+                      "library": "lucide",
+                      "fill": "$muted"
+                    },
+                    {
+                      "type": "text",
+                      "id": "pvGAY",
+                      "name": "Label / 模型与隐私",
+                      "fill": "$muted",
+                      "content": "模型与隐私",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "W7JEF",
+              "name": "Sidebar Spacer",
+              "width": "fill_container",
+              "height": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "NrLV7",
+              "name": "Bridge Status Footer",
+              "width": "fill_container",
+              "fill": "$paper",
+              "cornerRadius": 12,
+              "stroke": "$hairline",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "TuU9J",
+                  "name": "Bridge Status Row",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "XbXY8",
+                      "name": "Bridge Green Dot",
+                      "fill": "$green",
+                      "width": 8,
+                      "height": 8
+                    },
+                    {
+                      "type": "text",
+                      "id": "gmRGh",
+                      "name": "Bridge Status Text",
+                      "fill": "$ink",
+                      "content": "Bridge 已连接",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "rlZw0",
+                  "name": "Bridge Status Detail",
+                  "fill": "$muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "材料索引与本机模型可用 · 12 秒前同步",
+                  "lineHeight": 1.35,
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "U9Z5jv",
+          "name": "Project Home Main",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "$bg",
+          "layout": "vertical",
+          "gap": 22,
+          "padding": [
+            38,
+            44
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "UMIJM",
+              "name": "Page Header",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "koaIi",
+                  "name": "Header Title Group",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "I11Yv8",
+                      "name": "Page Title",
+                      "fill": "$ink",
+                      "content": "项目",
+                      "fontFamily": "$font-display",
+                      "fontSize": 58,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "R0GMb",
+                      "name": "Page Subtitle",
+                      "fill": "$muted",
+                      "content": "从技术交底到权利要求书，所有来源与确认都留在本机。",
+                      "fontFamily": "$font-body",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Uj0Z1",
+                  "name": "New Project Button",
+                  "fill": "$accent",
+                  "cornerRadius": 999,
+                  "gap": 8,
+                  "padding": [
+                    12,
+                    18
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "rxGpC",
+                      "name": "New Project Plus",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "plus",
+                      "library": "lucide",
+                      "fill": "#ffffff"
+                    },
+                    {
+                      "type": "text",
+                      "id": "XVIfN",
+                      "name": "New Project Label",
+                      "fill": "#ffffff",
+                      "content": "新建起草",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "fSYCK",
+              "name": "Filter Chips",
+              "width": "fill_container",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "y682R",
+                  "name": "Filter / 全部项目",
+                  "fill": "$ink",
+                  "cornerRadius": 999,
+                  "stroke": "#00000000",
+                  "strokeWidth": 1,
+                  "padding": [
+                    8,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Y19Y6",
+                      "name": "Filter Text / 全部项目",
+                      "fill": "#ffffff",
+                      "content": "全部项目",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "W2a76l",
+                  "name": "Filter / 待确认来源",
+                  "fill": "#00000000",
+                  "cornerRadius": 999,
+                  "stroke": "$hairline",
+                  "strokeWidth": 1,
+                  "padding": [
+                    8,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "UGbLd",
+                      "name": "Filter Text / 待确认来源",
+                      "fill": "$muted",
+                      "content": "待确认来源",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "t4MGf",
+                  "name": "Filter / 可导出",
+                  "fill": "#00000000",
+                  "cornerRadius": 999,
+                  "stroke": "$hairline",
+                  "strokeWidth": 1,
+                  "padding": [
+                    8,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "fiExi",
+                      "name": "Filter Text / 可导出",
+                      "fill": "$muted",
+                      "content": "可导出",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "C81gvs",
+                  "name": "Filter / 近 7 天",
+                  "fill": "#00000000",
+                  "cornerRadius": 999,
+                  "stroke": "$hairline",
+                  "strokeWidth": 1,
+                  "padding": [
+                    8,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "J6Fd5B",
+                      "name": "Filter Text / 近 7 天",
+                      "fill": "$muted",
+                      "content": "近 7 天",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "kRv6J",
+              "name": "Projects Panel",
+              "width": "fill_container",
+              "fill": "$paper",
+              "cornerRadius": 12,
+              "stroke": "$hairline",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#1b191526",
+                "offset": {
+                  "x": 0,
+                  "y": 14
+                },
+                "blur": 32,
+                "spread": -22
+              },
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "E8L9q",
+                  "name": "Projects Table Header",
+                  "width": "fill_container",
+                  "stroke": "$hairline",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "padding": [
+                    16,
+                    18
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mfW3t",
+                      "name": "Header Cell / 项目",
+                      "width": 390,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "dxJYy",
+                          "name": "Header Text / 项目",
+                          "fill": "$muted",
+                          "content": "项目",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bHUS7",
+                      "name": "Header Cell / 状态",
+                      "width": 170,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "dVNGX",
+                          "name": "Header Text / 状态",
+                          "fill": "$muted",
+                          "content": "状态",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Y4bxn",
+                      "name": "Header Cell / 最近活动",
+                      "width": 160,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "j5CyVb",
+                          "name": "Header Text / 最近活动",
+                          "fill": "$muted",
+                          "content": "最近活动",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "e6rEw",
+                      "name": "Header Cell / 来源覆盖",
+                      "width": 150,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ZCPBd",
+                          "name": "Header Text / 来源覆盖",
+                          "fill": "$muted",
+                          "content": "来源覆盖",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "VTqrj",
+                      "name": "Header Cell / 操作",
+                      "width": 112,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "hKZDH",
+                          "name": "Header Text / 操作",
+                          "fill": "$muted",
+                          "content": "操作",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "SpAM5",
+                  "name": "Project Row / 智能温控杯盖结构",
+                  "width": "fill_container",
+                  "stroke": "$hairline",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "padding": 18,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "CubxO",
+                      "name": "Project Name Cell",
+                      "width": 390,
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "TC8wJ",
+                          "name": "Project Name",
+                          "fill": "$ink",
+                          "content": "智能温控杯盖结构",
+                          "fontFamily": "$font-body",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "NGOJp",
+                          "name": "Project Meta",
+                          "fill": "$muted",
+                          "content": "发明专利 · CN 草案",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "vjnnu",
+                      "name": "Status Cell",
+                      "width": 170,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "ROZAx",
+                          "name": "Status Badge / 起草中",
+                          "fill": "$accent-soft",
+                          "cornerRadius": 999,
+                          "padding": [
+                            6,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "QvW8h",
+                              "name": "Status Text / 起草中",
+                              "fill": "$accent",
+                              "content": "起草中",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ortgJ",
+                      "name": "Project Data Cell",
+                      "width": 180,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ceCVp",
+                          "name": "Project Data Text",
+                          "fill": "$muted",
+                          "content": "今天 14:20",
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fPTVl",
+                      "name": "Project Data Cell",
+                      "width": 170,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Uhq6L",
+                          "name": "Project Data Text",
+                          "fill": "$muted",
+                          "content": "8/11 已确认",
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "CjrCG",
+                      "name": "Project Action Cell",
+                      "width": 112,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "H8nXD",
+                          "name": "Action Button / 进入工作台",
+                          "cornerRadius": 999,
+                          "stroke": "$hairline",
+                          "strokeWidth": 1,
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ar2nd",
+                              "name": "Action Label / 进入工作台",
+                              "fill": "$ink",
+                              "content": "进入工作台",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "K52LG",
+                  "name": "Project Row / 车载折叠支架锁止机构",
+                  "width": "fill_container",
+                  "stroke": "$hairline",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "padding": 18,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "JPKPw",
+                      "name": "Project Name Cell",
+                      "width": 390,
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "gJU90",
+                          "name": "Project Name",
+                          "fill": "$ink",
+                          "content": "车载折叠支架锁止机构",
+                          "fontFamily": "$font-body",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "f7Wpd",
+                          "name": "Project Meta",
+                          "fill": "$muted",
+                          "content": "发明专利 · CN 草案",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "yCftN",
+                      "name": "Status Cell",
+                      "width": 170,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "EbEef",
+                          "name": "Status Badge / 需处理",
+                          "fill": "#fff3f1",
+                          "cornerRadius": 999,
+                          "padding": [
+                            6,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "p4vMs3",
+                              "name": "Status Text / 需处理",
+                              "fill": "$red",
+                              "content": "需处理",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "nwVZh",
+                      "name": "Project Data Cell",
+                      "width": 180,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Wd0bn",
+                          "name": "Project Data Text",
+                          "fill": "$muted",
+                          "content": "昨天 18:05",
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ogqGN",
+                      "name": "Project Data Cell",
+                      "width": 170,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ujLeP",
+                          "name": "Project Data Text",
+                          "fill": "$muted",
+                          "content": "1 条无来源",
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sAQs3",
+                      "name": "Project Action Cell",
+                      "width": 112,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "llO8Z",
+                          "name": "Action Button / 处理来源",
+                          "cornerRadius": 999,
+                          "stroke": "$hairline",
+                          "strokeWidth": 1,
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "igndh",
+                              "name": "Action Label / 处理来源",
+                              "fill": "$ink",
+                              "content": "处理来源",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "WUc9y",
+                  "name": "Project Row / 微流控芯片封装方法",
+                  "width": "fill_container",
+                  "stroke": "$hairline",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "padding": 18,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "ZlZoj",
+                      "name": "Project Name Cell",
+                      "width": 390,
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "cm2wm",
+                          "name": "Project Name",
+                          "fill": "$ink",
+                          "content": "微流控芯片封装方法",
+                          "fontFamily": "$font-body",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "MMmzT",
+                          "name": "Project Meta",
+                          "fill": "$muted",
+                          "content": "发明专利 · CN 草案",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fZO1X",
+                      "name": "Status Cell",
+                      "width": 170,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "LiyaH",
+                          "name": "Status Badge / 可导出",
+                          "fill": "#edf7f1",
+                          "cornerRadius": 999,
+                          "padding": [
+                            6,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wmZbO",
+                              "name": "Status Text / 可导出",
+                              "fill": "$green",
+                              "content": "可导出",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "XWQnt",
+                      "name": "Project Data Cell",
+                      "width": 180,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ZU7br",
+                          "name": "Project Data Text",
+                          "fill": "$muted",
+                          "content": "8 月 6 日",
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bayYC",
+                      "name": "Project Data Cell",
+                      "width": 170,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qVcZj",
+                          "name": "Project Data Text",
+                          "fill": "$muted",
+                          "content": "全部通过",
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ciuyn",
+                      "name": "Project Action Cell",
+                      "width": 112,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "fjE9T",
+                          "name": "Action Button / 去导出",
+                          "cornerRadius": 999,
+                          "stroke": "$hairline",
+                          "strokeWidth": 1,
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "hQicG",
+                              "name": "Action Label / 去导出",
+                              "fill": "$ink",
+                              "content": "去导出",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wVT8n",
+              "name": "Empty State Card",
+              "width": "fill_container",
+              "fill": "#fffaf2",
+              "cornerRadius": 12,
+              "stroke": "#ead7bd",
+              "strokeWidth": 1,
+              "gap": 18,
+              "padding": 22,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "aDeDC",
+                  "name": "Empty State Icon Frame",
+                  "width": 48,
+                  "height": 48,
+                  "fill": "$accent-soft",
+                  "cornerRadius": 12,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "xDXEn",
+                      "name": "Empty State Icon",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "file-search",
+                      "library": "lucide",
+                      "fill": "$accent"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Iz411",
+                  "name": "Empty State Text Group",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 5,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "b5FTxb",
+                      "name": "Empty State Title",
+                      "fill": "$ink",
+                      "content": "还没有可复用的交底材料？",
+                      "fontFamily": "$font-body",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "uwXK8",
+                      "name": "Empty State Copy",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "拖入 PDF、Word 或会议纪要后，助手会先建立来源索引，再开始起草。",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "VqxL3",
+      "x": 1520,
+      "y": 0,
+      "name": "Screen 2 / 三栏起草工作台",
+      "clip": true,
+      "width": 1440,
+      "height": 1024,
+      "fill": "$bg",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "CUri4",
+          "name": "Workbench Top Bar",
+          "width": "fill_container",
+          "height": 76,
+          "fill": "#f2eee6",
+          "stroke": "$hairline",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "padding": [
+            0,
+            34
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "V3QOFs",
+              "name": "Workbench Breadcrumb",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "aj6JU",
+                  "name": "Back Icon",
+                  "width": 18,
+                  "height": 18,
+                  "icon": "arrow-left",
+                  "library": "lucide",
+                  "fill": "$muted"
+                },
+                {
+                  "type": "text",
+                  "id": "IrHqh",
+                  "name": "Workbench Project Name",
+                  "fill": "$ink",
+                  "content": "智能温控杯盖结构 / 权利要求书",
+                  "fontFamily": "$font-body",
+                  "fontSize": 15,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Du3oT",
+              "name": "Workbench Top Actions",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ubhdl",
+                  "name": "Top Action / 预览",
+                  "fill": "$paper",
+                  "cornerRadius": 999,
+                  "stroke": "$hairline",
+                  "strokeWidth": 1,
+                  "padding": [
+                    9,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "x7AGb9",
+                      "name": "Top Action Label / 预览",
+                      "fill": "$ink",
+                      "content": "预览",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "iGqIE",
+                  "name": "Top Action / 运行审校",
+                  "fill": "$accent",
+                  "cornerRadius": 999,
+                  "stroke": "#00000000",
+                  "strokeWidth": 1,
+                  "padding": [
+                    9,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "A4kK9",
+                      "name": "Top Action Label / 运行审校",
+                      "fill": "#ffffff",
+                      "content": "运行审校",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "eUnex",
+          "name": "Workbench Body",
+          "width": "fill_container",
+          "height": "fill_container",
+          "gap": 20,
+          "padding": [
+            24,
+            28
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "K8yk4J",
+              "name": "Outline Column",
+              "width": 308,
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 18,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mVQM1",
+                  "name": "起草大纲 Card",
+                  "width": "fill_container",
+                  "fill": "$paper",
+                  "cornerRadius": 12,
+                  "stroke": "$hairline",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 18,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "t7BR2H",
+                      "name": "起草大纲 Title",
+                      "fill": "$ink",
+                      "content": "起草大纲",
+                      "fontFamily": "$font-display",
+                      "fontSize": 26,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "inLHP",
+                      "name": "Outline Item / 技术领域",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "padding": [
+                        6,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "cg4DR",
+                          "name": "Outline Check / 技术领域",
+                          "width": 17,
+                          "height": 17,
+                          "icon": "circle-check",
+                          "library": "lucide",
+                          "fill": "$green"
+                        },
+                        {
+                          "type": "text",
+                          "id": "n1UO4C",
+                          "name": "Outline Label / 技术领域",
+                          "fill": "$muted",
+                          "content": "技术领域",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "KWpVa",
+                      "name": "Outline Item / 背景技术",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "padding": [
+                        6,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "pupup",
+                          "name": "Outline Check / 背景技术",
+                          "width": 17,
+                          "height": 17,
+                          "icon": "circle-check",
+                          "library": "lucide",
+                          "fill": "$green"
+                        },
+                        {
+                          "type": "text",
+                          "id": "TRtNl",
+                          "name": "Outline Label / 背景技术",
+                          "fill": "$muted",
+                          "content": "背景技术",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "aX7AL",
+                      "name": "Outline Item / 发明内容",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "padding": [
+                        6,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "OG9sY",
+                          "name": "Outline Check / 发明内容",
+                          "width": 17,
+                          "height": 17,
+                          "icon": "circle-check",
+                          "library": "lucide",
+                          "fill": "$green"
+                        },
+                        {
+                          "type": "text",
+                          "id": "uqAU8",
+                          "name": "Outline Label / 发明内容",
+                          "fill": "$muted",
+                          "content": "发明内容",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fwORf",
+                      "name": "Outline Item / 权利要求",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "padding": [
+                        6,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "Oywwf",
+                          "name": "Outline Check / 权利要求",
+                          "width": 17,
+                          "height": 17,
+                          "icon": "circle",
+                          "library": "lucide",
+                          "fill": "$muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "kOWMY",
+                          "name": "Outline Label / 权利要求",
+                          "fill": "$ink",
+                          "content": "权利要求",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "dfMS8",
+                  "name": "段落 List Card",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "fill": "$paper",
+                  "cornerRadius": 12,
+                  "stroke": "$hairline",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": 18,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "q3j9k",
+                      "name": "段落 Title",
+                      "fill": "$ink",
+                      "content": "段落",
+                      "fontFamily": "$font-display",
+                      "fontSize": 26,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "juDTO",
+                      "name": "Paragraph Row / 权利要求 1",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": 8,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "WKfis",
+                          "name": "Paragraph Top / 权利要求 1",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VFQMN",
+                              "name": "Paragraph Claim / 权利要求 1",
+                              "fill": "$ink",
+                              "content": "权利要求 1",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "HMJB2",
+                              "name": "Paragraph Badge / 已确认",
+                              "fill": "#f4f0e8",
+                              "cornerRadius": 999,
+                              "padding": [
+                                4,
+                                8
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "j3yKAS",
+                                  "name": "Paragraph Badge Text / 已确认",
+                                  "fill": "$muted",
+                                  "content": "已确认",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "XJVhf",
+                          "name": "Paragraph Detail / 权利要求 1",
+                          "fill": "$muted",
+                          "content": "独立权利要求",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Jlckf",
+                      "name": "Paragraph Row / 权利要求 2",
+                      "width": "fill_container",
+                      "fill": "#fff7f4",
+                      "cornerRadius": 8,
+                      "stroke": "#efc1b9",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "xosZe",
+                          "name": "Paragraph Top / 权利要求 2",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "LwEP9",
+                              "name": "Paragraph Claim / 权利要求 2",
+                              "fill": "$ink",
+                              "content": "权利要求 2",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "W1gyA",
+                              "name": "Paragraph Badge / 无来源",
+                              "fill": "#fff3f1",
+                              "cornerRadius": 999,
+                              "padding": [
+                                4,
+                                8
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "k4NTi",
+                                  "name": "Paragraph Badge Text / 无来源",
+                                  "fill": "$red",
+                                  "content": "无来源",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "D40awA",
+                          "name": "Paragraph Detail / 权利要求 2",
+                          "fill": "$muted",
+                          "content": "杯盖传感组件",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "NuYue",
+                      "name": "Paragraph Row / 权利要求 3",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": 8,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "OB0Io",
+                          "name": "Paragraph Top / 权利要求 3",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "QUpb0",
+                              "name": "Paragraph Claim / 权利要求 3",
+                              "fill": "$ink",
+                              "content": "权利要求 3",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ITDWN",
+                              "name": "Paragraph Badge / 已确认",
+                              "fill": "#f4f0e8",
+                              "cornerRadius": 999,
+                              "padding": [
+                                4,
+                                8
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "n88AiD",
+                                  "name": "Paragraph Badge Text / 已确认",
+                                  "fill": "$muted",
+                                  "content": "已确认",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "s9xYy8",
+                          "name": "Paragraph Detail / 权利要求 3",
+                          "fill": "$muted",
+                          "content": "温控执行机构",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "O7E6vG",
+                      "name": "Paragraph Row / 说明书摘要",
+                      "width": "fill_container",
+                      "fill": "#00000000",
+                      "cornerRadius": 8,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 6,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "AJoVd",
+                          "name": "Paragraph Top / 说明书摘要",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Otut0",
+                              "name": "Paragraph Claim / 说明书摘要",
+                              "fill": "$ink",
+                              "content": "说明书摘要",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "oQbEP",
+                              "name": "Paragraph Badge / 草稿",
+                              "fill": "#f4f0e8",
+                              "cornerRadius": 999,
+                              "padding": [
+                                4,
+                                8
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "GLD4e",
+                                  "name": "Paragraph Badge Text / 草稿",
+                                  "fill": "$muted",
+                                  "content": "草稿",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "v8nXrw",
+                          "name": "Paragraph Detail / 说明书摘要",
+                          "fill": "$muted",
+                          "content": "等待补充",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "zxfsd",
+              "name": "Center Editor Column",
+              "width": 650,
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "M8kp0Z",
+                  "name": "Claim Editor Card",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "fill": "$paper",
+                  "cornerRadius": 12,
+                  "stroke": "$hairline",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#1b19151f",
+                    "offset": {
+                      "x": 0,
+                      "y": 16
+                    },
+                    "blur": 36,
+                    "spread": -24
+                  },
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "UMo1g",
+                      "name": "Editor Header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "vJuSJ",
+                          "name": "Editor Title Group",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wIRv7",
+                              "name": "Editor Title",
+                              "fill": "$ink",
+                              "content": "权利要求 2",
+                              "fontFamily": "$font-display",
+                              "fontSize": 34,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "gC53L",
+                              "name": "Editor Subtitle",
+                              "fill": "$muted",
+                              "content": "杯盖传感组件 · 需要确认来源",
+                              "fontFamily": "$font-body",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "thJmo",
+                          "name": "No Source Flag",
+                          "fill": "#fff3f1",
+                          "cornerRadius": 999,
+                          "gap": 6,
+                          "padding": [
+                            7,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "KCj1J",
+                              "name": "No Source Warning Icon",
+                              "width": 14,
+                              "height": 14,
+                              "icon": "triangle-alert",
+                              "library": "lucide",
+                              "fill": "$red"
+                            },
+                            {
+                              "type": "text",
+                              "id": "dMkea",
+                              "name": "No Source Warning Text",
+                              "fill": "$red",
+                              "content": "无来源",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "nnbvS",
+                      "name": "Source Tags",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "b1Bx84",
+                          "name": "Source Tag / 材料原文",
+                          "fill": "#eef5fb",
+                          "cornerRadius": 999,
+                          "padding": [
+                            6,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "doVbC",
+                              "name": "Source Tag Text / 材料原文",
+                              "fill": "$blue",
+                              "content": "材料原文",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "jmVqh",
+                          "name": "Source Tag / 用户确认",
+                          "fill": "$accent-soft",
+                          "cornerRadius": 999,
+                          "padding": [
+                            6,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "UYthx",
+                              "name": "Source Tag Text / 用户确认",
+                              "fill": "$accent",
+                              "content": "用户确认",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "n0lHD",
+                          "name": "Source Tag / 审校建议",
+                          "fill": "#f4f0e8",
+                          "cornerRadius": 999,
+                          "padding": [
+                            6,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "H1bMg",
+                              "name": "Source Tag Text / 审校建议",
+                              "fill": "$muted",
+                              "content": "审校建议",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "IMec8",
+                      "name": "Textarea Shell",
+                      "width": "fill_container",
+                      "height": 560,
+                      "fill": "#fffdf8",
+                      "cornerRadius": 8,
+                      "stroke": "#d8d1c3",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 14,
+                      "padding": 20,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "xTYCz",
+                          "name": "Claim Textarea Content",
+                          "fill": "$ink",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "2. 根据权利要求 1 所述的智能温控杯盖结构，其特征在于，所述温度采集模块包括设置于饮水接触面的第一温度传感器以及设置于杯盖外侧的第二温度传感器；\n\n其中，控制单元根据第一温度传感器与第二温度传感器的差值调整加热膜的占空比，以使饮水口附近温度维持在预设范围内。",
+                          "lineHeight": 1.65,
+                          "fontFamily": "$font-body",
+                          "fontSize": 17,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "L9MGU",
+                      "name": "Autosave Note",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "ellipse",
+                          "id": "Sp7vV",
+                          "name": "Autosave Pulse",
+                          "fill": "$green",
+                          "width": 7,
+                          "height": 7
+                        },
+                        {
+                          "type": "text",
+                          "id": "aGuOf",
+                          "name": "Autosave Text",
+                          "fill": "$muted",
+                          "content": "已自动保存 · 本机草稿 16:42 · 未上传云端",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FZDVs",
+              "name": "Right Audit Column",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "I1h5l",
+                  "name": "Live Audit Checks Card",
+                  "width": "fill_container",
+                  "fill": "$paper",
+                  "cornerRadius": 12,
+                  "stroke": "$hairline",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 18,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "DtFeq",
+                      "name": "Live Audit Title",
+                      "fill": "$ink",
+                      "content": "实时审校",
+                      "fontFamily": "$font-display",
+                      "fontSize": 28,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YtBE2",
+                      "name": "Audit Check / 术语一致",
+                      "width": "fill_container",
+                      "stroke": "$hairline",
+                      "strokeWidth": {
+                        "bottom": 1
+                      },
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "M1cgW",
+                          "name": "Audit Icon / 术语一致",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$green"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "HBn7U",
+                          "name": "Audit Text / 术语一致",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "SyjWC",
+                              "name": "Audit Label / 术语一致",
+                              "fill": "$ink",
+                              "content": "术语一致",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "veIfU",
+                              "name": "Audit State / 术语一致",
+                              "fill": "$muted",
+                              "content": "通过",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "oHjh1",
+                      "name": "Audit Check / 来源支撑",
+                      "width": "fill_container",
+                      "stroke": "$hairline",
+                      "strokeWidth": {
+                        "bottom": 1
+                      },
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "hulkZ",
+                          "name": "Audit Icon / 来源支撑",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "circle-alert",
+                          "library": "lucide",
+                          "fill": "$red"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "PcOFb",
+                          "name": "Audit Text / 来源支撑",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "AcnG7",
+                              "name": "Audit Label / 来源支撑",
+                              "fill": "$ink",
+                              "content": "来源支撑",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "SWHif",
+                              "name": "Audit State / 来源支撑",
+                              "fill": "$muted",
+                              "content": "需确认",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "g5EZY",
+                      "name": "Audit Check / 权利要求引用",
+                      "width": "fill_container",
+                      "stroke": "$hairline",
+                      "strokeWidth": {
+                        "bottom": 1
+                      },
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "KsG1h",
+                          "name": "Audit Icon / 权利要求引用",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$green"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "KgYxV",
+                          "name": "Audit Text / 权利要求引用",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dg6iR",
+                              "name": "Audit Label / 权利要求引用",
+                              "fill": "$ink",
+                              "content": "权利要求引用",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "OZtBb",
+                              "name": "Audit State / 权利要求引用",
+                              "fill": "$muted",
+                              "content": "通过",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "r3XlKF",
+                      "name": "Audit Check / 形式规则",
+                      "width": "fill_container",
+                      "stroke": "$hairline",
+                      "strokeWidth": {
+                        "bottom": 1
+                      },
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "MWHDx",
+                          "name": "Audit Icon / 形式规则",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "info",
+                          "library": "lucide",
+                          "fill": "$blue"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "d6UJ0",
+                          "name": "Audit Text / 形式规则",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "HiZCZ",
+                              "name": "Audit Label / 形式规则",
+                              "fill": "$ink",
+                              "content": "形式规则",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "G3BKRe",
+                              "name": "Audit State / 形式规则",
+                              "fill": "$muted",
+                              "content": "建议检查",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "zXBbn",
+                  "name": "其他文档 Card",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "fill": "#fffaf2",
+                  "cornerRadius": 12,
+                  "stroke": "#ead7bd",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 18,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "I56tlE",
+                      "name": "其他文档 Title",
+                      "fill": "$ink",
+                      "content": "其他文档",
+                      "fontFamily": "$font-display",
+                      "fontSize": 28,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "pr9oY",
+                      "name": "Other Document / 技术交底书.pdf",
+                      "width": "fill_container",
+                      "fill": "$paper",
+                      "cornerRadius": 8,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "gap": 10,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "F1BGYN",
+                          "name": "Doc Icon / 技术交底书.pdf",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "file-text",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "L7Yydr",
+                          "name": "Doc Text / 技术交底书.pdf",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "R4ukmy",
+                              "name": "Doc Name / 技术交底书.pdf",
+                              "fill": "$ink",
+                              "content": "技术交底书.pdf",
+                              "fontFamily": "$font-body",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "LdF3i",
+                              "name": "Doc Meta / 技术交底书.pdf",
+                              "fill": "$muted",
+                              "content": "12 个引用",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dtyhM",
+                      "name": "Other Document / 实验记录.docx",
+                      "width": "fill_container",
+                      "fill": "$paper",
+                      "cornerRadius": 8,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "gap": 10,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "Zy5kh",
+                          "name": "Doc Icon / 实验记录.docx",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "file-text",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "UYdAq",
+                          "name": "Doc Text / 实验记录.docx",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "zjym5",
+                              "name": "Doc Name / 实验记录.docx",
+                              "fill": "$ink",
+                              "content": "实验记录.docx",
+                              "fontFamily": "$font-body",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Dd0yp",
+                              "name": "Doc Meta / 实验记录.docx",
+                              "fill": "$muted",
+                              "content": "3 个引用",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hNjXM",
+                      "name": "Other Document / 会议纪要.md",
+                      "width": "fill_container",
+                      "fill": "$paper",
+                      "cornerRadius": 8,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "gap": 10,
+                      "padding": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "FB92D",
+                          "name": "Doc Icon / 会议纪要.md",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "file-text",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "to2NA",
+                          "name": "Doc Text / 会议纪要.md",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "LGZlc",
+                              "name": "Doc Name / 会议纪要.md",
+                              "fill": "$ink",
+                              "content": "会议纪要.md",
+                              "fontFamily": "$font-body",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "BzaQr",
+                              "name": "Doc Meta / 会议纪要.md",
+                              "fill": "$muted",
+                              "content": "待索引",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "rApHs",
+      "x": 3040,
+      "y": 0,
+      "name": "Screen 3 / 审校矩阵",
+      "clip": true,
+      "width": 1440,
+      "height": 1024,
+      "fill": "$bg",
+      "layout": "vertical",
+      "gap": 22,
+      "padding": [
+        38,
+        44
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "pmv0B",
+          "name": "Audit Matrix Header",
+          "width": "fill_container",
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "aFEOL",
+              "name": "Audit Matrix Title Group",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "C2h1J",
+                  "name": "Audit Matrix Title",
+                  "fill": "$ink",
+                  "content": "审校矩阵",
+                  "fontFamily": "$font-display",
+                  "fontSize": 58,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "jJzwP",
+                  "name": "Audit Matrix Subtitle",
+                  "fill": "$muted",
+                  "content": "把每条技术特征、来源证据与权利要求位置放在同一个可确认表面。",
+                  "fontFamily": "$font-body",
+                  "fontSize": 15,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "WLWt9",
+              "name": "Audit Stamp",
+              "fill": "$paper",
+              "cornerRadius": 999,
+              "stroke": "$hairline",
+              "strokeWidth": 1,
+              "gap": 8,
+              "padding": [
+                9,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "XsQPM",
+                  "name": "Audit Stamp Icon",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "scan-search",
+                  "library": "lucide",
+                  "fill": "$accent"
+                },
+                {
+                  "type": "text",
+                  "id": "jZeex",
+                  "name": "Audit Stamp Text",
+                  "fill": "$ink",
+                  "content": "最近审校 16:45",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ASq4Z",
+          "name": "Audit Stat Cards",
+          "width": "fill_container",
+          "gap": 14,
+          "children": [
+            {
+              "type": "frame",
+              "id": "i6m5q",
+              "name": "Stat Card / 通过检查",
+              "width": "fill_container",
+              "fill": "$paper",
+              "cornerRadius": 12,
+              "stroke": "$hairline",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ftAVA",
+                  "name": "Stat Card Top / 通过检查",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "aSqic",
+                      "name": "Stat Label / 通过检查",
+                      "fill": "$muted",
+                      "content": "通过检查",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cIjap",
+                      "name": "Stat Icon Well / 通过检查",
+                      "width": 34,
+                      "height": 34,
+                      "fill": "#edf7f1",
+                      "cornerRadius": 999,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "saAqg",
+                          "name": "Stat Icon / 通过检查",
+                          "width": 17,
+                          "height": 17,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$green"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "adyKX",
+                  "name": "Stat Number / 通过检查",
+                  "fill": "$ink",
+                  "content": "24",
+                  "fontFamily": "$font-mono",
+                  "fontSize": 42,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "e57Tsi",
+              "name": "Stat Card / 需关注",
+              "width": "fill_container",
+              "fill": "$paper",
+              "cornerRadius": 12,
+              "stroke": "$hairline",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Z8TI00",
+                  "name": "Stat Card Top / 需关注",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "f0Yw42",
+                      "name": "Stat Label / 需关注",
+                      "fill": "$muted",
+                      "content": "需关注",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "QigZ9",
+                      "name": "Stat Icon Well / 需关注",
+                      "width": 34,
+                      "height": 34,
+                      "fill": "$accent-soft",
+                      "cornerRadius": 999,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "Ae5B1",
+                          "name": "Stat Icon / 需关注",
+                          "width": 17,
+                          "height": 17,
+                          "icon": "triangle-alert",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "U7JpZ",
+                  "name": "Stat Number / 需关注",
+                  "fill": "$ink",
+                  "content": "6",
+                  "fontFamily": "$font-mono",
+                  "fontSize": 42,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "YAXqS",
+              "name": "Stat Card / 必须处理",
+              "width": "fill_container",
+              "fill": "$paper",
+              "cornerRadius": 12,
+              "stroke": "$hairline",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "V90xB",
+                  "name": "Stat Card Top / 必须处理",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MwDBP",
+                      "name": "Stat Label / 必须处理",
+                      "fill": "$muted",
+                      "content": "必须处理",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RfSSI",
+                      "name": "Stat Icon Well / 必须处理",
+                      "width": 34,
+                      "height": 34,
+                      "fill": "#fff3f1",
+                      "cornerRadius": 999,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "pi4X6",
+                          "name": "Stat Icon / 必须处理",
+                          "width": 17,
+                          "height": 17,
+                          "icon": "triangle-alert",
+                          "library": "lucide",
+                          "fill": "$red"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "VWUaT",
+                  "name": "Stat Number / 必须处理",
+                  "fill": "$ink",
+                  "content": "1",
+                  "fontFamily": "$font-mono",
+                  "fontSize": 42,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Ph40P",
+          "name": "Segmented Tabs",
+          "fill": "#eee8de",
+          "cornerRadius": 999,
+          "gap": 4,
+          "padding": 4,
+          "children": [
+            {
+              "type": "frame",
+              "id": "F8DET",
+              "name": "Tab / 支持矩阵",
+              "fill": "$paper",
+              "cornerRadius": 999,
+              "stroke": "$hairline",
+              "strokeWidth": 1,
+              "padding": [
+                9,
+                18
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Q9PD0",
+                  "name": "Tab Label / 支持矩阵",
+                  "fill": "$ink",
+                  "content": "支持矩阵",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "N9dbA",
+              "name": "Tab / 一致性",
+              "fill": "#00000000",
+              "cornerRadius": 999,
+              "stroke": "#00000000",
+              "strokeWidth": 1,
+              "padding": [
+                9,
+                18
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "PsJaT",
+                  "name": "Tab Label / 一致性",
+                  "fill": "$muted",
+                  "content": "一致性",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "G5BHR",
+              "name": "Tab / 形式规则",
+              "fill": "#00000000",
+              "cornerRadius": 999,
+              "stroke": "#00000000",
+              "strokeWidth": 1,
+              "padding": [
+                9,
+                18
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "GZNv3",
+                  "name": "Tab Label / 形式规则",
+                  "fill": "$muted",
+                  "content": "形式规则",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "bTuDD",
+          "name": "Support Matrix Table",
+          "clip": true,
+          "width": "fill_container",
+          "height": 548,
+          "fill": "$paper",
+          "cornerRadius": 12,
+          "stroke": "$hairline",
+          "strokeWidth": 1,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#1b19151f",
+            "offset": {
+              "x": 0,
+              "y": 16
+            },
+            "blur": 34,
+            "spread": -24
+          },
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "P8kBE",
+              "name": "Table Header Row",
+              "width": "fill_container",
+              "fill": "#fbf8f0",
+              "stroke": "$hairline",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                14,
+                18
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "dvIOo",
+                  "name": "Header Cell / 技术特征",
+                  "width": 420,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "J8eVmL",
+                      "name": "Header Label / 技术特征",
+                      "fill": "$muted",
+                      "content": "技术特征",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "fFLWa",
+                  "name": "Header Cell / 状态",
+                  "width": 170,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "D49Oon",
+                      "name": "Header Label / 状态",
+                      "fill": "$muted",
+                      "content": "状态",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "f29gH",
+                  "name": "Header Cell / 来源",
+                  "width": 280,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "H5KXk",
+                      "name": "Header Label / 来源",
+                      "fill": "$muted",
+                      "content": "来源",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "XIXFi",
+                  "name": "Header Cell / 位置",
+                  "width": 190,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "UWacI",
+                      "name": "Header Label / 位置",
+                      "fill": "$muted",
+                      "content": "位置",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Y9xJa",
+                  "name": "Header Cell / 操作",
+                  "width": 210,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "BD8aB",
+                      "name": "Header Label / 操作",
+                      "fill": "$muted",
+                      "content": "操作",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Wm0yA",
+              "name": "Table Row / 双温度传感器采集饮水口与外侧温度",
+              "width": "fill_container",
+              "stroke": "$hairline",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                14,
+                18
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "sEoC5",
+                  "name": "Table Cell / 技术特征 / 双温度传感器采集饮水口与外侧温度",
+                  "width": 420,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Wlurq",
+                      "name": "Feature Text / 双温度传感器采集饮水口与外侧温度",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "双温度传感器采集饮水口与外侧温度",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "x3uvP",
+                  "name": "Table Cell / 状态 / 双温度传感器采集饮水口与外侧温度",
+                  "width": 170,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "YVKpV",
+                      "name": "Status Pill / 通过 / 双温度传感器采集饮水口与外侧温度",
+                      "fill": "#edf7f1",
+                      "cornerRadius": 999,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "v9ccG",
+                          "name": "Status Pill Text / 通过 / 双温度传感器采集饮水口与外侧温度",
+                          "fill": "$green",
+                          "content": "通过",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "OnZaY",
+                  "name": "Table Cell / 来源 / 双温度传感器采集饮水口与外侧温度",
+                  "width": 280,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "EocNE",
+                      "name": "Source Text / 双温度传感器采集饮水口与外侧温度",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "技术交底书 P3 · 用户确认",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "u8xmvB",
+                  "name": "Table Cell / 位置 / 双温度传感器采集饮水口与外侧温度",
+                  "width": 190,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "m6BET",
+                      "name": "Location Text / 双温度传感器采集饮水口与外侧温度",
+                      "fill": "$muted",
+                      "content": "权利要求 2",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "VZ0Tj",
+                  "name": "Table Cell / 操作 / 双温度传感器采集饮水口与外侧温度",
+                  "width": 210,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "vKnMv",
+                      "name": "Row Action / 查看 / 双温度传感器采集饮水口与外侧温度",
+                      "fill": "#00000000",
+                      "cornerRadius": 999,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "padding": [
+                        7,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "fCL6u",
+                          "name": "Row Action Label / 查看 / 双温度传感器采集饮水口与外侧温度",
+                          "fill": "$ink",
+                          "content": "查看",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "c4XjL",
+              "name": "Table Row / 根据温差调整加热膜占空比",
+              "width": "fill_container",
+              "stroke": "$hairline",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                14,
+                18
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "jGGyD",
+                  "name": "Table Cell / 技术特征 / 根据温差调整加热膜占空比",
+                  "width": 420,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "yRJ8e",
+                      "name": "Feature Text / 根据温差调整加热膜占空比",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "根据温差调整加热膜占空比",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "TfPil",
+                  "name": "Table Cell / 状态 / 根据温差调整加热膜占空比",
+                  "width": 170,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "NLAmn",
+                      "name": "Status Pill / 无来源 / 根据温差调整加热膜占空比",
+                      "fill": "#fff3f1",
+                      "cornerRadius": 999,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "a7LOi",
+                          "name": "Status Pill Text / 无来源 / 根据温差调整加热膜占空比",
+                          "fill": "$red",
+                          "content": "无来源",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "b2paLm",
+                  "name": "Table Cell / 来源 / 根据温差调整加热膜占空比",
+                  "width": 280,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Tv8ZU",
+                      "name": "Source Text / 根据温差调整加热膜占空比",
+                      "fill": "$red",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "未绑定原文证据",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZZzpP",
+                  "name": "Table Cell / 位置 / 根据温差调整加热膜占空比",
+                  "width": 190,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "gThgz",
+                      "name": "Location Text / 根据温差调整加热膜占空比",
+                      "fill": "$muted",
+                      "content": "权利要求 2",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "hrSUW",
+                  "name": "Table Cell / 操作 / 根据温差调整加热膜占空比",
+                  "width": 210,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "S0pvv",
+                      "name": "Row Action / 确认来源 / 根据温差调整加热膜占空比",
+                      "fill": "$accent",
+                      "cornerRadius": 999,
+                      "stroke": "#00000000",
+                      "strokeWidth": 1,
+                      "padding": [
+                        7,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "EAACs",
+                          "name": "Row Action Label / 确认来源 / 根据温差调整加热膜占空比",
+                          "fill": "#ffffff",
+                          "content": "确认来源",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "t1itc",
+              "name": "Table Row / 饮水口温度维持预设范围",
+              "width": "fill_container",
+              "stroke": "$hairline",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                14,
+                18
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "EwK9E",
+                  "name": "Table Cell / 技术特征 / 饮水口温度维持预设范围",
+                  "width": 420,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "EQJRn",
+                      "name": "Feature Text / 饮水口温度维持预设范围",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "饮水口温度维持预设范围",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "SjtKI",
+                  "name": "Table Cell / 状态 / 饮水口温度维持预设范围",
+                  "width": 170,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "X8nY7g",
+                      "name": "Status Pill / 需关注 / 饮水口温度维持预设范围",
+                      "fill": "$accent-soft",
+                      "cornerRadius": 999,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "DuFeg",
+                          "name": "Status Pill Text / 需关注 / 饮水口温度维持预设范围",
+                          "fill": "$accent",
+                          "content": "需关注",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "EgUXz",
+                  "name": "Table Cell / 来源 / 饮水口温度维持预设范围",
+                  "width": 280,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "PU9jX",
+                      "name": "Source Text / 饮水口温度维持预设范围",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "会议纪要 02:14 · 需复核",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "f26LBD",
+                  "name": "Table Cell / 位置 / 饮水口温度维持预设范围",
+                  "width": 190,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "kOJjL",
+                      "name": "Location Text / 饮水口温度维持预设范围",
+                      "fill": "$muted",
+                      "content": "权利要求 2",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Mqjvu",
+                  "name": "Table Cell / 操作 / 饮水口温度维持预设范围",
+                  "width": 210,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "e5WS3",
+                      "name": "Row Action / 复核 / 饮水口温度维持预设范围",
+                      "fill": "#00000000",
+                      "cornerRadius": 999,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "padding": [
+                        7,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "xZzMg",
+                          "name": "Row Action Label / 复核 / 饮水口温度维持预设范围",
+                          "fill": "$ink",
+                          "content": "复核",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "M4hwZ",
+              "name": "Table Row / 杯盖外壳内设置隔热层",
+              "width": "fill_container",
+              "stroke": "$hairline",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                14,
+                18
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "u4vmr",
+                  "name": "Table Cell / 技术特征 / 杯盖外壳内设置隔热层",
+                  "width": 420,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "jSjLx",
+                      "name": "Feature Text / 杯盖外壳内设置隔热层",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "杯盖外壳内设置隔热层",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "j0jyP",
+                  "name": "Table Cell / 状态 / 杯盖外壳内设置隔热层",
+                  "width": 170,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "snDch",
+                      "name": "Status Pill / 通过 / 杯盖外壳内设置隔热层",
+                      "fill": "#edf7f1",
+                      "cornerRadius": 999,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "p2kr3",
+                          "name": "Status Pill Text / 通过 / 杯盖外壳内设置隔热层",
+                          "fill": "$green",
+                          "content": "通过",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "YcjY6",
+                  "name": "Table Cell / 来源 / 杯盖外壳内设置隔热层",
+                  "width": 280,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "gNk20",
+                      "name": "Source Text / 杯盖外壳内设置隔热层",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "技术交底书 P5",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "y6Wl0Z",
+                  "name": "Table Cell / 位置 / 杯盖外壳内设置隔热层",
+                  "width": 190,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "lgCD2",
+                      "name": "Location Text / 杯盖外壳内设置隔热层",
+                      "fill": "$muted",
+                      "content": "权利要求 4",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "hOlqz",
+                  "name": "Table Cell / 操作 / 杯盖外壳内设置隔热层",
+                  "width": 210,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "eI9ZB",
+                      "name": "Row Action / 查看 / 杯盖外壳内设置隔热层",
+                      "fill": "#00000000",
+                      "cornerRadius": 999,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "padding": [
+                        7,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "twMgv",
+                          "name": "Row Action Label / 查看 / 杯盖外壳内设置隔热层",
+                          "fill": "$ink",
+                          "content": "查看",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "gHtZc",
+              "name": "Table Row / 控制单元与移动端通信",
+              "width": "fill_container",
+              "stroke": "$hairline",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                14,
+                18
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "upwuZ",
+                  "name": "Table Cell / 技术特征 / 控制单元与移动端通信",
+                  "width": 420,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "xfT98",
+                      "name": "Feature Text / 控制单元与移动端通信",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "控制单元与移动端通信",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ywdU6",
+                  "name": "Table Cell / 状态 / 控制单元与移动端通信",
+                  "width": 170,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "UBzY8",
+                      "name": "Status Pill / 通过 / 控制单元与移动端通信",
+                      "fill": "#edf7f1",
+                      "cornerRadius": 999,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "xWvSu",
+                          "name": "Status Pill Text / 通过 / 控制单元与移动端通信",
+                          "fill": "$green",
+                          "content": "通过",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "OKcwZ",
+                  "name": "Table Cell / 来源 / 控制单元与移动端通信",
+                  "width": 280,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "I7kNow",
+                      "name": "Source Text / 控制单元与移动端通信",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "实验记录 A-12",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "DoxVd",
+                  "name": "Table Cell / 位置 / 控制单元与移动端通信",
+                  "width": 190,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "OTJvF",
+                      "name": "Location Text / 控制单元与移动端通信",
+                      "fill": "$muted",
+                      "content": "说明书 0042",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "tkoXg",
+                  "name": "Table Cell / 操作 / 控制单元与移动端通信",
+                  "width": 210,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "pswD2",
+                      "name": "Row Action / 查看 / 控制单元与移动端通信",
+                      "fill": "#00000000",
+                      "cornerRadius": 999,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "padding": [
+                        7,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "PYBz7",
+                          "name": "Row Action Label / 查看 / 控制单元与移动端通信",
+                          "fill": "$ink",
+                          "content": "查看",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "qHtoE",
+              "name": "Table Row / 异常过热时断开供电",
+              "width": "fill_container",
+              "stroke": "$hairline",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                14,
+                18
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Xv2hl",
+                  "name": "Table Cell / 技术特征 / 异常过热时断开供电",
+                  "width": 420,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "vXj4r",
+                      "name": "Feature Text / 异常过热时断开供电",
+                      "fill": "$ink",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "异常过热时断开供电",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "M74nz",
+                  "name": "Table Cell / 状态 / 异常过热时断开供电",
+                  "width": 170,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "yktPu",
+                      "name": "Status Pill / 需关注 / 异常过热时断开供电",
+                      "fill": "$accent-soft",
+                      "cornerRadius": 999,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "TgJYO",
+                          "name": "Status Pill Text / 需关注 / 异常过热时断开供电",
+                          "fill": "$accent",
+                          "content": "需关注",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "VTPHY",
+                  "name": "Table Cell / 来源 / 异常过热时断开供电",
+                  "width": 280,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "c3bn3",
+                      "name": "Source Text / 异常过热时断开供电",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "用户确认 · 待补图",
+                      "lineHeight": 1.35,
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "QCQpe",
+                  "name": "Table Cell / 位置 / 异常过热时断开供电",
+                  "width": 190,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "LUT2u",
+                      "name": "Location Text / 异常过热时断开供电",
+                      "fill": "$muted",
+                      "content": "权利要求 6",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "jeb8A",
+                  "name": "Table Cell / 操作 / 异常过热时断开供电",
+                  "width": 210,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "olv38",
+                      "name": "Row Action / 补材料 / 异常过热时断开供电",
+                      "fill": "#00000000",
+                      "cornerRadius": 999,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "padding": [
+                        7,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "gjtYv",
+                          "name": "Row Action Label / 补材料 / 异常过热时断开供电",
+                          "fill": "$ink",
+                          "content": "补材料",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "N17zf",
+          "name": "Audit Matrix Footer",
+          "width": "fill_container",
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "wN7IG",
+              "name": "Audit Footer Note",
+              "fill": "$muted",
+              "content": "门禁规则：必须处理项清零后才能生成导出包。",
+              "fontFamily": "$font-body",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "M6tH5H",
+              "name": "Footer Actions",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "FDBzt",
+                  "name": "Footer Button / 回到工作台",
+                  "fill": "$paper",
+                  "cornerRadius": 999,
+                  "stroke": "$hairline",
+                  "strokeWidth": 1,
+                  "padding": [
+                    11,
+                    16
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ha7OE",
+                      "name": "Footer Button Label / 回到工作台",
+                      "fill": "$ink",
+                      "content": "回到工作台",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ehCLu",
+                  "name": "Footer Button / 去导出",
+                  "fill": "$accent",
+                  "cornerRadius": 999,
+                  "stroke": "#00000000",
+                  "strokeWidth": 1,
+                  "padding": [
+                    11,
+                    16
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "pqaSQ",
+                      "name": "Footer Button Label / 去导出",
+                      "fill": "#ffffff",
+                      "content": "去导出",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "opjKd",
+      "x": 4560,
+      "y": 0,
+      "name": "Screen 4 / 导出",
+      "clip": true,
+      "width": 1440,
+      "height": 1024,
+      "fill": "$bg",
+      "layout": "vertical",
+      "gap": 26,
+      "padding": [
+        44,
+        52
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "v1SWgU",
+          "name": "Export Header",
+          "width": "fill_container",
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "qlInq",
+              "name": "Export Title Group",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "U6IbWd",
+                  "name": "Export Title",
+                  "fill": "$ink",
+                  "content": "导出",
+                  "fontFamily": "$font-display",
+                  "fontSize": 62,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "p9as3",
+                  "name": "Export Subtitle",
+                  "fill": "$muted",
+                  "content": "生成本机导出包前，先确认文件、格式与审校门禁。",
+                  "fontFamily": "$font-body",
+                  "fontSize": 15,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wsWKj",
+              "name": "Local Mode Pill",
+              "fill": "$paper",
+              "cornerRadius": 999,
+              "stroke": "$hairline",
+              "strokeWidth": 1,
+              "gap": 8,
+              "padding": [
+                9,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "s3VOb",
+                  "name": "Local Mode Icon",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "hard-drive",
+                  "library": "lucide",
+                  "fill": "$accent"
+                },
+                {
+                  "type": "text",
+                  "id": "Zxv9Y",
+                  "name": "Local Mode Text",
+                  "fill": "$ink",
+                  "content": "本机生成 · 不上传",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "J2SBEK",
+          "name": "Export Main Grid",
+          "width": "fill_container",
+          "height": "fill_container",
+          "gap": 22,
+          "children": [
+            {
+              "type": "frame",
+              "id": "yqgm4",
+              "name": "Export Checklist Panel",
+              "clip": true,
+              "width": 825,
+              "height": "fill_container",
+              "fill": "$paper",
+              "cornerRadius": 12,
+              "stroke": "$hairline",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#1b19151f",
+                "offset": {
+                  "x": 0,
+                  "y": 16
+                },
+                "blur": 34,
+                "spread": -24
+              },
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "KSr4v",
+                  "name": "Checklist Header",
+                  "width": "fill_container",
+                  "fill": "#fbf8f0",
+                  "stroke": "$hairline",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 22,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zZubQ",
+                      "name": "Checklist Title",
+                      "fill": "$ink",
+                      "content": "导出文件清单",
+                      "fontFamily": "$font-display",
+                      "fontSize": 32,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "B6dPbA",
+                      "name": "Checklist Subtitle",
+                      "fill": "$muted",
+                      "content": "勾选要打包的文件，系统会保留来源索引与审校记录。",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "a69oh",
+                  "name": "Checklist Row / 权利要求书",
+                  "width": "fill_container",
+                  "stroke": "$hairline",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 14,
+                  "padding": [
+                    18,
+                    22
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "EeQOE",
+                      "name": "Orange Checkbox / 权利要求书",
+                      "width": 22,
+                      "height": 22,
+                      "fill": "$accent",
+                      "cornerRadius": 6,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "wNDCq",
+                          "name": "Checkbox Check / 权利要求书",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "#ffffff"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "QE7zC",
+                      "name": "File Icon Well / 权利要求书",
+                      "width": 42,
+                      "height": 42,
+                      "fill": "$accent-soft",
+                      "cornerRadius": 10,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "UvyIf",
+                          "name": "File Icon / 权利要求书",
+                          "width": 20,
+                          "height": 20,
+                          "icon": "file-text",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "WEZke",
+                      "name": "File Text / 权利要求书",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "YyjGq",
+                          "name": "File Name / 权利要求书",
+                          "fill": "$ink",
+                          "content": "权利要求书",
+                          "fontFamily": "$font-body",
+                          "fontSize": 15,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mUZU5",
+                          "name": "File Path / 权利要求书",
+                          "fill": "$muted",
+                          "content": "claims.docx",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ZFniV",
+                      "name": "Format Badge / DOCX",
+                      "fill": "#f4f0e8",
+                      "cornerRadius": 999,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "u5TY7",
+                          "name": "Format Badge Text / DOCX",
+                          "fill": "$ink",
+                          "content": "DOCX",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "G0e0vH",
+                      "name": "File State / 已就绪",
+                      "width": 120,
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "ellipse",
+                          "id": "piRjS",
+                          "name": "State Dot / 已就绪",
+                          "fill": "$green",
+                          "width": 7,
+                          "height": 7
+                        },
+                        {
+                          "type": "text",
+                          "id": "ZYQXL",
+                          "name": "State Text / 已就绪",
+                          "fill": "$muted",
+                          "content": "已就绪",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "PYo5k",
+                  "name": "Checklist Row / 说明书",
+                  "width": "fill_container",
+                  "stroke": "$hairline",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 14,
+                  "padding": [
+                    18,
+                    22
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "iT6Ux",
+                      "name": "Orange Checkbox / 说明书",
+                      "width": 22,
+                      "height": 22,
+                      "fill": "$accent",
+                      "cornerRadius": 6,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "RBts3",
+                          "name": "Checkbox Check / 说明书",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "#ffffff"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "XR0lK",
+                      "name": "File Icon Well / 说明书",
+                      "width": 42,
+                      "height": 42,
+                      "fill": "$accent-soft",
+                      "cornerRadius": 10,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "CxaXV",
+                          "name": "File Icon / 说明书",
+                          "width": 20,
+                          "height": 20,
+                          "icon": "file-text",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "m6MIx",
+                      "name": "File Text / 说明书",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "OORpf",
+                          "name": "File Name / 说明书",
+                          "fill": "$ink",
+                          "content": "说明书",
+                          "fontFamily": "$font-body",
+                          "fontSize": 15,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "NClVz",
+                          "name": "File Path / 说明书",
+                          "fill": "$muted",
+                          "content": "specification.docx",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "BmvQH",
+                      "name": "Format Badge / DOCX",
+                      "fill": "#f4f0e8",
+                      "cornerRadius": 999,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Oectu",
+                          "name": "Format Badge Text / DOCX",
+                          "fill": "$ink",
+                          "content": "DOCX",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ZTaZR",
+                      "name": "File State / 已就绪",
+                      "width": 120,
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "ellipse",
+                          "id": "B484T4",
+                          "name": "State Dot / 已就绪",
+                          "fill": "$green",
+                          "width": 7,
+                          "height": 7
+                        },
+                        {
+                          "type": "text",
+                          "id": "NOxmB",
+                          "name": "State Text / 已就绪",
+                          "fill": "$muted",
+                          "content": "已就绪",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "XNS3f",
+                  "name": "Checklist Row / 摘要与附图说明",
+                  "width": "fill_container",
+                  "stroke": "$hairline",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 14,
+                  "padding": [
+                    18,
+                    22
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "FFDRn",
+                      "name": "Orange Checkbox / 摘要与附图说明",
+                      "width": 22,
+                      "height": 22,
+                      "fill": "$accent",
+                      "cornerRadius": 6,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "nWOSj",
+                          "name": "Checkbox Check / 摘要与附图说明",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "#ffffff"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sQDDg",
+                      "name": "File Icon Well / 摘要与附图说明",
+                      "width": 42,
+                      "height": 42,
+                      "fill": "$accent-soft",
+                      "cornerRadius": 10,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "ZyWCY",
+                          "name": "File Icon / 摘要与附图说明",
+                          "width": 20,
+                          "height": 20,
+                          "icon": "file",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "n7Dnd",
+                      "name": "File Text / 摘要与附图说明",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "oTjnc",
+                          "name": "File Name / 摘要与附图说明",
+                          "fill": "$ink",
+                          "content": "摘要与附图说明",
+                          "fontFamily": "$font-body",
+                          "fontSize": 15,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "lghRE",
+                          "name": "File Path / 摘要与附图说明",
+                          "fill": "$muted",
+                          "content": "abstract.pdf",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "B0VR5",
+                      "name": "Format Badge / PDF",
+                      "fill": "#f4f0e8",
+                      "cornerRadius": 999,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "l4sRFo",
+                          "name": "Format Badge Text / PDF",
+                          "fill": "$ink",
+                          "content": "PDF",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "X3GQ4b",
+                      "name": "File State / 已就绪",
+                      "width": 120,
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "ellipse",
+                          "id": "viW9R",
+                          "name": "State Dot / 已就绪",
+                          "fill": "$green",
+                          "width": 7,
+                          "height": 7
+                        },
+                        {
+                          "type": "text",
+                          "id": "q0i5Mo",
+                          "name": "State Text / 已就绪",
+                          "fill": "$muted",
+                          "content": "已就绪",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "AAFLf",
+                  "name": "Checklist Row / 审校矩阵",
+                  "width": "fill_container",
+                  "stroke": "$hairline",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 14,
+                  "padding": [
+                    18,
+                    22
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "TN2s0",
+                      "name": "Orange Checkbox / 审校矩阵",
+                      "width": 22,
+                      "height": 22,
+                      "fill": "$accent",
+                      "cornerRadius": 6,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "ExHWE",
+                          "name": "Checkbox Check / 审校矩阵",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "#ffffff"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wpQXt",
+                      "name": "File Icon Well / 审校矩阵",
+                      "width": 42,
+                      "height": 42,
+                      "fill": "$accent-soft",
+                      "cornerRadius": 10,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "G9BkHR",
+                          "name": "File Icon / 审校矩阵",
+                          "width": 20,
+                          "height": 20,
+                          "icon": "table",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "j5brSn",
+                      "name": "File Text / 审校矩阵",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "F7Kmb",
+                          "name": "File Name / 审校矩阵",
+                          "fill": "$ink",
+                          "content": "审校矩阵",
+                          "fontFamily": "$font-body",
+                          "fontSize": 15,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "XlMU0",
+                          "name": "File Path / 审校矩阵",
+                          "fill": "$muted",
+                          "content": "audit-matrix.xlsx",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bBCuW",
+                      "name": "Format Badge / XLSX",
+                      "fill": "#f4f0e8",
+                      "cornerRadius": 999,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "VtzK0",
+                          "name": "Format Badge Text / XLSX",
+                          "fill": "$ink",
+                          "content": "XLSX",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hIOkv",
+                      "name": "File State / 含 1 项门禁",
+                      "width": 120,
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "ellipse",
+                          "id": "pGwzC",
+                          "name": "State Dot / 含 1 项门禁",
+                          "fill": "$red",
+                          "width": 7,
+                          "height": 7
+                        },
+                        {
+                          "type": "text",
+                          "id": "HlDyx",
+                          "name": "State Text / 含 1 项门禁",
+                          "fill": "$red",
+                          "content": "含 1 项门禁",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "J48IjQ",
+                  "name": "Checklist Row / 来源证据包",
+                  "width": "fill_container",
+                  "stroke": "$hairline",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 14,
+                  "padding": [
+                    18,
+                    22
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "alieR",
+                      "name": "Orange Checkbox / 来源证据包",
+                      "width": 22,
+                      "height": 22,
+                      "fill": "$accent",
+                      "cornerRadius": 6,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "J8OzeD",
+                          "name": "Checkbox Check / 来源证据包",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "#ffffff"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sUpAZ",
+                      "name": "File Icon Well / 来源证据包",
+                      "width": 42,
+                      "height": 42,
+                      "fill": "$accent-soft",
+                      "cornerRadius": 10,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "NZcSJ",
+                          "name": "File Icon / 来源证据包",
+                          "width": 20,
+                          "height": 20,
+                          "icon": "archive",
+                          "library": "lucide",
+                          "fill": "$accent"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "F7CXLY",
+                      "name": "File Text / 来源证据包",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "vIHU1",
+                          "name": "File Name / 来源证据包",
+                          "fill": "$ink",
+                          "content": "来源证据包",
+                          "fontFamily": "$font-body",
+                          "fontSize": 15,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "lkpof",
+                          "name": "File Path / 来源证据包",
+                          "fill": "$muted",
+                          "content": "sources.zip",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "uv53m",
+                      "name": "Format Badge / ZIP",
+                      "fill": "#f4f0e8",
+                      "cornerRadius": 999,
+                      "stroke": "$hairline",
+                      "strokeWidth": 1,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Q1vubK",
+                          "name": "Format Badge Text / ZIP",
+                          "fill": "$ink",
+                          "content": "ZIP",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "h6qdJI",
+                      "name": "File State / 本机路径",
+                      "width": 120,
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "ellipse",
+                          "id": "jX0n7",
+                          "name": "State Dot / 本机路径",
+                          "fill": "$green",
+                          "width": 7,
+                          "height": 7
+                        },
+                        {
+                          "type": "text",
+                          "id": "YvIhg",
+                          "name": "State Text / 本机路径",
+                          "fill": "$muted",
+                          "content": "本机路径",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "xNuoV",
+              "name": "Export Gate Panel",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 18,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ZRjsz",
+                  "name": "Gate Notice Card",
+                  "width": "fill_container",
+                  "fill": "#fff7f4",
+                  "cornerRadius": 12,
+                  "stroke": "#efc1b9",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "z9mDU",
+                      "name": "Gate Notice Icon Well",
+                      "width": 48,
+                      "height": 48,
+                      "fill": "#fff3f1",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "v2EEJF",
+                          "name": "Gate Notice Icon",
+                          "width": 24,
+                          "height": 24,
+                          "icon": "shield-alert",
+                          "library": "lucide",
+                          "fill": "$red"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "m8iaL",
+                      "name": "Gate Notice Title",
+                      "fill": "$ink",
+                      "content": "审校门禁",
+                      "fontFamily": "$font-display",
+                      "fontSize": 34,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lWu2A",
+                      "name": "Gate Notice Message",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "仍有 1 条技术特征缺少来源证据。请先确认来源，或由负责人标记为用户确认后再生成正式导出包。",
+                      "lineHeight": 1.45,
+                      "fontFamily": "$font-body",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "C4rLMl",
+                      "name": "Gate Handle Button",
+                      "fill": "$paper",
+                      "cornerRadius": 999,
+                      "stroke": "#efc1b9",
+                      "strokeWidth": 1,
+                      "gap": 8,
+                      "padding": [
+                        10,
+                        15
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "BAEdt",
+                          "name": "Gate Handle Icon",
+                          "width": 15,
+                          "height": 15,
+                          "icon": "arrow-right",
+                          "library": "lucide",
+                          "fill": "$red"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Xa1xr",
+                          "name": "Gate Handle Label",
+                          "fill": "$red",
+                          "content": "去处理",
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Y1M6K",
+                  "name": "Export Summary Card",
+                  "width": "fill_container",
+                  "fill": "$paper",
+                  "cornerRadius": 12,
+                  "stroke": "$hairline",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "h4X2g",
+                      "name": "Export Summary Title",
+                      "fill": "$ink",
+                      "content": "导出包内容",
+                      "fontFamily": "$font-display",
+                      "fontSize": 30,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "SznLU",
+                      "name": "Summary Row / 5 个文件",
+                      "width": "fill_container",
+                      "stroke": "$hairline",
+                      "strokeWidth": {
+                        "bottom": 1
+                      },
+                      "layout": "vertical",
+                      "gap": 4,
+                      "padding": [
+                        0,
+                        0,
+                        12,
+                        0
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "nRzT8",
+                          "name": "Summary Label / 5 个文件",
+                          "fill": "$ink",
+                          "content": "5 个文件",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "uzNLd",
+                          "name": "Summary Detail / 5 个文件",
+                          "fill": "$muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "包含草案、矩阵与证据包",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "SO3Ws",
+                      "name": "Summary Row / 本机路径",
+                      "width": "fill_container",
+                      "stroke": "$hairline",
+                      "strokeWidth": {
+                        "bottom": 1
+                      },
+                      "layout": "vertical",
+                      "gap": 4,
+                      "padding": [
+                        0,
+                        0,
+                        12,
+                        0
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "HUgr3",
+                          "name": "Summary Label / 本机路径",
+                          "fill": "$ink",
+                          "content": "本机路径",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "M81RjA",
+                          "name": "Summary Detail / 本机路径",
+                          "fill": "$muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "/Patent/Exports/智能温控杯盖结构",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "w840m",
+                      "name": "Summary Row / 版本标记",
+                      "width": "fill_container",
+                      "stroke": "$hairline",
+                      "strokeWidth": {
+                        "bottom": 1
+                      },
+                      "layout": "vertical",
+                      "gap": 4,
+                      "padding": [
+                        0,
+                        0,
+                        12,
+                        0
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "pTfMm",
+                          "name": "Summary Label / 版本标记",
+                          "fill": "$ink",
+                          "content": "版本标记",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "keSni",
+                          "name": "Summary Detail / 版本标记",
+                          "fill": "$muted",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "draft-v0.9 · 2026-08-09",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IFsqD",
+                  "name": "Export Spacer",
+                  "width": "fill_container",
+                  "height": "fill_container"
+                },
+                {
+                  "type": "frame",
+                  "id": "nAVDq",
+                  "name": "Generate Export Package Button",
+                  "width": "fill_container",
+                  "height": 58,
+                  "fill": "$accent",
+                  "cornerRadius": 999,
+                  "gap": 10,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "Ef1Gb",
+                      "name": "Generate Button Icon",
+                      "width": 19,
+                      "height": 19,
+                      "icon": "package-check",
+                      "library": "lucide",
+                      "fill": "#ffffff"
+                    },
+                    {
+                      "type": "text",
+                      "id": "XMmKI",
+                      "name": "Generate Button Label",
+                      "fill": "#ffffff",
+                      "content": "在本机生成导出包",
+                      "fontFamily": "$font-body",
+                      "fontSize": 15,
+                      "fontWeight": "800"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variables": {
+    "bg": {
+      "type": "color",
+      "value": "#f7f6f2"
+    },
+    "paper": {
+      "type": "color",
+      "value": "#fffefa"
+    },
+    "ink": {
+      "type": "color",
+      "value": "#1b1915"
+    },
+    "muted": {
+      "type": "color",
+      "value": "#706a60"
+    },
+    "hairline": {
+      "type": "color",
+      "value": "#ded8cc"
+    },
+    "accent": {
+      "type": "color",
+      "value": "#ff8400"
+    },
+    "accent-soft": {
+      "type": "color",
+      "value": "#fff0dc"
+    },
+    "green": {
+      "type": "color",
+      "value": "#2f7d52"
+    },
+    "red": {
+      "type": "color",
+      "value": "#b3261e"
+    },
+    "blue": {
+      "type": "color",
+      "value": "#356f9f"
+    },
+    "font-display": {
+      "type": "string",
+      "value": "Newsreader"
+    },
+    "font-body": {
+      "type": "string",
+      "value": "Geist"
+    },
+    "font-mono": {
+      "type": "string",
+      "value": "Geist Mono"
+    }
+  },
+  "fileToken": "c3893329-7e84-4bf9-bc00-95378c3e471a"
+}
