@@ -8,6 +8,7 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const logs = [];
 page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') logs.push(`[${m.type()}] ${m.text()}`); });
 page.on('pageerror', (e) => logs.push(`[pageerror] ${e.message}`));
+page.on('download', () => { /* export zip download is expected */ });
 const results = [];
 const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); console.log(`${ok ? 'PASS' : 'FAIL'} ${name}${detail ? ' — ' + detail : ''}`); };
 const btn = async (label, exact = true) => {
@@ -19,6 +20,18 @@ const btn = async (label, exact = true) => {
 async function go(path = '') {
   await page.goto(BASE + path, { waitUntil: 'networkidle' });
   await page.waitForTimeout(200);
+}
+
+// Patentpack is selected by default, so a successful export opens the
+// passphrase dialog; complete it with a fixed test password.
+async function exportAndConfirmPassword() {
+  await btn('在本机生成导出包');
+  const pwd = page.getByPlaceholder('输入导出口令');
+  if (await pwd.count()) {
+    await pwd.fill('gate-test-pass');
+    await page.getByRole('button', { name: '确认导出' }).click();
+    await page.waitForTimeout(3000);
+  }
 }
 
 // ---- Scenario 1: demo project, workbench confirm-source unblocks export ----
@@ -63,7 +76,7 @@ check('审校矩阵该行变为「用户确认」', rowUser);
 
 // Export again: gate unblocked
 await go('projects/demo-hot-water-meter/export');
-await btn('在本机生成导出包');
+await exportAndConfirmPassword();
 const unblocked = await page.evaluate(() => !document.body.textContent.includes('正式申请文件导出已被阻止'));
 const doneState = await page.evaluate(() => document.body.textContent.includes('已在本机生成导出包'));
 check('确认来源后导出放行', unblocked && doneState);
@@ -89,6 +102,11 @@ check('新项目审校屏显示空态（不再借用 demo 数据）', emptyState
 // Export must not block
 await page2.goto(BASE + `projects/${id}/export`, { waitUntil: 'networkidle' });
 await page2.getByRole('button', { name: '在本机生成导出包' }).click();
+const pwd2 = page2.getByPlaceholder('输入导出口令');
+if (await pwd2.count()) {
+  await pwd2.fill('gate-test-pass');
+  await page2.getByRole('button', { name: '确认导出' }).click();
+}
 await page2.waitForTimeout(200);
 const notBlocked = await page2.evaluate(() => !document.body.textContent.includes('正式申请文件导出已被阻止'));
 check('新项目导出不再被 demo 门禁误拦', notBlocked);
