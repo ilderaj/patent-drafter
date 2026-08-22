@@ -765,3 +765,10 @@
 - 当前唯一 slice 身份：`beta-slice-1-search-protocol-baseline-selection`。允许范围仅为检索协议、发明/实用新型历史基准选择、脱敏元数据与协议校验器；禁止产品代码、第三方账户注册、付费调用、部署、外联和真实客户数据。
 - 启动时发现 worktree 仅包含上一轮已确认的 planning 三件套与 companion plan 变更；先形成独立基线提交后再冻结 authority hashes。
 - 绑定读取编排脚本首次因返回值解构数量错误导致汇总失败；未改文件，随后改为分组读取成功。
+
+## Session: 2026-08-22 22:21:01 UTC+8（Slice 1 首 worker 释放 + 替代输入收敛）
+
+- 已将规划与启动记录提交为干净基线 `ee4b965`；首次提交因 sandbox 无权写 `.git/index.lock` 失败，经 Host 批准后成功。
+- 首个 `swf_executor`（agent `01a029cd-8efd-7570-bc31-231b3fe79542`）在多次有界等待后仍无文件/里程碑响应；Chief 发出即时 gate 后仍无返回，随后显式关闭，Host 观测到 previous_status=`running`，lane 已释放。
+- Chief 只读检索并收敛 `EP2845700A1` / `CN221531624U` 两个候选及已知接近文献线索，写入 findings；未将搜索摘要当成最终证据。
+- 下一步：提交本次权威写回，重新冻结 hashes，派发唯一一次同 slice 替代 worker；替代 worker 以给定候选做验证与落盘，不再执行开放式候选发现。

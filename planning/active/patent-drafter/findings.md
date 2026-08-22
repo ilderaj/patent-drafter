@@ -636,3 +636,12 @@
 - 计划采用证据优先顺序：先固定范围和复用矩阵，再验证发明/实用新型各一历史 Case，随后完成运营包和完整干跑；只有干跑证明存在阻断时才做条件式最小产品改造。
 - 首笔收款前仍有五道硬门：两件检索基准通过、4 小时/US$40 演练成立、订单与数据声明限定专业审阅、安全交接/删除演练、Owner 最终 go/no-go。
 - 本次确认只授权规划收口，不授权执行任何切片。
+
+## Findings Record: 2026-08-22 22:21:01 UTC+8（Slice 1 候选来源收敛）
+
+- 首个可见 `swf_executor` 在绑定后持续保持 `running`，但未产生允许路径文件、未返回 milestone 或审批请求；Chief 经多次有界等待和两次 check-in 后显式释放该 semantic lane，保留一次同 slice 替代机会。
+- 为降低替代 worker 的开放式研究成本，Chief 先收敛两个公开候选：
+  - 发明路线候选 `EP2845700A1`（Clippers for separating chocolate pieces）。EPO 2026 examiner learning path 明确把它作为 Citations/SEA 示例；公开索引显示 `FR742229A` 为 examiner-cited 文献，且同族还列出 `DE202006019957U1`、`US7717017B2`、`US20110289784A1` 等候选。正式基准仍需 worker 逐链接验证并区分 SEA 与 applicant citation。
+  - 实用新型候选 `CN221531624U`（一种基于三模通讯的共享热水表）。现有已验收定稿材料把 `CN217157378U` 写入背景技术；公开索引可稳定检索到技术接近的 `CN209417602U`（LoRa + Zigbee 双无线流量控制器）。正式选择不得把“similar”偷换成 examiner citation，应把“已知接近文献”的证据类型写清。
+- 协议权威解释来源已核对：EPO Register 将 X/I/Y/A 等类别定义为检索/审查相关性标签；EPO Espacenet Citation 视图区分 citation origin，并支持按 family 查看 cited documents；PATENTSCOPE 用户指南确认可访问 ISR/WOSA 文档。
+- 当前网络局限：直接 `open` 某些 Google Patents/EPO 深链会触发 cache miss 或安全 URL 拒绝；替代 worker 必须用 fresh HEAD/GET 或可见浏览器验证，不得仅依赖搜索摘要。
