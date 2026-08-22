@@ -230,3 +230,4 @@ Phase 19（Beta 最小建设执行；当前 Slice 2 两件历史 Case 检索基�
 | `planning_record.py timestamp` 直接执行返回 permission denied | 1 | 2026-08-22 22:44:09 UTC+8 改由 `python3 planning_record.py timestamp` 调用，取得工具生成时间戳 |
 | 只读 `rg` 校验模式含反引号，被 zsh 解释为命令替换 | 1 | 2026-08-22 22:44:09 UTC+8 未修改文件；后续拆分为不含反引号的固定模式校验 |
 | `spawn_agent` 拒绝 `swf_executor` 与 full-history fork 组合 | 1 | 2026-08-22 22:47:04 UTC+8 未创建 worker、未改生产文件；改为自包含 packet 且不 fork history，重新冻结后派发 |
+| 首个 Slice 2 worker 报告 binding 通过但 validator patch 格式失败；恢复后仍无 RED 文件 | 1 | 2026-08-22 22:56:18 UTC+8 两次有界等待后关闭 running lane；保留一次替代机会，并把首个执行单元缩为 validator + 发明 Case |

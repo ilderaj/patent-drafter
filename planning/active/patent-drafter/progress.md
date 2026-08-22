@@ -781,3 +781,10 @@
 - Chief 独立验收：HEAD 仍为 `61850e390f885362e8bd93c2f03e27f39ce08ce6`；`node qa/prior-art-protocol-check.mjs` → 68/68 PASS、exit 0；`git diff --check` → exit 0；status 仅显示上述三组未跟踪目录/文件。
 - Candidate 状态正式提升为 Chief accepted；Slice 1 完成。下一步提交 Slice 1 + Trio writeback，冻结 Slice 2 绑定并派发两件真实历史 Case 检索 benchmark。
 - requested worker profile 与 actual 分离：requested=`opencode-go/deepseek-v4-flash xhigh` / `on-request`；actual model/effort/approval=`unknown`。
+
+## Session: 2026-08-22 22:56:18 UTC+8（Slice 2 首 worker 释放）
+
+- Slice 2 首个 `swf_executor`（agent `01a029f1-730b-7152-86ba-dcea95e8e99a`）验证冻结 binding 通过，但第一次 validator `apply_patch` 因 invalid hunk 失败且未写文件。
+- Chief 以即时 gate 收到明确 milestone 后恢复同一 worker，要求小 patch 先形成真实 RED，并按 Host 规则申请公共专利 URL 的只读网络权限；再经两次有界等待，工作树仍无任何 Slice 2 允许路径文件。
+- Chief 显式关闭该 lane，Host previous_status=`running`；无候选可验收、无产品文件被改。
+- 同 Slice 只保留一次替代机会；替代 packet 先限为确定性 validator + 发明 Case 的首跑/重跑证据，成功后再让同一 worker补齐实用新型 Case，避免再次把开放式五产物任务作为一个不可观测黑盒。
