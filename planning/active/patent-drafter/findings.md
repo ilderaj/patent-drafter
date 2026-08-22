@@ -645,3 +645,13 @@
   - 实用新型候选 `CN221531624U`（一种基于三模通讯的共享热水表）。现有已验收定稿材料把 `CN217157378U` 写入背景技术；公开索引可稳定检索到技术接近的 `CN209417602U`（LoRa + Zigbee 双无线流量控制器）。正式选择不得把“similar”偷换成 examiner citation，应把“已知接近文献”的证据类型写清。
 - 协议权威解释来源已核对：EPO Register 将 X/I/Y/A 等类别定义为检索/审查相关性标签；EPO Espacenet Citation 视图区分 citation origin，并支持按 family 查看 cited documents；PATENTSCOPE 用户指南确认可访问 ISR/WOSA 文档。
 - 当前网络局限：直接 `open` 某些 Google Patents/EPO 深链会触发 cache miss 或安全 URL 拒绝；替代 worker 必须用 fresh HEAD/GET 或可见浏览器验证，不得仅依赖搜索摘要。
+
+## Findings Record: 2026-08-22 22:44:09 UTC+8（Slice 1 Chief acceptance）
+
+- 替代可见 `swf_executor` 在冻结绑定 `61850e390f885362e8bd93c2f03e27f39ce08ce6` 上只创建 5 个允许路径：检索协议、历史基准选择、发明/实用新型脱敏 fixture、确定性校验器；未提交、未触碰产品代码或其他路径。
+- TDD 证据：候选在产物不存在时获得真实 RED `0/4 PASS`、exit 1；完成后 worker 与 Chief 独立运行均为 `68/68 PASS`、exit 0，`git diff --check` exit 0。
+- 发明基准固定为 `EP2845700A1`，预期恢复 5 条 examiner citation：`FR742229A`、`DE202006019957U1`、`US20090308211A1`、`US20110289784A1`、`US20130183631A1`；`US7717017B2` 因无法在 fresh 页面恢复而排除。
+- 实用新型基准固定为 `CN221531624U`：`CN217157378U` 仅标记 `applicant_background`，`CN209417602U` 仅标记 `technical_neighbor`，不得偷换为 examiner citation。
+- Chief fresh 验证核心公开页 `EP2845700A1`、`FR742229A`、`CN221531624U`、`CN217157378U` 均 HTTP 200；EPO 深链仍为 403，已在选择文档披露并延至 Slice 2 可见浏览器/OPS 路径复核。
+- 协议明确：检索到高度接近文献与未发现阻断性文献均是有效协议结果；任何结果都不提供授权概率、FTO、法律意见，也不表示穷尽全球。
+- requested worker profile 为 `opencode-go/deepseek-v4-flash xhigh`、approval policy `on-request`；实际模型、effort 与 approval policy 无 Host 认证证据，保持 `unknown`。

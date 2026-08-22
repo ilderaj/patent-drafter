@@ -2,12 +2,12 @@
 
 ## Plan Authority
 
-- **Status:** waiting_execution
+- **Status:** active
 - **Created:** 2026-08-22 21:45:09 UTC+8
 - **Active task:** `planning/active/patent-drafter/`
 - **Decision source:** Owner 已于 2026-08-22 明确确认 Phase 18 shared understanding。
-- **Sync-back status:** synced at 2026-08-22 21:45:09 UTC+8
-- **Execution boundary:** 本文件是待审批的实施计划，不授权编码、部署、收款、客户外联、第三方账户注册、真实客户数据处理或专业服务采购。
+- **Sync-back status:** synced at 2026-08-22 22:44:09 UTC+8
+- **Execution boundary:** Owner 已授权 ChiefOps 执行本计划切片，并明确授权后续 Cloudflare 部署及 Stripe dummy 支付实现；真实收款、客户外联、第三方付费账户/专业服务采购和真实客户数据处理仍保留人类门。
 
 ## 1. Outcome
 
@@ -167,8 +167,8 @@ Beta 不是完整 SaaS。成功标准不是注册量或 MRR，而是：真实付
 
 ## 6. 建议切片顺序
 
-1. **Slice 1：检索基准协议和历史 Case 选择** — 只读研究与测试夹具，不改产品。
-2. **Slice 2：运行两件历史 Case** — 形成可复现证据和工具 go/no-go。
+1. **Slice 1：检索基准协议和历史 Case 选择** — 已于 2026-08-22 Chief accepted（68/68 PASS）。
+2. **Slice 2：运行两件历史 Case** — 当前执行；形成可复现证据和工具 go/no-go。
 3. **Slice 3：运营文档与手工台账** — 订单、数据、SOP、ledger。
 4. **Slice 4：完整干跑** — 从筛选到删除；判定是否需要产品改造。
 5. **Slice 5：条件式产品改造** — 只修复干跑发现的阻断点。

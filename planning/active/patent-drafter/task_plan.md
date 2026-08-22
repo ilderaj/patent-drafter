@@ -9,7 +9,7 @@
 Status: active
 Archive Eligible: no
 Close Reason:
-Reconcile: Phase 18 confirmed; Beta execution authorized; Slice 1 binding in progress
+Reconcile: Phase 18 confirmed; Beta execution authorized; Slice 1 accepted; Slice 2 binding next
 
 ## Routing Decision
 
@@ -20,7 +20,7 @@ Reconcile: Phase 18 confirmed; Beta execution authorized; Slice 1 binding in pro
 
 ## Current Phase
 
-Phase 19（Beta 最小建设执行；当前仅 Slice 1 检索协议与历史基准选择）
+Phase 19（Beta 最小建设执行；当前 Slice 2 两件历史 Case 检索基准）
 
 ## Phases
 
@@ -198,13 +198,13 @@ Phase 19（Beta 最小建设执行；当前仅 Slice 1 检索协议与历史基�
 
 - **Path:** `docs/plans/profitable-patent-beta-minimum-build.md`
 - **Summary:** 首笔收款前仅验证两件历史 Case 检索、运营/数据/订单材料、手工台账和人工交接；完整干跑后才允许条件式最小产品改造，再经专业审阅和 Owner go/no-go 启动 21 天 Beta。
-- **Lifecycle:** waiting_execution
-- **Sync-back status:** synced at 2026-08-22 21:45:09 UTC+8
+- **Lifecycle:** active
+- **Sync-back status:** synced at 2026-08-22 22:44:09 UTC+8
 
 ### Phase 19: Beta 最小建设执行（2026-08-22）
 - [x] Owner 授权 ChiefOps 执行 plan slices，并授权后续使用 Cloudflare 部署、Stripe dummy 数据/凭证实现支付占位
-- [~] Slice 1 `beta-slice-1-search-protocol-baseline-selection`：检索协议、两件历史 Case 选择、协议校验器
-- [ ] Slice 2：运行两件历史 Case 并形成可复现检索证据
+- [x] Slice 1 `beta-slice-1-search-protocol-baseline-selection`：检索协议、两件历史 Case 选择、协议校验器（Chief accepted；68/68 PASS）
+- [~] Slice 2 `beta-slice-2-historical-search-benchmarks`：运行两件历史 Case 并形成可复现检索证据
 - [ ] Slice 3：Beta 订单/数据/SOP/手工台账运营包
 - [ ] Slice 4：无真实客户数据的完整干跑
 - [ ] Slice 5：仅按干跑阻断点做最小 WebApp 改造，支付使用 Stripe dummy 模式
@@ -227,3 +227,5 @@ Phase 19（Beta 最小建设执行；当前仅 Slice 1 检索协议与历史基�
 | 沙箱禁止创建 `.git/index.lock`，基线提交首次失败 | 1 | 2026-08-22 22:21:01 UTC+8 按 Host 规则申请批准后提交成功（ee4b965） |
 | `multi_agent_v1__send_input` 首次误用 `agent_id` 字段 | 1 | 2026-08-22 22:21:01 UTC+8 读取工具 schema 后改用 `target`，后续发送成功 |
 | 首个 Slice 1 worker 长时间 running，无文件、无 milestone/审批响应 | 1 | 2026-08-22 22:21:01 UTC+8 多次有界 wait + 两次 milestone 请求后显式释放 lane；只允许一次同 slice 替代 worker |
+| `planning_record.py timestamp` 直接执行返回 permission denied | 1 | 2026-08-22 22:44:09 UTC+8 改由 `python3 planning_record.py timestamp` 调用，取得工具生成时间戳 |
+| 只读 `rg` 校验模式含反引号，被 zsh 解释为命令替换 | 1 | 2026-08-22 22:44:09 UTC+8 未修改文件；后续拆分为不含反引号的固定模式校验 |

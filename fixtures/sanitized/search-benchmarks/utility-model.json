@@ -1,0 +1,33 @@
+{
+  "caseId": "benchmark-cn221531624u",
+  "type": "utility_model",
+  "title": "一种基于三模通讯的共享热水表",
+  "publicationIdentifiers": ["CN221531624U"],
+  "publicSourceUrls": [
+    "https://patents.google.com/patent/CN221531624U/zh"
+  ],
+  "knownClosePriorArt": [
+    {
+      "identifier": "CN217157378U",
+      "evidenceType": "applicant_background",
+      "evidenceUrl": "https://patents.google.com/patent/CN217157378U/zh",
+      "expectedRecoveryAssertions": [
+        "Slice 2 必须通过背景技术引证路径（申请人说明书段落 p0005 已指明该对比文件）在 10 条查询式/40 个去重专利族/8 篇深读上限内找回 CN217157378U",
+        "CN217157378U 必须标记为 applicant_background；不得因公开索引显示为相似文献而改标 examiner_citation"
+      ],
+      "dataProvenance": "Fresh HTTP 200 GET 2026-08-22；CN221531624U 公开页说明书段落 p0005 明示“授权公告号为CN217157378U的中国实用新型专利公开了一种基于蓝牙通信的智能水表装置”；与既有已验收定稿基线（背景技术含该对比文件）一致",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不包含交底/定稿 private 内容"
+    },
+    {
+      "identifier": "CN209417602U",
+      "evidenceType": "technical_neighbor",
+      "evidenceUrl": "https://patents.google.com/patent/CN209417602U/zh",
+      "expectedRecoveryAssertions": [
+        "Slice 2 技术近邻查询族应能在 10/40/8 上限内找回 CN209417602U（一种基于LoRa与Zigbee双无线通信的智能流量控制器）并纳入最接近文献候选",
+        "CN209417602U 必须标记为 technical_neighbor；不得标记为 examiner_citation 或 applicant_background"
+      ],
+      "dataProvenance": "Fresh HTTP 200 GET 2026-08-22；公开页标题核对一致；该文献不出现在 CN221531624U 公开页引证表，故仅作技术近邻恢复锚点；候选输入由 Chief 冻结收敛",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    }
+  ]
+}

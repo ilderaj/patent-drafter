@@ -1,0 +1,63 @@
+{
+  "caseId": "benchmark-ep2845700a1",
+  "type": "invention",
+  "title": "Clippers for separating chocolate pieces",
+  "publicationIdentifiers": ["EP2845700A1", "DE202013104051U1"],
+  "publicSourceUrls": [
+    "https://patents.google.com/patent/EP2845700A1/en",
+    "https://patents.google.com/patent/DE202013104051U1/en"
+  ],
+  "knownClosePriorArt": [
+    {
+      "identifier": "FR742229A",
+      "evidenceType": "examiner_citation",
+      "evidenceUrl": "https://patents.google.com/patent/FR742229A/en",
+      "expectedRecoveryAssertions": [
+        "Slice 2 必须在 10 条查询式/40 个去重专利族/8 篇深读上限内，通过引用路径或关键词查询找回 FR742229A 并归入 EP2845700A1 引证证据链",
+        "FR742229A 在找回报告中必须标记为 examiner_citation，不得降格为 applicant_background 或 technical_neighbor"
+      ],
+      "dataProvenance": "Fresh HTTP 200 GET 2026-08-22；EP2845700A1 Google Patents 公开页 Citations(7) 表内 itemprop=examinerCited 标记（图例 * Cited by examiner）；候选输入由 Chief 冻结收敛",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    },
+    {
+      "identifier": "DE202006019957U1",
+      "evidenceType": "examiner_citation",
+      "evidenceUrl": "https://patents.google.com/patent/DE202006019957U1/en",
+      "expectedRecoveryAssertions": [
+        "Slice 2 必须在 10/40/8 上限内通过引用路径族找回 DE202006019957U1 并标记为 examiner_citation"
+      ],
+      "dataProvenance": "Fresh HTTP 200 GET 2026-08-22；EP2845700A1 公开页 Citations 表 itemprop=examinerCited 标记；候选输入由 Chief 冻结收敛",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    },
+    {
+      "identifier": "US20090308211A1",
+      "evidenceType": "examiner_citation",
+      "evidenceUrl": "https://patents.google.com/patent/US20090308211A1/en",
+      "expectedRecoveryAssertions": [
+        "Slice 2 必须在 10/40/8 上限内通过引用路径族找回 US20090308211A1 并标记为 examiner_citation"
+      ],
+      "dataProvenance": "Fresh HTTP 200 GET 2026-08-22；EP2845700A1 公开页 Citations 表 itemprop=examinerCited 标记；公开页标题 Hand tool and method of using same 核对一致",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    },
+    {
+      "identifier": "US20110289784A1",
+      "evidenceType": "examiner_citation",
+      "evidenceUrl": "https://patents.google.com/patent/US20110289784A1/en",
+      "expectedRecoveryAssertions": [
+        "Slice 2 必须在 10/40/8 上限内通过引用路径族找回 US20110289784A1 并标记为 examiner_citation"
+      ],
+      "dataProvenance": "Fresh HTTP 200 GET 2026-08-22；EP2845700A1 公开页 Citations 表 itemprop=examinerCited 标记；候选输入由 Chief 冻结收敛",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    },
+    {
+      "identifier": "US20130183631A1",
+      "evidenceType": "examiner_citation",
+      "evidenceUrl": "https://patents.google.com/patent/US20130183631A1/en",
+      "expectedRecoveryAssertions": [
+        "Slice 2 必须在 10/40/8 上限内通过引用路径族找回 US20130183631A1 并标记为 examiner_citation"
+      ],
+      "dataProvenance": "Fresh HTTP 200 GET 2026-08-22；EP2845700A1 公开页 Citations 表 itemprop=examinerCited 标记；公开页标题 Orthodontic Pliers for Four Quadrant V-Bends 核对一致",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    }
+  ]
+}
