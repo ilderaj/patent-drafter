@@ -229,3 +229,4 @@ Phase 19（Beta 最小建设执行；当前 Slice 2 两件历史 Case 检索基�
 | 首个 Slice 1 worker 长时间 running，无文件、无 milestone/审批响应 | 1 | 2026-08-22 22:21:01 UTC+8 多次有界 wait + 两次 milestone 请求后显式释放 lane；只允许一次同 slice 替代 worker |
 | `planning_record.py timestamp` 直接执行返回 permission denied | 1 | 2026-08-22 22:44:09 UTC+8 改由 `python3 planning_record.py timestamp` 调用，取得工具生成时间戳 |
 | 只读 `rg` 校验模式含反引号，被 zsh 解释为命令替换 | 1 | 2026-08-22 22:44:09 UTC+8 未修改文件；后续拆分为不含反引号的固定模式校验 |
+| `spawn_agent` 拒绝 `swf_executor` 与 full-history fork 组合 | 1 | 2026-08-22 22:47:04 UTC+8 未创建 worker、未改生产文件；改为自包含 packet 且不 fork history，重新冻结后派发 |
