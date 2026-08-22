@@ -9,7 +9,7 @@
 Status: active
 Archive Eligible: no
 Close Reason:
-Reconcile: open
+Reconcile: Phase 18 confirmed; Beta execution authorized; Slice 1 binding in progress
 
 ## Routing Decision
 
@@ -20,7 +20,7 @@ Reconcile: open
 
 ## Current Phase
 
-Phase 16（真实多文件导出：已实现、验收、生产部署并冒烟通过）
+Phase 19（Beta 最小建设执行；当前仅 Slice 1 检索协议与历史基准选择）
 
 ## Phases
 
@@ -151,6 +151,67 @@ Phase 16（真实多文件导出：已实现、验收、生产部署并冒烟通
 - [x] 生产验证：qa/export-files.mjs 对生产 URL 29/29 PASS（含门禁/子集/全量/patentpack 解密/live 派生）
 - **Status:** completed（实现 + 验收 + 生产部署 + 生产冒烟全部闭环）
 
+### Phase 17: Stripe 风格视觉交互原型（2026-08-09，用户指令：@open-design 全面 audit + Stripe 风格重设计；先输出 prototype 交 subagent 功能/交互 review；不改动现有功能；最终交用户 human review）
+- [x] 恢复 planning 三件套并重分类本轮
+- [x] 功能审计（subagent audit_functions）→ /tmp/patent-audit-functions.md
+- [x] 视觉/交互审计（subagent audit_visual）→ /tmp/patent-audit-visual.md + 截图
+- [x] Open Design 归因工作流（collect_brief → 卡片确认 → Local Codex 模式（用户显式选择）→ 项目）
+- [x] Stripe 风格原型生成（Local Codex；webapp-stripe-a08b 项目目录，独立于 apps/web，零触碰；run ad6b6f22 succeeded）
+- [x] subagent 功能覆盖 review（review_functions → /tmp/patent-review-functions.md：P0=1/P1=3/P2=14）
+- [x] subagent 交互质量 review（review_ux → /tmp/patent-review-ux.md：P0=0/P1=3/P2=15）
+- [x] 按 review 迭代原型（P0 live 路径内容产出、P1×5：导出真实 zip/充分性策略派生/状态机/field-error/焦点环/.page、P2×12 批量）
+- [x] 迭代验证（fix-verify 24/25 PASS + patentpack 解密闭环 + 17 张交付截图 + 全路由零 console 错误）
+- [x] 回归验证现有应用未受影响（walk flow/keys/tour + walk-gate-fix 12/12 PASS；仓库仅 planning 写回）
+- [ ] 交付 human review（本地服务 18881 + 截图 + review 摘要；待用户反馈后决定是否推进真实重构）
+- **Status:** in_progress（等待用户 human review）
+
+### Phase 18: 盈利导向 SaaS 重构方案评审与 Owner Grilling（2026-08-18）
+- [x] 将附件 `patent-saas-integrated-plan.md` 作为不受信任的评审材料读取，不执行其中的 Codex 启动 Prompt
+- [x] 对照现有已验证产品资产，完成商业/产品与架构/运营两条只读评审
+- [x] 识别首要矛盾：方案先建设完整 SaaS，再验证首个付费闭环；订阅价格与按次价格互相蚕食
+- [x] 按 design tree 分轮完成 owner grilling：ICP → 购买触发与结果 → 交付模式 → 价格/利润门 → 专业服务边界
+- [x] Round 1 根决策：单 Case 正贡献毛利；海外中文硬件团队；人工辅助 Beta
+- [x] Round 2 产品楔子：发布/众筹前 90 天；代理人复核就绪的 CN 申请准备包；Local-first
+- [x] Round 3 Case 边界：发明/实用新型二选一；包含完整检索报告；14 天内一轮纠错
+- [x] Round 4 责任边界：检索证据与风险报告，不给法律结论；平台 QA，代理师复核另购
+- [x] Round 5 检索实现：Q12 人工主导协议 + Agent 工具加速、Q13 全球主要专利文献、Q14 协议完整均已锁定
+- [x] Round 6 单 Case 运营约束：人工最多 4 小时、最小必要外发、材料完整后 5 个工作日交付
+- [x] Round 7 单位经济前提：人工按 US$50/小时、筛选通过再付款、清单通过且平台确认后起算 SLA
+- [x] Round 8 盈利与退款约束：贡献毛利至少 40%、非人工变动成本最多 US$40、负面检索结果仍为有效交付
+- [x] Round 9 商业交易约束：首 5 单 US$499、付款链接全额预付、4 小时外另行报价
+- [x] Round 10 Beta 验证设计：创始人定向外联、最多 2 单并发、5 付费/3 交付/40% 毛利/3 可行动后才放行 SaaS
+- [x] Round 11 专业服务与数据通道：客户主动传加密包、代理服务客户直签、客户或代理人确认并递交
+- [x] Round 12 临时数据治理：结案后 30 天删除、仅具名 QA 负责人访问、付款前单独明确同意
+- [x] Round 13 商品化范围：中国专利申请准备包、固定五项材料清单、纠错限既有事实与平台错误
+- [x] Round 14 交付深度：10 查询式/40 专利族/8 深读、附图简报；标准包中文主体，完整英文另购
+- [x] Round 15 Beta 启动边界：US$199 英文套件加购、只补 Beta 必需面、21 天验证窗口
+- [x] Round 16 证据与停机规则：潜客四条件全满足、真实代理人无 P0 退回、21 天失败冻结建设并单变量复盘
+- [x] Round 17 日常运营边界：创始人本人 QA、异步 + 一次 30 分钟沟通、一页 Beta 订单书
+- [x] Round 18 收款前放行门：发明/实用新型各一历史 Case、限定专业审阅、首 5 单统一手工台账
+- [x] Grilling design tree frontier 已清空；shared understanding 已形成
+- [x] Owner 于 2026-08-22 确认 shared understanding
+- [x] 形成独立 companion plan：`docs/plans/profitable-patent-beta-minimum-build.md`
+- [x] 本阶段未进入产品代码、部署、支付 live、外联或真实数据处理
+- **Status:** complete
+
+## Companion Plan
+
+- **Path:** `docs/plans/profitable-patent-beta-minimum-build.md`
+- **Summary:** 首笔收款前仅验证两件历史 Case 检索、运营/数据/订单材料、手工台账和人工交接；完整干跑后才允许条件式最小产品改造，再经专业审阅和 Owner go/no-go 启动 21 天 Beta。
+- **Lifecycle:** waiting_execution
+- **Sync-back status:** synced at 2026-08-22 21:45:09 UTC+8
+
+### Phase 19: Beta 最小建设执行（2026-08-22）
+- [x] Owner 授权 ChiefOps 执行 plan slices，并授权后续使用 Cloudflare 部署、Stripe dummy 数据/凭证实现支付占位
+- [~] Slice 1 `beta-slice-1-search-protocol-baseline-selection`：检索协议、两件历史 Case 选择、协议校验器
+- [ ] Slice 2：运行两件历史 Case 并形成可复现检索证据
+- [ ] Slice 3：Beta 订单/数据/SOP/手工台账运营包
+- [ ] Slice 4：无真实客户数据的完整干跑
+- [ ] Slice 5：仅按干跑阻断点做最小 WebApp 改造，支付使用 Stripe dummy 模式
+- [ ] Slice 6：完整测试、Cloudflare 部署与生产验收
+- [ ] Slice 7：Chief completion audit 与人类门交接
+- **Status:** in_progress
+
 ### 外部环境待办（不阻塞，已记录 final-acceptance 第 10 节）
 - 生产浏览器本地网络授权（macOS TCC + Chrome Local Network Access；本机 Chrome ERR_BLOCKED_BY_CLIENT 已记录）
 - Safari 真机 loopback 验证（Tauri Plan B）
@@ -162,3 +223,4 @@ Phase 16（真实多文件导出：已实现、验收、生产部署并冒烟通
 |-------|---------|------------|
 | 2023 版指南 PDF 本机缺失 | 1 | 标记附件缺失；规则包以官方公开文本核对（需联网批准），并保留 2023 附件引用占位 |
 | create_goal 失败（有未完成 goal） | 1 | 完成旧 goal（读目标文件）后新建 |
+| 绑定读取编排脚本返回值解构数量错误，汇总输出失败 | 1 | 2026-08-22 22:06:58 UTC+8 改为分组读取；文件未被修改，后续调用成功 |

@@ -558,3 +558,210 @@
 ### 状态
 - Phase 16 全闭环：实现 → 测试 → Chief 验收 → 用户授权 → 部署 → 生产验证 29/29。
 - 遗留挂账（非本切片）：旧生产密码 rotate、PDF 文本可选中（fontkit）、bundle 拆包优化。
+
+## Session: 2026-08-09（Phase 17 启动：Stripe 风格原型轮）
+
+### 用户指令
+- `/goal @open-design`：全面 audit/review/学习本 WebApp 的功能与交互；用 Stripe 风格模板 + 更现代、简约、整洁、明快的交互形式重新设计视觉交互；不要直接重构，先输出 prototype 并交 subagents 做功能/交互 review；确保不影响/破坏既有功能；最终原型交用户 human review。
+
+### 已完成（本轮启动）
+- 恢复 planning 三件套并重分类：新增 Phase 17（in_progress）。
+- Open Design 归因工作流已启动：collect_brief 返回 brief 卡片（workflowId 16356c16-decf-4249-9322-de09c5ffb5d3，briefDraftId a8b01255-...），等待用户在卡片上确认方向（goal/scope/character）。
+- 并行派出两个审计 subagent（只读）：
+  - audit_functions → /tmp/patent-audit-functions.md（路由/屏幕/流程/数据模型/门禁/交互清单）
+  - audit_visual → /tmp/patent-audit-visual.md + /tmp/patent-audit-screens/（令牌/组件/交互现状 + 基线回归）
+
+### 待办
+- 等待 brief 卡片确认 → 登录/项目 → start_run 生成 Stripe 风格原型。
+- 汇总审计报告 → 写入 findings.md → 组装 start_run 提示词。
+- 原型生成后派 review subagents（功能覆盖 + 交互质量）→ 迭代 → 交付 human review。
+
+## Session: 2026-08-10（Phase 17 迭代轮：review subagent 结论 → 原型修复 → 验证 → 交付 human review）
+
+### 本轮完成
+- **两个 review subagent 完成**：review_functions（P0=1/P1=3/P2=14，/tmp/patent-review-functions.md）、review_ux（P0=0/P1=3/P2=15，/tmp/patent-review-ux.md）；全程只读，未触碰仓库。
+- **迭代修复**（原型目录 webapp-stripe-a08b，7 文件）：P0 live 起草内容产出（makeLiveDraft：claims/spec/abstract/附图/审校/导出文件）；P1 真实 zip 导出（手写 ZIP STORE + WebCrypto PBKDF2-100k AES-256-GCM patentpack 信封）；P1 充分性/策略按项目派生；P1 9 态状态机；P1 field-error 常显（全局 [hidden]）；P1 工作台焦点环；P1 .page 统一；P2 批量 12 项（时间线顺序/默认全选/空态/favicon/stages Esc+圈闭/Enter 反馈/面包屑/popover/tabs/配对码/role=alert/移动端 h1/对比度）。
+- **验证**：fix-verify 24/25 PASS（1 项为测试正则伪失败）；patentpack 独立解密闭环（正确口令解出 6 claims、错口令拒绝、信封无明文）；17 张交付截图 /tmp/pd-shots-final/；全路由零 console 错误。
+- **真实仓库回归**：walk flow/keys/tour + walk-gate-fix 12/12 PASS，git 仅 planning 写回——既有功能零影响。
+- **规划写回**：task_plan Phase 17 勾选至交付前；findings 本轮记录落盘。
+
+### 待办（人工门）
+- 交付用户 human review：本地服务 http://127.0.0.1:18881/index.html + 截图 + review 摘要；用户反馈后决定是否推进真实重构（用户明确「不要直接重构」）。
+- Open Design run 的 previewUrl 因 daemon 重启传输关闭无法取回（磁盘原型为权威交付物）。
+
+## Session: 2026-08-10（Phase 17 补充轮：演示模式开关——UX review V-05 落地）
+
+### 完成
+- 新增「演示模式」开关（默认开，持久化 localStorage）：关闭后隐藏原型脚手架——侧栏移动端入口/「交互原型 · 演示数据」、首页示例入口与演示链接、上传页解析失败提示、设置页模拟状态切换（替换为「由真实检测派生」说明）、conn popover 模拟状态网格。评审者可一键查看产品本貌。
+- 修复：main.js seedStoreRef 漏 demoMode 字段（首开 undefined 导致开关首按反向），补 demoMode:true。
+- 验证：pd-demo-mode-verify 13/13 PASS（含持久化 reload）；pd-verify 15 路由零 console 错误；pd-fix-verify2 live 全流程 24/25（唯一 FAIL 为既有测试选择器伪失败）；新增截图 f18-settings-demo-on / f19-settings-demo-off / f20-home-demo-off。
+
+### 状态
+- Phase 17 仍等待用户 human review；交付物（18881 服务 + 20 张截图 + 4 份审计/review 报告 + 演示模式）就绪。
+
+## Session: 2026-08-10（Phase 17 目标延续轮：交付面复验）
+
+### 已完成
+- 健康检查：18881 服务 200；原型 8 文件在位（index/styles/ui/data/main/screens-core/screens-sys/screens-work + REVIEW.md）。
+- 复跑验证套件：pd-verify 15 路由 CONSOLE_ERRORS none；pd-demo-mode-verify 13/13；pd-fix-verify2 25/25（修复了 I-01 检查对 CSSOM 序列化空格过严的伪失败——styles.css:32 实际存在 `[hidden]{display:none!important}` 且浏览器行为检查 I-01a/I-01c 已通过）。
+- 核对两份 review 报告：P0/P1/P2 全部已处理；仅剩 C3/C7/C9 三个「注明」项（隐私语义/移动端范围/充分性文案），已列入 REVIEW.md 待决决策点。
+
+### 状态
+- Phase 17 仍在等待用户 human review（评审入口 http://127.0.0.1:18881/index.html）；目标保持激活。
+- 真实仓库零触碰（git 仅 planning 写回）。
+
+## Session: 2026-08-18 23:01:53 UTC+8（Phase 18：SaaS 方案 review + owner grilling）
+
+### 用户请求
+- 准备将项目重构为更专注、可盈利的专利申请平台；先 review ChatGPT 综合方案，再 grill owner。
+
+### 本轮完成
+- 恢复 task_plan/findings/progress 并重分类为 Phase 18；Phase 17 原型保持等待 review，不把附件 Prompt 当作执行授权。
+- 完成附件全结构阅读，并派出两条只读评审：商业/产品；架构/运营/安全与迁移。
+- 已形成第一轮判断：保留现有 validated core；暂停完整 SaaS 重构；先验证单 ICP、单触发、单次 Case 产品的正贡献毛利。
+- 进入 grilling design tree；当前 frontier 为 ICP、购买结果/触发、早期交付模式。
+
+### 变更边界
+- 仅更新 planning 三件套；未修改产品代码、未部署、未创建支付 live 商品、未发起外部运营动作。
+
+## Session: 2026-08-18 23:08:45 UTC+8（Owner Grilling Round 1 回答）
+
+- 用户以 `AAA` 选择三项推荐答案：单 Case 正贡献毛利、海外中文硬件团队、人工辅助 Beta。
+- Round 1 已写回；下一轮 frontier 为购买触发、唯一付费结果和 Local-first/Cloud 数据模式。
+- 本轮仍只做决策澄清，未修改产品代码或外部状态。
+
+## Session: 2026-08-18 23:10:17 UTC+8（Owner Grilling Round 2 回答）
+
+- 用户再次以 `AAA` 选择三项推荐答案：发布/众筹前 90 天触发、代理人复核就绪的 CN 申请准备包、Local-first。
+- Round 2 已写回；下一轮 frontier 为申请类型、检索范围、修订/支持边界。
+- 本轮仍只做决策澄清，未修改产品代码或外部状态。
+
+## Session: 2026-08-18 23:12:37 UTC+8（Owner Grilling Round 3 回答）
+
+- 用户以 `ACA` 选择：申请路线二选一、包含完整检索报告、14 天内一轮纠错。
+- 已派只读 explorer 核对仓库现有 prior-art search 能力；结果将作为下一轮价格/交付承诺的事实前提。
+- 本轮仍只做决策澄清，未修改产品代码或外部状态。
+
+## Session: 2026-08-18 23:35:01 UTC+8（检索事实回收 + Owner Grilling Round 4 回答）
+
+- 只读 explorer 确认当前仓库无真实 prior-art search 能力；检索需新增独立子管线和数据源。
+- 用户以 `AA` 选择：证据/风险报告但不提供法律结论；平台 QA，代理师复核另购。
+- 下一轮 frontier 为首 5 单检索交付方式、文献覆盖和固定协议上限。
+- 本轮仍只做决策澄清，未修改产品代码或外部状态。
+
+## Session: 2026-08-19 09:59:52 UTC+8（Q12 市场能力调研启动）
+
+- 用户选择 Q13=A、Q14=A，并要求先调查市面现成方法、API 或 Agent Skill，再裁决 Q12。
+- 已检索官方 EPO/USPTO/WIPO、Lens、Google BigQuery、PatentsView，以及 GitHub 开源 patent skills；初步结论已写 findings。
+- 待完成：CN 覆盖、商业授权、速率/成本、候选 Skill 实现审计及推荐组合。
+- 本轮只读研究；未安装第三方 Skill、未调用专利数据 API、未修改产品代码或外部状态。
+
+## Session: 2026-08-19 10:02:42 UTC+8（Q12 市场能力调研完成）
+
+- 完成官方数据源、商业聚合 API、开源 MCP/Agent Skill 三层比较；核对 EPO OPS 额度/商用条款、Lens 商业访问边界、CNIPA 取数路径，以及 FlowLeap/OPS MCP 的能力与成熟度。
+- 推荐 Q12 选择“人工主导协议 + Agent 工具加速”：先以一个历史 Case 对 FlowLeap 做 7 天试点；不通过则采用薄 EPO OPS adapter/审计后的开源 MCP，并由 PATENTSCOPE、CNIPA、USPTO 官方界面人工补缺。
+- 不建议首 5 单前自建完整多源平台，不建议把网页抓取 Skill 作为生产依赖；Lens Custom Access 报价作为并行商业验证。
+- 仍只更新 planning 三件套；未安装工具、未注册账户、未发送专利材料、未修改产品代码或外部状态。Q12 等待 Owner 选择确认。
+
+## Session: 2026-08-19 10:58:43 UTC+8（Owner Grilling Round 5 回答）
+
+- 用户以 `A` 接受 Q12 推荐：人工主导检索协议 + Agent 工具加速 + 官方数据库补缺。
+- Round 5 已闭环；Round 6 frontier 为人工时间上限、未公开材料外发边界和交付 SLA。
+- 本轮仍只做决策澄清和 planning 写回；未安装 FlowLeap/MCP、未修改产品代码或外部状态。
+
+## Session: 2026-08-19 15:49:01 UTC+8（Owner Grilling Round 6 回答）
+
+- 用户以 `AAA` 选择：单 Case 人工最多 4 小时、未公开材料最小必要外发、材料完整且付款后 5 个工作日交付。
+- Round 6 已闭环；Round 7 frontier 为人工成本口径、付款前接单筛选和 SLA 起算判定。
+- 本轮仍只做决策澄清和 planning 写回；未修改产品代码、部署或外部服务状态。
+
+## Session: 2026-08-19 21:24:04 UTC+8（Owner Grilling Round 7 回答）
+
+- 用户以 `AAA` 选择：人工按 US$50/小时核算、筛选通过再付款、清单通过且平台确认后启动 5 日 SLA。
+- Round 7 已闭环；Round 8 frontier 为贡献毛利底线、非人工变动成本上限和退款/负面检索语义。
+- 本轮仍只做决策澄清和 planning 写回；未修改产品代码、部署、价格或支付状态。
+
+## Session: 2026-08-19 21:33:35 UTC+8（Owner Grilling Round 8 回答）
+
+- 用户以 `AAA` 选择：贡献毛利至少 40%、非人工变动成本最多 US$40、负面检索结论仍为有效交付。
+- 已据此计算价格边界：US$399 在最大成本下约 39.8%，不达标；US$499 约 51.9%。
+- Round 8 已闭环；Round 9 frontier 为 Beta 售价、收款方式和人工超限处理。
+- 本轮仍只做决策澄清和 planning 写回；未创建价格、支付链接或修改外部状态。
+
+## Session: 2026-08-19 21:34:51 UTC+8（Owner Grilling Round 9 回答）
+
+- 用户选择：首 5 单 US$499、付款链接全额预付、4 小时之外标准交付加单独报价。
+- Round 9 已闭环；Round 10 frontier 为首个获客渠道、并发上限和完整 SaaS 重构放行门。
+- 本轮仍只做决策澄清和 planning 写回；未创建付款链接、商品、订阅或外部运营动作。
+
+## Session: 2026-08-19 21:38:56 UTC+8（Owner Grilling Round 10 回答）
+
+- 用户以 `AAA` 选择：创始人定向外联、最多 2 单并发、达到 5 付费 + 3 按 SLA 交付 + 整体毛利至少 40% + 3 位确认可交代理人继续工作后才放行完整 SaaS。
+- Round 10 已闭环；Round 11 frontier 为 Local-first 人工 QA 数据路径、代理人另购关系和最终递交责任。
+- 本轮仍只做决策澄清和 planning 写回；未执行外联、收款、数据传输或产品重构。
+
+## Session: 2026-08-19 21:40:03 UTC+8（Owner Grilling Round 11 回答）
+
+- 用户选择：客户主动发送加密 patentpack 供人工 QA；代理人复核由客户与代理机构直接签约；最终确认和 CNIPA 递交由客户或其代理人负责。
+- Round 11 已闭环；Round 12 frontier 为 QA 临时副本保留期、访问控制和客户明确同意门。
+- 本轮仍只做决策澄清和 planning 写回；未接收任何客户材料、未转介代理机构或执行递交。
+
+## Session: 2026-08-19 21:41:23 UTC+8（Owner Grilling Round 12 回答）
+
+- 用户选择：QA 副本结案后 30 天删除、仅具名 QA 负责人访问、付款前取得数据流明确同意。
+- Round 12 已闭环；Round 13 frontier 为客户面对的产品承诺、材料准入清单和一次纠错边界。
+- 本轮仍只做决策澄清和 planning 写回；未接收或删除任何真实客户数据。
+
+## Session: 2026-08-19 21:43:09 UTC+8（Owner Grilling Round 13 回答）
+
+- 用户选择：中国专利申请准备包、固定五项材料准入、纠错限既有事实与平台错误。
+- Round 13 已闭环；Round 14 frontier 为检索协议数字上限、附图责任和交付语言。
+- 本轮仍只做决策澄清和 planning 写回；未修改客户页面、产品名称或交付流程。
+
+## Session: 2026-08-19 21:52:31 UTC+8（Owner Grilling Round 14 回答与冲突升级）
+
+- 用户以 `AAB` 选择：10 查询式/40 族/8 篇深读、附图清单与绘图简报、完整中英双语。
+- 前两项已锁定；完整双语经成本测算会使 US$499 标准包最坏毛利降至约 31.9%，违反已锁 40% 底线，因此升级为下一轮显式裁决，不静默接受冲突。
+- Round 15 同时推进两个独立 frontier：付款前最小建设范围与 Beta 验证周期。
+- 本轮仍只做决策澄清和 planning 写回；未更改价格、人工上限或产品代码。
+
+## Session: 2026-08-19 21:59:24 UTC+8（Owner Grilling Round 15 回答）
+
+- 用户选择：完整英文套件 US$199 加购；付款前只补 Beta 必需面；验证窗口 21 天。
+- Round 14 冲突已解决，Round 15 已闭环；Round 16 frontier 为合格潜客定义、代理人可行动证据和 21 天失败处理。
+- 本轮仍只做决策澄清和 planning 写回；未执行 Beta 建设、外联或收费。
+
+## Session: 2026-08-19 22:01:01 UTC+8（Owner Grilling Round 16 回答）
+
+- 用户选择：合格潜客四条件全满足、实际转交代理人且无 P0 退回、21 天未达 5 付款则冻结建设并做单变量复盘。
+- Round 16 已闭环；Round 17 frontier 为首批 QA 负责人、客户沟通配额和 Beta 订单协议。
+- 本轮仍只做决策澄清和 planning 写回；未招募潜客、联系代理人或启动实验。
+
+## Session: 2026-08-19 22:38:18 UTC+8（Owner Grilling Round 17 回答）
+
+- 用户以 `AAA` 选择：创始人本人做 QA、异步沟通加一次最多 30 分钟澄清会、付款前签署一页 Beta 订单书。
+- Round 17 已闭环；Round 18 为最终收款前放行门：历史检索基准、专业边界审阅、逐单计量台账。
+- 本轮仍只做决策澄清和 planning 写回；未起草法律协议、招聘、收费或接收客户数据。
+
+## Session: 2026-08-20 09:23:36 UTC+8（Owner Grilling Round 18 回答 + design tree 收口）
+
+- 用户以 `AAA` 选择最终三项收款前放行门：发明/实用新型各一历史 Case 基准、订单与数据声明的限定专业审阅、首 5 单统一手工台账。
+- 18 轮 owner grilling 的 design tree frontier 已清空；完整 shared understanding 已写入 findings，覆盖产品、客户、交付、检索、价格、单位经济、专业/数据边界、Beta 实验和停机门。
+- Phase 18 暂不标记完成，等待 Owner 对 shared understanding 做最终确认；确认后再决定是否另建独立的 Beta 最小建设任务。
+- 本轮仅更新 planning 三件套；未修改产品代码、未部署、未创建支付 live 商品、未执行客户外联、未接收或发送真实客户数据。
+
+## Session: 2026-08-22 21:45:09 UTC+8（Shared Understanding 最终确认 + companion plan）
+
+- Owner 明确确认 shared understanding，Phase 18 正式完成。
+- 创建独立 Beta 最小建设计划 `docs/plans/profitable-patent-beta-minimum-build.md`，拆为范围绑定、两件历史 Case 检索、运营包、条件式产品改造、首笔收款放行、21 天实验和证据裁决七阶段。
+- 主任务生命周期更新为 `waiting_execution`；companion plan 已与 planning 三件套双向同步。
+- 下一可执行切片为 Slice 1：只创建检索协议、选择两件历史基准 Case 并形成测试计划；仍需 Owner 另行明确授权。
+- 本轮未修改产品代码、未部署、未注册或采购第三方服务、未执行专业审阅、未外联、未收款、未处理真实客户数据。
+
+## Session: 2026-08-22 22:06:58 UTC+8（ChiefOps 执行启动 + Slice 1 绑定）
+
+- Owner 授权执行 Beta companion plan slices，并明确要求后续使用 Cloudflare 部署 WebApp；支付部分按 Stripe 方法实现，但当前仅使用 dummy 数据和凭证。
+- 路由保持 tracked-deep，当前 capability family 选择 `dev`；Chief 负责绑定、门禁、验收与 Trio 写回，生产修改交给可见 `swf_executor`。
+- 当前唯一 slice 身份：`beta-slice-1-search-protocol-baseline-selection`。允许范围仅为检索协议、发明/实用新型历史基准选择、脱敏元数据与协议校验器；禁止产品代码、第三方账户注册、付费调用、部署、外联和真实客户数据。
+- 启动时发现 worktree 仅包含上一轮已确认的 planning 三件套与 companion plan 变更；先形成独立基线提交后再冻结 authority hashes。
+- 绑定读取编排脚本首次因返回值解构数量错误导致汇总失败；未改文件，随后改为分组读取成功。
