@@ -655,3 +655,13 @@
 - Chief fresh 验证核心公开页 `EP2845700A1`、`FR742229A`、`CN221531624U`、`CN217157378U` 均 HTTP 200；EPO 深链仍为 403，已在选择文档披露并延至 Slice 2 可见浏览器/OPS 路径复核。
 - 协议明确：检索到高度接近文献与未发现阻断性文献均是有效协议结果；任何结果都不提供授权概率、FTO、法律意见，也不表示穷尽全球。
 - requested worker profile 为 `opencode-go/deepseek-v4-flash xhigh`、approval policy `on-request`；实际模型、effort 与 approval policy 无 Host 认证证据，保持 `unknown`。
+
+## Findings Record: 2026-08-24 11:02:28 UTC+8（Slice 2a reproducibility no-go）
+
+- 可见 worker 形成 `EP2845700A1` 发明 Case 候选：10 条查询式、40 个去重族、8 篇深读、5/5 examiner anchors 与 EP family 单槽均已落盘；确定性 gate 当前 `48/54 PASS`、exit 1，失败 6 项全部属于第二次重跑/URL 复验未成立。
+- 首跑 2026-08-22 曾得到公开页面 200，随后 Google Patents XHR/搜索页进入持续 503 bot gate；worker 诚实记录 `rerun.at=null`、`assertionsStable=false`，未翻转成功标志。
+- 2026-08-24 Chief fresh 检查 9 个专利详情/家族页面均 HTTP 200，但相同 Google Patents XHR 查询与普通搜索 URL 仍返回 HTTP 503、1103-byte `Sorry` 页面。因此详情页可访问不能证明查询式可重复，候选不能 accepted。
+- Chrome skill 已按要求检查，但当前 Host 不提供必需的 `node_repl js` browser runtime，不能以可见浏览器补跑；未使用独立 Playwright/Computer Use 替代，也未绕行 CAPTCHA/WAF。
+- EPO 官方 OPS 是可机器查询的标准 XML/REST 数据源，但官方要求先注册取得 credentials、定义 app 并使用 OAuth；免费用户额度可到 4 GB/week。来源：https://www.epo.org/en/searching-for-patents/data/web-services/ops
+- WIPO PATENTSCOPE 网页可公开搜索，但官方 programmatic webservice 是 limited/conditional access，相关数据产品页面披露付费/授权边界，不能假设存在无凭证公共搜索 API。来源：https://www.wipo.int/en/web/patentscope/data/index
+- 结论：Google Patents 自动查询作为 Beta 基准工具 `no_go`；按 Phase B 停止条件，禁止进入 Slice 3–7。恢复需 Owner 选择 EPO OPS 注册凭证门，或提供已连接的可见浏览器供人工官方界面重跑。

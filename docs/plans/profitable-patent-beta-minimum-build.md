@@ -2,11 +2,11 @@
 
 ## Plan Authority
 
-- **Status:** active
+- **Status:** blocked
 - **Created:** 2026-08-22 21:45:09 UTC+8
 - **Active task:** `planning/active/patent-drafter/`
 - **Decision source:** Owner 已于 2026-08-22 明确确认 Phase 18 shared understanding。
-- **Sync-back status:** synced at 2026-08-22 22:44:09 UTC+8
+- **Sync-back status:** synced at 2026-08-24 11:02:28 UTC+8
 - **Execution boundary:** Owner 已授权 ChiefOps 执行本计划切片，并明确授权后续 Cloudflare 部署及 Stripe dummy 支付实现；真实收款、客户外联、第三方付费账户/专业服务采购和真实客户数据处理仍保留人类门。
 
 ## 1. Outcome
@@ -175,6 +175,8 @@ Beta 不是完整 SaaS。成功标准不是注册量或 MRR，而是：真实付
 6. **Slice 6：专业审阅与最终放行** — 冻结 Beta 文档版本，Owner 再授权外联/收款。
 
 每个切片独立验收；前一切片失败时停止，不预先开展后续建设。
+
+当前停止记录（2026-08-24）：Slice 2a 发明 Case 首跑已形成候选，但相同查询重跑被 Google Patents 503 bot gate 阻断，确定性 gate 为 48/54 RED。依据 Phase B 停止条件，Slice 3 及后续改造、Stripe dummy、Cloudflare 部署不得提前执行。恢复需 Owner 选择并完成 EPO OPS 注册凭证门，或提供已连接的可见浏览器环境执行官方/公开界面人工重跑。
 
 ## 7. Owner 审批点
 

@@ -1,0 +1,823 @@
+{
+  "caseId": "benchmark-ep2845700a1",
+  "type": "invention",
+  "slice": "beta-slice-2a-invention-benchmark",
+  "validatorVersion": "2a-1",
+  "title": "Clippers for separating chocolate pieces",
+  "familyMerge": {
+    "familyId": "FAM-EP2845700",
+    "members": [
+      "EP2845700A1",
+      "EP2845700B1",
+      "DK2845700T3",
+      "DE202013104051U1"
+    ],
+    "familyEvidence": "https://patents.google.com/patent/EP2845700A1/en",
+    "familyEvidenceSource": "EP2845700A1 Google Patents public page, Also Published As table (itemprop=docdbFamily): DK2845700T3 (2016-10-03), EP2845700B1 (2016-06-22), DE202013104051U1 (2013-09-26)",
+    "limitations": "DocDB-family grouping based on the public Also Published As (itemprop=docdbFamily) index of the EP2845700A1 page; index limitations apply: family completeness depends on the public aggregator index; EPO official deep links remained 403/503 during the window and were not used.",
+    "familyUrlFirstRun": {
+      "verified": true,
+      "statusCode": 200,
+      "checkedAt": "2026-08-22T15:06Z"
+    },
+    "familyUrlRerun": {
+      "verified": false,
+      "statusCode": 503,
+      "checkedAt": "2026-08-22T16:01:14Z"
+    }
+  },
+  "queryRecords": [
+    {
+      "queryId": "Q01",
+      "family": "keyword",
+      "queryText": "chocolate pliers",
+      "database": "patents.google.com (XHR search)",
+      "runAt": "2026-08-22T15:10:37Z",
+      "hitCount": 2898,
+      "note": "top page-1 hits screened; broad confectionery/food noise excluded"
+    },
+    {
+      "queryId": "Q02",
+      "family": "keyword",
+      "queryText": "\"chocolate pieces\" separating",
+      "database": "patents.google.com (XHR search)",
+      "runAt": "2026-08-22T15:10:38Z",
+      "hitCount": 1682,
+      "note": "quoted phrase; chocolate-processing literature surfaced"
+    },
+    {
+      "queryId": "Q03",
+      "family": "keyword",
+      "queryText": "Toblerone clippers",
+      "database": "patents.google.com (XHR search)",
+      "runAt": "2026-08-22T15:10:39Z",
+      "hitCount": 1,
+      "note": "discriminator query; single hit EP2845700B1 (own family)"
+    },
+    {
+      "queryId": "Q04",
+      "family": "classification",
+      "queryText": "CPC:A23G7/0018",
+      "database": "patents.google.com (XHR search)",
+      "runAt": "2026-08-22T15:10:40Z",
+      "hitCount": 292,
+      "note": "apparatus for cutting or dividing chocolate or candies"
+    },
+    {
+      "queryId": "Q05",
+      "family": "classification",
+      "queryText": "CPC:A47J43/28",
+      "database": "patents.google.com (XHR search)",
+      "runAt": "2026-08-22T15:10:42Z",
+      "hitCount": 3913,
+      "note": "kitchen/food implements; noise screened out"
+    },
+    {
+      "queryId": "Q06",
+      "family": "citation",
+      "queryText": "(FR742229A OR DE202006019957U1)",
+      "database": "patents.google.com (XHR search)",
+      "runAt": "2026-08-22T15:10:44Z",
+      "hitCount": 2,
+      "note": "backward references from EP2845700A1 citation table; both examiner anchors recovered"
+    },
+    {
+      "queryId": "Q07",
+      "family": "citation",
+      "queryText": "(US20090308211A1 OR US20110289784A1)",
+      "database": "patents.google.com (XHR search)",
+      "runAt": "2026-08-22T15:10:44Z",
+      "hitCount": 2,
+      "note": "backward references from EP2845700A1 citation table; both examiner anchors recovered"
+    },
+    {
+      "queryId": "Q08",
+      "family": "citation",
+      "queryText": "(US20130183631A1 OR GB2270248A OR IT1200532B)",
+      "database": "patents.google.com (XHR search)",
+      "runAt": "2026-08-22T15:10:45Z",
+      "hitCount": 5,
+      "note": "citation-table references; 3 targets + GB655584A unexplained + EP2845700B1 own family"
+    },
+    {
+      "queryId": "Q09",
+      "family": "semantic_neighbor",
+      "queryText": "similar:EP2845700A1",
+      "database": "patents.google.com (XHR search)",
+      "runAt": "2026-08-22T15:10:45Z",
+      "hitCount": 1,
+      "note": "similar operator returns origin record only; neighbor candidates harvested from Similar Documents table (25 entries)"
+    },
+    {
+      "queryId": "Q10",
+      "family": "semantic_neighbor",
+      "queryText": "chocolate cutting tool",
+      "database": "patents.google.com (XHR search)",
+      "runAt": "2026-08-22T15:10:46Z",
+      "hitCount": 123745,
+      "note": "broad wording; heavy noise; screened to relevant cohort"
+    }
+  ],
+  "deduplicatedFamilies": [
+    {
+      "familyId": "FAM-EP2845700",
+      "representative": "EP2845700A1",
+      "members": [
+        "EP2845700A1",
+        "EP2845700B1",
+        "DK2845700T3",
+        "DE202013104051U1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP2845700A1/en",
+      "familyEvidenceSource": "EP2845700A1 Google Patents public page, Also Published As table (itemprop=docdbFamily): DK2845700T3 (2016-10-03), EP2845700B1 (2016-06-22), DE202013104051U1 (2013-09-26)",
+      "screeningNote": "target case family; single DocDB slot",
+      "limitations": "DocDB-family grouping based on the public Also Published As (itemprop=docdbFamily) index of the EP2845700A1 page; index limitations apply: family completeness depends on the public aggregator index; EPO official deep links remained 403/503 during the window and were not used.",
+      "familyUrlFirstRun": {
+        "verified": true,
+        "statusCode": 200,
+        "checkedAt": "2026-08-22T15:06Z"
+      },
+      "familyUrlRerun": {
+        "verified": false,
+        "statusCode": 503,
+        "checkedAt": "2026-08-22T16:01:14Z"
+      }
+    },
+    {
+      "familyId": "FAM-FR742229A",
+      "representative": "FR742229A",
+      "members": [
+        "FR742229A"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/FR742229A/en",
+      "familyEvidenceSource": "EP2845700A1 citation table row 1; own page Cited By = EP2845700A1",
+      "screeningNote": "examiner anchor FR742229A"
+    },
+    {
+      "familyId": "FAM-DE202006019957U1",
+      "representative": "DE202006019957U1",
+      "members": [
+        "DE202006019957U1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE202006019957U1/en",
+      "familyEvidenceSource": "EP2845700A1 citation table row 4; own public page",
+      "screeningNote": "examiner anchor DE202006019957U1"
+    },
+    {
+      "familyId": "FAM-US20090308211A1",
+      "representative": "US20090308211A1",
+      "members": [
+        "US20090308211A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/US20090308211A1/en",
+      "familyEvidenceSource": "EP2845700A1 citation table row 5; own public page",
+      "screeningNote": "examiner anchor US20090308211A1"
+    },
+    {
+      "familyId": "FAM-US20110289784A1",
+      "representative": "US20110289784A1",
+      "members": [
+        "US20110289784A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/US20110289784A1/en",
+      "familyEvidenceSource": "EP2845700A1 citation table row 6; own public page",
+      "screeningNote": "examiner anchor US20110289784A1"
+    },
+    {
+      "familyId": "FAM-US20130183631A1",
+      "representative": "US20130183631A1",
+      "members": [
+        "US20130183631A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/US20130183631A1/en",
+      "familyEvidenceSource": "EP2845700A1 citation table row 7; own public page",
+      "screeningNote": "examiner anchor US20130183631A1"
+    },
+    {
+      "familyId": "FAM-IT1200532B",
+      "representative": "IT1200532B",
+      "members": [
+        "IT1200532B"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/IT1200532B/en",
+      "familyEvidenceSource": "EP2845700A1 citation table row 2 (no examiner mark)",
+      "screeningNote": "citation-table reference without examiner mark; title HOME-MADE TOOL FOR CUTTING NOUGAT (Q08)"
+    },
+    {
+      "familyId": "FAM-GB2270248A",
+      "representative": "GB2270248A",
+      "members": [
+        "GB2270248A"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/GB2270248A/en",
+      "familyEvidenceSource": "EP2845700A1 citation table row 3 (no examiner mark)",
+      "screeningNote": "citation-table reference without examiner mark; title A confectionery breaker (Q08)"
+    },
+    {
+      "familyId": "FAM-GB655584A",
+      "representative": "GB655584A",
+      "members": [
+        "GB655584A"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/GB655584A/en",
+      "familyEvidenceSource": "Q08 result set",
+      "screeningNote": "unexplained Q08 match (shock absorber systems); retained for transparency, low relevance"
+    },
+    {
+      "familyId": "FAM-DE102006012754B4",
+      "representative": "DE102006012754B4",
+      "members": [
+        "DE102006012754B4"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE102006012754B4/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 1",
+      "screeningNote": "top similar document (Surgical instrument)"
+    },
+    {
+      "familyId": "FAM-DE2713410A1",
+      "representative": "DE2713410A1",
+      "members": [
+        "DE2713410A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE2713410A1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 2",
+      "screeningNote": "similar document (pliers for ear markings)"
+    },
+    {
+      "familyId": "FAM-EP0454615B1",
+      "representative": "EP0454615B1",
+      "members": [
+        "EP0454615B1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP0454615B1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 3",
+      "screeningNote": "similar document (forceps for cutting surgical nails)"
+    },
+    {
+      "familyId": "FAM-EP1159870A2",
+      "representative": "EP1159870A2",
+      "members": [
+        "EP1159870A2"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP1159870A2/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 4",
+      "screeningNote": "similar document (handheld garden/branch secateurs)"
+    },
+    {
+      "familyId": "FAM-EP0416358A2",
+      "representative": "EP0416358A2",
+      "members": [
+        "EP0416358A2"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP0416358A2/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 5",
+      "screeningNote": "similar document (shaving head); low topical overlap, retained for completeness"
+    },
+    {
+      "familyId": "FAM-DE202009001625U1",
+      "representative": "DE202009001625U1",
+      "members": [
+        "DE202009001625U1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE202009001625U1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 6",
+      "screeningNote": "similar document (separating device for shearing)"
+    },
+    {
+      "familyId": "FAM-DE3141248A1",
+      "representative": "DE3141248A1",
+      "members": [
+        "DE3141248A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE3141248A1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 7",
+      "screeningNote": "similar document (power-driven screwdriver); low topical overlap"
+    },
+    {
+      "familyId": "FAM-EP1319456A1",
+      "representative": "EP1319456A1",
+      "members": [
+        "EP1319456A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP1319456A1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 8",
+      "screeningNote": "similar document (cable cutter)"
+    },
+    {
+      "familyId": "FAM-DE102014104146B4",
+      "representative": "DE102014104146B4",
+      "members": [
+        "DE102014104146B4"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE102014104146B4/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 9",
+      "screeningNote": "similar document (punch)"
+    },
+    {
+      "familyId": "FAM-EP3643465A1",
+      "representative": "EP3643465A1",
+      "members": [
+        "EP3643465A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP3643465A1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 10",
+      "screeningNote": "similar document (hand-held cutting planer)"
+    },
+    {
+      "familyId": "FAM-EP3854550B1",
+      "representative": "EP3854550B1",
+      "members": [
+        "EP3854550B1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP3854550B1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 11",
+      "screeningNote": "similar document (quick connector for blade)"
+    },
+    {
+      "familyId": "FAM-DE1300451B",
+      "representative": "DE1300451B",
+      "members": [
+        "DE1300451B"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE1300451B/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 12",
+      "screeningNote": "similar document (disc cutter)"
+    },
+    {
+      "familyId": "FAM-DE3407646A1",
+      "representative": "DE3407646A1",
+      "members": [
+        "DE3407646A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE3407646A1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 13",
+      "screeningNote": "similar document (device for taking material samples); low topical overlap"
+    },
+    {
+      "familyId": "FAM-EP0058349A2",
+      "representative": "EP0058349A2",
+      "members": [
+        "EP0058349A2"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP0058349A2/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 14",
+      "screeningNote": "similar document (tool for deforming/pressing)"
+    },
+    {
+      "familyId": "FAM-DE9015493U1",
+      "representative": "DE9015493U1",
+      "members": [
+        "DE9015493U1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE9015493U1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 15",
+      "screeningNote": "similar document (device for cutting stems of cut flowers)"
+    },
+    {
+      "familyId": "FAM-EP1045499A1",
+      "representative": "EP1045499A1",
+      "members": [
+        "EP1045499A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP1045499A1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 16",
+      "screeningNote": "similar document (pliers)"
+    },
+    {
+      "familyId": "FAM-DE202016106708U1",
+      "representative": "DE202016106708U1",
+      "members": [
+        "DE202016106708U1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE202016106708U1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 17",
+      "screeningNote": "similar document (hand tool for mincing food)"
+    },
+    {
+      "familyId": "FAM-DE20308397U1",
+      "representative": "DE20308397U1",
+      "members": [
+        "DE20308397U1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE20308397U1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 18",
+      "screeningNote": "similar document (pruning shears)"
+    },
+    {
+      "familyId": "FAM-DE326294C",
+      "representative": "DE326294C",
+      "members": [
+        "DE326294C"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE326294C/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 19",
+      "screeningNote": "similar document (device supporting workpieces when shearing)"
+    },
+    {
+      "familyId": "FAM-DE459543C",
+      "representative": "DE459543C",
+      "members": [
+        "DE459543C"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE459543C/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 20",
+      "screeningNote": "similar document (machine for making wire nails)"
+    },
+    {
+      "familyId": "FAM-DE232560C",
+      "representative": "DE232560C",
+      "members": [
+        "DE232560C"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE232560C/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 21",
+      "screeningNote": "similar document (no title rendered)"
+    },
+    {
+      "familyId": "FAM-DE113958C",
+      "representative": "DE113958C",
+      "members": [
+        "DE113958C"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE113958C/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 22",
+      "screeningNote": "similar document (no title rendered)"
+    },
+    {
+      "familyId": "FAM-DE8321569U1",
+      "representative": "DE8321569U1",
+      "members": [
+        "DE8321569U1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE8321569U1/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 23",
+      "screeningNote": "similar document (pliers for stripping/cutting)"
+    },
+    {
+      "familyId": "FAM-DE676538C",
+      "representative": "DE676538C",
+      "members": [
+        "DE676538C"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/DE676538C/en",
+      "familyEvidenceSource": "EP2845700A1 Similar Documents entry 24",
+      "screeningNote": "similar document (ear tag pliers)"
+    },
+    {
+      "familyId": "FAM-EP2227094B1",
+      "representative": "EP2227094B1",
+      "members": [
+        "EP2227094B1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP2227094B1/en",
+      "familyEvidenceSource": "Q02 page-1 hit",
+      "screeningNote": "keyword cohort: chocolate/chocolaty product process"
+    },
+    {
+      "familyId": "FAM-EP3007990B1",
+      "representative": "EP3007990B1",
+      "members": [
+        "EP3007990B1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP3007990B1/en",
+      "familyEvidenceSource": "Q02 page-1 hit",
+      "screeningNote": "keyword cohort: packaged food item"
+    },
+    {
+      "familyId": "FAM-US7329429B2",
+      "representative": "US7329429B2",
+      "members": [
+        "US7329429B2"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/US7329429B2/en",
+      "familyEvidenceSource": "Q02 page-1 hit",
+      "screeningNote": "keyword cohort: bars and confectioneries containing cocoa solids"
+    },
+    {
+      "familyId": "FAM-EP2187758B1",
+      "representative": "EP2187758B1",
+      "members": [
+        "EP2187758B1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/EP2187758B1/en",
+      "familyEvidenceSource": "Q04 page-1 hit",
+      "screeningNote": "classification cohort: processing confectionery products"
+    },
+    {
+      "familyId": "FAM-US20190335784A1",
+      "representative": "US20190335784A1",
+      "members": [
+        "US20190335784A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/US20190335784A1/en",
+      "familyEvidenceSource": "Q04 page-1 hit",
+      "screeningNote": "classification cohort: assembly line food production and pull-apart"
+    },
+    {
+      "familyId": "FAM-US20240000100A1",
+      "representative": "US20240000100A1",
+      "members": [
+        "US20240000100A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/US20240000100A1/en",
+      "familyEvidenceSource": "Q04 page-1 hit",
+      "screeningNote": "classification cohort: scoring and/or cutting chewing gum"
+    },
+    {
+      "familyId": "FAM-AU2012390069A1",
+      "representative": "AU2012390069A1",
+      "members": [
+        "AU2012390069A1"
+      ],
+      "familyEvidence": "https://patents.google.com/patent/AU2012390069A1/en",
+      "familyEvidenceSource": "Q04 page-1 hit",
+      "screeningNote": "classification cohort: container for receiving and splitting product plates"
+    }
+  ],
+  "deepReads": [
+    {
+      "identifier": "FR742229A",
+      "familyId": "FAM-FR742229A",
+      "riskLevel": "high",
+      "evidenceBasis": "public page: classifications B26B17/00, B26B17/006 (hand cutting tools, two jaws, cutting edges parallel to pivot axis); Cited By = EP2845700A1; no OCR title/abstract text available on the public page",
+      "featureMatrix": "FE1 partial: hand cutting tool, two jaws in abutting contact; FE2 absent: no chocolate context visible in available metadata; FE3 partial: two jaws; FE4 partial: cutting edges parallel to pivot axis; FE5 absent. Risk: high due to missing full text."
+    },
+    {
+      "identifier": "DE202006019957U1",
+      "familyId": "FAM-DE202006019957U1",
+      "riskLevel": "medium",
+      "evidenceBasis": "public page abstract: device for crushing tablets, pivoting arms connected by hinge, dividing part protruding against support surface; wedge element across longitudinal direction of upper arm",
+      "featureMatrix": "FE1 present: two manually operated pivoting arms + hinge; FE2 absent: target is tablet crushing, not chocolate; FE3 partial: support surface and dividing part act as jaw pair; FE4 present in analogous form: wedge/dividing element pressed against brittle body; FE5 absent. Risk: medium."
+    },
+    {
+      "identifier": "US20090308211A1",
+      "familyId": "FAM-US20090308211A1",
+      "riskLevel": "medium",
+      "evidenceBasis": "public page abstract: hand tool with tool mount receiving a tool, variable angle of attack with enhanced power ratio for handicapped users",
+      "featureMatrix": "FE1 present: hand-operable tool; FE2 absent: general-purpose hand tool; FE3 partial: tool mount/jaw region; FE4 absent: no separating edge for brittle bodies; FE5 absent. Risk: medium."
+    },
+    {
+      "identifier": "US20110289784A1",
+      "familyId": "FAM-US20110289784A1",
+      "riskLevel": "medium",
+      "evidenceBasis": "public page abstract: spring-biased lightweight ergonomic nipper, torsion spring, replaceable carbide blades, pivot bushing",
+      "featureMatrix": "FE1 present: handles + pivot (pliers-like nipper); FE2 absent: nipper for small-hand cutting, no chocolate context; FE3 present: blades/jaws; FE4 partial: cutting blades; FE5 absent. Risk: medium."
+    },
+    {
+      "identifier": "US20130183631A1",
+      "familyId": "FAM-US20130183631A1",
+      "riskLevel": "low",
+      "evidenceBasis": "public page abstract: single pair of orthodontic pliers for bending arch wires; actuating members, occlusal jaws with channel profiles, gingival jaw member",
+      "featureMatrix": "FE1 present: actuating members pivotally joined; FE2 absent: orthodontic wire bending; FE3 present: occlusal jaws; FE4 absent: bending rather than separation; FE5 absent. Risk: low."
+    },
+    {
+      "identifier": "GB2270248A",
+      "familyId": "FAM-GB2270248A",
+      "riskLevel": "high",
+      "evidenceBasis": "search record title (Q08): A confectionery breaker; full text page throttled during run window (503); EP2845700A1 citation table row 3 without examiner mark",
+      "featureMatrix": "FE1 partial/unknown: breaker-type device (title only); FE2 partial: confectionery products; FE3 unknown; FE4 unknown; FE5 unknown. Risk: high: title-only evidence, no fresh-verified full text during window."
+    },
+    {
+      "identifier": "IT1200532B",
+      "familyId": "FAM-IT1200532B",
+      "riskLevel": "high",
+      "evidenceBasis": "search record title (Q08): HOME-MADE TOOL FOR CUTTING NOUGAT; full text page throttled during run window (503); EP2845700A1 citation table row 2 without examiner mark",
+      "featureMatrix": "FE1 partial/unknown: cutting tool (title only); FE2 partial: nougat (= confectionery) cutting; FE3 unknown; FE4 unknown; FE5 unknown. Risk: high: title-only evidence."
+    },
+    {
+      "identifier": "DE102006012754B4",
+      "familyId": "FAM-DE102006012754B4",
+      "riskLevel": "high",
+      "evidenceBasis": "Similar Documents entry 1 (title: Surgical instrument); full text page throttled during run window (503)",
+      "featureMatrix": "FE1 partial/unknown: instrument (title only); FE2 absent per title; FE3 unknown; FE4 unknown; FE5 unknown. Risk: high: title-only evidence."
+    }
+  ],
+  "evidenceRecovery": [
+    {
+      "identifier": "FR742229A",
+      "evidenceType": "examiner_citation",
+      "evidenceUrl": "https://patents.google.com/patent/FR742229A/en",
+      "recoveredByQuery": [
+        "Q06"
+      ],
+      "firstRunUrlCheck": {
+        "verified": true,
+        "statusCode": 200,
+        "checkedAt": "2026-08-22T15:06Z"
+      },
+      "rerunUrlCheck": {
+        "verified": false,
+        "statusCode": 503,
+        "checkedAt": "2026-08-22T16:01:14Z"
+      },
+      "dataProvenance": "EP2845700A1 Google Patents public page Citations(7) table, examiner-marked rows (caption: * Cited by examiner); identifier converted from meta DC.relation (FR:742229:A -> FR742229A etc.)",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    },
+    {
+      "identifier": "DE202006019957U1",
+      "evidenceType": "examiner_citation",
+      "evidenceUrl": "https://patents.google.com/patent/DE202006019957U1/en",
+      "recoveredByQuery": [
+        "Q06"
+      ],
+      "firstRunUrlCheck": {
+        "verified": true,
+        "statusCode": 200,
+        "checkedAt": "2026-08-22T15:06Z"
+      },
+      "rerunUrlCheck": {
+        "verified": false,
+        "statusCode": 503,
+        "checkedAt": "2026-08-22T16:01:14Z"
+      },
+      "dataProvenance": "EP2845700A1 Google Patents public page Citations(7) table, examiner-marked rows (caption: * Cited by examiner); identifier converted from meta DC.relation (FR:742229:A -> FR742229A etc.)",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    },
+    {
+      "identifier": "US20090308211A1",
+      "evidenceType": "examiner_citation",
+      "evidenceUrl": "https://patents.google.com/patent/US20090308211A1/en",
+      "recoveredByQuery": [
+        "Q07"
+      ],
+      "firstRunUrlCheck": {
+        "verified": true,
+        "statusCode": 200,
+        "checkedAt": "2026-08-22T15:06Z"
+      },
+      "rerunUrlCheck": {
+        "verified": false,
+        "statusCode": 503,
+        "checkedAt": "2026-08-22T16:01:14Z"
+      },
+      "dataProvenance": "EP2845700A1 Google Patents public page Citations(7) table, examiner-marked rows (caption: * Cited by examiner); identifier converted from meta DC.relation (FR:742229:A -> FR742229A etc.); page title Hand tool and method of using same verified",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    },
+    {
+      "identifier": "US20110289784A1",
+      "evidenceType": "examiner_citation",
+      "evidenceUrl": "https://patents.google.com/patent/US20110289784A1/en",
+      "recoveredByQuery": [
+        "Q07"
+      ],
+      "firstRunUrlCheck": {
+        "verified": true,
+        "statusCode": 200,
+        "checkedAt": "2026-08-22T15:06Z"
+      },
+      "rerunUrlCheck": {
+        "verified": false,
+        "statusCode": 503,
+        "checkedAt": "2026-08-22T16:01:14Z"
+      },
+      "dataProvenance": "EP2845700A1 Google Patents public page Citations(7) table, examiner-marked rows (caption: * Cited by examiner); identifier converted from meta DC.relation (FR:742229:A -> FR742229A etc.)",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    },
+    {
+      "identifier": "US20130183631A1",
+      "evidenceType": "examiner_citation",
+      "evidenceUrl": "https://patents.google.com/patent/US20130183631A1/en",
+      "recoveredByQuery": [
+        "Q08"
+      ],
+      "firstRunUrlCheck": {
+        "verified": true,
+        "statusCode": 200,
+        "checkedAt": "2026-08-22T15:06Z"
+      },
+      "rerunUrlCheck": {
+        "verified": false,
+        "statusCode": 503,
+        "checkedAt": "2026-08-22T16:01:14Z"
+      },
+      "dataProvenance": "EP2845700A1 Google Patents public page Citations(7) table, examiner-marked rows (caption: * Cited by examiner); identifier converted from meta DC.relation (FR:742229:A -> FR742229A etc.); page title Orthodontic Pliers for Four Quadrant V-Bends verified",
+      "sanitizationNote": "仅公开书目元数据与公开页信息；不含任何 private fixture 内容"
+    }
+  ],
+  "urlVerification": [
+    {
+      "url": "https://patents.google.com/patent/EP2845700A1/en",
+      "role": "family-page",
+      "statusCode": 503,
+      "firstRunStatus": 200,
+      "rerunStatus": 503,
+      "verified": false
+    },
+    {
+      "url": "https://patents.google.com/patent/EP2845700B1/en",
+      "role": "family-member",
+      "statusCode": 503,
+      "firstRunStatus": 200,
+      "rerunStatus": 503,
+      "verified": false
+    },
+    {
+      "url": "https://patents.google.com/patent/DK2845700T3/en",
+      "role": "family-member",
+      "statusCode": 503,
+      "firstRunStatus": 200,
+      "rerunStatus": 503,
+      "verified": false
+    },
+    {
+      "url": "https://patents.google.com/patent/DE202013104051U1/en",
+      "role": "family-member",
+      "statusCode": 503,
+      "firstRunStatus": 200,
+      "rerunStatus": 503,
+      "verified": false
+    },
+    {
+      "url": "https://patents.google.com/patent/FR742229A/en",
+      "role": "anchor",
+      "statusCode": 503,
+      "firstRunStatus": 200,
+      "rerunStatus": 503,
+      "verified": false
+    },
+    {
+      "url": "https://patents.google.com/patent/DE202006019957U1/en",
+      "role": "anchor",
+      "statusCode": 503,
+      "firstRunStatus": 200,
+      "rerunStatus": 503,
+      "verified": false
+    },
+    {
+      "url": "https://patents.google.com/patent/US20090308211A1/en",
+      "role": "anchor",
+      "statusCode": 503,
+      "firstRunStatus": 200,
+      "rerunStatus": 503,
+      "verified": false
+    },
+    {
+      "url": "https://patents.google.com/patent/US20110289784A1/en",
+      "role": "anchor",
+      "statusCode": 503,
+      "firstRunStatus": 200,
+      "rerunStatus": 503,
+      "verified": false
+    },
+    {
+      "url": "https://patents.google.com/patent/US20130183631A1/en",
+      "role": "anchor",
+      "statusCode": 503,
+      "firstRunStatus": 200,
+      "rerunStatus": 503,
+      "verified": false
+    }
+  ],
+  "rerun": {
+    "blocked": true,
+    "blockedReason": "Upstream 503 throttle on patents.google.com (XHR and pages, both documented UA patterns) from 2026-08-22T15:11Z through the final attempt 2026-08-22T16:01:14Z (~50 min); official fallbacks: Espacenet 403, EPO Register 403, PATENTSCOPE connection reset. Rerun pass not executable inside the run window.",
+    "firstRun": {
+      "at": "2026-08-22T15:10:44Z",
+      "inputsHash": "7fba3f545a03481ef57e99a8d14687201c43f4e5987b4260a9d7d2f34b9c2ddd"
+    },
+    "rerun": {
+      "at": null,
+      "inputsHash": null
+    },
+    "assertionsStable": false,
+    "orderingDriftDisclosure": "rerun did not execute: every rerun request (3 citation queries and all page checks, both batch2 and final gated batch) returned HTTP 503 at 16:01:14Z; no live ordering drift observable; first-run ordering as recorded in queryRecords.",
+    "hashes": {
+      "queryRecordsHash": "9d9f06f766d01eb2ccd538075caadcb17e927a746883fdf6aa85c53c6d152168",
+      "familiesHash": "98f2380f79d552957079082d0c87ab05f07ed595010ffba71c175e9752a93b47",
+      "deepReadsHash": "5fed110418c1f170b5a7bc8270a4903971fbc33c00c7fd2eb0505f5c05dc41af"
+    }
+  },
+  "limitations": [
+    "不提供授权概率、FTO 或法律意见；本产物不表示穷尽全球文献。检索范围以公开可索引专利文献为限，含官方界面访问波动导致的深链缺失。",
+    "EPO 官方深链（Espacenet/Register）在本窗口以 403/503 形式不可用（Slice 1 已知限制），证据 URL 全部走公开聚合器（patents.google.com）并 fresh 验证；未绕行 WAF/CAPTCHA。",
+    "FR742229A（1933）公开页无 OCR 标题/摘要文本，深读特征矩阵仅基于其公开分类（B26B17/00、B26B17/006）与 Cited By=EP2845700A1 证据。",
+    "GB2270248A、IT1200532B、DE102006012754B4 全文页在运行窗口内被上游 503 节流，深读特征矩阵基于搜索记录标题与引证表条目（title-only），风险层级标记为 high；恢复后应补全文复核。",
+    "家族归并以公开索引（Also Published As / docdbFamily）为基准，索引缺口未覆盖内容不在本产物内。",
+    "Q09 similar 运算符仅返回源记录本身；语义近邻候选来自 EP2845700A1 页 Similar Documents 表（25 条）并已纳入 40 族上限。",
+    "Q10（chocolate cutting tool，123,745 命中）为宽泛噪声查询，仅保留与巧克力/糖果切割或手持分离工具相关的筛选族；筛选规则见报告。",
+    "检索与复核计时戳为 UTC 批次粒度；上游节流窗口 2026-08-22T15:11Z 起导致部分页面与重跑请求延迟。",
+    "本 2a 切片仅覆盖 invention Case（EP2845700A1）；utility_model Case（CN221531624U）与证据类型区分扩展归属 2b，未在本产物断言。",
+    "人工签核由 Chief/创始人完成后方可视为终态；本记录为执行 worker 候选。"
+  ],
+  "failureGapLog": [
+    "F1: EPO 官方页面（Espacenet/Register link.epo.org）403/503 不可用，未纳入证据 URL（Slice 1 已知，本窗口复核未缓解）。",
+    "F2: 上游节流 503 自 2026-08-22T15:11Z 起影响 patents.google.com 页面与 XHR 端；deep-read 页面 GB2270248A、IT1200532B、DE102006012754B4 未能在窗口内取得全文（见 limitation 4）。",
+    "F3: FR742229A 公开页无标题/摘要 OCR 文本；以分类与 Cited By 元数据补缺（见 limitation 3）。",
+    "F4: Q08 结果集出现 GB655584A（冲击减震系统）费解匹配，原因未能在窗口内定位（疑似编号/家族解析噪声），保留入族并标注 low relevance。",
+    "F5: 未注册任何第三方付费账户，未使用付费 API；未绕行 WAF/CAPTCHA。"
+  ],
+  "humanSignoff": {
+    "retriever": "beta-slice-2a execution worker record",
+    "checkDate": "2026-08-23 (Asia/Shanghai)",
+    "status": "pending_chief_or_founder",
+    "items": [
+      "查询式清单 10/10（四族覆盖）复核",
+      "筛选理由与 40 族去重复核（EP 家族单槽）",
+      "5 条 examiner 锚点恢复与标记复核",
+      "特征矩阵与风险层级复核（8 深读）",
+      "URL fresh 验证（first+rerun 200）复核",
+      "局限声明与失败/缺口日志复核"
+    ]
+  },
+  "verdict": "conditional_go"
+}

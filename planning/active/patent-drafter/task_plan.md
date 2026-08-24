@@ -6,10 +6,10 @@
 
 ## Current State
 
-Status: active
+Status: blocked
 Archive Eligible: no
 Close Reason:
-Reconcile: Phase 18 confirmed; Beta execution authorized; Slice 1 accepted; Slice 2 binding next
+Reconcile: Slice 1 accepted; Slice 2a benchmark candidate 48/54 RED; reproducible patent-query source requires human/account gate
 
 ## Routing Decision
 
@@ -20,7 +20,7 @@ Reconcile: Phase 18 confirmed; Beta execution authorized; Slice 1 accepted; Slic
 
 ## Current Phase
 
-Phase 19（Beta 最小建设执行；当前 Slice 2 两件历史 Case 检索基准）
+Phase 19（Beta 最小建设执行；Slice 2a 因查询重跑不可复现而 blocked）
 
 ## Phases
 
@@ -198,19 +198,19 @@ Phase 19（Beta 最小建设执行；当前 Slice 2 两件历史 Case 检索基�
 
 - **Path:** `docs/plans/profitable-patent-beta-minimum-build.md`
 - **Summary:** 首笔收款前仅验证两件历史 Case 检索、运营/数据/订单材料、手工台账和人工交接；完整干跑后才允许条件式最小产品改造，再经专业审阅和 Owner go/no-go 启动 21 天 Beta。
-- **Lifecycle:** active
-- **Sync-back status:** synced at 2026-08-22 22:44:09 UTC+8
+- **Lifecycle:** blocked
+- **Sync-back status:** synced at 2026-08-24 11:02:28 UTC+8
 
 ### Phase 19: Beta 最小建设执行（2026-08-22）
 - [x] Owner 授权 ChiefOps 执行 plan slices，并授权后续使用 Cloudflare 部署、Stripe dummy 数据/凭证实现支付占位
 - [x] Slice 1 `beta-slice-1-search-protocol-baseline-selection`：检索协议、两件历史 Case 选择、协议校验器（Chief accepted；68/68 PASS）
-- [~] Slice 2 `beta-slice-2-historical-search-benchmarks`：运行两件历史 Case 并形成可复现检索证据
+- [~] Slice 2 `beta-slice-2-historical-search-benchmarks`：2a 发明 Case 候选 48/54 RED；Google Patents 查询接口重跑 503，等待可复现数据源人类门
 - [ ] Slice 3：Beta 订单/数据/SOP/手工台账运营包
 - [ ] Slice 4：无真实客户数据的完整干跑
 - [ ] Slice 5：仅按干跑阻断点做最小 WebApp 改造，支付使用 Stripe dummy 模式
 - [ ] Slice 6：完整测试、Cloudflare 部署与生产验收
 - [ ] Slice 7：Chief completion audit 与人类门交接
-- **Status:** in_progress
+- **Status:** blocked（按 Phase B 停止条件，Slice 3–7 不得提前执行）
 
 ### 外部环境待办（不阻塞，已记录 final-acceptance 第 10 节）
 - 生产浏览器本地网络授权（macOS TCC + Chrome Local Network Access；本机 Chrome ERR_BLOCKED_BY_CLIENT 已记录）
@@ -231,3 +231,5 @@ Phase 19（Beta 最小建设执行；当前 Slice 2 两件历史 Case 检索基�
 | 只读 `rg` 校验模式含反引号，被 zsh 解释为命令替换 | 1 | 2026-08-22 22:44:09 UTC+8 未修改文件；后续拆分为不含反引号的固定模式校验 |
 | `spawn_agent` 拒绝 `swf_executor` 与 full-history fork 组合 | 1 | 2026-08-22 22:47:04 UTC+8 未创建 worker、未改生产文件；改为自包含 packet 且不 fork history，重新冻结后派发 |
 | 首个 Slice 2 worker 报告 binding 通过但 validator patch 格式失败；恢复后仍无 RED 文件 | 1 | 2026-08-22 22:56:18 UTC+8 两次有界等待后关闭 running lane；保留一次替代机会，并把首个执行单元缩为 validator + 发明 Case |
+| Slice 2a 首跑完成但 Google Patents 查询重跑持续返回 503 | 3 | 2026-08-24 11:02:28 UTC+8 候选诚实保留 48/54 RED；Chief 详情页 9/9 为 200，但 XHR/搜索页仍 503，不能以详情页替代相同查询重跑 |
+| 当前 Host 无 `node_repl js`，无法按 Chrome skill 使用可见浏览器完成查询重跑 | 1 | 2026-08-24 11:02:28 UTC+8 已完成 skill/tool discovery；不改用未授权自动化，不绕 CAPTCHA/WAF，升级为人类/账户门 |

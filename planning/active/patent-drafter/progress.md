@@ -788,3 +788,12 @@
 - Chief 以即时 gate 收到明确 milestone 后恢复同一 worker，要求小 patch 先形成真实 RED，并按 Host 规则申请公共专利 URL 的只读网络权限；再经两次有界等待，工作树仍无任何 Slice 2 允许路径文件。
 - Chief 显式关闭该 lane，Host previous_status=`running`；无候选可验收、无产品文件被改。
 - 同 Slice 只保留一次替代机会；替代 packet 先限为确定性 validator + 发明 Case 的首跑/重跑证据，成功后再让同一 worker补齐实用新型 Case，避免再次把开放式五产物任务作为一个不可观测黑盒。
+
+## Session: 2026-08-24 11:02:28 UTC+8（Slice 2a partial candidate → blocked）
+
+- 当前 HEAD `ea5db99e6b7170fc675ee8aaf79d103dc5205dd8`；worktree 仅有三个 2a 候选路径：validator、invention-run fixture、invention report。
+- Chief 独立运行 `node qa/prior-art-protocol-check.mjs` → 68/68 PASS；`node qa/prior-art-benchmark-check.mjs` → 48/54 PASS、exit 1。六个失败项均为 rerun URL 200、rerun timestamp、identical input hash、stable assertions 未成立。
+- Chief fresh curl：9 个详情/家族 URL 全部 HTTP 200；同一 Google Patents XHR/普通查询 URL 仍 HTTP 503，故不得把页面可读偷换成检索查询可复现。
+- 两个可见 repair worker 在各自受限网络路径均复现 503；其中最后一个执行 6 次 probe，明确没有观察到 200，未修改候选。actual model/effort/approval 仍无 Host 认证，保持 unknown。
+- 官方替代面核对：EPO OPS 需注册、credentials 和 OAuth；PATENTSCOPE programmatic webservice 为 limited/conditional access。当前没有用户授权的账户/凭证，也无可用 Chrome browser runtime。
+- 按 Phase B 停止条件，将 Slice 2 和主任务写为 blocked；未执行 utility-model Case、Slice 3 运营包、WebApp/Stripe dummy 改造或 Cloudflare 部署。
