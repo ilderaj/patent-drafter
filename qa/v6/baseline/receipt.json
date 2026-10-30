@@ -1,0 +1,27 @@
+{
+  "ticket": "V6-01",
+  "status": "accepted",
+  "baseCommit": "dc4b00882608354c266805a2fb2f4974f1a75401",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "changedFiles": [
+    "qa/v6/baseline/head.txt",
+    "qa/v6/baseline/index.txt",
+    "qa/v6/baseline/tracked-diff.patch",
+    "qa/v6/baseline/untracked-sha256.txt",
+    "qa/v6/baseline/manifest.json",
+    "qa/v6/baseline/receipt.json"
+  ],
+  "acceptance": [
+    {"id":"V6-01-A01","command":"repeat git diff --binary and normalized untracked hash inventory","exitCode":0,"evidence":"qa/v6/baseline/manifest.json; hashes stable across rerun"},
+    {"id":"V6-01-A02","command":"git ls-files --others --exclude-standard + shasum -a 256","exitCode":0,"evidence":"qa/v6/baseline/untracked-sha256.txt; 407 stable non-planning paths recorded; 7 live planning paths excluded; missing-path failure simulation not run"},
+    {"id":"V6-01-A03","command":"repeat baseline capture without source changes","exitCode":0,"evidence":"qa/v6/baseline/manifest.json; identical hashes"}
+  ],
+  "specAcceptance": [],
+  "limitations": [
+    "npm run test:v6 -- V6-01 not_run: runner is created in V6-02.",
+    "Existing workspace state is dirty and contains 39 tracked modifications plus 414 untracked paths; baseline records the 407 stable non-planning paths without claiming authorship and excludes 7 live planning paths.",
+    "Product checks are repository-wide pre-existing suites and do not constitute V6-specific acceptance."
+  ],
+  "decisionsRequested": []
+}

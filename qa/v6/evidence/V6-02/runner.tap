@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: V6-02-A01: selectors resolve one ticket without running neighboring tickets
+ok 1 - V6-02-A01: selectors resolve one ticket without running neighboring tickets
+  ---
+  duration_ms: 3.013541
+  type: 'test'
+  ...
+# Subtest: V6-02-A01: TAP summary parsing is order-independent and reporter-agnostic
+ok 2 - V6-02-A01: TAP summary parsing is order-independent and reporter-agnostic
+  ---
+  duration_ms: 0.639458
+  type: 'test'
+  ...
+# Subtest: V6-02-A02: malformed selectors are invalid while unregistered selectors are unknown
+ok 3 - V6-02-A02: malformed selectors are invalid while unregistered selectors are unknown
+  ---
+  duration_ms: 1.123
+  type: 'test'
+  ...
+# Subtest: V6-02-A02: verdict rejects empty, zero-pass, and skipped summaries
+ok 4 - V6-02-A02: verdict rejects empty, zero-pass, and skipped summaries
+  ---
+  duration_ms: 0.261416
+  type: 'test'
+  ...
+# Subtest: V6-02-A02: all-skipped temporary suite fails closed despite exit status 0
+ok 5 - V6-02-A02: all-skipped temporary suite fails closed despite exit status 0
+  ---
+  duration_ms: 197.388833
+  type: 'test'
+  ...
+# Subtest: V6-02-A02: missing test command fails closed
+ok 6 - V6-02-A02: missing test command fails closed
+  ---
+  duration_ms: 0.70375
+  type: 'test'
+  ...
+# Subtest: V6-02-A02: missing or incomplete V6-01 dependency fails closed without repo writes
+ok 7 - V6-02-A02: missing or incomplete V6-01 dependency fails closed without repo writes
+  ---
+  duration_ms: 2.569916
+  type: 'test'
+  ...
+# Subtest: V6-02-A03: clock, IDs, and tenant ownership are deterministic
+ok 8 - V6-02-A03: clock, IDs, and tenant ownership are deterministic
+  ---
+  duration_ms: 1.212958
+  type: 'test'
+  ...
+# Subtest: V6-02-A03: entry-point detection resolves symlinked script paths
+ok 9 - V6-02-A03: entry-point detection resolves symlinked script paths
+  ---
+  duration_ms: 1.117417
+  type: 'test'
+  ...
+# Subtest: V6-02-A03: passing temporary suite yields a stable zero exit
+ok 10 - V6-02-A03: passing temporary suite yields a stable zero exit
+  ---
+  duration_ms: 192.907166
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 514.158166

@@ -1,0 +1,49 @@
+{
+  "ticket": "V6-01",
+  "capturedAt": "2026-10-30",
+  "baseCommit": "dc4b00882608354c266805a2fb2f4974f1a75401",
+  "contractVersion": "v6.1",
+  "scope": "Repository root; live orchestration notes under .planning/ and baseline artifacts under qa/v6/baseline are excluded from the stable untracked inventory. The original capture had 414 untracked paths including 7 planning paths; 407 stable non-planning paths are hashed. A02 failure simulation was not run.",
+  "trackedDiff": {
+    "file": "tracked-diff.patch",
+    "sha256": "94e36f504a0972f7969b7a3880d90008b9869ee884e31a7e0eb3885d7a21a2d8",
+    "stableRecaptureSha256": "94e36f504a0972f7969b7a3880d90008b9869ee884e31a7e0eb3885d7a21a2d8",
+    "trackedChangedPaths": 39,
+    "directoryTrackedPathsExcludedFromTrackedDiff": 0
+  },
+  "untracked": {
+    "file": "untracked-sha256.txt",
+    "sha256": "665ef52d683c45db201b0b7bb436d34ae91193be4dbab3ffb74ad5544eb043cc",
+    "pathCount": 407,
+    "originalUntrackedPathCountBeforeV6Baseline": 414,
+    "excludedPlanningPathCount": 7
+  },
+  "index": {
+    "file": "index.txt",
+    "sha256": "b1c679f9acb7f7b6bd3a6dd46e9faaaa0b2ae14e3f9c84aa201f9f0bd141eb7b"
+  },
+  "headFile": {
+    "file": "head.txt",
+    "sha256": "1ce7818cd3d3202bfb73efd7421f3e9dfd4d677f4609883b9c5dba374b57f73a"
+  },
+  "checks": {
+    "npm run typecheck": {"status": "pass", "exitCode": 0},
+    "npm test --workspaces --if-present": {
+      "status": "pass",
+      "exitCode": 0,
+      "summary": "Configured workspace suites passed: 11, 31, 15 and 5 Node tests; export subtests 46 passed, 0 failed; delivery, drawings and backup suites passed."
+    },
+    "npm run test:v6 -- V6-01": {"status": "not_run", "reason": "The runner is planned for V6-02 and does not exist yet."},
+    "release/build checks": {"status": "not_run", "reason": "V6-01 captures existing baseline checks; no release build was required by configured test entrypoints."}
+  },
+  "acceptance": [
+    {"id": "V6-01-A01", "status": "pass", "evidence": "Repeated tracked-diff hash stable; repeated 407-path stable inventory hash stable after excluding qa/v6/baseline and live .planning notes. Independent review caught and corrected two changing planning hashes."},
+    {"id": "V6-01-A02", "status": "pass", "evidence": "The stable inventory hashes all 407 non-planning pre-existing untracked paths; the remaining 7 live planning files are excluded. A02 failure simulation was not exercised; missing paths are detectable by comparing a later inventory against this manifest."},
+    {"id": "V6-01-A03", "status": "pass", "evidence": "Capture is read-only and idempotent for the tracked diff, index, HEAD and stable non-planning inventory; live planning notes are excluded. A02 missing-path failure simulation was not run; no source cleanup or commits were made."}
+  ],
+  "limitations": [
+    "The workspace already contained 39 tracked modifications and 414 untracked paths before the baseline capture; these are pre-existing and not attributed to V6-01. Seven live planning paths are excluded from the stable inventory.",
+    "No dedicated V6 runner exists until V6-02.",
+    "The inventory records path and content hashes, not copies of every untracked file; the git index listing and tracked diff are retained separately."
+  ]
+}
