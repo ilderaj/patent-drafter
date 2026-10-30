@@ -10,7 +10,7 @@ V6-03 已独立复核并 accepted；开始 V6-04。按用户授权，持续按�
 
 ## 当前阶段
 
-阶段 2：V6-03 candidate，等待复核。
+阶段 2：V6-03 accepted；实施 V6-04。
 
 ## 阶段
 
@@ -22,7 +22,7 @@ V6-03 已独立复核并 accepted；开始 V6-04。按用户授权，持续按�
 - **状态：** complete
 
 ### 阶段 2：核心合同与本地模型
-- [x] V6-03 建立共享 Zod 合同、导出类型与确定性 fixtures；修复并补证据后，独立复核指出 per-action metadata 矩阵待裁决
+- [x] V6-03 建立共享 Zod 合同、导出类型与确定性 fixtures；最终独立复核 accepted
 - [x] 完成 V6-03 per-action metadata 矩阵独立复核并接受
 - [ ] 依次实施 V6-04、V6-05、V6-06
 - [ ] 按依赖图继续完成 Foundation/R1
@@ -42,6 +42,7 @@ V6-03 已独立复核并 accepted；开始 V6-04。按用户授权，持续按�
 - 根 `package.json` 的 `test:v6` 由编排者单写，属 V6-02 允许写集；lockfile 与基线一致。
 - V6-03 的 `packages/contracts/`、`qa/v6/scenarios/V6-03/`、`qa/v6/evidence/V6-03/` 属该票写集；`package-lock.json` 未改，原因和基线安装失败证据记于 V6-03 回执。
 - V6-01、V6-02、V6-03 accepted；commit/push/PR are authorized by the user; deployment remains prohibited.
+- V6-03 acceptance commit: `62ca1ed` on `codex/patent-saas-v6-foundation`; unrelated dirty files remain unstaged.
 
 ## 关键问题
 
