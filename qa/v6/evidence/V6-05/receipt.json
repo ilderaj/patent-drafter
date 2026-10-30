@@ -1,0 +1,177 @@
+{
+  "ticket": "V6-05",
+  "status": "accepted",
+  "baseCommit": "3daef2b5f3370787773245a2a3769295b5656f1b",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "changedFilesNote": "changedFiles is the V6-05 delta measured against baseCommit in the isolated worktree. packages/domain/src/index.ts is the shared barrel: the execution protocol reserves barrels for the orchestrator, so the two-line re-export is not part of the ticket's executor write set. The untracked node_modules symlink is a local test-dependency mount and is not staged. No .planning file is part of the delta: the plan and progress records were already committed with V6-04.",
+  "changedFiles": [
+    "packages/domain/src/index.ts",
+    "packages/domain/src/v6/confirmation.ts",
+    "packages/domain/src/v6/gate.ts",
+    "qa/v6/scenarios/V6-05/confirmation-gate.test.mjs",
+    "qa/v6/evidence/V6-05/receipt.json",
+    "qa/v6/evidence/V6-05/runner.tap",
+    "qa/v6/evidence/V6-05/typecheck.txt",
+    "qa/v6/evidence/V6-05/regression.txt",
+    "qa/v6/evidence/V6-05/scope.txt"
+  ],
+  "interface": {
+    "modules": [
+      "packages/domain/src/v6/confirmation.ts",
+      "packages/domain/src/v6/gate.ts"
+    ],
+    "exports": [
+      "ConfirmationKind",
+      "ConfirmationIdentity",
+      "Confirmation",
+      "Revocation",
+      "ConfirmationLedger",
+      "ConfirmationContext",
+      "ConfirmationErrorCode",
+      "ConfirmationError",
+      "ConfirmationOutcome",
+      "RevokeOutcome",
+      "RevokeResult",
+      "ContentAccess",
+      "FullReadCommand",
+      "AiParagraphCommand",
+      "RiskAckCommand",
+      "ConfirmCommand",
+      "RevokeCommand",
+      "ConfirmationStatus",
+      "isRevoked",
+      "isConfirmationCurrent",
+      "currentConfirmations",
+      "confirmationStatus",
+      "confirm",
+      "revokeConfirmation",
+      "GateAction",
+      "GateErrorCode",
+      "RiskCategory",
+      "FindingStatus",
+      "Risk",
+      "Finding",
+      "CheckRun",
+      "Approval",
+      "GateContext",
+      "GateReason",
+      "GateDecision",
+      "GateFacts",
+      "ENGINEERING_RULE_CODES",
+      "evaluateGate"
+    ],
+    "stateModel": "Confirmations live in an append-only ConfirmationLedger {matterId, confirmations, revocations}. A revision is never edited: withdrawing one appends a Revocation that names it. Current means bound to the snapshot being asked about and not revoked; nothing carries across a draft or figure revision.",
+    "purity": "Neither module reads the clock, touches storage or allocates an ambient ID. confirm and revokeConfirmation take an injected ConfirmationContext; evaluateGate is a pure function of GateContext plus GateFacts. A refused confirm/revoke returns the input ledger by reference.",
+    "gateRules": "generate needs only the source bytes; every other action requires a current snapshot. confirm and download stop after the binding check. prepare, approve and export require a succeeded check whose snapshot is current and whose rule pack is the active one, then evaluate the check's findings plus any risk the context carries that the check does not repeat: every present blocker blocks regardless of status (also when the rule has no dedicated code), a policy blocks only when its rule declared the current action, an unverified finding never blocks, and a risk blocks until a current risk_ack exists. Then input staleness, content confirmations and — for export of an internally_approved package — a live approval bound to that check and to every confirmation it cites.",
+    "contractShapes": "Every produced record is parsed against its frozen contract schema in the suite: Confirmation, Revocation, CheckRun, Approval, GateContext, GateDecision and every reason code against §10 ErrorCode."
+  },
+  "acceptance": [
+    {
+      "id": "V6-05-A01",
+      "command": "npm run test:v6 -- V6-05",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-05/runner.tap",
+      "observed": "26 tests passed; 0 failed, 0 skipped. A current succeeded check on the active rule pack plus a current ai_paragraph confirmation for every AI paragraph allows a preparation export with no reasons, and every produced record and decision parses against its contract schema. In the self-service mode a current full_read confirmation allows the same export while its absence refuses it with CONFIRMATION_REQUIRED bound to the resource 'full_read'. An internally_approved export additionally requires an approval whose snapshot and check run are current and whose cited confirmations are still live; the same content as a preparation package needs no approval."
+    },
+    {
+      "id": "V6-05-A02",
+      "command": "npm run test:v6 -- V6-05",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-05/runner.tap",
+      "observed": "Revoking one AI paragraph confirmation removes it from the live set and closes the gate with CONFIRMATION_REQUIRED for exactly that paragraph; revoking a confirmation an approval cites closes it with CONFIRMATION_REQUIRED and APPROVAL_REQUIRED. A new draft revision leaves every confirmation pending and the old check speaking for nothing, refusing with CHECK_REQUIRED; rebinding the figure set does the same and names the expired check. A check that was never run, a failed check and a rule pack upgrade all refuse with CHECK_REQUIRED, and a failed check is never read as 'no risk'. A duplicate figure number blocks with DUPLICATE_FIGURE_NUMBER and its finding id, an engineering blocker without a dedicated code blocks with GATE_BLOCKED, and an acknowledged or even resolved blocker still blocks — only a rerun that no longer contains it clears the export. An unverified legal finding never blocks. A policy finding blocks only when its rule id is in the caller-supplied set of rules that declared this action, and a policy never requires a risk acknowledgement. A risk blocks only until a risk_ack bound to that same check run exists — an acknowledgement from an earlier check run does not carry over, and a present risk that needs acknowledgement is not cleared by a resolved status — and a risk present on the context but missing from the check's findings is evaluated as open. Input staleness and a missing approval each close the gate with INPUT_STALE and APPROVAL_REQUIRED."
+    },
+    {
+      "id": "V6-05-A03",
+      "command": "npm run test:v6 -- V6-05; npm run typecheck --workspaces --if-present; npm test --workspaces --if-present",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-05/runner.tap",
+        "qa/v6/evidence/V6-05/typecheck.txt",
+        "qa/v6/evidence/V6-05/regression.txt"
+      ],
+      "observed": "A deep-frozen gate context and fact set produce a deep-equal decision on both runs and the confirmation ledger is unchanged afterwards. Repeating the same confirmation returns the existing row with created=false and the input ledger by reference, so a retried click adds nothing. Revocation is append-only and a second revocation of the same confirmation is refused with INVALID_TRANSITION. Only prepare, approve and export consult the rule pack; generate works without a current snapshot while confirm and download refuse a stale binding with STALE_BINDING. Every code the gate can emit is driven out of it — all ten codes are produced by the scenarios, each reason parses as a §10 ErrorCode, and every value of ENGINEERING_RULE_CODES is among them. The private snapshot-equality copies in confirmation.ts and gate.ts are each changed field by field and shown to agree with revision.isCurrent on all six SnapshotRef fields. Workspace typecheck and all workspace tests exit 0."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S07-A01",
+      "status": "covered",
+      "reason": "A finding with category unverified and a legal rule id is present on a succeeded current check, and the export decision carries no reason and is allowed. The rule pack itself is out of scope; the suite proves the gate treats the category as non-blocking regardless of the rule id."
+    },
+    {
+      "id": "S07-A02",
+      "status": "covered",
+      "reason": "A figure.duplicate_number finding yields GateDecision(export).allowed=false whose only reason is DUPLICATE_FIGURE_NUMBER bound to the finding id; the finding record also parses against findingSchema."
+    },
+    {
+      "id": "S07-A03",
+      "status": "covered",
+      "reason": "Changing the figure set (a figureRevisionId-only snapshot change) makes the old check invalid and the export decision becomes CHECK_REQUIRED naming that check; the new-revision test shows the same expiry for a draft change. The page banner is UI behavior outside this module."
+    },
+    {
+      "id": "S07-A04",
+      "status": "covered",
+      "reason": "A risk_ack is bound to the check run that raised the risk. After a new check run the same risk is pending again and blocked with CONFIRMATION_REQUIRED; after a new draft revision every confirmation, risk acknowledgements included, is no longer current. The finding's status flipping back to open is the rule runner's output, which this ticket consumes as data."
+    },
+    {
+      "id": "S07-A05",
+      "status": "covered",
+      "reason": "A blocker whose status is acknowledged or even resolved still blocks with its engineering code, so no status value can clear it; only a rerun check that no longer contains the finding produces an empty reason list. The gate exposes no operation that marks a blocker resolved."
+    },
+    {
+      "id": "S07-A06",
+      "status": "not_applicable",
+      "reason": "searchState and the '未检索' label are check-page and export-manifest copy. The gate has no search input and this ticket adds no page."
+    },
+    {
+      "id": "S07-A07",
+      "status": "covered",
+      "reason": "Raising activeRulePackVersion above the check's rulePackVersion refuses export with CHECK_REQUIRED, which is the domain half of the 'expired, re-run the check' banner."
+    },
+    {
+      "id": "S07-A08",
+      "status": "not_applicable",
+      "reason": "The GWT observable is the preview page: the Chinese failure copy and the retry control are UI behavior with no page in this ticket's write set. The domain half is exercised under A02: a failed check refuses with CHECK_REQUIRED and is never allowed, so it cannot be shown as 'no risk'. The preview itself is implemented with the S07 page ticket."
+    }
+  ],
+  "limitations": [
+    "Preservation could not be re-verified in this isolated worktree: the V6-01 baseline untracked manifest describes the user's working checkout, none of which exists in a fresh worktree, and the worktree isolation hook refuses commands that target the original checkout. qa/v6/evidence/V6-05/scope.txt records the complete worktree delta instead: one modified shared barrel, the two new domain modules, the V6-05 scenario and evidence files, and the untracked node_modules symlink used as a local test-dependency mount. No other tracked or untracked file was touched.",
+    "The modules import nothing from packages/contracts. A cross-package dependency cannot be declared here because package-lock.json cannot be regenerated (npm install --package-lock-only fails at baseline with 404 for @patent/vibescanner-core). Confirmation, CheckRun, Approval and GateContext are declared structurally and drift is caught by the V6-05 contract test, which parses produced records and decisions against the frozen schemas.",
+    "This ticket is pure logic: it does not persist confirmations, run checks or produce a rule pack. The caller resolves snapshotCurrent and filesAvailable and passes them in; the download action can re-check only the snapshot binding because the export record is not part of GateContext. Persistence is V6-06.",
+    "Legal rule-pack evaluation (authority, verification, effective dates, declared policy actions) is not implemented here. The gate consumes findings that the check runner produced and maps only the four engineering rules that §10 gives dedicated codes; any other blocker rule is refused as GATE_BLOCKED rather than inventing a code. For policy findings the caller supplies GateFacts.blockingPolicyRuleIds from the rule records that declared the current action; that mapping belongs to the S07 rule pack, not this module.",
+    "No deployment, network call, model call, charge or real customer material was used. All fixtures are the deterministic synthetic set built from the V6-01 fixture helpers."
+  ],
+  "review": {
+    "method": "independent read-only review",
+    "verdict": "accept",
+    "verdictNote": "Round 3 accepted. The reviewer confirmed the round-2 fail-closed fix at gate.ts:204 and its test, checked every category/status/requiresAcknowledgement branch against S07 (blockers always block, unverified never blocks, policy only when declared, risks only when acknowledgement is required), and matched the receipt's 26-test claim to runner.tap:162. No findings.",
+    "round1": "not accept: (1) blocker — the gate skipped every finding marked resolved before the blocker test, so a resolved blocker present in the current check allowed export; (2) should-fix — policy findings were treated like acknowledgeable risks, with no rule-declared action to decide whether they block; (3) should-fix — the receipt said every emitted code was checked against the contract, but the test checked only ENGINEERING_RULE_CODES values and the reasons of one blocked decision; (4) should-fix — S07-A08 was marked covered although its GWT observable is the preview page's failure copy and retry control",
+    "round1Fixes": "A present blocker now blocks regardless of status (acknowledged or resolved); a test puts a resolved duplicate-figure finding on a current check and still gets DUPLICATE_FIGURE_NUMBER. Policy findings no longer require acknowledgement: GateFacts.blockingPolicyRuleIds carries the policy rules that declared the current action, and a test shows a policy with no declaration passes, the declared rule blocks with GATE_BLOCKED, and an unrelated rule does not. Policy rule ids and any risk the context carries but the check does not repeat are now both evaluated; the context risk enters as open and requires its acknowledgement. The emitted-code test drives the gate through every one of its ten codes and parses each reason against errorCodeSchema, and asserts every ENGINEERING_RULE_CODES value appears. S07-A08 is now not_applicable, naming the preview UI as the missing observable and the failed-check refusal that A02 does cover.",
+    "round2": "not accept: (1) should-fix — a present risk finding marked resolved was still skipped, so a risk with requiresAcknowledgement=true and no risk_ack could let export through, contrary to S07",
+    "round2Fixes": "Risks are no longer skipped by status either: while a risk is present, requiresAcknowledgement=true needs a current risk_ack, and a resolved status cannot stand in for one (a resolved status may only come from a rerun that no longer reports it). New test 'a risk that needs acknowledgement is not cleared by a resolved status' shows the refusal and then shows a risk_ack bound to that check run clearing it. Suite is 26/26."
+  },
+  "decisionsRecorded": [
+    {
+      "id": "GATE-FACTS-AUGMENTATION",
+      "decision": "05-contracts §6 fixes GateContext at its 11 fields, so the facts the gate needs but the contract does not carry — package kind, confirmation mode, input staleness, the AI paragraph ids and the policy rules that declared the current action — travel in a separate GateFacts argument supplied by the same caller. The gate stays a pure function and never guesses a mode, an action declaration or a rule's policy from the snapshot."
+    },
+    {
+      "id": "GATE-ENGINEERING-RULE-CODES",
+      "decision": "Only the engineering rules that §10 gives a dedicated code are mapped (ast.invalid, asset.missing_bytes, asset.bad_drawing, figure.duplicate_number). Every other blocker rule refuses as GATE_BLOCKED. The gate never emits a code the contract does not define, and the suite drives out all ten emitted codes and parses every one against errorCodeSchema."
+    },
+    {
+      "id": "GATE-POLICY-DECLARATION",
+      "decision": "A policy finding never blocks on its category alone and never requires a risk acknowledgement. S07 says a product policy blocks only the actions its rule declares, so the caller passes the ids of the policy rules that declared the current action in GateFacts.blockingPolicyRuleIds; the gate blocks exactly those with GATE_BLOCKED. Neither a blocker nor an acknowledgement-required risk is cleared by a resolved status: only a rerun that no longer reports the finding does that, so a present one fails closed."
+    },
+    {
+      "id": "SNAPSHOT-EQUALITY-LOCAL",
+      "decision": "confirmation.ts and gate.ts each keep a private six-field snapshot comparison instead of importing revision.isCurrent at runtime. Node's type stripping resolves only explicit .ts specifiers, and the packages that map @patent/domain into their tsconfig (@patent/audit, @patent/parsers) do not enable allowImportingTsExtensions, so a .ts runtime import breaks their typecheck. The suite proves both copies agree with isCurrent by changing each of the six fields in turn."
+    },
+    {
+      "id": "CONFIRMATION-LEDGER-REVOCATION",
+      "decision": "Withdrawing a confirmation never edits the confirmation row: a Revocation is appended and the row stays, so the audit trail keeps what was claimed and when it was withdrawn. Repeating a confirmation on the same snapshot is idempotent (created=false, input ledger returned by reference) so a retried click cannot inflate progress."
+    }
+  ],
+  "decisionsRequested": []
+}
