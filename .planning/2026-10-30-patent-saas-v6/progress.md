@@ -3,7 +3,7 @@
 ## 会话：2026-10-30
 
 ### 当前状态
-- **阶段：** V6-04 accepted（第六轮独立复核）；开始 V6-05
+- **阶段：** V6-05 accepted（第三轮独立复核）；开始 V6-06
 - **开始时间：** 2026-10-30
 
 ### 已执行操作
@@ -50,7 +50,15 @@
 - 三项已修复：保存时对 AST 结构复制并新增别名测试；`TargetRevisions` 增加追加式 `figureSets`，`restore_bound` 生成真实图集修订（新 id、parentId 为原当前集、entries 复制、保留旧集），源集不再保留时返回 `RESOURCE_NOT_FOUND`；确认用例改为合同合法的 `full_read` Confirmation，并删除恒真断言。另修正 `figureMismatch` 仅由 `keep_current` 报告。
 - V6-03 第一轮矩阵复核 not_accept：指出 S06-A06 的 provider/model 未必存在，且标识字符串可承载自由文本。已要求 job.succeeded/job.adopted 同时提供非空 provider/model，限制 stage/provider/model 字符集，并为要求和自由文本注入补充场景断言及负测。聚焦复核还指出 stage 缺少无效输入覆盖；补充 stage 拒绝断言与探针后，场景 14/14、负测 22/22、workspace typecheck、workspace tests exit 0，baseline preservation 407/407。最终独立只读复核 accept；确认 47 个 action 矩阵完整、21 个 changedFiles 与实际文件一致，receipt 标记 accepted。按用户授权准备切支、提交、推送和开 PR；未部署。
 
-### 检查结果
+- V6-05 在 `codex/patent-saas-v6-foundation-origin` 工作树实施，写集为 `packages/domain/src/v6/confirmation.ts`、`gate.ts`、`qa/v6/scenarios/V6-05/`、`qa/v6/evidence/V6-05/`；`packages/domain/src/index.ts` 两行 barrel 由编排者补写。
+- V6-05 确认采用追加式 `ConfirmationLedger`：确认绑定六字段快照，撤销只追加 `Revocation` 不修改原行；重复确认幂等返回 `created=false` 并按引用返回输入账本。
+- V6-05 门禁 `evaluateGate(context, facts)` 为纯函数：`generate` 只需源字节，其余动作要求当前快照；`prepare`/`approve`/`export` 要求成功且绑定当前快照与当前规则包的检查，再评估 findings/风险、输入陈旧、内容确认与内部批准。`GateFacts` 携带合同 `GateContext` 之外的包装类型、确认模式、inputStale、AI 段落、已声明阻断的 policy 规则。
+- V6-05 私有快照比较在两个模块各存一份：Node 类型擦除与 `@patent/audit`、`@patent/parsers` 的 tsconfig 不允许 `.ts` 运行时导入；用例逐字段改动证明两份副本与 `revision.isCurrent` 一致。
+- V6-05 第一轮独立复核 not_accept：resolved blocker 被提前跳过、policy 未按规则声明动作阻断、回执「所有可发码已校验」主张过宽、S07-A08 误标 covered。已让 present blocker 无论状态均阻断；新增 `GateFacts.blockingPolicyRuleIds` 与 context 风险合并；用例驱动全部十个码逐个过 `errorCodeSchema`；S07-A08 改为 not_applicable。
+- V6-05 第二轮独立复核 not_accept（一条 should-fix）：present 的 `risk` 若标 resolved 仍被跳过，需确认的风险可能放行。已移除按状态跳过，present 且 `requiresAcknowledgement` 的风险必须有绑定当前检查的 `risk_ack`，并新增对应用例。
+- V6-05 第三轮独立复核 accept，回执置 accepted；场景 26/26，workspace typecheck 与全量回归 exit 0。提交 `3c72f37`。
+
+
 | 检查 | 命令 | 结果 |
 |---|---|---|
 | TypeScript workspace 检查 | `npm run typecheck` | pass，exit 0 |
@@ -68,6 +76,10 @@
 | V6-04 workspace typecheck | `npm run typecheck --workspaces --if-present` | pass，exit 0；包含 `@patent/domain` |
 | V6-04 workspace 回归 | `npm test --workspaces --if-present` | pass，exit 0 |
 | V6-04 写集范围 | `/usr/bin/git status --porcelain --untracked-files=all` | pass；仅 barrel 一行改动与 V6-04 写集，见 `qa/v6/evidence/V6-04/scope.txt` |
+| V6-05 场景 | `npm run test:v6 -- V6-05` | pass，exit 0，26/26；第三轮独立复核 accept |
+| V6-05 workspace typecheck | `npm run typecheck --workspaces --if-present` | pass，exit 0；包含 `@patent/domain` |
+| V6-05 workspace 回归 | `npm test --workspaces --if-present` | pass，exit 0 |
+| V6-05 写集范围 | `/usr/bin/git status --porcelain` | pass；仅 barrel 两行改动与 V6-05 写集，见 `qa/v6/evidence/V6-05/scope.txt` |
 
 V6-03 证据：`qa/v6/evidence/V6-03/receipt.json`、`runner.tap`、`negative-checks.txt`、`negative-probes.mjs`、`typecheck.txt`、`regression.txt`、`preservation.txt`。
 

@@ -6,11 +6,11 @@
 
 ## 下一步
 
-V6-04 第六轮独立复核 accept，已提交并开始 V6-05（确认与门禁纯逻辑，写集 `packages/domain/src/v6/confirmation.ts`、`gate.ts`）。按用户授权，持续按依赖顺序实施、记录证据、独立复核、提交并推送 PR。
+V6-05 第三轮独立复核 accept，已提交（`3c72f37`），开始 V6-06（本地 Repository：IndexedDB adapter，写集 `apps/web/src/v6/lib/repository.ts`、`indexeddb-repository.ts`）。按用户授权，持续按依赖顺序实施、记录证据、独立复核、提交并推送 PR。
 
 ## 当前阶段
 
-阶段 2：V6-03、V6-04 accepted；V6-05 实施中。
+阶段 2：V6-03、V6-04、V6-05 accepted；V6-06 实施中。
 
 ## 阶段
 
@@ -25,7 +25,8 @@ V6-04 第六轮独立复核 accept，已提交并开始 V6-05（确认与门禁�
 - [x] V6-03 建立共享 Zod 合同、导出类型与确定性 fixtures；最终独立复核 accepted
 - [x] 完成 V6-03 per-action metadata 矩阵独立复核并接受
 - [x] V6-04 目标与不可变修订：第 2 轮起共五轮 not_accept 全部修复，第六轮独立复核 accept
-- [ ] 依次实施 V6-05、V6-06
+- [x] V6-05 确认与门禁：三轮独立复核（resolved blocker、policy 声明、resolved risk 均修复）后 accept，26/26
+- [ ] 实施 V6-06 本地 Repository 并独立复核
 - [ ] 按依赖图继续完成 Foundation/R1
 - **状态：** in_progress
 
