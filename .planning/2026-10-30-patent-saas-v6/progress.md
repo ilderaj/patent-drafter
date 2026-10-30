@@ -3,7 +3,7 @@
 ## 会话：2026-10-30
 
 ### 当前状态
-- **阶段：** V6-03 accepted；准备 V6-03 scoped PR
+- **阶段：** V6-04 accepted（第六轮独立复核）；开始 V6-05
 - **开始时间：** 2026-10-30
 
 ### 已执行操作
@@ -34,6 +34,20 @@
 - 回执改为准确描述 schema/纯解析层验收覆盖，明确未覆盖持久命令、stale/failed 应用状态重试与持久刷新/重试行为；S06 未定义的 per-action metadata key 矩阵列为 NEEDS_DECISION。changedFiles 已与 21 个实际新增文件完全核对并注明根 manifest/lockfile 的既存归属。
 - 第二轮 reviewer 初始返回 accept 后撤回：其指出当前 Activity metadata key allowlist 仍是全局的，不是规范要求的 per-action 矩阵；且其未完整核验证据。已将 review verdict 记为 not_accept、receipt 保持 candidate，不伪称 accepted。
 - 用户裁决采用保守 per-action Activity.metadata allowlist，并要求记录在 V6-03 contract/evidence。已在 `packages/contracts/src/records.ts` 冻结全部 action 矩阵并由 `activitySchema.superRefine` 按 action 执行；`job.succeeded`/`job.adopted` 允许 provider/model，privacy actions 要求空 metadata。README 记录决策和禁止字段，补充按 action 拒绝及隐私空 metadata 的场景测试和负测。
+- V6-04 在基于 `origin/main` 的干净工作树 `codex/patent-saas-v6-foundation-origin` 中实施，写集为 `packages/domain/src/v6/revision.ts`、`qa/v6/scenarios/V6-04/`、`qa/v6/evidence/V6-04/`；`packages/domain/src/index.ts` 的一行 barrel 由编排者补写。
+- V6-04 模块为纯状态转移：`MatterRevisions` 持有共享 `sourceVersion` 与按目标的追加式修订列表、head 和图集；`saveRevision`/`restoreRevision`/`adoptInputs`/`switchTargetView` 返回新状态，拒绝时按引用返回输入状态。ID 与时间由注入的 `RevisionContext` 提供。
+- V6-04 未引入 `packages/contracts` 依赖（lockfile 无法再生），`SnapshotRef`/`DraftInputRef`/图集结构在模块内结构化声明，并由场景测试用 `draftRevisionSchema`、`snapshotRefSchema`、`figureSetRevisionSchema` 反向校验防漂移。
+- V6-04 场景 13 项：按目标隔离、逐目标父链、陈旧基线 `VERSION_CONFLICT`、拒绝不改状态、视图切换不改版本、恢复生成新修订且不复活旧批准、图集策略与 inputStale、采纳新输入需勾选、越界输入 `INPUT_STALE`、重复执行结果一致且不改输入、保存的修订不与调用方 AST 别名。
+- V6-04 第一轮独立复核 not_accept：(1) 阻断项 `saveRevision` 直接保存调用方 AST 引用，保存后修改对象会改写已存在修订；(2) `restore_bound` 声称 created 但未真正生成 `FigureSetRevision`；(3) 确认用例只构造了 `SnapshotRef`，且 `isInputStale(x, x)` 恒真。
+- V6-04 第二轮独立复核 not_accept（承接修复后复审）：`figureMismatch` 对 `restore_bound` 仍按原图集与当前图集比较，但该策略会重建并绑定原图集，应报无失配；且没有用例证明 `keep_current` 在两者不同时会报失配。
+- 已修正 `figureMismatch` 仅由 `keep_current` 报告；新增用例"only keep_current leaves the restored draft on different figures"，先把目标推进到后续图集，再分别断言 `restore_bound` 无失配、父集为原当前集、entries 为原草稿所用图集内容，以及 `keep_current` 报失配且不新增图集。场景更新为 14/14，证据全部重采。
+- V6-04 第三轮独立复核 not_accept：(1) `changedFiles` 漏列 `scope.txt` 中两个 `.planning` 改动；(2) "确认在生成时仍有效" 断言用同一个快照对象自比，且 S05-A03 的五段重置未被演示；(3) S05-A04 措辞声称涵盖陈旧采纳，但只测了陈旧保存。
+- V6-04 第四轮独立复核 not_accept：(1) 回执 limitation 仍把 `scope.txt` 描述为「一处 barrel 改动加 V6-04 写集」，与已列出的两个 `.planning` 文件自相矛盾；(2) A01 observation 声称「每条产出的修订」都过合同校验，但实际只校验了 `saveRevision` 的结果。
+- V6-04 第六轮独立复核 accept：逐条核对 A02 句子与 `revision.test.mjs:318-385`（修订数量、确认绑定、currentness 真/假断言的时机）一致，其余 acceptance 与 specAcceptance 句子均与用例相符；回执 `status` 置为 accepted、`verdict` 置为 accept。两条非阻断 note：陈旧采纳路径同样经 `conflict()` 设置 `latestRevisionId` 但只有保存路径断言了它；`keep_current` 失配措辞与 `:485`/`:566` 的断言一致。
+- V6-04 第五轮独立复核 not_accept（仅一条 note）：A02 observation 写作「r1 在 r3 之后恢复」，但用例是在 r1 之后保存一次编辑（即 r2）再恢复 r1。已改为不数修订号、直接描述「首个修订在更新的修订为 head 时被恢复」，确认有效性叙述同步改写；仅回执文字变化，未改代码或用例，证据仍对应当前树。
+- V6-04 第四轮修复：limitation 改为逐类列出 `scope.txt` 的实际内容（共享 barrel、V6-04 写集、两个 `.planning` 记录、`node_modules` 符号链接）；A01 合同用例补上 `restoreRevision` 的修订/快照/输入/图集与 `adoptInputs` 的修订/快照/输入的 schema 校验，使主张与用例一致。场景 15/15，四份证据重采。
+- V6-04 第三轮修复：`changedFiles` 补入两个 `.planning` 文件并在 note 说明其为编排者记录；确认改为与由状态重算的 `currentSnapshot` 比较；新增五段 AI 段落用例（生成修订时五个 `ai_paragraph` 确认均有效，一次编辑后全部失效）；新增陈旧 `adoptInputs` 断言（`VERSION_CONFLICT` 且按引用返回输入状态）。场景 15/15，四份证据重采。
+- 三项已修复：保存时对 AST 结构复制并新增别名测试；`TargetRevisions` 增加追加式 `figureSets`，`restore_bound` 生成真实图集修订（新 id、parentId 为原当前集、entries 复制、保留旧集），源集不再保留时返回 `RESOURCE_NOT_FOUND`；确认用例改为合同合法的 `full_read` Confirmation，并删除恒真断言。另修正 `figureMismatch` 仅由 `keep_current` 报告。
 - V6-03 第一轮矩阵复核 not_accept：指出 S06-A06 的 provider/model 未必存在，且标识字符串可承载自由文本。已要求 job.succeeded/job.adopted 同时提供非空 provider/model，限制 stage/provider/model 字符集，并为要求和自由文本注入补充场景断言及负测。聚焦复核还指出 stage 缺少无效输入覆盖；补充 stage 拒绝断言与探针后，场景 14/14、负测 22/22、workspace typecheck、workspace tests exit 0，baseline preservation 407/407。最终独立只读复核 accept；确认 47 个 action 矩阵完整、21 个 changedFiles 与实际文件一致，receipt 标记 accepted。按用户授权准备切支、提交、推送和开 PR；未部署。
 
 ### 检查结果
@@ -50,6 +64,10 @@
 | V6-03 workspace typecheck | `npm run typecheck --workspaces --if-present` | pass，exit 0；包含 contracts |
 | V6-03 workspace 回归 | `npm test --workspaces --if-present` | pass，exit 0 |
 | V6-03 未跟踪路径保护 | `shasum -a 256 -c qa/v6/baseline/untracked-sha256.txt` | pass，407 条全部匹配 |
+| V6-04 场景 | `npm run test:v6 -- V6-04` | pass，exit 0，15/15；第六轮独立复核 accept |
+| V6-04 workspace typecheck | `npm run typecheck --workspaces --if-present` | pass，exit 0；包含 `@patent/domain` |
+| V6-04 workspace 回归 | `npm test --workspaces --if-present` | pass，exit 0 |
+| V6-04 写集范围 | `/usr/bin/git status --porcelain --untracked-files=all` | pass；仅 barrel 一行改动与 V6-04 写集，见 `qa/v6/evidence/V6-04/scope.txt` |
 
 V6-03 证据：`qa/v6/evidence/V6-03/receipt.json`、`runner.tap`、`negative-checks.txt`、`negative-probes.mjs`、`typecheck.txt`、`regression.txt`、`preservation.txt`。
 
@@ -60,3 +78,4 @@ V6-03 证据：`qa/v6/evidence/V6-03/receipt.json`、`runner.tap`、`negative-ch
 | `rg` 命令执行失败（runner 环境未找到子进程） | 1 | 以已读取的 workspace manifest 为准，直接检查 npm 配置并运行脚本 |
 | npm lockfile 更新因 `@patent/vibescanner-core@0.0.1` 404 失败 | 1 | 确认 `npm ci --dry-run` 基线也失败；lockfile 保持不变并记录限制 |
 | V6-03 负测导入路径错误，Node 报 `ERR_MODULE_NOT_FOUND` | 1 | 修正为 `../../../../packages/contracts/src/index.ts`，所有 probes 通过 |
+| 工作树隔离钩子拒绝裸 `git` 及指向原始 checkout 的命令 | 2 | 改用 `/usr/bin/git` 显式路径；基线 407 条未跟踪路径无法在本工作树复核（原始 checkout 不可访问），改为记录本工作树完整写集 `scope.txt` 并在回执 limitation 中说明 |

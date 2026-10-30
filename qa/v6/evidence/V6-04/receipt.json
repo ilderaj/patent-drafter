@@ -1,0 +1,150 @@
+{
+  "ticket": "V6-04",
+  "status": "accepted",
+  "baseCommit": "ac7c6b4e0c46326488fd26a998244bc67f921bcd",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "changedFilesNote": "changedFiles is the V6-04 delta measured against baseCommit in the isolated worktree. packages/domain/src/index.ts is the shared barrel: the execution protocol reserves barrels for the orchestrator, so the one-line re-export is not part of the ticket's executor write set. The two .planning files are the orchestrator's own live plan and progress log; they record this ticket's status and are not produced by the executor. The untracked node_modules symlink is a local test dependency mount and is not staged.",
+  "changedFiles": [
+    ".planning/2026-10-30-patent-saas-v6/progress.md",
+    ".planning/2026-10-30-patent-saas-v6/task_plan.md",
+    "packages/domain/src/index.ts",
+    "packages/domain/src/v6/revision.ts",
+    "qa/v6/scenarios/V6-04/revision.test.mjs",
+    "qa/v6/evidence/V6-04/receipt.json",
+    "qa/v6/evidence/V6-04/runner.tap",
+    "qa/v6/evidence/V6-04/typecheck.txt",
+    "qa/v6/evidence/V6-04/regression.txt",
+    "qa/v6/evidence/V6-04/scope.txt"
+  ],
+  "interface": {
+    "module": "packages/domain/src/v6/revision.ts",
+    "exports": [
+      "isCurrent",
+      "isInputStale",
+      "snapshotOf",
+      "currentSnapshot",
+      "currentInput",
+      "saveRevision",
+      "restoreRevision",
+      "adoptInputs",
+      "switchTargetView"
+    ],
+    "stateModel": "MatterRevisions carries one matter-shared sourceVersion and a per-target append-only revision list with its own head; every transition takes the state and returns a new state, and a refusal returns the input state by reference.",
+    "purity": "No storage, no clock, no ambient IDs. IDs and timestamps come from an injected RevisionContext, so the same state, command and context always produce the same result.",
+    "ownership": "The module never stores an AST, entries array or figure set it was handed. saveRevision, restoreRevision and adoptInputs each store a structural copy, so an editor mutating its working AST cannot rewrite a revision that already exists.",
+    "astBoundary": "The AST is opaque to this module. The caller passes a contract-validated AST and its astHash; draftAstSchema stays the single source of AST validity in packages/contracts."
+  },
+  "acceptance": [
+    {
+      "id": "V6-04-A01",
+      "command": "npm run test:v6 -- V6-04",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-04/runner.tap",
+      "observed": "15 tests passed; 0 failed, 0 skipped. Saving a revision on target A leaves target B's revision list, head and figure set deep-equal to their pre-call value, advances only target A's head, sets parentId to the previous head and leaves the matter sourceVersion unchanged. The revisions produced by all three commands that create one — saveRevision, restoreRevision and adoptInputs — are parsed against the frozen draftRevisionSchema, snapshotRefSchema and draftInputRefSchema, the restore's figure set is parsed against figureSetRevisionSchema, and each target keeps its own parent chain."
+    },
+    {
+      "id": "V6-04-A02",
+      "command": "npm run test:v6 -- V6-04",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-04/runner.tap",
+      "observed": "A base that is no longer the target head is refused with VERSION_CONFLICT and latestRevisionId, and the refusal returns the input state by reference so nothing is appended, reordered or rewritten. Unknown targets, archived targets and revisions of another target are refused with RESOURCE_NOT_FOUND or INVALID_TRANSITION without a write. switchTargetView returns the identical state object, so a view change cannot bump a version. Restoring the first revision while a later revision is the target head creates a new revision with restoredFrom set to that first revision and a copied (non-aliased) AST; a contract-valid full_read confirmation bound to that first revision is current when it is made, is not current once a later revision exists, and is not current again after the restore, so the old approval is never revived. restore_bound creates a real figure set revision (validated against figureSetRevisionSchema, parentId = the previous set, entries copied, previous set retained) and refuses with RESOURCE_NOT_FOUND when the set the draft was written against is no longer retained; keep_current creates no set and reports figureMismatch. A restored revision keeps its own input sourceVersion and isInputStale then reports true against the current input. adoptInputs is refused with INVALID_INPUT unless acknowledgedInputReview is true and, from a stale base, with VERSION_CONFLICT; an input pointing past the matter sourceVersion is refused with INPUT_STALE. On a draft whose summary is five AI paragraphs with five ai_paragraph confirmations, one edit returns all five to pending: every confirmation is current on the generated revision and none is current after the edit."
+    },
+    {
+      "id": "V6-04-A03",
+      "command": "npm run test:v6 -- V6-04; npm run typecheck --workspaces --if-present; npm test --workspaces --if-present",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-04/runner.tap",
+        "qa/v6/evidence/V6-04/typecheck.txt",
+        "qa/v6/evidence/V6-04/regression.txt"
+      ],
+      "observed": "The same state, command and freshly seeded context produce a deep-equal revision and next state on both runs, and a deep-frozen input state is unchanged afterwards. A refused command returns the same state reference and an identical error. A saved revision stores its own copy of the AST, so mutating the submitted object after the call leaves the revision and the returned state unchanged. Workspace typecheck and all workspace tests exit 0. These checks cover a pure state transition, not persisted refresh or retry behavior, because this ticket writes no storage."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S05-A01",
+      "status": "not_applicable",
+      "reason": "Locked-section redaction is a preview read path with no implementation in this ticket; V6-04 only transitions draft revisions."
+    },
+    {
+      "id": "S05-A02",
+      "status": "not_applicable",
+      "reason": "Risk anchoring and anchor redaction are preview and risk read behavior, not revision state."
+    },
+    {
+      "id": "S05-A03",
+      "status": "covered",
+      "reason": "The suite builds a draft whose summary holds five AI paragraphs, records five contract-valid ai_paragraph confirmations on the generated revision, then saves one edit and asserts all five are no longer current. The confirmations are contract-valid records rather than rows in a confirmation store, because this ticket creates no such store; the reset itself is shown."
+    },
+    {
+      "id": "S05-A04",
+      "status": "covered",
+      "reason": "A save or adopt whose base revision is no longer the target head is refused with VERSION_CONFLICT plus latestRevisionId, and no state changes; the buffer and the merge view are UI behavior outside this module."
+    },
+    {
+      "id": "S05-A05",
+      "status": "covered",
+      "reason": "restoreRevision copies the earlier draft into a new revision with restoredFrom set, a new id, an unaliased AST copy and no inherited confirmation or approval; restore_bound appends a real FigureSetRevision over the restored draft's own entries and keep_current keeps the current set and reports the mismatch."
+    },
+    {
+      "id": "S05-A06",
+      "status": "covered",
+      "reason": "adoptInputs rejects the command with INVALID_INPUT when acknowledgedInputReview is false and creates an adopted_inputs revision bound to the current input when it is true; the new revision id means no confirmation carries over."
+    },
+    {
+      "id": "S05-A07",
+      "status": "not_applicable",
+      "reason": "The expert-escalation path creates a service order and is outside the revision domain module."
+    },
+    {
+      "id": "S05-A08",
+      "status": "not_applicable",
+      "reason": "INVALID_AST for a claim depending on a later claim is enforced by draftAstSchema in packages/contracts and was verified by V6-03; V6-04 treats the AST as an opaque, already-validated value."
+    },
+    {
+      "id": "S05-A09",
+      "status": "not_applicable",
+      "reason": "The local-preview label and the absent payment button are UI behavior with no revision transition."
+    }
+  ],
+  "limitations": [
+    "Preservation could not be re-verified in this isolated worktree: the V6-01 baseline untracked manifest describes 407 paths of the user's working checkout, none of which exist in a fresh worktree, and the worktree isolation hook refuses commands that target the original checkout. qa/v6/evidence/V6-04/scope.txt records the complete worktree delta instead: one modified shared barrel, the V6-04 write set, the two .planning files the orchestrator maintains for this plan, and the untracked node_modules symlink used as a local test-dependency mount. No other tracked or untracked file was touched.",
+    "The module imports nothing from packages/contracts. A cross-package dependency cannot be declared here because package-lock.json cannot be regenerated (npm install --package-lock-only fails at baseline with 404 for @patent/vibescanner-core). SnapshotRef and DraftInputRef are therefore declared structurally and drift is caught by the V6-04-A01 contract-validation test, which parses the produced revision against draftRevisionSchema, snapshotRefSchema and draftInputRefSchema.",
+    "S05-A03 is verified at the snapshot level: the suite builds a contract-valid full_read Confirmation bound to the pre-edit snapshot and shows it is no longer current after a save. Creating, listing and revoking confirmations belongs to V6-05.",
+    "No deployment, network call, model call, charge or real customer material was used. All fixtures are the deterministic synthetic set from packages/contracts/src/fixtures.ts."
+  ],
+  "review": {
+    "method": "independent read-only review",
+    "verdict": "accept",
+    "verdictNote": "Round 6 accepted. The reviewer checked the A02 sentence against revision.test.mjs:318-385 (revision count, confirmation binding, when currentness is asserted true and false) and confirmed every other acceptance and specAcceptance sentence against the test source. Two non-blocking notes were left: the stale-adopt path sets latestRevisionId through the same conflict() helper but only the save path asserts it, and the keep_current mismatch wording matches the flag asserted at revision.test.mjs:485 and :566.",
+    "round1": "not accept: (1) blocker — saveRevision stored the caller's AST by reference, so mutating the submitted object after the call rewrote a revision that already existed; (2) should-fix — restore_bound reported created=true without producing a FigureSetRevision record, so the S05-A05 claim was overstated; (3) note — the confirmation test built only a SnapshotRef, and the isInputStale(x, x) assertion was true by definition",
+    "round1Fixes": "saveRevision now stores a structural copy and a test mutates the submitted AST after the call; restore_bound creates and returns a real FigureSetRevision (validated against figureSetRevisionSchema) with the source entries copied and the previous set retained, and refuses with RESOURCE_NOT_FOUND when that set is no longer retained; the confirmation test now builds a contract-valid full_read Confirmation and shows it current before and stale after a save and after a restore; the tautological assertion was removed.",
+    "round2": "not accept: (1) should-fix — figureMismatch was still computed from the restored draft's original set for restore_bound, which rebuilds that set and should therefore report no mismatch; (2) note — the keep_current test used the same set as the restored draft, so the receipt's mismatch claim was not demonstrated by any test",
+    "round2Fixes": "figureMismatch is now reported only by keep_current. New test 'V6-04-A02: only keep_current leaves the restored draft on different figures' moves the target to a later figure set after the draft was written, then asserts restore_bound reports no mismatch, parents the new set to the previously current one and copies the draft's own entries, while keep_current keeps the later set, reports the mismatch and leaves the figure sets untouched.",
+    "round3": "not accept: (1) should-fix — changedFiles omitted the two .planning files that scope.txt showed as modified; (2) should-fix — the 'confirmation is current when made' assertion compared the confirmation against the very snapshot it was built from, and S05-A03's five-paragraph reset was not shown; (3) note — S05-A04's wording claimed stale adopts as well as stale saves, but only the save path was tested",
+    "round4": "not accept: (1) should-fix — the preservation limitation still described scope.txt as one modified barrel plus the V6-04 write set, contradicting its own changedFiles and evidence now that the two .planning files are listed; (2) note — A01's observation claimed every produced revision was schema-validated, but only the saveRevision result was parsed",
+    "round4Fixes": "The limitation now names every path class scope.txt reports — the shared barrel, the V6-04 write set, the two .planning records and the node_modules symlink. The A01 contract test now also parses the restoreRevision revision, snapshot, input and figure set and the adoptInputs revision, snapshot and input against the frozen schemas, so the observation matches what is exercised. Suite is 15/15.",
+    "round5": "not accept: (1) note — A02's observation said the restore happens 'after r3', but the test saves one edit after the first revision and then restores it, so the restore follows a second revision",
+    "round5Fixes": "The observation no longer counts revisions: it says the first revision is restored while a later revision is the target head, and the confirmation sentence now tracks that first revision through the edit and the restore. No code or test changed, so the recorded transcripts still describe the current tree.",
+    "round3Fixes": "changedFiles now lists both .planning files with a note that they are the orchestrator's records, not executor output. The confirmation is now compared against a snapshot recomputed from the state. S05-A03 is demonstrated directly: a five-AI-paragraph summary with five ai_paragraph confirmations, all current on the generated revision and none current after one edit. A stale adoptInputs from an outdated base is now asserted to fail with VERSION_CONFLICT and to return the input state by reference. Suite is 15/15.",
+    "evidence": [
+      "qa/v6/evidence/V6-04/runner.tap",
+      "qa/v6/evidence/V6-04/typecheck.txt",
+      "qa/v6/evidence/V6-04/regression.txt",
+      "qa/v6/evidence/V6-04/scope.txt"
+    ]
+  },
+  "decisionsRecorded": [
+    {
+      "id": "REVISION-AST-OPAQUE",
+      "decision": "V6-04 keeps the draft AST opaque and free of a packages/contracts dependency. AST validity stays with draftAstSchema in V6-03; V6-04 owns ordering, parents, staleness and figure binding, and its output is contract-validated in the suite."
+    },
+    {
+      "id": "REVISION-REFUSAL-BY-REFERENCE",
+      "decision": "A refused command returns the input state object itself rather than a copy, so a caller cannot accidentally persist a partially applied transition and a test can assert the refusal wrote nothing."
+    }
+  ],
+  "decisionsRequested": []
+}
