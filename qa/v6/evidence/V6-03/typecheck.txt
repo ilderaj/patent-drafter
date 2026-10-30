@@ -1,0 +1,48 @@
+
+> typecheck
+> tsc --noEmit
+
+
+> typecheck
+> tsc --noEmit
+
+
+> typecheck
+> tsc --noEmit
+
+
+> @patent/audit@0.0.1 typecheck
+> tsc --noEmit
+
+
+> @patent/contracts@0.0.1 typecheck
+> tsc --noEmit
+
+
+> @patent/domain@0.0.1 typecheck
+> tsc --noEmit
+
+
+> @patent/export@0.0.1 typecheck
+> tsc --noEmit
+
+
+> @patent/parsers@0.0.1 typecheck
+> tsc --noEmit
+
+
+> @patent/pipeline@0.1.0 typecheck
+> tsc --noEmit
+
+
+> @patent/providers@0.0.1 typecheck
+> tsc --noEmit
+
+
+> @patent/shared@0.0.1 typecheck
+> tsc --noEmit
+
+
+> typecheck
+> tsc --noEmit
+

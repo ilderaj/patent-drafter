@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "npm run dev -w @patent/web",
     "build": "npm run build -w @patent/web",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:v6": "node qa/v6/runner.mjs"
   },
   "devDependencies": {
     "tsx": "^4.23.9"

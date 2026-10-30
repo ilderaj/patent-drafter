@@ -1,0 +1,89 @@
+--- snapshot without targetId (no current-target default) ---
+rejected
+issues: targetId
+
+--- draft input without targetId ---
+rejected
+issues: targetId
+
+--- snapshot with an unknown field ---
+rejected
+issues: (root)
+
+--- snapshot with persisted version 0 ---
+rejected
+issues: sourceVersion
+
+--- command with an old contract version ---
+rejected
+issues: contractVersion
+
+--- command carrying a trusted actorId ---
+rejected
+issues: (root)
+
+--- matter carrying a trusted paid flag ---
+rejected
+issues: (root)
+
+--- route outside the closed enum ---
+rejected
+issues: (root)
+
+--- claim depending on a later claim ---
+rejected
+issues: claims.0.dependsOn
+
+--- support paragraph outside the AST ---
+rejected
+issues: claims.0.features.0.supportParagraphIds
+
+--- closed gate without a reason ---
+rejected
+issues: reasons
+
+--- payment order with price and quote ---
+rejected
+issues: priceVersionId
+
+--- api error reason outside ErrorCode ---
+rejected
+issues: error.reasons.0.code
+
+--- activity action outside S06 whitelist ---
+rejected
+issues: action
+
+--- activity metadata key outside allowlist ---
+rejected
+issues: metadata
+
+--- activity metadata key not allowed for job.succeeded ---
+rejected
+issues: metadata, metadata.provider, metadata.model
+
+--- privacy activity with non-empty metadata ---
+rejected
+issues: metadata.count
+
+--- job.succeeded missing processor/model identifiers ---
+rejected
+issues: metadata.provider, metadata.model
+
+--- job.adopted missing processor/model identifiers ---
+rejected
+issues: metadata.provider, metadata.model
+
+--- activity model field containing free-form content ---
+rejected
+issues: metadata.model
+
+--- activity provider field containing free-form content ---
+rejected
+issues: metadata.provider
+
+--- activity stage field containing free-form content ---
+rejected
+issues: metadata.stage
+
+all probes rejected invalid input
