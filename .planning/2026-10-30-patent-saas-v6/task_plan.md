@@ -6,11 +6,11 @@
 
 ## 下一步
 
-V6-05 第三轮独立复核 accept，已提交（`3c72f37`），开始 V6-06（本地 Repository：IndexedDB adapter，写集 `apps/web/src/v6/lib/repository.ts`、`indexeddb-repository.ts`）。按用户授权，持续按依赖顺序实施、记录证据、独立复核、提交并推送 PR。
+V6-06 第四轮独立复核 accept（1 条 note：worker/webhook 事件的 `actorId` 不受 `actorKind` 约束；合同未规定该条件规则，已记为 limitation），回执已置 accepted，25/25、typecheck/回归 exit 0。按本次指令未提交、未推送、未部署；下一步按依赖图开始 Foundation/R1 的下一票。
 
 ## 当前阶段
 
-阶段 2：V6-03、V6-04、V6-05 accepted；V6-06 实施中。
+阶段 2：V6-03、V6-04、V6-05、V6-06 accepted；Foundation/R1 余票待按依赖图继续。
 
 ## 阶段
 
@@ -26,7 +26,7 @@ V6-05 第三轮独立复核 accept，已提交（`3c72f37`），开始 V6-06（�
 - [x] 完成 V6-03 per-action metadata 矩阵独立复核并接受
 - [x] V6-04 目标与不可变修订：第 2 轮起共五轮 not_accept 全部修复，第六轮独立复核 accept
 - [x] V6-05 确认与门禁：三轮独立复核（resolved blocker、policy 声明、resolved risk 均修复）后 accept，26/26
-- [ ] 实施 V6-06 本地 Repository 并独立复核
+- [x] V6-06 本地 Repository：四轮独立复核（摘要/字节脱钩、S06-A05 覆盖过度、metadata 白名单、activity 排序、同租户越权与身份未绑定均修复）后第四轮 accept，25/25
 - [ ] 按依赖图继续完成 Foundation/R1
 - **状态：** in_progress
 
@@ -70,3 +70,7 @@ V6-05 第三轮独立复核 accept，已提交（`3c72f37`），开始 V6-06（�
 | 技能 `init-session.sh` 只生成当前目录模板，没有 PLAN_ID 输出 | 1 | 在独立命名目录运行，后续脚本显式传绝对路径；不改宿主配置 |
 | npm lockfile 更新失败：`@patent/vibescanner-core@0.0.1` 返回 404 | 1 | 复现为基线既有问题（`npm ci --dry-run` 同样失败）；保留 lockfile 并记录限制 |
 | V6-03 负测首次使用错误的相对导入路径 | 1 | 改为从场景目录到仓库根的四层相对路径，负测 exit 0 |
+| V6-06 首轮复核发现 asset 摘要可无新字节变更、activity metadata 未按 action 白名单强制、S06-A05 覆盖过度 | 1 | commit 增加摘要/字节耦合校验，readBlob 对照当前 asset 记录；镜像 per-action 矩阵并校验；S06-A05 改 not_applicable；场景 23/23 |
+| V6-06 证据中 `npm run typecheck --workspaces` 实际未执行 `@patent/web` | 1 | 证据文件追加直接运行 `tsc -p apps/web/tsconfig.json --noEmit`；回执 limitation 与 A03 命令同步 |
+| V6-06 第三轮复核：同租户非创建者可读、写未绑定 `createdBy`/用户事件 `actorId` | 1 | 增加创建者访问规则（同租户越权一律 404）与身份绑定校验；新增两项用例；场景 25/25 |
+| V6-06 第四轮复核首轮误报「工作区干净、需求文档缺失」 | 1 | 说明 v6 需求文档仅在用户主 checkout（只读可读），并给出 worktree 根目录的 `git status` 复现命令；复核代理重读文档后继续并 accept |

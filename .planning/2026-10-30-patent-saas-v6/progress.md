@@ -3,7 +3,7 @@
 ## 会话：2026-10-30
 
 ### 当前状态
-- **阶段：** V6-05 accepted（第三轮独立复核）；开始 V6-06
+- **阶段：** V6-03/04/05/06 accepted；Foundation/R1 余票待按依赖图继续
 - **开始时间：** 2026-10-30
 
 ### 已执行操作
@@ -57,6 +57,21 @@
 - V6-05 第一轮独立复核 not_accept：resolved blocker 被提前跳过、policy 未按规则声明动作阻断、回执「所有可发码已校验」主张过宽、S07-A08 误标 covered。已让 present blocker 无论状态均阻断；新增 `GateFacts.blockingPolicyRuleIds` 与 context 风险合并；用例驱动全部十个码逐个过 `errorCodeSchema`；S07-A08 改为 not_applicable。
 - V6-05 第二轮独立复核 not_accept（一条 should-fix）：present 的 `risk` 若标 resolved 仍被跳过，需确认的风险可能放行。已移除按状态跳过，present 且 `requiresAcknowledgement` 的风险必须有绑定当前检查的 `risk_ack`，并新增对应用例。
 - V6-05 第三轮独立复核 accept，回执置 accepted；场景 26/26，workspace typecheck 与全量回归 exit 0。提交 `3c72f37`。
+- V6-06 在 `codex/patent-saas-v6-foundation-origin` 工作树实施本地 Repository：`apps/web/src/v6/lib/repository.ts` 为存储无关深模块（租户作用域、expectedVersion CAS、归档只读、事件幂等、字节摘要校验），`indexeddb-repository.ts` 为浏览器 adapter；场景 18 项经内存后端与微型 IndexedDB 夹具运行真实 adapter。
+- V6-06 首轮独立复核 not_accept，三项 should-fix：(1) 更新可在不提供新字节时改变 asset `sha256`，`readBlob` 只校验字节对自身存储摘要、未对当前 asset 记录，可能返回与 asset 记录不符的字节；(2) S06-A05 标为 covered，但该验收的可观察对象含收件箱项，本票无 inbox store；(3) 写入未按合同的 per-action metadata 白名单限制，调用方可持久化任意 metadata 乃至文档内容。
+- V6-06 三项修复：`commit` 在 expectedVersion>0 时，asset 摘要或长度变化必须同时提供该 asset 的新 blob，否则 `HASH_MISMATCH`；`readBlob` 在同一只读事务读取 matter 当前 asset 记录，摘要/长度不符即 `HASH_MISMATCH`，再在事务外重算字节摘要；`repository.ts` 结构化镜像 §10 action 列表、per-action metadata 矩阵与错误码列表，`commit` 逐个事件校验 action、键、值文法及 `job.succeeded`/`job.adopted` 的 provider/model 要求，并有与 `packages/contracts` 深度相等的漂移测试。S06-A05 改为 not_applicable 并在 reason 中单列 activity 404 的覆盖位置（V6-06-A02）。
+- V6-06 修复后场景 23/23、workspace typecheck 与全量回归 exit 0；`runner.tap`、`typecheck.txt`、`regression.txt`、`scope.txt` 已重采，回执仍为 candidate，等待第二轮独立复核。
+- V6-06 第二轮独立复核 not_accept（1 项 should-fix）：`listEvents` 按 `occurredAt` 升序返回，但 S06 要求动态按 `occurredAt desc`。已改为降序并保留 id 同刻决胜；A01 用例追加 T1 事件并断言 `[EVENT_THREE, EVENT_ONE, EVENT_TWO]`，竞态用例期望同步更新；场景 23/23，四份证据重采，回执仍为 candidate，等待第三轮复核。
+- V6-06 回执 `changedFiles` 补入两个 `.planning` 实况记录（编排者记录，非实现文件），limitation 与 `scope.txt` 描述同步。
+- V6-06 第三轮独立复核 not_accept：(1) blocker——读路径只按租户授权，同租户中未获授权的用户可读到案卷与活动，未按 S06-A05 返回 `RESOURCE_NOT_FOUND`；(2) should-fix——写路径只校验租户，未把 `matter.createdBy` 与用户类事件 `actorId` 绑定到当前 actor。
+- V6-06 访问控制修复：新增 `ownsMatter(matter, actor)`（同租户且 `createdBy === actor.userId`），用于 `listMatters`、聚合读取和 `commit` 的已存在案卷判定，同租户非创建者在 `loadMatter`/`listEvents`/`readBlob`/`commit` 一律得到 `RESOURCE_NOT_FOUND`；创建必须把 actor 记为 `matter.createdBy`，更新不得改派 `createdBy`，用户类事件的 `actorId` 必须等于 actor，否则 `INVALID_INPUT` 且不落盘；worker/webhook 类事件不作该检查。该规则记为 R1 本地裁决 `R1-MATTER-ACCESS`，云端以合同租户角色与案卷 ACL 替换并保留无权限时的 404。
+- V6-06 新增两项场景："same-tenant user who did not create the matter is not found"（读、列、事件、字节、更新、复用 id 的创建均拒绝，创建者状态不变）与 "a commit cannot record another user as creator or as the user actor"（伪造 `createdBy`、冒名用户事件、改派 `createdBy`、冒名更新事件均 `INVALID_INPUT`，worker 事件 `actorId: null` 可写入并通过 `activitySchema`）。场景 25/25。
+- 复核 `typecheck.txt` 时发现 `npm run typecheck --workspaces --if-present` 在本 checkout 不执行 `@patent/web`（既存本地安装状态，与本票文件无关），此前证据并未真正编译两个模块。已在同一证据文件追加 `./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit`（exit 0），并在回执 limitation 中说明；A03 的 command 同步列出该命令。
+- 四份证据已重采：`runner.tap`（25/25，runner_exit=0）、`typecheck.txt`（typecheck_exit=0、web_typecheck_exit=0）、`regression.txt`（regression_exit=0）、`scope.txt`（未变）。回执仍为 candidate，等待第四轮独立复核。
+- 第四轮独立复核首轮返回 not_accept：其在本工作树找不到 `docs/implementation`，且误报工作区干净。已说明 v6 需求文档只存在于用户主 checkout（只读）、并给出在 worktree 根目录复现 `git status` 的命令；复核代理重读四份需求文档后核对 `scope.txt` 与当前状态一致，继续完成复核。
+- V6-06 第四轮独立复核 accept，仅 1 条 note：worker/webhook 类事件的 `actorId` 不受 `actorKind` 约束（合同未规定该条件规则，故记为 limitation 而非拒绝）。复核确认前四轮问题均有实现检查与回归用例，创建者访问规则覆盖读、列、事件、字节与提交路径，CAS、事件幂等、归档只读、字节摘要耦合与克隆隔离均保持；证据 25/25、两处 typecheck 与回归 exit 0。
+- 回执置 `status: accepted`、`review.verdict: "accept"` 并记录 verdictNote；limitation 增补 worker/webhook `actorId` 未约束、以及需求文档不在本工作树两条。
+- 按本次指令未提交、未推送、未部署；工作树保留 V6-06 全部改动。
 
 
 | 检查 | 命令 | 结果 |
@@ -80,6 +95,13 @@
 | V6-05 workspace typecheck | `npm run typecheck --workspaces --if-present` | pass，exit 0；包含 `@patent/domain` |
 | V6-05 workspace 回归 | `npm test --workspaces --if-present` | pass，exit 0 |
 | V6-05 写集范围 | `/usr/bin/git status --porcelain` | pass；仅 barrel 两行改动与 V6-05 写集，见 `qa/v6/evidence/V6-05/scope.txt` |
+| V6-06 场景（首轮） | `npm run test:v6 -- V6-06` | pass，exit 0，18/18；独立复核 not_accept（3 项 should-fix） |
+| V6-06 场景（修复后） | `npm run test:v6 -- V6-06` | pass，exit 0，25/25；第四轮独立复核 accept，见 `qa/v6/evidence/V6-06/runner.tap` |
+| V6-06 workspace typecheck | `npm run typecheck --workspaces --if-present` | pass，exit 0；本 checkout 不含 `@patent/web` |
+| V6-06 apps/web typecheck | `./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit` | pass，exit 0；覆盖两个模块，见 `typecheck.txt` |
+| V6-06 workspace 回归 | `npm test --workspaces --if-present` | pass，exit 0 |
+| V6-06 写集范围 | `/usr/bin/git status --porcelain` | pass；仅 V6-06 新增路径与 `node_modules` 符号链接，见 `qa/v6/evidence/V6-06/scope.txt` |
+| V6-06 票验收 | 见 `qa/v6/evidence/V6-06/receipt.json` | pass；第四轮独立复核 accept，1 条 note 记入 limitation |
 
 V6-03 证据：`qa/v6/evidence/V6-03/receipt.json`、`runner.tap`、`negative-checks.txt`、`negative-probes.mjs`、`typecheck.txt`、`regression.txt`、`preservation.txt`。
 
@@ -91,3 +113,4 @@ V6-03 证据：`qa/v6/evidence/V6-03/receipt.json`、`runner.tap`、`negative-ch
 | npm lockfile 更新因 `@patent/vibescanner-core@0.0.1` 404 失败 | 1 | 确认 `npm ci --dry-run` 基线也失败；lockfile 保持不变并记录限制 |
 | V6-03 负测导入路径错误，Node 报 `ERR_MODULE_NOT_FOUND` | 1 | 修正为 `../../../../packages/contracts/src/index.ts`，所有 probes 通过 |
 | 工作树隔离钩子拒绝裸 `git` 及指向原始 checkout 的命令 | 2 | 改用 `/usr/bin/git` 显式路径；基线 407 条未跟踪路径无法在本工作树复核（原始 checkout 不可访问），改为记录本工作树完整写集 `scope.txt` 并在回执 limitation 中说明 |
+| `npm run typecheck --workspaces --if-present` 在本 checkout 不执行 `@patent/web`，V6-06 早期证据未编译两个模块 | 1 | 同一证据文件追加 `./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit`（exit 0），回执 limitation 与 A03 command 同步 |
