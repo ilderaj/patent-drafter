@@ -95,7 +95,7 @@ export const GLOBAL_NAV = Object.freeze([
   { key: "ai", label: "AI 与数据", capability: unavailable("AI 设置尚未开放：本地版目前不调用任何模型。") },
   { key: "services", label: "服务", capability: unavailable("人工服务（咨询、复核、代理对接）尚未开放，暂不能下单。") },
   { key: "billing", label: "账单", capability: unavailable("本地版不收费，没有订单或额度。") },
-  { key: "settings", label: "设置", capability: unavailable("外观与通知设置尚未开放。") },
+  { key: "settings", label: "设置", capability: AVAILABLE },
 ] as const);
 
 export type GlobalKey = (typeof GLOBAL_NAV)[number]["key"];

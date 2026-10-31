@@ -2,6 +2,16 @@
 
 ## 会话：2026-10-31
 
+- V6-09 第二轮独立复核 VERDICT: ACCEPT（review-02.md）：独立重跑 21/21、12/12、tsc、浏览器 16/16 exit 0；变异检查确认守卫、属性恢复与退出码各自被对应测试捕获。五条非阻断说明记入回执 limitations。回执置 accepted，提交并推送后进入 V6-10。
+
+- V6-09 首轮四项阻断已修复，编排者自检（非独立复核）：单一 `AppearanceProvider` 持有偏好与保存状态；失败保存离页（站内链接、后退、刷新/关闭）先确认「留下/放弃」，放弃恢复已保存值；V6 卸载时恢复 `<html>` 原属性；浏览器脚本步骤失败或控制台报错时 exit 1。重跑：场景 21/21、V6-08 回归 12/12、web tsc、构建与 workspace 回归均 exit 0。浏览器脚本扩展为 16 步（新增导航后保持已保存值、失败保存留下/放弃、切换旧版释放属性），实时运行 16/16、exit 0、无控制台错误；首次运行因 waitFor 返回 DOM 节点失败并正确 exit 1，修正脚本后通过。回执已更新，保持 candidate，已派发第二轮独立复核。
+
+- V6-09 首轮独立验收为 CHANGES_REQUIRED：shell 的初始偏好覆盖后续保存值；失败保存离页无警告且丢失重试状态；V6 的根节点主题属性残留到旧版；浏览器脚本断言失败仍 exit 0。独立重跑 17/17 场景、12/12 导航回归和 web typecheck 通过，但这些检查未覆盖生命周期缺陷，因此不接受。已派发同票修复与实际 React 生命周期回归，回执保持 candidate；V6-10 尚未实施。
+
+- 浏览器工具环境限制：在当前工作树新增 `.claude/launch.json`（patent-v6，5174）后，preview_start 仍只识别 v6-prototype/homepage-prototype，未启动当前实现。已有无头浏览器证据保留，但本轮 preview 验证尚未运行；不借用原型服务器冒充实现验证。此启动配置是编排者的本地工具配置。
+
+- V6-09 外观设置已实现，回执为 candidate：17/17 场景、12/12 浏览器步骤、V6-08 回归 12/12；已有类型检查、构建与 workspace 回归证据。独立只读验收进行中，通过后才提交并推进 V6-10。本轮 rg 包装器无法启动底层进程，改用 find 定位文件。
+
 - V6-07 第二轮复核 CHANGES_REQUIRED 的问题（漏报、资产冲突、报告隐私、图片验证、迁移合同例外）已修复；第三轮复核又发现 EXIF 旋转 JPEG 被误隔离、非数组 reviewRecords 被当作空集、空 IDAT 被接受、扁平条目忽略 assetId、500 字标题上限无依据，均已修复并补充用例。场景 32/32，typecheck/回归 exit 0。第四轮独立复核确认实现与测试通过，仅指出回执 M02 的 PNG 空 IDAT 表述与测试相反；已按「拼接 IDAT 全空才拒绝、空块后接真实数据可接受（与旧验证器一致）」更正，并记录三条残余风险。复核更正文后结论 VERDICT: ACCEPT，回执已置 accepted。
 - V6-08 导航与三入口已实现并完成 12 步无头浏览器验证（browser-log.json 与 screens/01–12，2026-10-31 重采）；独立只读复核结论 accept，无阻断项。回执已置 accepted，记录 lazy chunk 无 error boundary、flag-off 仍产出 chunk、大写 UUID 深链、无 basename 路径等残余风险。V6-07 接受并提交后再提交 V6-08。
 - 编排者新增 docs/implementation/patent-saas-v6/migration-amendment.md：迁移合同 legacy-import.v2；明确 V6-26-M01–M03 的历史审阅持久化与重试验收、V6-47a 发布门禁；主 checkout 文档只读不改。

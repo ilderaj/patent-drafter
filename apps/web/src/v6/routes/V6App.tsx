@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Shell } from "../components/Shell.tsx";
+import { AppearancePage, AppearanceProvider } from "../features/settings/Appearance.tsx";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
 import { openLocalRepository, type LocalRepository } from "../lib/repository.ts";
 import {
@@ -28,6 +29,7 @@ import {
   type MatterView,
   type V6Route,
 } from "./navigation.ts";
+import "../styles/theme.css";
 import "./v6.css";
 
 type RepositoryState =
@@ -75,6 +77,14 @@ function activeSection(route: V6Route): GlobalKey | null {
 }
 
 export default function V6App() {
+  return (
+    <AppearanceProvider>
+      <V6Pages />
+    </AppearanceProvider>
+  );
+}
+
+function V6Pages() {
   const { pathname } = useLocation();
   const route = parseV6Path(pathname);
   const [repo, retry] = useRepository();
@@ -385,6 +395,8 @@ function MatterPage({
 }
 
 function SectionPage({ sectionKey }: { sectionKey: Exclude<GlobalKey, "matters"> }) {
+  // V6-09: settings opens the appearance panel; the other sections stay notices.
+  if (sectionKey === "settings") return <AppearancePage />;
   const item = GLOBAL_NAV.find((candidate) => candidate.key === sectionKey)!;
   return (
     <div className="v6-page" data-testid="section">
