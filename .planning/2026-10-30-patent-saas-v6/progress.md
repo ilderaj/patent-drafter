@@ -1,5 +1,13 @@
 # 进度日志
 
+## 会话：2026-10-31
+
+- V6-07 第二轮复核 CHANGES_REQUIRED 的问题（漏报、资产冲突、报告隐私、图片验证、迁移合同例外）已修复；第三轮复核又发现 EXIF 旋转 JPEG 被误隔离、非数组 reviewRecords 被当作空集、空 IDAT 被接受、扁平条目忽略 assetId、500 字标题上限无依据，均已修复并补充用例。场景 32/32，typecheck/回归 exit 0。第四轮独立复核确认实现与测试通过，仅指出回执 M02 的 PNG 空 IDAT 表述与测试相反；已按「拼接 IDAT 全空才拒绝、空块后接真实数据可接受（与旧验证器一致）」更正，并记录三条残余风险。复核更正文后结论 VERDICT: ACCEPT，回执已置 accepted。
+- V6-08 导航与三入口已实现并完成 12 步无头浏览器验证（browser-log.json 与 screens/01–12，2026-10-31 重采）；独立只读复核结论 accept，无阻断项。回执已置 accepted，记录 lazy chunk 无 error boundary、flag-off 仍产出 chunk、大写 UUID 深链、无 basename 路径等残余风险。V6-07 接受并提交后再提交 V6-08。
+- 编排者新增 docs/implementation/patent-saas-v6/migration-amendment.md：迁移合同 legacy-import.v2；明确 V6-26-M01–M03 的历史审阅持久化与重试验收、V6-47a 发布门禁；主 checkout 文档只读不改。
+- 发布条件复核：R1 为 V6-08–26，当前只完成路由骨架；仓库只有旧 `patent-drafter` worker 配置（路由 vibing.paymond.me/patent），没有 patent.paymond.me 的独立 Worker 配置，且 web 构建 base 为 `/patent/`。本轮不具备发布条件，不部署。
+- V6-07、V6-08 已接受，按顺序提交后推送并开 PR；尚未部署。
+
 ## 会话：2026-10-30
 
 ### 当前状态

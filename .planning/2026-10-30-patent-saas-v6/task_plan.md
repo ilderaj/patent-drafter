@@ -6,11 +6,11 @@
 
 ## 下一步
 
-V6-06 第四轮独立复核 accept（1 条 note：worker/webhook 事件的 `actorId` 不受 `actorKind` 约束；合同未规定该条件规则，已记为 limitation），回执已置 accepted，25/25、typecheck/回归 exit 0。按本次指令未提交、未推送、未部署；下一步按依赖图开始 Foundation/R1 的下一票。
+V6-06 已接受并提交 813fe90。V6-07 经四轮独立复核后 accept（32/32，typecheck/回归 exit 0），V6-08 独立复核 accept，两票回执均为 accepted，按 V6-07、V6-08 顺序提交。随后推送分支、开 PR，并按依赖图继续 V6-09 及其后续 R1 票；完整 R1 和 V6-47a 通过前不部署。
 
 ## 当前阶段
 
-阶段 2：V6-03、V6-04、V6-05、V6-06 accepted；Foundation/R1 余票待按依赖图继续。
+阶段 2：V6-03、V6-04、V6-05、V6-06、V6-07、V6-08 accepted，待提交。Foundation/R1 余票待按依赖图继续。
 
 ## 阶段
 
@@ -27,6 +27,8 @@ V6-06 第四轮独立复核 accept（1 条 note：worker/webhook 事件的 `acto
 - [x] V6-04 目标与不可变修订：第 2 轮起共五轮 not_accept 全部修复，第六轮独立复核 accept
 - [x] V6-05 确认与门禁：三轮独立复核（resolved blocker、policy 声明、resolved risk 均修复）后 accept，26/26
 - [x] V6-06 本地 Repository：四轮独立复核（摘要/字节脱钩、S06-A05 覆盖过度、metadata 白名单、activity 排序、同租户越权与身份未绑定均修复）后第四轮 accept，25/25
+- [x] V6-07 旧版导入：四轮独立复核（EXIF 对齐旧验证器、PNG IDAT、扁平 assetId、重复摘要、取消标题上限、回执表述）后 accept，32/32
+- [x] V6-08 导航与三入口：独立复核 accept，12 步无头浏览器验证
 - [ ] 按依赖图继续完成 Foundation/R1
 - **状态：** in_progress
 

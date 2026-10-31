@@ -1,0 +1,136 @@
+{
+  "ticket": "V6-07",
+  "status": "accepted",
+  "migrationContractVersion": "legacy-import.v2",
+  "review": {"verdict": "accept", "note": "Independent review history: rounds 2 and 3 returned changes_required for reporting gaps, conflicting references, privacy leaks, image validation, the migration exception, EXIF parity with the old verifier, non-array reviewRecords read as empty, zero-length IDAT handling, flat assetId, and an invented title cap. All are fixed with tests that fail on the previous code. Round 4 confirmed the implementation and tests but blocked on one inaccurate M02 sentence about PNG IDAT handling; that sentence was corrected to match the code and the old verifier, and the re-review returned VERDICT: ACCEPT with only non-blocking residuals, now recorded under limitations. Checks: scenarios 32/32, workspace and direct apps/web typecheck exit 0, workspace regression exit 0 (API 15/15, export 44/0), receipt and scope consistent with the delta."},
+  "contractAmendment": "docs/implementation/patent-saas-v6/migration-amendment.md",
+  "baseCommit": "813fe90a5ca298c29b1a3e84a44dbdb8b3798c3f",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "changedFilesNote": "Delta against baseCommit in the isolated worktree. No shared barrel, manifest or lockfile changed; the module is imported by its own path. The untracked node_modules symlink is the local test-dependency mount and is not staged. scope.txt also lists the orchestrator's .planning records and the V6-08 drafts (apps/web/src/v6/routes/, qa/v6/scenarios/V6-08/); those belong to the next ticket and are not part of this delta or its commit.",
+  "changedFiles": [
+    "apps/web/src/v6/lib/legacy-import.ts",
+    "qa/v6/scenarios/V6-07/legacy-import.test.mjs",
+    "docs/implementation/patent-saas-v6/migration-amendment.md",
+    "qa/v6/evidence/V6-07/receipt.json",
+    "qa/v6/evidence/V6-07/runner.tap",
+    "qa/v6/evidence/V6-07/typecheck.txt",
+    "qa/v6/evidence/V6-07/regression.txt",
+    "qa/v6/evidence/V6-07/scope.txt"
+  ],
+  "interface": {
+    "modules": ["apps/web/src/v6/lib/legacy-import.ts"],
+    "exports": [
+      "LEGACY_STATE_KEY", "LEGACY_ASSET_DB", "MIGRATION_CONTRACT_VERSION", "MIGRATION_PLAN_VERSION",
+      "MAX_DRAWING_BYTES", "MAX_DRAWING_PIXELS", "LegacyAssetInput", "LegacyImportInput", "PlanOptions",
+      "MigrationIssueCode", "MigrationIssue", "DeferredKind", "DeferredCount", "LegacyUnverifiedItem", "OrphanAsset",
+      "MigrationReport", "PlannedMatter", "MigrationPlan", "planLegacyImport",
+      "ImportOutcome", "CommitLegacyOptions", "CommitLegacyResult", "commitLegacyImport",
+      "ImageDimensions", "ImageValidation", "validateDrawing"
+    ],
+    "plan": "planLegacyImport reads the raw patent-drafter.v1 AppState string and the legacy asset records the caller already read. It has no side effects, copies bytes and freezes the plan, including each report entry. Ids are RFC 9562 version-8 UUIDs derived by SHA-256 over the JSON-encoded key [tenant, user, kind, legacy ids], so the same input and clock give a deep-equal plan. Every plan and report carries contractVersion legacy-import.v2 and planVersion/reportVersion 2. Each non-demo v1 project becomes one matter with one matter.created event whose metadata is only {version:1}; the project name is trimmed and stored unchanged (a blank name becomes \"Untitled\"). Drawings come from current figures, archived figures and each figure's revision history. Every reference is validated on its own before deduplication: a size must be a positive pair, and an orientation must be 1-8, or the reference is INVALID_ASSET_REFERENCE; a flat figure or promoted snapshot entry names its stored asset in assetId, while a plain asset record names itself in id. References sharing an id that disagree about digest, mime, size or dimensions, or two supplied records with one id and different bytes or mime, are ASSET_CONFLICT and quarantined with no blob; two supplied records with one id and identical bytes and mime contribute every digest they recorded, each of which must equal the computed digest, in either order. A drawing is available only when stored bytes exist, hash to the digest (and to every supplied record's own sha256 when one was kept), match the declared size, are at most 8 MiB, agree with any supplied mime, pass the PNG/JPEG structural check with at least one byte of PNG image data, agree with the declared dimensions, and are at most 16 MP (05-contracts line 114). Declared dimensions follow the old app's own rule: the encodedWidth/encodedHeight grid must equal the header when both are recorded; otherwise the width/height pair is the display size, compared with or without the EXIF 5-8 axis swap, and a recorded orientation must equal the file's EXIF orientation. The EXIF reader mirrors the old verifier rather than the specification: only the first four bytes must read \"Exif\", the two bytes after them are skipped unread, and the orientation value is read without checking its type or count, so files the old app accepted keep the same orientation.",
+    "report": "MigrationReport lists missingBytes, hashMismatches, unknownVersions, unconvertible and issues by fixed MigrationIssueCode (including ASSET_HASH_WITHOUT_ASSET, DANGLING_ASSET_REFERENCE, ASSET_CONFLICT, MALFORMED_COLLECTION, MALFORMED_ENTRY, BYTE_SIZE_MISMATCH, FILE_TOO_LARGE, IMAGE_TOO_LARGE, BAD_IMAGE_STRUCTURE, MIME_MISMATCH), legacyUnverified (review records and owner self-check, identity legacy_unverified), deferred counts for every kind of user work without an R1 store (adds figure_metadata, figure_history, figure_brief, draft_figure_snapshot) and orphanAssets. A collection present but not an array is reported and counted once, never read as empty (reviewRecords included; null means no value); a singular field present but not an object is MALFORMED_ENTRY. Every reference is positional (#n, #asset:n, #supplied:n, #snapshot:r:e, #review:n, #owner-review, #collection:field, #field:name); no legacy id, document text or exception message appears in the report or the outcomes. The plan carries only the user's own matter title and drawing file name, which the new matter stores; PlannedMatter.assetRefs is keyed by #asset:n.",
+    "commit": "commitLegacyImport refuses CONFIRMATION_REQUIRED unless options.confirmed === true, INVALID_INPUT when the plan was made for another actor, and INVALID_INPUT when any planned write fails the shape check (write keys, matter, assets, blobs, assetRefs, exactly one matter.created event with metadata {version:1}); nothing is written on refusal. Each matter is one LocalRepository.commit at expectedVersion 0; VERSION_CONFLICT is reported as already_imported; other refusals are reported per matter as failed with the repository code and a static message per code, never the backend's message. It receives no handle to the legacy stores, so the old localStorage key and asset database are kept unchanged."
+  },
+  "acceptance": [
+    {
+      "id": "V6-07-A01",
+      "command": "npm run test:v6 -- V6-07",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-07/runner.tap",
+      "observed": "Synthetic PNG (zlib-compressed, valid CRCs) and baseline JPEG fixtures pass the structural validator. A project with PNG and JPEG drawings imports with byte-identical hashes that read back through readBlob; the matter and assets parse against the contract schemas and the only event is matter.created. Legacy ids that concatenate alike still import to separate assets. Tests: 'fixtures: ...', 'V6-07-A01: a matter with PNG and JPEG drawings ...', 'V6-07-A01: legacy ids that concatenate alike ...'."
+    },
+    {
+      "id": "V6-07-A02",
+      "command": "npm run test:v6 -- V6-07",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-07/runner.tap",
+      "observed": "Missing bytes and unknown versions are listed; reviews and owner self-checks are legacy_unverified and no confirmation, approval, check or review event is written. Unreadable or foreign-version state plans nothing. Drawings found only in figure history read back, and older shapes are reported. Tests: the three 'V6-07-A02: ...' scenarios."
+    },
+    {
+      "id": "V6-07-A03",
+      "command": "npm run test:v6 -- V6-07; npm run typecheck --workspaces --if-present; ./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit; npm test --workspaces --if-present",
+      "exitCode": 0,
+      "evidence": ["qa/v6/evidence/V6-07/runner.tap", "qa/v6/evidence/V6-07/typecheck.txt", "qa/v6/evidence/V6-07/regression.txt"],
+      "observed": "The same input plans a deep-equal result and is not mutated. A storage fault on the second matter reports failed with STORAGE_UNAVAILABLE and static text; a retry reports already_imported then imported with no duplicate matter, event or blob. A plan made for one actor is refused for another. Typecheck (workspace and direct tsc over apps/web) and workspace tests (44/0) exit 0."
+    },
+    {
+      "id": "V6-07-M01",
+      "command": "npm run test:v6 -- V6-07",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-07/runner.tap",
+      "observed": "An assetHash with no asset is ASSET_HASH_WITHOUT_ASSET, not a placeholder; draft revision snapshot references are counted under draft_figure_snapshot and a snapshot-only asset is DANGLING_ASSET_REFERENCE and not imported; malformed collections (including reviewRecords) are MALFORMED_COLLECTION and counted once, never read as empty; a non-object ownerReview or singular project field is MALFORMED_ENTRY; a long project name is imported unchanged; orphan asset records are listed by position, and an asset used only by an unplannable project is not called an orphan. Tests: the six 'V6-07-M01: ...' scenarios."
+    },
+    {
+      "id": "V6-07-M02",
+      "command": "npm run test:v6 -- V6-07",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-07/runner.tap",
+      "observed": "The same id with a different digest, mime or size is quarantined with no bytes; two stored records with one id and different bytes are a conflict, while identical bytes under one id accept every recorded digest whichever record is listed first; a supplied record's own sha256 that contradicts its bytes is HASH_MISMATCH; a wrong declared size, digest, mime or dimensions never yields an available drawing; a flat figure entry names its stored asset in assetId; an EXIF-rotated JPEG imports under the display pair, the encoded pair or the full record, EXIF shapes the old verifier accepted (an unusual tag type or signature) still import, while a wrong orientation or a pair matching no grid is BAD_IMAGE_STRUCTURE; a PNG whose concatenated IDAT data is entirely empty is BAD_IMAGE_STRUCTURE, while a zero-length IDAT chunk before real data is accepted, as the old verifier allowed; a malformed size or orientation is INVALID_ASSET_REFERENCE; corrupt, truncated, disguised and over-budget images are quarantined. Tests: the ten 'V6-07-M02: ...' scenarios."
+    },
+    {
+      "id": "V6-07-M03",
+      "command": "npm run test:v6 -- V6-07",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-07/runner.tap",
+      "observed": "ASCII claim text used as project, figure, asset, review and snapshot ids never reaches the report, plan or outcomes; secret text in a storage exception and a quota exception is replaced by the code's static message; a user's own matter title and file name stay in the plan and the stored matter and never appear in the report. Tests: 'V6-07-M03: ASCII claim text ...', 'V6-07-M03: a quota exception ...', 'V6-07-M03: a user's own title and file name ...', 'V6-07-A03/M03: a storage fault ...', and the two S13-A09 scenarios."
+    },
+    {
+      "id": "V6-07-M04",
+      "command": "review of this receipt and migration-amendment.md",
+      "exitCode": null,
+      "evidence": ["qa/v6/evidence/V6-07/receipt.json", "docs/implementation/patent-saas-v6/migration-amendment.md"],
+      "observed": "The amendment records the Foundation phase only: matters and drawings are copied, everything else is reported and kept in the old store. S08-A06/A07 stay partial. Full migration, persistent legacy_unverified review records and deletion of the old store are owned by V6-26 (M01-M03) and gated by V6-47a; this ticket does not lift that release gate."
+    },
+    {
+      "id": "V6-07-tamper",
+      "command": "npm run test:v6 -- V6-07",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-07/runner.tap",
+      "observed": "Eleven kinds of mutation to a planned write, including an injected approval.created event, are refused with INVALID_INPUT and the backend stays empty. Test: 'V6-07: a mutated plan cannot inject an approval or any other write'."
+    }
+  ],
+  "specAcceptance": [
+    { "id": "S08-A01", "status": "not_applicable", "reason": "The FORMAT_UNAVAILABLE XML export path is the export ticket's; the import writes the local repository and produces no export format." },
+    { "id": "S08-A02", "status": "not_applicable", "reason": "The export manifest and its SHA-256 belong to the export ticket; this ticket writes no manifest." },
+    { "id": "S08-A03", "status": "not_applicable", "reason": "STALE_BINDING is a target/binding check on delivery, owned by the export and targets tickets; the import creates no targets." },
+    { "id": "S08-A04", "status": "not_applicable", "reason": "GATE_BLOCKED and the risk confirmation gate are part of the delivery path (V6-05 confirmations exist in the repository but no export is built here)." },
+    { "id": "S08-A05", "status": "not_applicable", "reason": "Editor ACTION_FORBIDDEN needs the editor surfaces, which do not exist in R1 yet." },
+    { "id": "S08-A06", "status": "partial", "reason": "Proven for the legacy-store import path: a drawing with absent bytes is listed under missingBytes and stored as missing_bytes with no blob after the confirmed commit, and no approval, confirmation or entitlement record exists. The recovery.v1 package endpoints are V6-26; V6-47a verifies the full criterion (migration-amendment.md)." },
+    { "id": "S08-A07", "status": "partial", "reason": "Proven for the legacy-store import path: repeating a commit, or a re-plan with a new clock, reports already_imported and leaves one matter per legacy project. The recovery.v1 validationId flow is V6-26; V6-47a verifies the full criterion." },
+    { "id": "S08-A08", "status": "not_applicable", "reason": "The PCT completion page is a later S08 UI ticket; the /v6 shell only states which sections are not open." },
+    { "id": "S08-A09", "status": "not_applicable", "reason": "The R2-locked recovery package preview needs recovery.v1 packages, which V6-26 owns." },
+    { "id": "S13-A01", "status": "covered", "reason": "An imported matter, its assets and its activity answer RESOURCE_NOT_FOUND to another tenant, and listMatters is empty for that tenant (scenario S13-A01)." },
+    { "id": "S13-A02", "status": "not_applicable", "reason": "CSRF is a cloud API concern; the import writes the local browser repository only." },
+    { "id": "S13-A03", "status": "not_applicable", "reason": "Database session tenant setting belongs to the cloud backend." },
+    { "id": "S13-A04", "status": "not_applicable", "reason": "Matter deletion and re-authentication are V6-49." },
+    { "id": "S13-A05", "status": "not_applicable", "reason": "Deletion tombstones and review/export links are V6-49." },
+    { "id": "S13-A06", "status": "not_applicable", "reason": "Backup restore with tombstones is V6-49." },
+    { "id": "S13-A07", "status": "not_applicable", "reason": "Privacy export is V6-43a." },
+    { "id": "S13-A08", "status": "not_applicable", "reason": "User-scope deletion is V6-43a." },
+    { "id": "S13-A09", "status": "covered", "reason": "Synthetic claim text in the legacy fixture does not appear in the report, events or matter aggregates, and claim text used as any legacy id is replaced by a positional reference everywhere in the plan and outcomes (S13-A09 and V6-07-M03 scenarios)." },
+    { "id": "S13-A10", "status": "not_applicable", "reason": "Identity-provider configuration is not touched; the actor is supplied by the caller." }
+  ],
+  "limitations": [
+    "Phase import only (legacy-import.v2): draft revisions, materials, checks, figure metadata and history, figure briefs and draft figure snapshots are counted under deferred and stay in the kept legacy store. V6-26 owns their persistent import.",
+    "Legacy reviews and owner self-checks are listed as legacy_unverified in the report and are not persisted; V6-26-M01..M03 own persistence and V6-47a gates deletion of the old store and any claim of complete R1 migration.",
+    "The image check validates magic, container structure, CRCs (PNG), segment layout (JPEG) and header dimensions. It does not inflate PNG data or decode JPEG pixels, so a file that passes can still fail a full decoder. A PNG is quarantined when its concatenated IDAT data is empty. The container checks are stricter than the old verifier for malformed files (trailing bytes after IEND/EOI, extra IHDR, nonzero IEND length, multiple SOF, invalid DQT/DHT payloads are BAD_IMAGE_STRUCTURE), which errs toward not trusting corrupt files. The over-budget fixtures are structurally valid but only claim their dimensions in the header.",
+    "The plan shape check proves the write shape, not provenance: a structuredClone of an untouched plan passes. Blob bytes are re-hashed by the repository on commit.",
+    "originalName values that pass the generic-name pattern are kept on asset records; they never appear in the report. The file name is not part of asset identity: the first usable reference supplies it, so two records that differ only in name are not a conflict.",
+    "The EXIF reader mirrors the old app's verifier rather than the EXIF specification: only the first four bytes must read \"Exif\", the two bytes after them are skipped unread, and the orientation value is read without checking the tag's type or count. A malformed or absent block reads as orientation 1.",
+    "A flat snapshot entry that names assetId but omits sha256, mime or byteSize is INVALID_ASSET_REFERENCE. Current old-app builds write those fields whenever assetId exists, so no real-shape data loss was found; an older build that stored flat entries without them would need a follow-up.",
+    "A caller-supplied detached ArrayBuffer could make toBytes throw; parsed localStorage and IndexedDB data cannot produce one, and the caller contract supplies live buffers.",
+    "Supplied asset records that no referenced figure can address are listed by position as orphans; the report never repeats their ids or contents.",
+    "Imported matters have no targets: TargetRecord requires a figureRevisionId and there is no figure-set revision store yet.",
+    "The browser reader that loads localStorage and the legacy IndexedDB read-only is not in this write set; the caller passes the raw state and asset records.",
+    "package-lock.json cannot be regenerated (@patent/vibescanner-core 404), so no dependency was added; the image check uses no library."
+  ],
+  "decisionsRequested": [
+    {
+      "id": "D-V6-07-01",
+      "question": "Architecture §8 requires legacy_unverified review records after migration, but the R1 local repository cannot store a Confirmation. Persist now, or defer?",
+      "resolution": "Defer, formalised in docs/implementation/patent-saas-v6/migration-amendment.md as migration contract legacy-import.v2. V6-07 reports every legacy review as legacy_unverified and never deletes the old store. V6-26 adds acceptance V6-26-M01..M03 for persistent import; V6-47a must verify them and S08-A06/A07 before the old store is deleted, the old entry is closed or R1 migration is claimed complete.",
+      "status": "resolved"
+    }
+  ]
+}

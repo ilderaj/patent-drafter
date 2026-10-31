@@ -1,0 +1,206 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-07
+
+TAP version 13
+# Subtest: fixtures: the synthetic PNG and JPEG files pass the structural validator
+ok 1 - fixtures: the synthetic PNG and JPEG files pass the structural validator
+  ---
+  duration_ms: 2.003875
+  type: 'test'
+  ...
+# Subtest: V6-07-A01: a matter with PNG and JPEG drawings imports with byte-identical hashes
+ok 2 - V6-07-A01: a matter with PNG and JPEG drawings imports with byte-identical hashes
+  ---
+  duration_ms: 19.8645
+  type: 'test'
+  ...
+# Subtest: V6-07-A02: missing bytes and unknown versions are listed and never become trusted approval
+ok 3 - V6-07-A02: missing bytes and unknown versions are listed and never become trusted approval
+  ---
+  duration_ms: 2.569
+  type: 'test'
+  ...
+# Subtest: V6-07-A02: unreadable or foreign-version state imports nothing
+ok 4 - V6-07-A02: unreadable or foreign-version state imports nothing
+  ---
+  duration_ms: 0.201375
+  type: 'test'
+  ...
+# Subtest: V6-07-A03: the same input plans the same result and is not mutated
+ok 5 - V6-07-A03: the same input plans the same result and is not mutated
+  ---
+  duration_ms: 1.564125
+  type: 'test'
+  ...
+# Subtest: V6-07-A03/M03: a storage fault retries cleanly and its exception text never reaches the outcome
+ok 6 - V6-07-A03/M03: a storage fault retries cleanly and its exception text never reaches the outcome
+  ---
+  duration_ms: 1.969167
+  type: 'test'
+  ...
+# Subtest: V6-07-M03: a quota exception is reported by its code with static text
+ok 7 - V6-07-M03: a quota exception is reported by its code with static text
+  ---
+  duration_ms: 1.019625
+  type: 'test'
+  ...
+# Subtest: V6-07-A01: legacy ids that concatenate alike still import to separate assets
+ok 8 - V6-07-A01: legacy ids that concatenate alike still import to separate assets
+  ---
+  duration_ms: 1.0505
+  type: 'test'
+  ...
+# Subtest: V6-07-A02: historical drawings read back and older shapes are all reported
+ok 9 - V6-07-A02: historical drawings read back and older shapes are all reported
+  ---
+  duration_ms: 1.912583
+  type: 'test'
+  ...
+# Subtest: V6-07-M01: an assetHash with no asset is reported, not treated as a placeholder
+ok 10 - V6-07-M01: an assetHash with no asset is reported, not treated as a placeholder
+  ---
+  duration_ms: 0.463792
+  type: 'test'
+  ...
+# Subtest: V6-07-M01: draft revision snapshot references are counted and dangling ones reported
+ok 11 - V6-07-M01: draft revision snapshot references are counted and dangling ones reported
+  ---
+  duration_ms: 0.515708
+  type: 'test'
+  ...
+# Subtest: V6-07-M01: orphan asset records and malformed collections are reported, not read as empty
+ok 12 - V6-07-M01: orphan asset records and malformed collections are reported, not read as empty
+  ---
+  duration_ms: 0.334208
+  type: 'test'
+  ...
+# Subtest: V6-07-M01: a malformed review, owner review or singular field is reported, never read as absent
+ok 13 - V6-07-M01: a malformed review, owner review or singular field is reported, never read as absent
+  ---
+  duration_ms: 0.464583
+  type: 'test'
+  ...
+# Subtest: V6-07-M01: a long project name is imported unchanged
+ok 14 - V6-07-M01: a long project name is imported unchanged
+  ---
+  duration_ms: 0.322167
+  type: 'test'
+  ...
+# Subtest: V6-07-M01: an asset used only by an unplannable project is not reported as an orphan
+ok 15 - V6-07-M01: an asset used only by an unplannable project is not reported as an orphan
+  ---
+  duration_ms: 0.228708
+  type: 'test'
+  ...
+# Subtest: V6-07-M02: the same id with a different digest, mime or size is quarantined with no bytes
+ok 16 - V6-07-M02: the same id with a different digest, mime or size is quarantined with no bytes
+  ---
+  duration_ms: 1.533375
+  type: 'test'
+  ...
+# Subtest: V6-07-M02: two stored records with one id and different bytes are a conflict
+ok 17 - V6-07-M02: two stored records with one id and different bytes are a conflict
+  ---
+  duration_ms: 0.632667
+  type: 'test'
+  ...
+# Subtest: V6-07-M02: a wrong declared size, digest, mime or dimensions never yields an available drawing
+ok 18 - V6-07-M02: a wrong declared size, digest, mime or dimensions never yields an available drawing
+  ---
+  duration_ms: 1.938209
+  type: 'test'
+  ...
+# Subtest: V6-07-M02: an EXIF-rotated JPEG is imported, not quarantined as damaged
+ok 19 - V6-07-M02: an EXIF-rotated JPEG is imported, not quarantined as damaged
+  ---
+  duration_ms: 1.612542
+  type: 'test'
+  ...
+# Subtest: V6-07-M02: EXIF shapes the old verifier accepted still import
+ok 20 - V6-07-M02: EXIF shapes the old verifier accepted still import
+  ---
+  duration_ms: 0.580958
+  type: 'test'
+  ...
+# Subtest: V6-07-M02: a PNG with no compressed image data is quarantined
+ok 21 - V6-07-M02: a PNG with no compressed image data is quarantined
+  ---
+  duration_ms: 1.605875
+  type: 'test'
+  ...
+# Subtest: V6-07-M02: a stored record's own digest must describe its bytes
+ok 22 - V6-07-M02: a stored record's own digest must describe its bytes
+  ---
+  duration_ms: 0.340209
+  type: 'test'
+  ...
+# Subtest: V6-07-M02: duplicate stored records are judged the same in either order
+ok 23 - V6-07-M02: duplicate stored records are judged the same in either order
+  ---
+  duration_ms: 0.678292
+  type: 'test'
+  ...
+# Subtest: V6-07-M02: a flat figure entry names its stored asset in assetId
+ok 24 - V6-07-M02: a flat figure entry names its stored asset in assetId
+  ---
+  duration_ms: 0.450209
+  type: 'test'
+  ...
+# Subtest: V6-07-M02: corrupt, truncated, disguised or over-budget images are quarantined
+ok 25 - V6-07-M02: corrupt, truncated, disguised or over-budget images are quarantined
+  ---
+  duration_ms: 86.827667
+  type: 'test'
+  ...
+# Subtest: V6-07-M03: ASCII claim text used as ids never reaches the report, plan or outcomes
+ok 26 - V6-07-M03: ASCII claim text used as ids never reaches the report, plan or outcomes
+  ---
+  duration_ms: 0.869708
+  type: 'test'
+  ...
+# Subtest: S13-A09: a damaged record's id never carries text into the report
+ok 27 - S13-A09: a damaged record's id never carries text into the report
+  ---
+  duration_ms: 0.419542
+  type: 'test'
+  ...
+# Subtest: S13-A09: the report and written events carry no document text
+ok 28 - S13-A09: the report and written events carry no document text
+  ---
+  duration_ms: 2.45225
+  type: 'test'
+  ...
+# Subtest: V6-07-M03: a user's own title and file name stay in the plan, never in the report
+ok 29 - V6-07-M03: a user's own title and file name stay in the plan, never in the report
+  ---
+  duration_ms: 0.531916
+  type: 'test'
+  ...
+# Subtest: V6-07: a mutated plan cannot inject an approval or any other write
+ok 30 - V6-07: a mutated plan cannot inject an approval or any other write
+  ---
+  duration_ms: 1.717375
+  type: 'test'
+  ...
+# Subtest: V6-07: a plan made for one actor cannot be committed by another
+ok 31 - V6-07: a plan made for one actor cannot be committed by another
+  ---
+  duration_ms: 0.584042
+  type: 'test'
+  ...
+# Subtest: S13-A01: an imported matter, its assets and activity are 404 for another tenant
+ok 32 - S13-A01: an imported matter, its assets and activity are 404 for another tenant
+  ---
+  duration_ms: 0.862458
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 291.086792
