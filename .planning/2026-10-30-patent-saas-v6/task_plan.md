@@ -6,11 +6,11 @@
 
 ## 下一步
 
-V6-06 已接受并提交 813fe90。V6-07 经四轮独立复核后 accept（32/32，typecheck/回归 exit 0），V6-08 独立复核 accept，两票回执均为 accepted，按 V6-07、V6-08 顺序提交。随后推送分支、开 PR，并按依赖图继续 V6-09 及其后续 R1 票；完整 R1 和 V6-47a 通过前不部署。
+V6-06 已接受并提交 813fe90。V6-07 经四轮独立复核后 accept（32/32），提交 57c8de4；V6-08 独立复核 accept，提交 32d8e99。分支已推送，PR https://github.com/ilderaj/patent-drafter/pull/1 已创建。发布复核结论：R1 为 V6-08–26，当前只完成 V6-08，且无 patent.paymond.me 的 Worker 配置，不满足发布条件，不部署。下一步按依赖图继续 V6-09 及其后续 R1 票；完整 R1 和 V6-47a 通过前不部署。
 
 ## 当前阶段
 
-阶段 2：V6-03、V6-04、V6-05、V6-06、V6-07、V6-08 accepted，待提交。Foundation/R1 余票待按依赖图继续。
+阶段 2：V6-03、V6-04、V6-05、V6-06、V6-07、V6-08 accepted 并已提交。Foundation/R1 余票待按依赖图继续。
 
 ## 阶段
 
