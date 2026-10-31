@@ -1,0 +1,119 @@
+$ npm test --workspaces --if-present
+
+> test
+> node --test test/*.test.mjs
+
+✔ healthz reports cloud mode (28.208666ms)
+{"rid":"478e27f8","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+✔ login rejects wrong password with 401 (3.345958ms)
+{"rid":"01b67a6d","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"c3b780ae","method":"GET","path":"/patent/api/status","status":200,"ms":0}
+✔ login accepts correct password and issues a usable token (1.957583ms)
+{"rid":"a7a84b33","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"4e230588","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"7158c0bb","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"b7627da2","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"78b77435","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"1698cc92","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"5b19238f","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"48592987","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"55cd2a0f","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"8c09aabf","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"5fbec21c","method":"POST","path":"/patent/api/login","status":429,"ms":0}
+{"rid":"85d67f28","method":"POST","path":"/patent/api/login","status":429,"ms":0}
+{"rid":"6d1bdcf6","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+{"rid":"e84d385a","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+✔ login is rate-limited per IP after 10 attempts (3.488708ms)
+✔ status rejects missing/invalid token with 401 (0.257708ms)
+{"rid":"3d4edcee","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"ff9d4917","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+{"rid":"daa5268f","method":"POST","path":"/patent/api/providers/deepseek/chat","status":401,"ms":0}
+✔ expired token is rejected (0.620042ms)
+✔ chat without session returns 401 and never reaches upstream (0.300334ms)
+{"rid":"e27ab2fe","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"171e022a","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"e4397893","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ preview gate: first send gets 428 + requiredConfirm, confirmed send reaches upstream (1.926042ms)
+{"rid":"c9de4079","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"b0a68861","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+✔ wrong preview hash still gets 428 (0.61025ms)
+{"rid":"40bf2481","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"45681a0e","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ preview gate disabled: single send reaches upstream without a confirm hash (0.712792ms)
+{"rid":"973075e8","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"28e17a68","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ streaming request passes the SSE stream straight through (1.290208ms)
+{"rid":"cfa3408b","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"429df43b","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"f2ef640c","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"5c40e1a8","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"a66f673b","method":"POST","path":"/patent/api/providers/deepseek/chat","status":429,"ms":0}
+✔ daily chat rate limit returns 429 after the configured cap (1.225416ms)
+{"rid":"c9925aa1","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"6f800b72","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"e9e6982d","method":"POST","path":"/patent/api/providers/deepseek/chat","status":502,"ms":0}
+✔ upstream failure surfaces only the status, never the body (0.768334ms)
+{"rid":"20de90b5","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"7aaf9d5a","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"60d3a446","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ API key is sent only as an upstream Bearer header (0.805583ms)
+✔ non-API paths fall through to static assets (0.096833ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 167.348875
+
+> @patent/export@0.0.1 test
+> node tests/export-builders.test.mjs
+
+  [PASS] docx starts with zip magic PK
+  [PASS] docx contains [Content_Types].xml / _rels/.rels / word/document.xml
+  [PASS] document.xml contains claim 1 text
+  [PASS] document.xml escapes XML entities (& -> &amp;)
+  [PASS] document.xml escapes angle brackets
+  [PASS] docx has no plain <w:body> nesting issue
+  [PASS] docx builder handles empty paragraph
+  [PASS] figures pdf starts with %PDF
+  [PASS] figures pdf page count equals figure count
+  [PASS] brief figure without raster gets placeholder page
+  [PASS] no-figures pdf has single 无附图 page
+  [PASS] review pdf starts with %PDF
+  [PASS] review pdf has at least 1 page
+  [PASS] report spec carries support matrix rows
+  [PASS] report spec carries audit checks
+  [PASS] report spec carries AI label + rule pack version
+  [PASS] report spec carries exported time
+  [PASS] figureSvg is self-contained svg with title
+  [PASS] patentpack is JSON envelope v1
+  [PASS] patentpack uses PBKDF2-SHA256-AESGCM-200000
+  [PASS] patentpack has salt+iv base64
+  [PASS] patentpack envelope is ASCII-only (no plaintext CJK)
+  [PASS] patentpack file contains no plaintext claim text
+  [PASS] patentpack decrypts with same passphrase
+  [PASS] patentpack rejects wrong passphrase
+  [PASS] patentpack requires non-empty passphrase
+  [PASS] selection subset produces exactly selected files in UI order
+  [PASS] unselected 合集 not produced
+  [PASS] unselected report not produced
+  [PASS] unselected patentpack not produced
+  [PASS] all-selected produces 7 files in UI order
+  [PASS] version note lists real exported file names
+  [PASS] patentpack assembly without passphrase throws
+  [PASS] empty selection produces zero files
+  [PASS] patentpack payload snapshot matches project data
+  [PASS] zip preserves entry names and bytes
+  [PASS] note derives claim count
+  [PASS] note derives spec sections
+  [PASS] note derives abstract char count
+  [PASS] note derives figure range
+  [PASS] note derives report stats
+  [PASS] empty project notes fall back to generic copy
+  [PASS] sanitizeFileName handles slashes/spaces
+  [PASS] sanitizeFileName empty fallback
+
+结果: 44 通过 / 0 失败
+exit=0

@@ -1,0 +1,103 @@
+{
+  "base": "http://127.0.0.1:5174",
+  "matterCountAfterRetries": 1,
+  "consoleErrors": [],
+  "steps": [
+    {
+      "step": "01-start",
+      "ok": true,
+      "path": "/patent/v6",
+      "runtime": "本地网页版",
+      "h1": "从哪里开始",
+      "notice": null
+    },
+    {
+      "step": "02-matters-empty",
+      "ok": true,
+      "path": "/patent/v6/matters",
+      "runtime": "本地网页版",
+      "h1": "案件",
+      "notice": null
+    },
+    {
+      "step": "03-self-service-create",
+      "ok": true,
+      "path": "/patent/v6/matters/aa10e054-35bb-488d-bc9f-736250f370a0/upload",
+      "runtime": "本地网页版",
+      "h1": "上传材料",
+      "notice": "材料管理尚未开放，将在上传与解析功能交付后提供。案件已保存在本机，可以随时回来继续。"
+    },
+    {
+      "step": "04-upload-after-refresh",
+      "ok": true,
+      "path": "/patent/v6/matters/aa10e054-35bb-488d-bc9f-736250f370a0/upload",
+      "runtime": "本地网页版",
+      "h1": "上传材料",
+      "notice": "材料管理尚未开放，将在上传与解析功能交付后提供。案件已保存在本机，可以随时回来继续。"
+    },
+    {
+      "step": "05-matter-overview",
+      "ok": true,
+      "path": "/patent/v6/matters/aa10e054-35bb-488d-bc9f-736250f370a0",
+      "runtime": "本地网页版",
+      "h1": "未命名案件",
+      "notice": null
+    },
+    {
+      "step": "06-tab-check-unavailable",
+      "ok": true,
+      "path": "/patent/v6/matters/aa10e054-35bb-488d-bc9f-736250f370a0/check",
+      "runtime": "本地网页版",
+      "h1": "未命名案件",
+      "notice": "检查尚未开放：本地版还没有检查规则运行结果。"
+    },
+    {
+      "step": "07-tab-direct-link-refresh",
+      "ok": true,
+      "path": "/patent/v6/matters/aa10e054-35bb-488d-bc9f-736250f370a0/check",
+      "runtime": "本地网页版",
+      "h1": "未命名案件",
+      "notice": "检查尚未开放：本地版还没有检查规则运行结果。"
+    },
+    {
+      "step": "08-matters-list",
+      "ok": true,
+      "path": "/patent/v6/matters",
+      "runtime": "本地网页版",
+      "h1": "案件",
+      "notice": null
+    },
+    {
+      "step": "09-missing-matter",
+      "ok": true,
+      "path": "/patent/v6/matters/dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      "runtime": "本地网页版",
+      "h1": "案件不可用",
+      "notice": null
+    },
+    {
+      "step": "10-malformed-link",
+      "ok": true,
+      "path": "/patent/v6/matters/not-a-uuid/draft",
+      "runtime": "本地网页版",
+      "h1": "案件不可用",
+      "notice": null
+    },
+    {
+      "step": "11-services-section",
+      "ok": true,
+      "path": "/patent/v6/services",
+      "runtime": "本地网页版",
+      "h1": "服务",
+      "notice": "人工服务（咨询、复核、代理对接）尚未开放，暂不能下单。"
+    },
+    {
+      "step": "12-legacy-still-works",
+      "ok": true,
+      "path": "/patent/projects",
+      "runtime": null,
+      "h1": "项目",
+      "notice": null
+    }
+  ]
+}
