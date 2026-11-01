@@ -1,0 +1,441 @@
+{
+  "status": "accepted",
+  "ticket": "V6-14",
+  "title": "路线与多目标配置",
+  "baseCommit": "5225360",
+  "branch": "codex/v6-14-targets",
+  "worktree": "/private/tmp/patent-v6-14-worktree",
+  "date": "2026-11-02",
+  "contractVersion": "v6.1",
+  "changedFiles": [
+    "apps/web/src/v6/features/targets/Targets.tsx",
+    "apps/web/src/v6/features/targets/targets.ts",
+    "qa/v6/evidence/V6-14/01-empty-state.png",
+    "qa/v6/evidence/V6-14/02-create-target-a-cn_invention.png",
+    "qa/v6/evidence/V6-14/03-create-target-b-pct.png",
+    "qa/v6/evidence/V6-14/04-switch-no-version-bump.png",
+    "qa/v6/evidence/V6-14/05-update-a-b-unchanged.png",
+    "qa/v6/evidence/V6-14/06-ep-refused.png",
+    "qa/v6/evidence/V6-14/07-us-pct-warning.png",
+    "qa/v6/evidence/V6-14/08-en-us-disabled-reason.png",
+    "qa/v6/evidence/V6-14/browser-drive.mjs",
+    "qa/v6/evidence/V6-14/browser-log.json",
+    "qa/v6/evidence/V6-14/build-mounted.txt",
+    "qa/v6/evidence/V6-14/build.txt",
+    "qa/v6/evidence/V6-14/mount-patch.md",
+    "qa/v6/evidence/V6-14/receipt.json",
+    "qa/v6/evidence/V6-14/red-before-fix.mjs",
+    "qa/v6/evidence/V6-14/red-before-fix.txt",
+    "qa/v6/evidence/V6-14/regression.txt",
+    "qa/v6/evidence/V6-14/review-01.md",
+    "qa/v6/evidence/V6-14/runner.tap",
+    "qa/v6/evidence/V6-14/scope.txt",
+    "qa/v6/evidence/V6-14/typecheck.txt",
+    "qa/v6/scenarios/V6-14/harness.mjs",
+    "qa/v6/scenarios/V6-14/targets-engine.test.mjs",
+    "qa/v6/scenarios/V6-14/targets-idempotency.test.mjs",
+    "qa/v6/scenarios/V6-14/targets-recommendation.test.mjs",
+    "qa/v6/scenarios/V6-14/targets-ui.test.mjs"
+  ],
+  "hashes": {
+    "note": "sha256 of every changed file except receipt.json itself",
+    "files": {
+      "apps/web/src/v6/features/targets/Targets.tsx": "c7a1682f36be6060535af38607f9a5f3becd673f6e4e97c1faeb5c4b7c9fc23d",
+      "apps/web/src/v6/features/targets/targets.ts": "e54498873d8ae3e19c5f001e7ce49df568c48453320f37b5b9de59e020e31cb8",
+      "qa/v6/evidence/V6-14/01-empty-state.png": "8fce752ca2d7dd343098fcdc491a2e4f95b5ddb3cbbf25516496cd17d7366677",
+      "qa/v6/evidence/V6-14/02-create-target-a-cn_invention.png": "2db1a881cb6f0ea1383b6d31b4b114538ce15a64eaf4d5ddf5c362031e9705fd",
+      "qa/v6/evidence/V6-14/03-create-target-b-pct.png": "86c5b0e09ef1191fe57be3f586e2611acdd71580a50575f8f33e33c4e31e073b",
+      "qa/v6/evidence/V6-14/04-switch-no-version-bump.png": "e34093b7d8a5e2a6d6774ec6426274043cde15cebf456edc50056f3fbb5e3cfb",
+      "qa/v6/evidence/V6-14/05-update-a-b-unchanged.png": "3d9b1d63640018194c209506cd4978660d082c2775b43279c6c5ce76c9de3360",
+      "qa/v6/evidence/V6-14/06-ep-refused.png": "a35e45e51c8cc4b95f57568485d45c5d5b1231958b347737f566704cd7450aa0",
+      "qa/v6/evidence/V6-14/07-us-pct-warning.png": "54e4e31fb44f4cea3eac0bca0504942faecf28ceef93f7aa6b18aed3d2f9694d",
+      "qa/v6/evidence/V6-14/08-en-us-disabled-reason.png": "eccef03ceada6ed7be3b87112f620fae9b199b69e5f67e50c3c3bbbe8ee047df",
+      "qa/v6/evidence/V6-14/browser-drive.mjs": "a3309111c4d6c3e7309cf8d2796637c0bdc8dbf1ebd581e940afeff3f67a97f3",
+      "qa/v6/evidence/V6-14/browser-log.json": "c0937701ff44293363177d50acfd4a156b63e33574571625d0eb7fa5a86807f2",
+      "qa/v6/evidence/V6-14/build-mounted.txt": "0c5d3d056e238c6a87a2ad683937623f41e20fd0bf137884ae008c516b1acdad",
+      "qa/v6/evidence/V6-14/build.txt": "2ac178b9dfe048297de8fa7f8f333603013e2e5dc56d7aece980a96e98703df5",
+      "qa/v6/evidence/V6-14/mount-patch.md": "4afd8704a21da3211846c7a59583de10029d5a2600c181a78b736f2f9a90b066",
+      "qa/v6/evidence/V6-14/red-before-fix.mjs": "c3c9b1190ae392fc0f26dd8a50612ad0a196058b94887bc3990b096ece160ca3",
+      "qa/v6/evidence/V6-14/red-before-fix.txt": "9d5be27d2971880ed678a05bd2c39c3ef91ebdce8f3d03b8e25de72495771e69",
+      "qa/v6/evidence/V6-14/regression.txt": "ca372b40e95799c249ca75618bcb240b731b5c612e7e85d751e16635587c7cea",
+      "qa/v6/evidence/V6-14/review-01.md": "c0eea79f405a42130772960b46bed313ef4e4e93f45849a0fdb15af634e17f9e",
+      "qa/v6/evidence/V6-14/runner.tap": "c1ee641122f46a46da9906f85e9f3768a605bab5e5e0e57d478ee18e34847208",
+      "qa/v6/evidence/V6-14/scope.txt": "8603139fa1cc72e00196d3efb8048224ac05445a990f3cb182b7abf33077b412",
+      "qa/v6/evidence/V6-14/typecheck.txt": "19532216215b65d1e6ba2d6cc3cd01d25698230b756d9b42d1d93ddfb096dda7",
+      "qa/v6/scenarios/V6-14/harness.mjs": "66c33464fe15a4257472f5f9f426746a07911a7608b6b5c86572262a355fcbb5",
+      "qa/v6/scenarios/V6-14/targets-engine.test.mjs": "acd2c07ce471b7e4f323c352c4c0e07897e2920d777bac44ffca35f7651e8615",
+      "qa/v6/scenarios/V6-14/targets-idempotency.test.mjs": "c06c4a9479faad6e2d93d47d068a9c7ff6413af239515bbfea9168e9450206e0",
+      "qa/v6/scenarios/V6-14/targets-recommendation.test.mjs": "e627b6cd878e186bcd52a1c83c9b3d2a07477fb88641592af439587d96221001",
+      "qa/v6/scenarios/V6-14/targets-ui.test.mjs": "b80d2d90ac41546c27832446f7b5708871af71c22a5eb458bf907c3f5d944a73"
+    }
+  },
+  "contractTypes": [
+    "TargetConfig",
+    "Party",
+    "SourceSnapshot (read only)",
+    "Rule (type only)",
+    "Route",
+    "Language"
+  ],
+  "runs": [
+    {
+      "name": "V6-14 suite",
+      "command": "npm run test:v6 -- V6-14 (node qa/v6/runner.mjs V6-14), TAP saved to qa/v6/evidence/V6-14/runner.tap",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-14/runner.tap",
+      "note": "exit code observed by the executor; runner.tap does not contain it"
+    },
+    {
+      "name": "V6-13 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-14-worktree run test:v6 -- V6-13",
+      "exitCode": 0,
+      "tests": 45,
+      "pass": 45,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-14/regression.txt"
+    },
+    {
+      "name": "V6-15 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-14-worktree run test:v6 -- V6-15",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-14/regression.txt"
+    },
+    {
+      "name": "V6-12 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-14-worktree run test:v6 -- V6-12",
+      "exitCode": 0,
+      "tests": 42,
+      "pass": 42,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-14/regression.txt"
+    },
+    {
+      "name": "V6-11 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-14-worktree run test:v6 -- V6-11",
+      "exitCode": 0,
+      "tests": 53,
+      "pass": 53,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-14/regression.txt"
+    },
+    {
+      "name": "V6-10 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-14-worktree run test:v6 -- V6-10",
+      "exitCode": 0,
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-14/regression.txt"
+    },
+    {
+      "name": "typecheck (final tree, mount reverted)",
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-14/typecheck.txt"
+    },
+    {
+      "name": "build (final tree, mount reverted)",
+      "command": "npm run build",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-14/build.txt"
+    },
+    {
+      "name": "build (temporary mount applied)",
+      "command": "npm run build",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-14/build-mounted.txt"
+    },
+    {
+      "name": "red-before-fix",
+      "command": "node qa/v6/evidence/V6-14/red-before-fix.mjs > qa/v6/evidence/V6-14/red-before-fix.txt",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-14/red-before-fix.txt"
+    },
+    {
+      "name": "browser drive",
+      "command": "node qa/v6/evidence/V6-14/browser-drive.mjs qa/v6/evidence/V6-14 http://localhost:4176/patent",
+      "exitCode": 0,
+      "steps": 8,
+      "passed": 8,
+      "consoleErrors": 0,
+      "nonLocalRequests": 0,
+      "requests": 10,
+      "evidence": "qa/v6/evidence/V6-14/browser-log.json"
+    }
+  ],
+  "redBeforeFix": {
+    "script": "qa/v6/evidence/V6-14/red-before-fix.mjs",
+    "output": "qa/v6/evidence/V6-14/red-before-fix.txt",
+    "source": "apps/web/src/v6/features/targets/targets.ts",
+    "sourceSha256": "e54498873d8ae3e19c5f001e7ce49df568c48453320f37b5b9de59e020e31cb8",
+    "guards": [
+      {
+        "name": "EP rejection",
+        "fixtureSha256": "7f23f3ed175d3022719555f395f03d0b1f92d45baa2cbff4d9b157464668073b",
+        "red": 2
+      },
+      {
+        "name": "per-target isolation",
+        "fixtureSha256": "f181e6cb88b49c1df499d21f32bbe6c003417688271f14b597569dbb595b7ab4",
+        "red": 2
+      },
+      {
+        "name": "recommendation rule (method excludes cn_um)",
+        "fixtureSha256": "e106eaf6d263a6c3a4baa2d7965022af537fda0d473e72132094230b9cb756e8",
+        "red": 3
+      },
+      {
+        "name": "unverified number suppression",
+        "fixtureSha256": "0221f0f4a632698425e9c45d19f9952eb87a3a73b51585f5f00290bfa13908df",
+        "red": 2
+      },
+      {
+        "name": "language gating (en-US needs translation_en)",
+        "fixtureSha256": "41ce107b9634621a7c12bec5f6dad63f103d1faebeafb9b72d4039b5646688ef",
+        "red": 3
+      }
+    ],
+    "result": "All five guards turned their named tests red. The source was restored byte for byte after each fixture, and the restored suite ran 41/41 green. Verdict: overall PASS.",
+    "disclosure": "An earlier run exited 1 (overall FAIL). For the number-suppression guard it expected 'S03-A07 every card shows ... numbers stay hidden when unverified' to go red, but that test uses the R1 pack, which carries no numbers, so it cannot fail under that mutation. The expectation was removed (with a comment in the script) and the proof was re-run. The recorded output is from the final re-run on the final tree."
+  },
+  "browserEvidence": {
+    "driver": "qa/v6/evidence/V6-14/browser-drive.mjs",
+    "log": "qa/v6/evidence/V6-14/browser-log.json",
+    "logSha256": "c0937701ff44293363177d50acfd4a156b63e33574571625d0eb7fa5a86807f2",
+    "url": "http://localhost:4176/patent/v6/matters/<created>/overview",
+    "server": "vite preview of the production build, --port 4176 --strictPort --host localhost",
+    "browser": "headless Chrome over CDP, throwaway --user-data-dir under the OS tmpdir, deleted after the run",
+    "fixtures": "Synthetic only: the matter was created through the real start page. The target configs were typed into the panel with empty applicant, inventor and priority fields. No intake snapshot or customer material was used.",
+    "screenshots": [
+      "qa/v6/evidence/V6-14/01-empty-state.png",
+      "qa/v6/evidence/V6-14/02-create-target-a-cn_invention.png",
+      "qa/v6/evidence/V6-14/03-create-target-b-pct.png",
+      "qa/v6/evidence/V6-14/04-switch-no-version-bump.png",
+      "qa/v6/evidence/V6-14/05-update-a-b-unchanged.png",
+      "qa/v6/evidence/V6-14/06-ep-refused.png",
+      "qa/v6/evidence/V6-14/07-us-pct-warning.png",
+      "qa/v6/evidence/V6-14/08-en-us-disabled-reason.png"
+    ],
+    "steps": [
+      {
+        "step": "01-empty-state",
+        "ok": true
+      },
+      {
+        "step": "02-create-target-a-cn_invention",
+        "ok": true
+      },
+      {
+        "step": "03-create-target-b-pct",
+        "ok": true
+      },
+      {
+        "step": "04-switch-no-version-bump",
+        "ok": true
+      },
+      {
+        "step": "05-update-a-b-unchanged",
+        "ok": true
+      },
+      {
+        "step": "06-ep-refused",
+        "ok": true
+      },
+      {
+        "step": "07-us-pct-warning",
+        "ok": true
+      },
+      {
+        "step": "08-en-us-disabled-reason",
+        "ok": true
+      }
+    ],
+    "consoleErrors": 0,
+    "requests": {
+      "total": 10,
+      "nonLocal": 0
+    },
+    "runs": "The retained log and screenshots are from the final run on the final tree (cap removed, asset-state gating, and the step-03 assertion in place), 8/8. An earlier drive's screenshot showed the active switcher chip with an unreadable label (a .v6-targets CSS override); Targets.tsx was fixed and step 04 gained a computed-style contrast assertion.",
+    "epMethod": "The route select lists only the four supported routes. Step 06 appends a synthetic <option value=\"EP\"> (a forged client value) to the update form and saves. The engine answers INVALID_INPUT with the EP copy, and IndexedDB is unchanged.",
+    "notShownInBrowser": "The S03-A09 rule trace needs snapshot facts, and the browser matter has none (recommendation fallback). The trace is covered by the engine and UI-render tests."
+  },
+  "mount": {
+    "instructions": "qa/v6/evidence/V6-14/mount-patch.md",
+    "reason": "TargetsPanel is not reachable until the orchestrator registers it in the shell.",
+    "files": [
+      {
+        "path": "apps/web/src/v6/routes/V6App.tsx",
+        "originalSha256": "91a04dbe435e74256f13bb49a0231cafdc1dd440e4d1ebafbcb917a568c2431b",
+        "patchedSha256": "65d722007b9a079c3d32ee72115d91105fc6516d50600d7c4c647b06ad36e496",
+        "revertedSha256": "91a04dbe435e74256f13bb49a0231cafdc1dd440e4d1ebafbcb917a568c2431b"
+      }
+    ],
+    "reverted": true
+  },
+  "decisions": [
+    "Config rows are stored in blobs at targets/config/{tenant}/{matter}/{target}/{version}/{writeId}, keyed by the event id. A recovered or retried write never overwrites the row of a different attempt. committedWriteIds maps targetId/version to the event id that landed.",
+    "Create and update follow the V6-13/V6-15 claim protocol: claim, business write, owner-checked finalize. The lease is 30 s, the bounded wait 500 ms with a 25 ms poll, and there are at most 3 commit attempts. A live claim answers 「同一请求正在处理中，请稍候再试。」 without writing.",
+    "Recommendation is pure and deterministic over the snapshot facts and maturity, with three rules: structure_evidence_utility_model, method_blocks_utility_model and idea_blocks_utility_model. No model is called. When no rule fires, the result is a fallback with nothing recommended.",
+    "R1_RULE_PACK marks every entry unverified, so cycle, fee and term render as 未核实. Numbers appear only for an entry with verification=verified (tested with a synthetic pack).",
+    "en-US is gated on capability translation_en=available, in the UI (disabled radio with a reason) and again at write time.",
+    "EP and unknown routes are refused with INVALID_INPUT before any write. EP gets its own copy and is never mapped to another route.",
+    "Reads and target switching are read-only. The selection lives in the URL hash (#target=<id>).",
+    "A matter has no target cap. S03 says professional mode may add targets from the overview, and neither V6-14.md nor S03 states a limit; a third and further targets are created and listed.",
+    "A priority-claim evidence asset must be in state available. Other states (staging, quarantined, missing_bytes, purged) are neither offered in evidenceAssets nor accepted at write time.",
+    "The switcher does not use the shared .v6-targets class, because its `.chip { color: inherit }` makes the active chip's label invisible.",
+    "Scratch scripts are kept outside the repo in /private/tmp/v6-14-scratch/: regression.mjs, build-mounted.mjs, final-checks.mjs, final-checks-orch.mjs, mount.mjs, scope.mjs, receipt.mjs, update-refactor.cjs and V6App.tsx.orig (the byte backup)."
+  ],
+  "limitations": [
+    "The 30-day IDEMPOTENCY_EXPIRED window is not implemented. Idempotency records do not expire, and nothing returns IDEMPOTENCY_EXPIRED.",
+    "The R1 rule pack is entirely unverified, so no real cycle, fee or term numbers are shown anywhere.",
+    "The UI route select has no EP option. In the browser, EP refusal is shown only through a forged option value.",
+    "The browser run has no intake facts, so the S03-A09 trace is not shown in a browser screenshot (covered by tests 23 and 38).",
+    "Shell staleness while mounted: MatterPage loads its MatterView once. The permanent mount refreshes it after a target write (onSettled -> retry); the ticket worktree itself only mounts the panel temporarily.",
+    "Orchestrator-owned bug: v6.css `.v6-targets .chip { color: inherit }` overrides `.chip.active`, which also affects the existing MatterPage target nav. The permanent mount removes that override.",
+    "The first red-before-fix run exited 1 because of a wrong expectation (see redBeforeFix.disclosure).",
+    "Review-01 finding 1: the panel uses a fresh requestKey per create/update click, so a create whose finalize failed can duplicate on retry; an update retry is safe (VERSION_CONFLICT).",
+    "Review-01 finding 2: asset state is checked before the commit retry loop, not inside it.",
+    "Review-01 finding 3: after create the URL hash is not updated, so a reload selects the first target."
+  ],
+  "acceptance": {
+    "V6-14-A01": {
+      "status": "covered",
+      "tests": [
+        1,
+        2,
+        3
+      ],
+      "browser": [
+        "02-create-target-a-cn_invention",
+        "03-create-target-b-pct",
+        "06-ep-refused"
+      ],
+      "reason": "Each of the four routes creates a target with a TargetConfig. EP and unknown routes return INVALID_INPUT with no writes. A matter is not capped: a third target is created and listed."
+    },
+    "V6-14-A02": {
+      "status": "covered",
+      "tests": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "browser": [
+        "04-switch-no-version-bump",
+        "05-update-a-b-unchanged"
+      ],
+      "reason": "An update bumps only that target's configVersion and the matter version once, and writes one target.config_updated event (metadata only). B's config rows and version are unchanged. Switching and reading write nothing. A stale baseVersion is VERSION_CONFLICT with no writes. Another tenant or actor gets RESOURCE_NOT_FOUND. An archived matter gets INVALID_TRANSITION. Only an available asset is accepted as priority evidence."
+    },
+    "V6-14-A03": {
+      "status": "covered_with_limitation",
+      "tests": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "reason": "The suite covers replay, conflict, release-on-failure, finalize recovery, the live-claim busy answer with no writes, and lease takeover. IDEMPOTENCY_EXPIRED (30 days) is not implemented."
+    },
+    "S03-A01": {
+      "status": "not_applicable",
+      "reason": "Five-question intake, source references for a disclosure answer and the A01 assertion belong to V6-13. V6-14 only reads an already saved SourceSnapshot."
+    },
+    "S03-A02": {
+      "status": "not_applicable",
+      "reason": "Field-level answer validation (inventor must be a natural person) is the V6-13 intake form. V6-14 rejects party ids that are not in the snapshot, but it does not edit the answers."
+    },
+    "S03-A03": {
+      "status": "not_applicable",
+      "reason": "Back-and-forward answer retention and the absence of extra sourceVersion writes belong to V6-13."
+    },
+    "S03-A04": {
+      "status": "not_applicable",
+      "reason": "Marking target drafts inputStale after a shared fact changes is V6-04/V6-13 scope; V6-14 does not change facts or draft revisions."
+    },
+    "S03-A05": {
+      "status": "not_applicable",
+      "reason": "Candidate-fact adoption and the new snapshot contents are V6-13 extract/confirm scope."
+    },
+    "S03-A06": {
+      "status": "not_applicable",
+      "reason": "Fact-conflict retention and its required reason belong to V6-13."
+    },
+    "S03-A07": {
+      "status": "covered",
+      "tests": [
+        28,
+        29,
+        35,
+        36
+      ],
+      "browser": [
+        "07-us-pct-warning"
+      ],
+      "reason": "Every card shows protection, examination, limits and its verification state. Numbers render only for verified entries, otherwise 未核实."
+    },
+    "S03-A08": {
+      "status": "covered",
+      "tests": [
+        13,
+        30,
+        31,
+        37
+      ],
+      "browser": [
+        "03-create-target-b-pct",
+        "07-us-pct-warning",
+        "08-en-us-disabled-reason"
+      ],
+      "reason": "US and PCT carry the exact handoff sentence and default to zh-CN. en-US is disabled with a visible reason and refused at write time while translation_en is unavailable."
+    },
+    "S03-A09": {
+      "status": "covered",
+      "tests": [
+        22,
+        23,
+        24,
+        25,
+        38,
+        39
+      ],
+      "reason": "A method fact excludes cn_um; the rule id and triggering fact are named in the result and shown on the trace and the cn_um card. Not shown in the browser (no snapshot facts)."
+    }
+  },
+  "scope": {
+    "file": "qa/v6/evidence/V6-14/scope.txt",
+    "gitStatusEntries": 29,
+    "excluded": [
+      "node_modules",
+      ".claude/launch.json (absent)"
+    ],
+    "changedFilesCount": 28,
+    "scopeMatchesChangedFiles": true
+  },
+  "review": {
+    "verdict": "accept",
+    "reviewer": "fresh independent read-only reviewer",
+    "evidence": "qa/v6/evidence/V6-14/review-01.md",
+    "date": "2026-11-02",
+    "note": "No blockers. The reviewer reran the V6-14 suite (41/41, recomputed from TAP), reran the V6-13/V6-15/V6-12/V6-11/V6-10 regressions (45/41/42/53/36, all exit 0), re-derived all five red-before-fix fixtures in memory and matched their sha256, and verified all 26 receipt hashes plus the 27-entry scope. The browser log (8/8, 0 console errors, 10 local requests) and the mount revert were checked. Typecheck exit 0 was observed.",
+    "nonBlocking": [
+      "Finding 1 (low): the panel builds a fresh requestKey per create/update click (Targets.tsx:271, Targets.tsx:310). A create whose business write landed but whose finalize failed can duplicate on retry; an update retry fails safely with VERSION_CONFLICT. Recommended: keep the key until success or a non-storage error.",
+      "Finding 2 (low): asset state and the snapshot are validated before the commit retry loops, not inside them (targets.ts:1643/1900 vs 1683/1936); an asset that leaves available inside that narrow window can still be stored.",
+      "Finding 3 (info): after create the selection is set directly (Targets.tsx:275) without writing #target=; a reload selects the first target.",
+      "Finding 4 (info): the receipt now lists S03-A01..A06 as not_applicable with reasons.",
+      "Finding 5: documented limitations were checked and none hides an acceptance failure; the mount must also handle the shell staleness until reload."
+    ],
+    "followUps": "Findings 1 and 2 are recommended follow-ups before a server-side or real-adapter ticket. Finding 5 is handled by the permanent mount (the matter view is refreshed after a target write)."
+  }
+}
