@@ -1,0 +1,632 @@
+{
+  "status": "accepted",
+  "ticket": "V6-15",
+  "title": "AI 能力与授权界面",
+  "baseCommit": "593ba33",
+  "branch": "codex/v6-15-ai",
+  "worktree": "/private/tmp/patent-v6-15-worktree",
+  "date": "2026-11-02",
+  "contractVersion": "v6.1",
+  "changedFiles": [
+    "apps/web/src/v6/features/ai/Ai.tsx",
+    "apps/web/src/v6/features/ai/ai.ts",
+    "qa/v6/evidence/V6-15/01-ai-empty-no-matter.png",
+    "qa/v6/evidence/V6-15/02-create-matter-and-upload.png",
+    "qa/v6/evidence/V6-15/03-parse-synthetic-source.png",
+    "qa/v6/evidence/V6-15/04-ai-ready.png",
+    "qa/v6/evidence/V6-15/05-consent-granted.png",
+    "qa/v6/evidence/V6-15/06-consent-revoked.png",
+    "qa/v6/evidence/V6-15/07-ai-reload-persisted.png",
+    "qa/v6/evidence/V6-15/browser-drive.mjs",
+    "qa/v6/evidence/V6-15/browser-log.json",
+    "qa/v6/evidence/V6-15/build-mounted.txt",
+    "qa/v6/evidence/V6-15/build.txt",
+    "qa/v6/evidence/V6-15/fix-round-1-prefix-ai.txt",
+    "qa/v6/evidence/V6-15/fix-round-1-red.mjs",
+    "qa/v6/evidence/V6-15/fix-round-1-red.txt",
+    "qa/v6/evidence/V6-15/fix-round-2-prefix-ai.txt",
+    "qa/v6/evidence/V6-15/fix-round-2-red.mjs",
+    "qa/v6/evidence/V6-15/fix-round-2-red.txt",
+    "qa/v6/evidence/V6-15/fix-round-3-prefix-ai.txt",
+    "qa/v6/evidence/V6-15/fix-round-3-red.mjs",
+    "qa/v6/evidence/V6-15/fix-round-3-red.txt",
+    "qa/v6/evidence/V6-15/mount-patch.md",
+    "qa/v6/evidence/V6-15/receipt.json",
+    "qa/v6/evidence/V6-15/red-before-fix.mjs",
+    "qa/v6/evidence/V6-15/red-before-fix.txt",
+    "qa/v6/evidence/V6-15/regression.txt",
+    "qa/v6/evidence/V6-15/review-01.md",
+    "qa/v6/evidence/V6-15/runner.tap",
+    "qa/v6/evidence/V6-15/scope.txt",
+    "qa/v6/evidence/V6-15/typecheck.txt",
+    "qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs",
+    "qa/v6/scenarios/V6-15/ai-engine.test.mjs",
+    "qa/v6/scenarios/V6-15/ai-ui.test.mjs",
+    "qa/v6/scenarios/V6-15/harness.mjs"
+  ],
+  "contractTypes": [
+    "ProviderProfile",
+    "ConsentScope",
+    "Consent",
+    "ModelInvocation"
+  ],
+  "contractTypesNotUsed": {
+    "Job": "V6-15 does not implement a job runner, queue, lease, stage progress or quota; no Job row is created.",
+    "StageOutput": "No generation stage runs, so no StageOutput is produced or read."
+  },
+  "runs": [
+    {
+      "name": "V6-15 suite",
+      "command": "npm --prefix /private/tmp/patent-v6-15-worktree run test:v6 -- V6-15",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-15/runner.tap"
+    },
+    {
+      "name": "V6-12 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-15-worktree run test:v6 -- V6-12",
+      "exitCode": 0,
+      "tests": 42,
+      "pass": 42,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-15/regression.txt"
+    },
+    {
+      "name": "V6-11 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-15-worktree run test:v6 -- V6-11",
+      "exitCode": 0,
+      "tests": 53,
+      "pass": 53,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-15/regression.txt"
+    },
+    {
+      "name": "V6-10 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-15-worktree run test:v6 -- V6-10",
+      "exitCode": 0,
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-15/regression.txt"
+    },
+    {
+      "name": "typecheck (all workspaces)",
+      "command": "npm --prefix /private/tmp/patent-v6-15-worktree run typecheck",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-15/typecheck.txt"
+    },
+    {
+      "name": "typecheck (@patent/web)",
+      "command": "npm --prefix /private/tmp/patent-v6-15-worktree/apps/web run typecheck",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-15/typecheck.txt"
+    },
+    {
+      "name": "build (final tree, mount reverted)",
+      "command": "npm --prefix /private/tmp/patent-v6-15-worktree run build",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-15/build.txt"
+    },
+    {
+      "name": "build (temporary mount applied for browser evidence)",
+      "command": "npm --prefix /private/tmp/patent-v6-15-worktree run build",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-15/build-mounted.txt"
+    },
+    {
+      "name": "red-before-fix guards",
+      "command": "node qa/v6/evidence/V6-15/red-before-fix.mjs",
+      "exitCode": 0,
+      "guards": 9,
+      "baseline": "19/19 pass",
+      "evidence": "qa/v6/evidence/V6-15/red-before-fix.txt"
+    },
+    {
+      "name": "fix round 2 red guard",
+      "command": "node qa/v6/evidence/V6-15/fix-round-2-red.mjs",
+      "exitCode": 0,
+      "red": 1,
+      "baseline": "9/9 earlier tests pass",
+      "evidence": "qa/v6/evidence/V6-15/fix-round-2-red.txt"
+    },
+    {
+      "name": "fix round 3 red guard",
+      "command": "node qa/v6/evidence/V6-15/fix-round-3-red.mjs",
+      "exitCode": 0,
+      "red": 1,
+      "baseline": "10/10 earlier tests pass",
+      "evidence": "qa/v6/evidence/V6-15/fix-round-3-red.txt"
+    }
+  ],
+  "redBeforeFix": {
+    "script": "qa/v6/evidence/V6-15/red-before-fix.mjs",
+    "output": "qa/v6/evidence/V6-15/red-before-fix.txt",
+    "source": "apps/web/src/v6/features/ai/ai.ts",
+    "sourceSha256": "141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c",
+    "result": "All nine guards were red with their named failing test; the unmutated baseline was 19/19 green; every mutation restored the source byte for byte (sha256 MATCH 9/9).",
+    "guards": [
+      {
+        "id": "unknown-profile-field-gate",
+        "claim": "an incomplete provider profile cannot be granted consent",
+        "test": "V6-15 engine: unknown processor fields make consent impossible and report the fields"
+      },
+      {
+        "id": "manifest-hash-binding",
+        "claim": "a grant must hash-bind and scope-bind the current payload manifest",
+        "test": "V6-15 engine: a stale manifest hash or a mismatched scope is refused without writing"
+      },
+      {
+        "id": "new-file-needs-new-consent",
+        "claim": "adding a source file makes the earlier consent unusable (S04-A02)",
+        "test": "V6-15 engine: adding a file makes the old consent stale and unusable (S04-A02)"
+      },
+      {
+        "id": "revoked-consent-cannot-authorize",
+        "claim": "a revoked consent cannot authorize a call",
+        "test": "V6-15 engine: revocation is append-only, blocks use, and a second revocation adds no event"
+      },
+      {
+        "id": "revocation-append-only-idempotent",
+        "claim": "revoking twice adds no second event and reports alreadyRevoked",
+        "test": "V6-15 engine: revocation is append-only, blocks use, and a second revocation adds no event"
+      },
+      {
+        "id": "request-key-replay-conflict",
+        "claim": "the same request key with different content is IDEMPOTENCY_CONFLICT",
+        "test": "V6-15 engine: request keys replay the original response and conflict on different content"
+      },
+      {
+        "id": "archived-matter-gate",
+        "claim": "a completed key still replays after the matter is archived, while new work is refused",
+        "test": "V6-15 engine: an archived matter replays a completed key but refuses new work"
+      },
+      {
+        "id": "invocation-view-has-no-content",
+        "claim": "the invocation view model never carries prompt, case content or keys",
+        "test": "V6-15 engine: the invocation view model projects contract metadata only"
+      },
+      {
+        "id": "actor-tenant-boundary",
+        "claim": "another actor or tenant cannot read this matter's AI view, grant or revoke",
+        "test": "V6-15 engine: another actor or tenant cannot read, grant, validate or revoke"
+      }
+    ]
+  },
+  "fixRound1": {
+    "date": "2026-11-02",
+    "scope": "grantConsent and revokeConsent in apps/web/src/v6/features/ai/ai.ts",
+    "defects": [
+      "Two concurrent calls with the same key but different payloads both ran the business write; the last post-commit idempotency write won, so replaying the earlier success returned IDEMPOTENCY_CONFLICT — a §2 success-response loss.",
+      "Two concurrent revokes with the same key and different consentIds both committed, producing two revocations.",
+      "A grant wrote its consent row before the event commit; unconditional cleanup on a failed commit could delete a consent row whose consent.granted event had survived.",
+      "The result of writeIdempotency was ignored after the matter/event commit, so a conflict or failed finalize left the committed success unreplayable."
+    ],
+    "protocol": {
+      "reference": "Modeled on the V6-13 intake.ts claim protocol (claimOnce / settleClaim / releaseClaim): one atomic claim/finalize path for both functions, before any business read-check-write.",
+      "steps": [
+        "Claim first in one readwrite transaction on ai/idempotency/{tenant}/{user}/{operation}/{key}, before any business read-check-write.",
+        "Absent: write a pending claim with a unique claimId, the canonical request hash and a lease. Present with a different hash: IDEMPOTENCY_CONFLICT with no business write.",
+        "Completed with the same hash: return the stored response with replayed:true.",
+        "Pending with the same hash and a live lease: poll every 25 ms for up to 500 ms, then STORAGE_UNAVAILABLE with 「同一请求正在处理中，请稍候再试。」.",
+        "Pending with an expired lease: take over with a new claimId; the previous owner's claimId no longer matches, so it can neither commit nor finalize.",
+        "Only the claim owner may reach the business write: each commit-loop iteration rechecks claimOwned before writeConsentRow and before commit.",
+        "Before commit, prepareClaim persists the prepared response and refreshes the lease. After commit, settleClaim changes pending to completed with the original response in one owner-checked readwrite transaction.",
+        "A pre-commit failure releases only the owner's pending claim. A post-commit settle failure releases nothing and returns retryable STORAGE_UNAVAILABLE with an explicit message.",
+        "A same-key retry after a lost finalize recovers from the prepared response plus the deterministic consent id (grant) or deterministic consent.revoked event id (revoke), settles with the observed claimId and replays the original response with no duplicate row or event.",
+        "Grant cleanup reads the consent row and all consent.granted events in one readwrite transaction and deletes only a row whose requestKey matches and whose granted event is absent, so a losing claim cannot delete the winner's row."
+      ]
+    },
+    "redBeforeFix": {
+      "script": "qa/v6/evidence/V6-15/fix-round-1-red.mjs",
+      "output": "qa/v6/evidence/V6-15/fix-round-1-red.txt",
+      "preFixFixture": "qa/v6/evidence/V6-15/fix-round-1-prefix-ai.txt",
+      "preFixFixtureSha256": "141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c",
+      "fixedSourceSha256": "b1a5ae3d6bbe5b0ed06ac6fbb532faba8264fd31b09f53d57a6ecb332e5732a4",
+      "result": "The script copies the fixed source to a temp backup, installs the exact pre-fix fixture, runs qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs with node --test, and restores the fixed source in a finally block. Pre-fix run: 9 tests, 3 pass, 6 fail; all six required guards were red. The restored source matched the fixed SHA-256 and differed from the pre-fix fixture.",
+      "guards": [
+        "identical concurrent grants both succeed with one creation and equal results",
+        "revoke same key with different consentIds gets one winner and one conflict",
+        "a grant whose finalize fails after commit replays the original response",
+        "a revoke whose finalize fails after commit replays the original response",
+        "cleanup cannot delete a consent row whose granted event survived",
+        "a live claim makes an identical request wait, then report busy, then replay"
+      ]
+    },
+    "tests": {
+      "file": "qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs",
+      "count": 9,
+      "pass": 9,
+      "fail": 0,
+      "cases": [
+        "grant: same key with different purpose/scope → one success, one IDEMPOTENCY_CONFLICT, one row and one event matching the winner, version 2, and replays preserving the original outcomes",
+        "grant: same key with identical payloads → both succeed, exactly one replayed:true, equal results, one creation, one event and one completed idempotency record",
+        "revoke: same key with different consentIds → one success, one IDEMPOTENCY_CONFLICT, one consent.revoked event and one version bump; the winner replays and the loser replays its conflict",
+        "revoke: same key with identical payloads → both succeed with alreadyRevoked:false, equal results, one event and one version bump",
+        "grant finalize failure injected on the completed idempotency put → first call STORAGE_UNAVAILABLE, the pending claim keeps the prepared response, and a same-key retry replays the original consent with no second event or version bump",
+        "revoke finalize failure injected the same way → a same-key retry replays the original revokedAt with alreadyRevoked:false and one event",
+        "cleanup safety: an attempt whose commit lands but then throws must not delete the committed consent row; validateConsentForUse still authorizes and a retry replays",
+        "losing claim: version, event count, consent rows and idempotency records are unchanged across the conflict; the winner still succeeds",
+        "live claim: an identical request waits about 500 ms, returns STORAGE_UNAVAILABLE with the exact in-flight message and writes nothing; the owner succeeds and the waiter's later retry replays"
+      ]
+    },
+    "finalSha256": {
+      "apps/web/src/v6/features/ai/ai.ts": "b1a5ae3d6bbe5b0ed06ac6fbb532faba8264fd31b09f53d57a6ecb332e5732a4",
+      "apps/web/src/v6/features/ai/Ai.tsx": "a063a12152061d3b08ac4b71bbc583c4ea2a5a37b7b397a54f8e492b927d2afb"
+    },
+    "reruns": [
+      {
+        "name": "V6-15 suite",
+        "tests": 39,
+        "pass": 39,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/runner.tap"
+      },
+      {
+        "name": "V6-12 regression",
+        "tests": 42,
+        "pass": 42,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/regression.txt"
+      },
+      {
+        "name": "V6-11 regression",
+        "tests": 53,
+        "pass": 53,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/regression.txt"
+      },
+      {
+        "name": "V6-10 regression",
+        "tests": 36,
+        "pass": 36,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/regression.txt"
+      },
+      {
+        "name": "typecheck",
+        "command": "node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/typecheck.txt"
+      },
+      {
+        "name": "build",
+        "command": "npm --prefix /private/tmp/patent-v6-15-worktree run build",
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/build.txt"
+      }
+    ],
+    "residualLimitation": "The claim protocol serializes same-key calls through this browser's local repository only; it is not a cross-tab, cross-device or server-side lock. Leases use wall-clock Date.now() with a 30 s lease; if an owner is paused longer than that, another call may take over, but deterministic consent/event ids plus owner checks preserve at most one row and one event. A finalize failure is reported as retryable STORAGE_UNAVAILABLE until a same-key retry recovers the prepared response and replays the original response. No public signature or AiErrorCode changed; no model or network call was added."
+  },
+  "fixRound2": {
+    "date": "2026-11-02",
+    "scope": "deleteOrphanConsentRow and its grantConsent call sites in apps/web/src/v6/features/ai/ai.ts",
+    "defect": "A losing claim's orphan cleanup could delete the consent row of a new claim owner that had taken over the expired lease and was between its writeConsentRow and its repository.commit. grantConsent then returned success with created:true and a consent.granted event existed, but the Consent row was gone and validateConsentForUse returned RESOURCE_NOT_FOUND.",
+    "rootCause": "deleteOrphanConsentRow checked only that no consent.granted event existed for the consent id. It did not consider that another owner of the same (actor, operation, requestKey) could hold a pending claim record and be between its row write and its event commit, so the losing owner's cleanup deleted the live owner's uncommitted row.",
+    "fix": "deleteOrphanConsentRow now takes the operation and, inside the same read-write transaction after the row/requestKey checks and the granted-event check, reads ai/idempotency/{tenant}/{user}/{operation}/{requestKey}. When requestKey is non-null and the record exists (pending or completed), cleanup returns without deleting. All grant call sites pass GRANT_OPERATION. The null-key path is unchanged because it has no idempotency record.",
+    "protocolNote": "The deferral is safe because orphan rows are invisible (loadAiView filters consents by grantedIds and findReusableConsent requires the granted event), a keyed row has a deterministic consent id, and the claim protocol already rejects a different payload under the same key. Cleanup still deletes when every claim has been released (no record) and no granted event exists.",
+    "redBeforeFix": {
+      "script": "qa/v6/evidence/V6-15/fix-round-2-red.mjs",
+      "output": "qa/v6/evidence/V6-15/fix-round-2-red.txt",
+      "preFixFixture": "qa/v6/evidence/V6-15/fix-round-2-prefix-ai.txt",
+      "preFixFixtureSha256": "b1a5ae3d6bbe5b0ed06ac6fbb532faba8264fd31b09f53d57a6ecb332e5732a4",
+      "fixedSourceSha256": "1bb1b4b61cf256aca0939283366bee7013b732b95b4aa81a0d4478d8e4e99873",
+      "redOutputSha256": "3fb71e0971da8a4f2994d75108caef9a5d2577156e17b10a32cafabfacd7c257",
+      "result": "The script backed up the fixed source, installed the exact round-2 pre-fix fixture (the round-1 fixed bytes), ran qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs with node --test, and restored the fixed source in a finally block. Pre-fix run: 10 tests, 9 pass, 1 fail; the new expired-lease guard failed with 'a successful grant leaves exactly one consent row 0 !== 1'. All six round-1 guards stayed green. The restored source matched the fixed SHA-256 and differed from the pre-fix fixture.",
+      "guard": "V6-15 concurrency: an expired owner's cleanup cannot delete the new claim owner's consent row"
+    },
+    "test": {
+      "file": "qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs",
+      "name": "V6-15 concurrency: an expired owner's cleanup cannot delete the new claim owner's consent row",
+      "description": "Deterministic interleaving: A claims the key, writes its row and prepares, then is gated at its business commit; Date.now advances 31 s; B takes over the expired lease, removes A's orphan row at the top-of-function path, writes and prepares, then is gated at its commit; A's replaced commit returns VERSION_CONFLICT, A retries without owning the claim and its cleanup runs; B's commit lands. The test asserts exactly one Consent row and one consent.granted event for B, validateConsentForUse success, loadAiView listing, and a same-key replay with replayed:true and the same consent id. Date.now is restored in finally.",
+      "suiteTests": 10,
+      "suitePass": 10,
+      "suiteFail": 0
+    },
+    "reruns": [
+      {
+        "name": "V6-15 suite",
+        "tests": 40,
+        "pass": 40,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/runner.tap"
+      },
+      {
+        "name": "V6-12 regression",
+        "tests": 42,
+        "pass": 42,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/regression.txt"
+      },
+      {
+        "name": "V6-11 regression",
+        "tests": 53,
+        "pass": 53,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/regression.txt"
+      },
+      {
+        "name": "V6-10 regression",
+        "tests": 36,
+        "pass": 36,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/regression.txt"
+      },
+      {
+        "name": "typecheck",
+        "command": "node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/typecheck.txt"
+      },
+      {
+        "name": "build",
+        "command": "npm --prefix /private/tmp/patent-v6-15-worktree run build",
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/build.txt"
+      }
+    ],
+    "finalSha256": {
+      "apps/web/src/v6/features/ai/ai.ts": "1bb1b4b61cf256aca0939283366bee7013b732b95b4aa81a0d4478d8e4e99873",
+      "qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs": "b70e434200bd34878c99899deed36a7a4250a3cd224581edcaba5d750de0d483",
+      "qa/v6/evidence/V6-15/fix-round-2-prefix-ai.txt": "b1a5ae3d6bbe5b0ed06ac6fbb532faba8264fd31b09f53d57a6ecb332e5732a4",
+      "qa/v6/evidence/V6-15/fix-round-2-red.mjs": "bace46586bc02057d7f9398104ce82b9b9db1325a5daae28dff6b2fd545ac999",
+      "qa/v6/evidence/V6-15/fix-round-2-red.txt": "3fb71e0971da8a4f2994d75108caef9a5d2577156e17b10a32cafabfacd7c257"
+    },
+    "residualLimitation": "Same scope as round 1: the claim protocol serializes same-key calls through this browser's local repository only, not across tabs, devices or a server, and leases use wall-clock Date.now() with a 30 s lease. Because cleanup now defers while any idempotency record exists, a keyed caller's own claim record also prevents eager deletion, so a keyed orphan row can persist. It is invisible (loadAiView filters consents by grantedIds and findReusableConsent requires a granted event) and cannot authorize; a same-key retry with identical consent content reuses the deterministic row. A takeover that regenerates different consent content under the same key (for example a different createdAt from a different business clock) is refused as IDEMPOTENCY_CONFLICT rather than overwritten or exposed as stale content. No public signature or AiErrorCode changed; no model or network call was added."
+  },
+  "fixRound3": {
+    "date": "2026-11-02",
+    "scope": "deleteOrphanConsentRow and its grantConsent call sites in apps/web/src/v6/features/ai/ai.ts; supersedes fixRound2's defer-on-any-record rule",
+    "defect": "Round 2's defer-on-any-record rule blocked same-key retries after a failed commit. A keyed grant whose business commit failed left its invisible orphan row behind; the claim was then released, but the next same-key retry regained a claim record before cleanup and deferred again. Because the retry's regenerated consent has a later createdAt, writeConsentRow returned IDEMPOTENCY_CONFLICT against the stale orphan row and no consent.granted event was ever written. This violated the requirement that a same-key retry after a failed execution re-execute.",
+    "rootCause": "deleteOrphanConsentRow deferred whenever any idempotency record existed, including the caller's own pending claim. Cleanup therefore never removed the failed caller's own orphan row, and the invisible row pinned the old consent createdAt for every later retry.",
+    "fix": "deleteOrphanConsentRow now takes ownClaimId. In the same read-write transaction, after the row/requestKey and granted-event checks, it reads the idempotency blob: absent -> delete (existing behavior); unreadable -> defer; completed -> defer (never delete under a replayable completed response); pending with record.claimId !== ownClaimId -> defer (another owner may be between its row write and commit); pending with record.claimId === ownClaimId -> delete (the caller owns the key, so no other writer is live). ownClaimId is null only on the no-key path, where requestKey is also null and no record exists. Every grant call site, including the top-of-function orphan path, passes the local claimId.",
+    "protocolNote": "A pending claim owned by someone else is the only live writer that can be between its row write and its commit, so deferring only for it preserves round-2's takeover safety. A completed record is replayed by its stored response, so its row must not be deleted. The caller's own pending claim proves no other writer is live, so removing its orphan row is safe and lets a later same-key retry re-execute with a fresh consent instead of conflicting on stale content.",
+    "redBeforeFix": {
+      "script": "qa/v6/evidence/V6-15/fix-round-3-red.mjs",
+      "output": "qa/v6/evidence/V6-15/fix-round-3-red.txt",
+      "preFixFixture": "qa/v6/evidence/V6-15/fix-round-3-prefix-ai.txt",
+      "preFixFixtureSha256": "1bb1b4b61cf256aca0939283366bee7013b732b95b4aa81a0d4478d8e4e99873",
+      "fixedSourceSha256": "b30d6d20ed8ce1346d8760cfd85cb375ae81358fbbde124638ef65e0385911e5",
+      "redOutputSha256": "ec3579987f74f8a7d0fbb4930f7a164e6b58885e5c91daf4a8f4403bca050859",
+      "result": "The script backed up the fixed source, installed the exact round-3 pre-fix fixture (the round-2 fixed bytes), ran qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs with node --test, and restored the fixed source in a finally block. Pre-fix run: 11 tests, 10 pass, 1 fail; the new retry guard failed with 'the failed attempt deleted its own orphan row 1 !== 0'. All 7 earlier guards (6 round-1 guards plus the round-2 takeover test) stayed green. The restored source matched the fixed SHA-256 and differed from the pre-fix fixture.",
+      "guard": "V6-15 concurrency: a same-key retry after a failed commit re-executes instead of conflicting on the invisible orphan row"
+    },
+    "test": {
+      "file": "qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs",
+      "name": "V6-15 concurrency: a same-key retry after a failed commit re-executes instead of conflicting on the invisible orphan row",
+      "description": "The first keyed grant has its first business commit replaced with STORAGE_UNAVAILABLE. The test asserts one row at the gated commit and, after the failure, zero rows, zero consent.granted events and zero idempotency records. A second call with the same key and payload and a later business clock T2 succeeds with created:true, exactly one row whose createdAt is T2, one consent.granted event, validateConsentForUse success and a same-key replay with replayed:true and the same consent id. The concurrency suite is now 11/11.",
+      "suiteTests": 11,
+      "suitePass": 11,
+      "suiteFail": 0
+    },
+    "reruns": [
+      {
+        "name": "V6-15 suite",
+        "tests": 41,
+        "pass": 41,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/runner.tap"
+      },
+      {
+        "name": "V6-12 regression",
+        "tests": 42,
+        "pass": 42,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/regression.txt"
+      },
+      {
+        "name": "V6-11 regression",
+        "tests": 53,
+        "pass": 53,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/regression.txt"
+      },
+      {
+        "name": "V6-10 regression",
+        "tests": 36,
+        "pass": 36,
+        "fail": 0,
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/regression.txt"
+      },
+      {
+        "name": "typecheck",
+        "command": "node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/typecheck.txt"
+      },
+      {
+        "name": "build",
+        "command": "npm --prefix /private/tmp/patent-v6-15-worktree run build",
+        "exitCode": 0,
+        "evidence": "qa/v6/evidence/V6-15/build.txt"
+      }
+    ],
+    "finalSha256": {
+      "apps/web/src/v6/features/ai/ai.ts": "b30d6d20ed8ce1346d8760cfd85cb375ae81358fbbde124638ef65e0385911e5",
+      "qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs": "5fbf7f13db10fe0ef6cacf97be09fd36bfb34dd7d712cdc6daf6a9313e15486b",
+      "qa/v6/evidence/V6-15/fix-round-3-prefix-ai.txt": "1bb1b4b61cf256aca0939283366bee7013b732b95b4aa81a0d4478d8e4e99873",
+      "qa/v6/evidence/V6-15/fix-round-3-red.mjs": "1dfc79ba67f5fb1d912d0653d9a220fb8cc00ccb43e1acf567939ed9e16ca7b5",
+      "qa/v6/evidence/V6-15/fix-round-3-red.txt": "ec3579987f74f8a7d0fbb4930f7a164e6b58885e5c91daf4a8f4403bca050859"
+    },
+    "residualLimitation": "Cleanup now defers only for another owner's live pending claim (or a completed replayable record); a caller's own orphan row is deleted, so a same-key retry after a failed execution re-executes instead of conflicting on stale content. The claim protocol still serializes same-key calls through this browser's local repository only, not across tabs, devices or a server, and leases use wall-clock Date.now() with a 30 s lease. A takeover after an expired lease still cannot delete another owner's uncommitted row, and the deterministic consent/event ids preserve at most one row and one event. No public signature or AiErrorCode changed; no model or network call was added."
+  },
+  "browserEvidence": {
+    "driver": "qa/v6/evidence/V6-15/browser-drive.mjs",
+    "log": "qa/v6/evidence/V6-15/browser-log.json",
+    "logSha256": "1d90f9fa6e3bde3c71b513a0feee2584e31583a0d86236a2571dde9297beea49",
+    "url": "http://localhost:4178/patent/v6/ai",
+    "runtime": "local_web",
+    "browser": "headless Chromium driven over CDP with a throwaway profile",
+    "result": "ok: true; 8/8 steps; no console errors; 0 external network requests",
+    "steps": [
+      "01-ai-empty-no-matter",
+      "02-create-matter-and-upload",
+      "03-parse-synthetic-source",
+      "04-ai-ready",
+      "05-consent-granted",
+      "06-consent-revoked",
+      "07-ai-reload-persisted",
+      "08-no-external-network"
+    ],
+    "screenshots": [
+      "qa/v6/evidence/V6-15/01-ai-empty-no-matter.png",
+      "qa/v6/evidence/V6-15/02-create-matter-and-upload.png",
+      "qa/v6/evidence/V6-15/03-parse-synthetic-source.png",
+      "qa/v6/evidence/V6-15/04-ai-ready.png",
+      "qa/v6/evidence/V6-15/05-consent-granted.png",
+      "qa/v6/evidence/V6-15/06-consent-revoked.png",
+      "qa/v6/evidence/V6-15/07-ai-reload-persisted.png"
+    ],
+    "observed": "The page showed the closed release gate, the synthetic manifest with its hash, five synthetic profiles (only the complete approved platform profile grantable), a saved consent, a revocation, and the empty invocation table. Reload kept one consent.granted and one consent.revoked event. The only requests were to localhost:4178."
+  },
+  "mount": {
+    "instructions": "qa/v6/evidence/V6-15/mount-patch.md",
+    "reason": "The AI panel is unreachable until the orchestrator-owned route and navigation registration are updated.",
+    "files": [
+      {
+        "path": "apps/web/src/v6/routes/V6App.tsx",
+        "originalSha256": "a00c9c0e62ac68ac9c796e8d1385aa8d2729dc99d092b3df0c0c2a8b087e18bf",
+        "patchedSha256": "12bc106552c7536a153713ddd8c0230993c1dd177644ef3e1e0891b7b8780657",
+        "revertedSha256": "a00c9c0e62ac68ac9c796e8d1385aa8d2729dc99d092b3df0c0c2a8b087e18bf",
+        "match": true
+      },
+      {
+        "path": "apps/web/src/v6/routes/navigation.ts",
+        "originalSha256": "578ccf038c0a64b94fd89d76f02e767fc3546934d905be70e23e5b98487e2144",
+        "patchedSha256": "a9bf925f77d7d1235f686d5f4dd43ee3c5a13e3bd38cdebfbb1a93f6c5dc854b",
+        "revertedSha256": "578ccf038c0a64b94fd89d76f02e767fc3546934d905be70e23e5b98487e2144",
+        "match": true
+      }
+    ],
+    "status": "Temporary edits were applied twice for browser runs, then restored from byte backups. git status no longer lists either file."
+  },
+  "decisions": [
+    "The manifest is built from the matter aggregate plus persisted parse rows (structural reads of existing rows). It does not import intake code or call a provider.",
+    "Fact IDs come from an existing intake snapshot row for the current sourceVersion; when no snapshot exists the fact count is honestly 0 instead of inventing facts.",
+    "An unknown page count renders as 「未知」 but does not by itself block consent; the C12 blocking fields are processor region, retention policy version, training policy and terms version, exactly as the ticket states.",
+    "Confirmation is inline on each provider-profile card, with the manifest immediately above it, rather than a separate modal. The same purpose, processor, region, retention, training, terms and scope are shown.",
+    "The invocation table does not invent a time column: the ModelInvocation contract has no timestamp. The UI says so and shows the available metadata (stage, job, attempt, provider, model, consent, tokens, cost, status).",
+    "The manual-writing entry links to the matter list because this build has no draft editor; the empty state says AI being unavailable does not block uploading or viewing materials.",
+    "A consent row is authoritative only when its consent.granted event exists. Orphan rows from an interrupted commit are ignored for authorization and removed before a retry writes.",
+    "Idempotency keys are scoped by (tenant, actor, operation, key) and the matter is part of the canonical payload hash; an identical keyed revoke replays the original alreadyRevoked value, including after the matter is archived.",
+    "Revocation is append-only with a deterministic event id derived from the consent id; the Consent row remains for history."
+  ],
+  "limitations": [
+    "No job runner, queue, worker lease, fencing, quota, five-stage progress, stage retry or draft adoption is implemented. S04-A03 through S04-A09 describe those job-runner behaviours and are marked not_applicable rather than claimed.",
+    "No real model adapter, transport, credential read or outbound request exists. requestRealInvocation always returns RELEASE_GATE_CLOSED before storage or network access.",
+    "In R1 only the stub profile is available; local is R4-only, BYOK needs R2/R4, and platform real outbound is closed by the release gate. The UI never claims a local model is available.",
+    "S04-A08's consent-level behaviour is implemented (revocation blocks validate with CONSENT_REVOKED, append-only history, UI caveat that sent calls cannot be recalled), but the in-flight-job transition is not applicable without a job runner.",
+    "No real customer material was used. Profiles are synthetic fixtures; the browser fixture file is v6-15-合成材料.txt.",
+    "Browser evidence is local Chromium against the Vite preview on port 4178 only; R2, R4 and real providers were not exercised.",
+    "The browser run used the temporary mount documented in mount-patch.md; the mount was reverted byte for byte after the run.",
+    "Contract §2 30-day success-response retention and the IDEMPOTENCY_EXPIRED tombstone are not implemented: idempotency records and replays are kept indefinitely in the local repository. This fails toward replay and causes no duplicate side effect or bypass; it must be implemented before server-side or real-adapter tickets (review F4)."
+  ],
+  "acceptance": {
+    "V6-15-A01": {
+      "status": "covered",
+      "reason": "The ready view lists the exact outbound manifest (file names, page counts, byte lengths, source version, fact/chunk/draft/figure counts and payloadManifestHash); grantConsent rechecks that manifest against current state and saves a versioned Consent plus a consent.granted event. Engine tests and browser steps 04-05 cover it."
+    },
+    "V6-15-A02": {
+      "status": "covered",
+      "reason": "Incomplete profiles (unknown region, retention, training or terms) render 「未知」 and cannot be granted; grantConsent refuses them. Local is always shown unavailable, BYOK unavailable in R1, and requestRealInvocation returns RELEASE_GATE_CLOSED without any fetch or write. The browser asserts the closed gate and zero external requests."
+    },
+    "V6-15-A03": {
+      "status": "covered",
+      "reason": "Keyed grant and revoke replay the original response with replayed:true, conflict on a different payload with IDEMPOTENCY_CONFLICT, and write nothing twice. Duplicate revocation keeps one event; reload keeps one grant and one revoke event. Completed keys replay after archive, while new work is INVALID_TRANSITION."
+    },
+    "S04-A01": {
+      "status": "covered",
+      "reason": "A profile with null/unknown region has its grant control disabled; requestRealInvocation returns RELEASE_GATE_CLOSED before touching storage or network. A test installs a fetch spy and asserts zero calls plus no matter version, event or consent-row change."
+    },
+    "S04-A02": {
+      "status": "covered",
+      "reason": "The manifest includes all current file asset ids and a deterministic hash. Adding a fourth file changes the hash and scope; validateConsentForUse refuses the old consent with CONSENT_REQUIRED, grantConsent refuses a stale manifest with STALE_BINDING, and the UI marks the consent stale."
+    },
+    "S04-A03": {
+      "status": "not_applicable",
+      "reason": "Quota exhaustion is a job-runner/platform-provider behaviour. V6-15 creates no jobs and makes no platform call, so QUOTA_EXCEEDED cannot be exercised here; no fallback to another provider exists."
+    },
+    "S04-A04": {
+      "status": "not_applicable",
+      "reason": "R2 job resume and stage checkpoints belong to the job runner, which this ticket does not implement."
+    },
+    "S04-A05": {
+      "status": "not_applicable",
+      "reason": "Worker leases and fencing tokens belong to the R2 job runner, which this ticket does not implement."
+    },
+    "S04-A06": {
+      "status": "not_applicable",
+      "reason": "Mid-generation fact changes, obsolete_result disposition and draft adoption require a running generation pipeline, which this ticket does not implement."
+    },
+    "S04-A07": {
+      "status": "not_applicable",
+      "reason": "Provider schema validation and PROVIDER_SCHEMA_INVALID failure handling belong to a job stage with a real adapter, which this ticket does not implement."
+    },
+    "S04-A08": {
+      "status": "not_applicable",
+      "reason": "The in-flight job failing with CONSENT_REVOKED is job-runner behaviour. The separate consent-layer guarantees are covered: revocation blocks the next validateConsentForUse with CONSENT_REVOKED, history is append-only, and the UI states that already-sent calls cannot be recalled."
+    },
+    "S04-A09": {
+      "status": "not_applicable",
+      "reason": "Interrupted R1 generation and resume from stage 4 require the five-stage generation runner, which this ticket does not implement."
+    },
+    "S04-A10": {
+      "status": "covered",
+      "reason": "toSafeInvocationRow projects only contract metadata through modelInvocationSchema and drops any extra prompt, body, content or key fields. The UI renders that projection and shows an empty state in R1; an engine test seeds prompt/body/key fields and an engine guard spreads the raw row to prove the test catches a leak. Browser DOM and response scan found no prompt or case content."
+    }
+  },
+  "selfReview": [
+    "Stale manifest: changed the matter between load and grant. grantConsent rebuilt the manifest, returned STALE_BINDING, and wrote no event or consent row.",
+    "Forged manifest hash or mismatched scope: grantConsent returned STALE_BINDING without writing; the red guard disables both pre-reuse and commit-time checks and the named test fails.",
+    "Unknown profile fields: UI disables the grant control, grantConsent returns CAPABILITY_UNAVAILABLE; the red guard bypasses the profileProblem check and the named test fails.",
+    "Wrong actor or tenant: load,grant,validate,revoke all return RESOURCE_NOT_FOUND; the red guard turns the failed load into an empty success and the named test fails.",
+    "Replay after archive: a completed keyed grant replays with replayed:true and no new write; a new key returns INVALID_TRANSITION. The red guard disables both replay paths and the named test fails.",
+    "Duplicate revocation: a second revoke, with or without a key, leaves exactly one consent.revoked event and returns alreadyRevoked:true. A keyed retry now replays the original alreadyRevoked value; the red guard makes the event id time-dependent and the named test fails.",
+    "Revoked consent authorization: validateConsentForUse returns CONSENT_REVOKED; the red guard disables the revocation check and the named test fails.",
+    "Real call attempt: a fetch spy sees zero calls; requestRealInvocation returns RELEASE_GATE_CLOSED before any storage access, and the matter version, events and consent rows are unchanged.",
+    "Content leak: a stored invocation containing prompt, body and key fields is projected to contract metadata only; the red guard spreads the raw value and the named test fails.",
+    "Local-model claim: buildCapabilities always marks local unavailable (R4) and BYOK unavailable (R2/R4); the browser asserts the closed release gate and no external requests.",
+    "Late fix during review: the keyed revoke replay previously reported alreadyRevoked:false for a key whose first response was true; it now stores and replays the original value. The V6-15 suite and all red guards were rerun after the fix."
+  ],
+  "scope": {
+    "gitStatusEntries": 36,
+    "excluded": [
+      "node_modules",
+      ".claude/launch.json (absent)"
+    ],
+    "changedFilesCount": 35,
+    "scopeMatchesChangedFiles": true
+  },
+  "review": {
+    "verdict": "accept",
+    "reviewer": "fresh independent read-only reviewer",
+    "evidence": "qa/v6/evidence/V6-15/review-01.md",
+    "date": "2026-11-02",
+    "note": "No blockers. The reviewer reran the V6-15 suite (41/41), ran a 20-section adversarial probe and reran the fix-round 1-3 red scripts in a mirror. Regression, typecheck, build and browser results were read from evidence, not rerun; the orchestrator reruns them after the mount on the PR branch.",
+    "nonBlocking": [
+      "F1: on an archived matter the revoke button stays enabled; the engine refuses the click with INVALID_TRANSITION and writes nothing.",
+      "F2: when every configured profile is unusable, the view is ready rather than the empty state with the manual-writing link.",
+      "F3: a whitespace-only processorName counts as known and is grantable (trusted malformed configuration only; the release gate is closed).",
+      "F4: no 30-day idempotency success retention or IDEMPOTENCY_EXPIRED tombstone (see limitations).",
+      "F5: red-before-fix.mjs is historical evidence against source 141bd7d0 and cannot be rerun against the final source.",
+      "F6: ai-engine.test.mjs uses an undefined T4 inside a thunk that the replay path never calls.",
+      "F7: validateConsentForUse without targetId validates against the stored target's current manifest.",
+      "F8: a very fast double click can send two keyed grant requests; consent reuse folds them into one consent.",
+      "F9: the claim protocol is local-only with a 30 s wall-clock lease (already recorded in fixRound1-3)."
+    ],
+    "followUps": "F1-F4 are tracked as follow-ups; F4 must be resolved before any server-side or real-adapter ticket."
+  }
+}
