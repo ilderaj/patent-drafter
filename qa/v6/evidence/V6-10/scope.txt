@@ -1,0 +1,33 @@
+ M .planning/2026-10-30-patent-saas-v6/progress.md
+ M .planning/2026-10-30-patent-saas-v6/task_plan.md
+ M apps/web/src/v6/routes/V6App.tsx
+ M apps/web/src/v6/routes/navigation.ts
+ M apps/web/src/v6/routes/v6.css
+?? .claude/launch.json
+?? apps/web/src/v6/features/sources/Upload.tsx
+?? apps/web/src/v6/features/sources/ingest.ts
+?? node_modules
+?? qa/v6/evidence/V6-10/01-create-matter.png
+?? qa/v6/evidence/V6-10/02-select-docx.png
+?? qa/v6/evidence/V6-10/03-refresh-dedupe.png
+?? qa/v6/evidence/V6-10/04-fake-docx.png
+?? qa/v6/evidence/V6-10/05-bad-txt.png
+?? qa/v6/evidence/V6-10/06-answer-without-documents.png
+?? qa/v6/evidence/V6-10/07-matter-sources-tab.png
+?? qa/v6/evidence/V6-10/browser-drive.mjs
+?? qa/v6/evidence/V6-10/browser-log.json
+?? qa/v6/evidence/V6-10/build.txt
+?? qa/v6/evidence/V6-10/receipt.json
+?? qa/v6/evidence/V6-10/regression.txt
+?? qa/v6/evidence/V6-10/review-01.md
+?? qa/v6/evidence/V6-10/review-02.md
+?? qa/v6/evidence/V6-10/review-03.md
+?? qa/v6/evidence/V6-10/review-04.md
+?? qa/v6/evidence/V6-10/review-05.md
+?? qa/v6/evidence/V6-10/runner.tap
+?? qa/v6/evidence/V6-10/scope.txt
+?? qa/v6/evidence/V6-10/typecheck.txt
+?? qa/v6/scenarios/V6-10/fixtures/encrypted.pdf
+?? qa/v6/scenarios/V6-10/fixtures/normal-text.pdf
+?? qa/v6/scenarios/V6-10/ingest.test.mjs
+?? qa/v6/scenarios/V6-10/upload.test.mjs

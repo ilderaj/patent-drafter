@@ -25,3 +25,20 @@
 .v6-tabs .tabs-trigger { text-decoration: none; }
 .v6-overview { display: grid; grid-template-columns: max-content 1fr; gap: 8px 24px; margin: 0; }
 .v6-overview dd { margin: 0; }
+
+/* V6-10 upload: thin layout over the existing card/btn/badge/notice styles. */
+.v6-upload { display: flex; flex-direction: column; gap: 12px; }
+.v6-upload .dropzone { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 20px; border: 1px dashed var(--line); border-radius: var(--radius-m); background: var(--surface); text-align: center; cursor: pointer; position: relative; }
+.v6-upload .dropzone.drag { border-color: var(--primary); }
+.v6-upload .drop-ic { font-size: 24px; color: var(--muted-foreground); }
+.v6-upload-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.v6-upload .file-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-s); }
+.v6-upload .ficon { color: var(--muted-foreground); }
+.v6-upload-file { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.v6-upload .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v6-upload .progress-root { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.v6-upload .progress-indicator { height: 100%; background: var(--primary); transition: width 120ms ease; }
+.v6-upload-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 480px) {
+  .v6-upload .file-row { flex-wrap: wrap; }
+}

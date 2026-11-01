@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Shell } from "../components/Shell.tsx";
 import { AppearancePage, AppearanceProvider } from "../features/settings/Appearance.tsx";
+import { Upload } from "../features/sources/Upload.tsx";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
 import { openLocalRepository, type LocalRepository } from "../lib/repository.ts";
 import {
@@ -300,20 +301,24 @@ function useMatterView(repository: LocalRepository, matterId: string, targetId: 
 
 function UploadPage({ repository, matterId }: { repository: LocalRepository; matterId: string }) {
   const [view, retry] = useMatterView(repository, matterId, null);
+  const navigate = useNavigate();
   if (view === null) return <Loading />;
   if (view.state === "storage_unavailable") return <StorageUnavailable message={view.message} onRetry={retry} />;
   if (view.state === "unavailable") return <UnavailablePage />;
   return (
-    <div className="v6-page" data-testid="upload">
+    <div className="v6-page">
       <p className="muted">{view.matter.title}</p>
-      <h1 className="v6-title">上传材料</h1>
-      <div className="notice">
-        <p>{TAB_CAPABILITIES.sources.reason}</p>
-        <p>案件已保存在本机，可以随时回来继续。</p>
-      </div>
-      <Link className="btn btn-outline" to={v6Path({ kind: "matter", matterId, targetId: null, tab: "overview" })}>
-        打开案件
-      </Link>
+      <Upload
+        repository={repository}
+        actor={LOCAL_ACTOR}
+        matterId={matterId}
+        onAnswerWithoutDocuments={() => navigate(v6Path({ kind: "matter", matterId, targetId: null, tab: "facts" }))}
+      />
+      <p>
+        <Link className="link-button" to={v6Path({ kind: "matter", matterId, targetId: null, tab: "overview" })}>
+          返回案件
+        </Link>
+      </p>
     </div>
   );
 }
@@ -330,6 +335,7 @@ function MatterPage({
   tab: MatterTab;
 }) {
   const [view, retry] = useMatterView(repository, matterId, targetId);
+  const navigate = useNavigate();
   if (view === null) return <Loading />;
   if (view.state === "storage_unavailable") return <StorageUnavailable message={view.message} onRetry={retry} />;
   if (view.state === "unavailable") return <UnavailablePage />;
@@ -370,7 +376,14 @@ function MatterPage({
           </Link>
         ))}
       </nav>
-      {capability.state === "unavailable" ? (
+      {tab === "sources" ? (
+        <Upload
+          repository={repository}
+          actor={LOCAL_ACTOR}
+          matterId={matterId}
+          onAnswerWithoutDocuments={() => navigate(v6Path({ kind: "matter", matterId, targetId: null, tab: "facts" }))}
+        />
+      ) : capability.state === "unavailable" ? (
         <div className="notice" data-testid="tab-unavailable">
           {capability.reason}
         </div>

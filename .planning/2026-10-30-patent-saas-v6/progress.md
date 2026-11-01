@@ -1,6 +1,22 @@
 # 进度日志
 
+## 会话：2026-11-01
+
+- V6-10 第五轮独立验收 ACCEPT（review-05.md），无阻断。复核者自建夹具确认：中点等前缀、命名空间/空白/属性/实体技巧、customXml/oleObject/attachedTemplate/超链接等载体均被拒或失败即拒；pypdf RC4-40/128、Ghostscript xref 流 `/Encrypt`、`#xx` 转义与增量更新追加 `/Encrypt` 的 PDF 均被拒；前三轮修复无回退；36/36 场景、tsc exit 0；回执 30 项与工作树一致。非阻断（已记入 review-05）：仅以 `<Default Extension="xml">` 声明主类型的合法 DOCX 被拒、`/Encrypt` 误报、嵌入 OLE 宏未检查、U+0387 表述、第四轮夹具未入库、浏览器流程未重跑。回执置 accepted，加入 review-05.md，重采 scope.txt（31 项一致）。
+- V6-10 第四轮修复：名称按 XML 1.0 Name 规则整体校验并按本地名分类，无法分类即 INVALID_INPUT；PDF 出现任意 `/Encrypt` 名称（含 `#xx` 转义）即 UNSUPPORTED_MEDIA。36/36。编排者探针：7 类前缀 × Relationship/Override/属性共 21 例全部拒绝，`/Encrypt` 与 `/#45ncrypt` PDF 拒绝，正常 DOCX/PDF 接受。
+- V6-10 第四轮独立验收 CHANGES_REQUIRED（review-04.md）：含中点（NameChar）的合法前缀绕过扫描，远程关系与 VBA 载体被保存；加密 PDF 被接受。
+- V6-10 第三轮修复：`[Content_Types].xml` 严格解码、去注释/CDATA/PI、按本地名解析 Default/Override 并解码实体，`/word/document.xml` 须精确为非宏主类型，拒绝宏/VBA/ActiveX 类型与 VBA 关系 Type。33/33；编排者 8 项探针全部拒绝，正常 DOCX 接受。
+- V6-10 第三轮独立验收 CHANGES_REQUIRED（review-03.md）：注释诱饵加字符引用编码的宏主类型及 vbaProject 关系可让启用宏的 DOCX 被保存。
+
 ## 会话：2026-10-31
+
+- V6-10 第二轮两项阻断修复完成，编排者独立复现（未复用场景测试助手）：自建 10,000 条目 DOCX 被接受，classifyFile 前后 arrayBuffers 增量 -2.6 MiB、耗时 24.5 ms（修复前约 +783 MiB）；UTF-16LE+BOM、`<é:Relationship>`、DOCTYPE 实体三种远程关系均被拒（UNSUPPORTED_MEDIA），UTF-16 内部关系仍被接受。实现层面：inflateRaw 以声明大小（上限 8 KiB）起步并在结果较小时 `slice` 复制，仅保留 `[Content_Types].xml` 与 `.rels` 部件；`.rels` 按 BOM 解码 UTF-8/UTF-16LE/BE（fatal），拒绝含 U+0000 与 `<!DOCTYPE` 的部件，元素/属性按 Unicode 本地名匹配，Target 含 `..` 段或 `\\` UNC 前缀一律拒绝；readBlob 每片检查取消信号。30/30 场景通过。回执新增 limitation：拒绝任何含 `..` 的 Target 会连带拒绝包内合法的同级引用（如 `../customXml/item1.xml`）。已派发第三轮独立复核，回执保持 candidate。
+
+- V6-10 第二轮独立验收 CHANGES_REQUIRED（review-02.md）：首轮两项阻断已修复且时间修复本身经复核成立（1/4/16/32/64 MiB 输出 1.9/7.2/28.9/56.9/114.9 ms），但暴露两项新阻断。(1) inflateRaw 每条目以 64 KiB 起步并返回 subarray 视图，checkDocxPackage 保留全部条目；10,000 条目（允许上限）的 DOCX 被接受，归档 1.16 MiB、解压 127 KiB，arrayBuffers 却涨到约 782.7 MiB，远超 200 MiB 预算（每 1,000 条目约 +62.7 MiB；method 0 条目 +0）。(2) `.rels` 仅按非致命 UTF-8 解码、只认 ASCII 元素名与预定义/数字实体，UTF-16LE/BE+BOM、Unicode NCName 前缀 `<é:Relationship>`、DOCTYPE 实体 `TargetMode="&ext;"` 三种合法 XML 绕过远程关系拒绝。非阻断：关系 Target 的 `..` 穿越与 UNC、三重编码 scheme、readBlob 不检查取消信号。已派发修复：解压结果按实际长度复制后再保留（或及时释放）；`.rels` 按 BOM 解码 UTF-8/UTF-16、拒绝 DOCTYPE、按去前缀本地名匹配元素，并为每种绕过补测试。回执保持 candidate。
+
+- V6-10 首轮独立验收 CHANGES_REQUIRED（review-01.md）：DOCX 内联 inflater 按精确长度扩容导致二次方时间（4 MiB 输出 4.6 秒，合法 50 MiB 会卡死标签页）；远程关系检查只匹配双引号字面量，单引号与实体编码可绕过。另有无阻断项：`C:/`、NUL 与符号链接条目未拒绝，回执 changedFiles 漏两份 .planning 文件，A03 的取消表述超出测试，OLE 加密 DOCX 报 MIME_MISMATCH。已派发修复与新增回归；回执保持 candidate。
+
+- V6-10 候选就绪：ingest.ts（内容嗅探、DOCX ZIP 全量校验、50 MiB/8 MiB/16 MP/200 MiB/10,000 条目/压缩比 100、宏/远程关系/路径穿越/加密拒绝、3 并发、真实字节进度、同事务元数据+字节、按 sha256 去重、VERSION_CONFLICT 重试）与 Upload.tsx（选择/拖拽/移除/取消/逐行状态/无文档问答）。场景 23/23；编排者完成共享注册：sources 标签开放、sources 与 upload 路由挂载 Upload、无文档问答导向事实占位页（S03 属 V6-13/14）、v6.css 增补上传布局。浏览器 7 步全过（创建案件→上传 DOCX→刷新后去重→伪 DOCX→非 UTF-8 TXT→无文档问答不写附件→材料标签去重），exit 0、无控制台错误；V6-08 12/12、V6-09 21/21、typecheck、构建与回归通过。回执 candidate，待独立验收。
 
 - V6-09 第二轮独立复核 VERDICT: ACCEPT（review-02.md）：独立重跑 21/21、12/12、tsc、浏览器 16/16 exit 0；变异检查确认守卫、属性恢复与退出码各自被对应测试捕获。五条非阻断说明记入回执 limitations。回执置 accepted，提交并推送后进入 V6-10。
 

@@ -77,7 +77,7 @@ const AVAILABLE: Capability = { state: "available", reason: null };
 /** Each tab's capability in this build. Overview reads the matter; the rest arrive with later tickets. */
 export const TAB_CAPABILITIES: Readonly<Record<MatterTab, Capability>> = Object.freeze({
   overview: AVAILABLE,
-  sources: unavailable("材料管理尚未开放，将在上传与解析功能交付后提供。"),
+  sources: AVAILABLE,
   facts: unavailable("事实与冲突确认尚未开放，将随五个问题一起提供。"),
   draft: unavailable("草稿尚未开放：本地版还不能生成或编辑申请文本。"),
   check: unavailable("检查尚未开放：本地版还没有检查规则运行结果。"),
