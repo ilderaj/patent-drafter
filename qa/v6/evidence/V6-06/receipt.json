@@ -1,0 +1,206 @@
+{
+  "ticket": "V6-06",
+  "status": "accepted",
+  "baseCommit": "47641f525c79f08d4a4009c5dfa2d928e106bbf1",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "changedFilesNote": "changedFiles is the V6-06 delta measured against baseCommit in the isolated worktree. The two .planning files are the orchestrator's live progress records for this ticket, not implementation files. No shared barrel, manifest or lockfile changed: apps/web has no v6 barrel and both modules are imported by their own paths. The untracked node_modules symlink is the local test-dependency mount and is not staged.",
+  "changedFiles": [
+    "apps/web/src/v6/lib/repository.ts",
+    "apps/web/src/v6/lib/indexeddb-repository.ts",
+    "qa/v6/scenarios/V6-06/local-repository.test.mjs",
+    "qa/v6/evidence/V6-06/receipt.json",
+    "qa/v6/evidence/V6-06/runner.tap",
+    "qa/v6/evidence/V6-06/typecheck.txt",
+    "qa/v6/evidence/V6-06/regression.txt",
+    "qa/v6/evidence/V6-06/scope.txt",
+    ".planning/2026-10-30-patent-saas-v6/progress.md",
+    ".planning/2026-10-30-patent-saas-v6/task_plan.md"
+  ],
+  "interface": {
+    "modules": [
+      "apps/web/src/v6/lib/repository.ts",
+      "apps/web/src/v6/lib/indexeddb-repository.ts"
+    ],
+    "exports": [
+      "CONTRACT_VERSION",
+      "STORES",
+      "StorageMode",
+      "StorageTransaction",
+      "StorageBackend",
+      "Actor",
+      "MatterRecord",
+      "TargetRecord",
+      "AssetRecord",
+      "SnapshotRecord",
+      "ActivityRecord",
+      "ACTIVITY_ACTIONS",
+      "ActivityAction",
+      "ACTIVITY_METADATA_KEYS",
+      "ActivityMetadataKey",
+      "ACTIVITY_METADATA_KEYS_BY_ACTION",
+      "CONTRACT_ERROR_CODES",
+      "ContractErrorCode",
+      "MatterAggregate",
+      "BlobWrite",
+      "MatterWrite",
+      "Command",
+      "RepositoryErrorCode",
+      "RepositoryError",
+      "RepositoryResult",
+      "CommitResult",
+      "CommitOptions",
+      "MatterRead",
+      "MatterList",
+      "EventList",
+      "BlobRead",
+      "LocalRepository",
+      "openLocalRepository",
+      "sha256Hex",
+      "DATABASE_NAME",
+      "DATABASE_VERSION",
+      "EVENTS_MATTER_INDEX",
+      "IndexedDbOptions",
+      "openIndexedDbBackend"
+    ],
+    "stateModel": "One aggregate per matter (matter, targets, assets), an append-only event store keyed by event id and indexed by matterId, and a blob store keyed by asset id. A commit writes the aggregate, its events and its blobs in one backend transaction; a refusal or storage failure aborts it so the stored version and the events of earlier commits remain the only readable state.",
+    "writeRules": "expectedVersion 0 creates and any other value updates; the stored version must equal expectedVersion exactly, matter.version must be expectedVersion + 1, and a mismatch answers VERSION_CONFLICT with latestVersion (an already-applied retry is recognisable by latestVersion === matter.version). A create must record the acting user as matter.createdBy, an update cannot reassign it, and a user-kind event must name the acting user as actorId, so a caller cannot write on another user's behalf. Event ids already stored are refused, so a repeat cannot add a second side effect. Every event, target and asset must belong to the written matter and tenant; every event action must be in the §10 whitelist and its metadata may carry only that action's keys with the contract's value grammar (job.succeeded and job.adopted require provider and model), so content cannot be stored through the activity seam. Every blob must name an asset the write carries and hash to the digest that asset records, and an existing asset's digest or length may move only when the same write supplies its new bytes. A non-active stored matter refuses writes with INVALID_TRANSITION; a matter the actor cannot access answers RESOURCE_NOT_FOUND before any other write rule.",
+    "readRules": "Reads are scoped to the actor's tenant and to the matters the actor created (the R1 local access rule, since this ticket has no membership, role or matter ACL store). Another tenant's matter and a same-tenant matter the actor did not create both answer RESOURCE_NOT_FOUND from loadMatter, listEvents and readBlob instead of an empty result, and listMatters omits them. readBlob finds the matter's current asset record, refuses HASH_MISMATCH when the stored digest or length does not match it, re-hashes the stored bytes and refuses HASH_MISMATCH when they no longer match their stored digest. Every returned record is a structured clone, so a caller cannot mutate stored state.",
+    "seam": "LocalRepository owns every rule above; a StorageBackend supplies only get/put/delete/getAll/getAllByIndex inside one transaction and commits only when the callback resolved and the transaction completed. The browser adapter implements that seam over IndexedDB; the suite implements it over memory and over a miniature IndexedDB that runs the real adapter.",
+    "contractShapes": "Matter, Target, Asset, SnapshotRef and Activity are declared structurally rather than imported from packages/contracts at runtime, because a cross-package dependency cannot be added (package-lock.json cannot be regenerated; see limitations). The suite parses every stored and returned matter, target, asset and activity against its frozen schema, and parses a commit result against resultSchema."
+  },
+  "acceptance": [
+    {
+      "id": "V6-06-A01",
+      "command": "npm run test:v6 -- V6-06",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-06/runner.tap",
+      "observed": "A matter with one target, two assets, two events and two blobs is committed through the real IndexedDB adapter; the connection is closed and a new backend opens the same database. The reopened repository returns the same matter, target and asset ids, each parses against its contract schema, and the stored bytes come back byte-for-byte and re-hash to the digest on the asset record. The adapter opens 'patent.v6.local' at version 1, creates the matters/events/blobs stores and the matterId index on events. A fresh local database lists no matters: it is empty, and nothing seeds example cases. Activity rows carry only their action's whitelisted metadata: an unknown action, an extra metadata key (including document text), a free-text stage and a job.succeeded without provider/model are all refused with INVALID_INPUT and write nothing, while a valid job.succeeded with provider and model is stored and parses against activitySchema. listEvents returns the feed by occurredAt desc (S06), with a same-instant tie-break on id."
+    },
+    {
+      "id": "V6-06-A02",
+      "command": "npm run test:v6 -- V6-06",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-06/runner.tap",
+      "observed": "A QuotaExceededError on the blob write makes the commit answer QUOTA_EXCEEDED, and the version, title, events and bytes read back are exactly version 1's. A generic storage failure raised on the event write after the aggregate was already written answers STORAGE_UNAVAILABLE and the aggregate write is rolled back with the transaction. A stale expectedVersion answers VERSION_CONFLICT with latestVersion 2 while the version-2 row stays readable; a repeated event id answers INVALID_INPUT and writes nothing; an archived matter answers INVALID_TRANSITION and keeps its archived version; another tenant's matter, events and bytes all answer RESOURCE_NOT_FOUND, and a create from that tenant reusing the id is refused without confirming it exists. A second user in the same tenant who did not create the matter gets RESOURCE_NOT_FOUND from loadMatter, listEvents and readBlob, an empty listMatters, and RESOURCE_NOT_FOUND from both an update and a create that reuses the id, while the creator's matter stays at version 1. A create that records another user as matter.createdBy, a create whose user-kind event names another user, an update that reassigns createdBy, and an update whose event names another user are each refused with INVALID_INPUT and write nothing; a worker-kind event with a null actorId is accepted and parses against activitySchema."
+    },
+    {
+      "id": "V6-06-A03",
+      "command": "npm run test:v6 -- V6-06; npm run typecheck --workspaces --if-present; ./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit; npm test --workspaces --if-present",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-06/runner.tap",
+        "qa/v6/evidence/V6-06/typecheck.txt",
+        "qa/v6/evidence/V6-06/regression.txt"
+      ],
+      "observed": "Repeating a successful commit answers VERSION_CONFLICT and leaves the matter and the event list deep-equal to the state before the repeat, with the winning event recorded once. A commit that failed under a quota fault succeeds unchanged once the fault clears, and its event is recorded exactly once. Two commits issued from the same expectedVersion race: exactly one succeeds, the loser names the winner's version, and only the winner's event is recorded. Reads hand out copies: mutating a returned matter, target, asset or byte array does not change what the next read returns. Corrupted stored bytes are refused with HASH_MISMATCH. An asset digest changed without new bytes is refused with HASH_MISMATCH and the old version and bytes stay readable; new bytes and their digest land in one commit and read back together; bytes whose current asset record moved are refused with HASH_MISMATCH. The repository's activity action list, metadata-key matrix and §10 error-code list are deep-equal to the frozen contract. Seven refusal codes are driven out of the module and every one parses as a §10 ErrorCode, and no other code can appear. Workspace typecheck exits 0; apps/web is not a member of `npm run --workspaces` in this checkout, so the same evidence file also runs `tsc -p apps/web/tsconfig.json --noEmit` directly on the two modules and it exits 0. All workspace tests exit 0."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S06-A01",
+      "status": "not_applicable",
+      "reason": "The observable is the case list screen's empty state and its create entry. The repository half is exercised under A01: a fresh local database lists no matters and nothing seeds example cases."
+    },
+    {
+      "id": "S06-A02",
+      "status": "not_applicable",
+      "reason": "The next-action ordering (resolve_conflict before the other step) is computed from conflicts and input staleness by the overview ticket; this ticket stores and returns the matter aggregate but ranks no actions."
+    },
+    {
+      "id": "S06-A03",
+      "status": "not_applicable",
+      "reason": "Approval invalidation on a revoked confirmation is the delivery gate and overview work (V6-05 and later page tickets). The repository only persists the rows they read."
+    },
+    {
+      "id": "S06-A04",
+      "status": "not_applicable",
+      "reason": "Inbox items and their read state are not part of this ticket's aggregate; no inbox store is written and the overview does not exist yet."
+    },
+    {
+      "id": "S06-A05",
+      "status": "not_applicable",
+      "reason": "The observable is another user's inbox items and activity, and the repository has no inbox store in this ticket's write set, so the inbox half cannot be exercised here. The activity half is covered in V6-06-A02: listEvents answers RESOURCE_NOT_FOUND for another tenant's matter and for a same-tenant matter the actor did not create, rather than an empty feed, as do loadMatter and readBlob; the page's and inbox feed's own rendering is UI work."
+    },
+    {
+      "id": "S06-A06",
+      "status": "not_applicable",
+      "reason": "The observable is the activity feed screen with a completed-and-adopted job. This ticket stores and returns activity: every written event must use a §10 action and only that action's whitelisted metadata keys with the contract's value grammar, every stored event parses against activitySchema, and neither the source text nor the document content can be stored in an event. The job that produces job.succeeded and job.adopted and the feed that renders it belong to other tickets."
+    },
+    {
+      "id": "S06-A07",
+      "status": "not_applicable",
+      "reason": "Suggested deadlines and their absence from the inbox are inbox semantics; the repository has no deadline or inbox store in this ticket's write set."
+    },
+    {
+      "id": "S06-A08",
+      "status": "covered",
+      "reason": "An archived matter refuses a further commit with INVALID_TRANSITION and the archived version stays readable with its title and status, which is the repository's half of the read-only page; the page's read-only banner and cancel-archive action are UI work."
+    }
+  ],
+  "limitations": [
+    "The IndexedDB adapter is exercised against a small in-memory implementation of the parts of IndexedDB it uses (open and upgrade, stores and one index, asynchronous requests, transaction completion and abort with rollback, injected request failures), not against a browser. No browser or dev server was run for this ticket, so a real IndexedDB origin quota is not exercised; the quota path is driven by a DOMException with the browser's name.",
+    "The read-write transaction race is proven on the memory backend, which serializes read-write transactions the way IndexedDB serializes transactions on the same stores. The miniature IndexedDB used for the adapter tests does not model transaction isolation, so the race is not re-run through the adapter.",
+    "The repository validates referential integrity, versioning and digests; it does not re-validate full contract shape (enums, formats, cross-field refinements) on write. That is the contracts package's job where commands enter the process, and this suite parses everything the repository stores and returns so a drift in the structural declarations fails here.",
+    "Matter, Target, Asset, SnapshotRef and Activity are declared structurally because a runtime dependency on packages/contracts cannot be declared: package-lock.json cannot be regenerated (npm install --package-lock-only fails at baseline with 404 for @patent/vibescanner-core). The activity action list, metadata-key matrix and §10 error-code list are mirrored the same way, and the suite deep-equals every mirror with the frozen contract so drift fails here.",
+    "listMatters and listEvents are local reads for the browser shell, not the §4 API page shapes: they return { items, nextCursor: null } where items are whole aggregates or activity rows. The server-side paginated query is a cloud-backend ticket.",
+    "No deployment, network call, model call, charge or real customer material was used. All fixtures are synthetic and built in the suite.",
+    "Preservation of the V6-01 baseline cannot be re-verified in this isolated worktree: the baseline manifest describes the user's checkout and the worktree isolation hook refuses commands that target it. qa/v6/evidence/V6-06/scope.txt records the complete worktree delta instead: the two new modules, the V6-06 scenario and evidence files, the two live .planning records, and the untracked node_modules symlink used as a local test-dependency mount.",
+    "Both modules live in apps/web, and `npm run typecheck --workspaces --if-present` does not execute the @patent/web workspace in this checkout (pre-existing local install state, independent of this ticket's files). typecheck.txt therefore runs that command for the shared packages and then `./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit` for the two modules; both exit 0.",
+    "Access control inside a tenant is the R1 creator rule (see the R1-MATTER-ACCESS decision), not the contract's membership/role/matter-ACL model: this ticket has no store for memberships, roles or ACLs. A same-tenant user other than the creator is refused, which is safe but not yet the product's sharing model; the cloud backend must implement the contract ACLs while keeping RESOURCE_NOT_FOUND for no-access reads.",
+    "Only user-kind events are bound to the acting user. Worker- and webhook-kind events accept any actorId, because the contract defines the actor kinds without a conditional actorId rule and no worker or webhook producer exists yet; the suite covers a worker event with actorId null. A rule for those kinds (for example, requiring the job's worker identity) belongs to the ticket that emits them.",
+    "The requirements documents named in this receipt (tickets/V6-06.md, specs/S06.md, 05-contracts.md, 06-execution-protocol.md) are not present in this worktree: docs/implementation lives only in the user's checkout and the worktree was cut from origin/main. A reviewer reads them there; the ticket and spec items this receipt cites cannot be re-checked from inside the worktree."
+  ],
+  "review": {
+    "method": "independent read-only review",
+    "verdict": "accept",
+    "verdictNote": "Fourth round. The reviewer read the ticket, S06, 05-contracts and 06-execution-protocol from the user's main checkout (this worktree does not carry docs/implementation), re-ran git status in the worktree root and matched the two modified .planning files plus the untracked implementation, dependency-mount, scenario and evidence paths against scope.txt, confirmed the digest-without-bytes, per-action metadata, activity-order and same-tenant access findings each have an implementation check and a scenario, traced the creator-access rule across matter, list, event, blob and commit paths and the creator/actor binding, and found CAS, duplicate-event, archived-write, blob-coupling and clone-isolation rules intact; runner.tap shows 25/25 with runner_exit=0, and both typechecks and the regression exit 0. The reviewer classified one note rather than a rejection: worker and webhook events are not bound to actorId by actorKind, because the contracts define the actor kinds without a conditional actorId rule. That behaviour, and the absence of docs/implementation from this worktree, are recorded in limitations."
+  },
+  "decisionsRecorded": [
+    {
+      "id": "STORAGE-BACKEND-SEAM",
+      "decision": "LocalRepository owns every rule (tenant scope, compare-and-swap, archived refusal, event idempotency, digest checks) and a StorageBackend supplies only get/put/delete/getAll/getAllByIndex inside one transaction. The backend commits only when the callback resolved and the transaction completed, and aborts whenever the callback throws. This keeps the rules testable without a browser and lets the browser adapter stay small."
+    },
+    {
+      "id": "VERSION-CAS",
+      "decision": "expectedVersion 0 creates; any other value updates and must equal the stored version exactly. The version is read inside the same transaction that writes it, so two tabs cannot both commit from the same version. A conflict carries latestVersion, which is also how a retried already-applied command is recognised: latestVersion equal to the written matter.version means the retry had already landed."
+    },
+    {
+      "id": "EVENT-IDEMPOTENCY",
+      "decision": "Activity ids are unique across the store and re-checked inside the write transaction; a commit that tries to record an existing event id is refused with INVALID_INPUT and writes nothing. A lost acknowledgement therefore fails a retry instead of adding a second side effect."
+    },
+    {
+      "id": "BLOB-INTEGRITY",
+      "decision": "Bytes are written only when their length and SHA-256 match the asset record, and readBlob checks the stored bytes against the matter's current asset record and then re-hashes them. An update may move an asset's digest or length only when the same write supplies its new bytes, so the matter and its blob cannot drift apart. Bytes that no longer match answer HASH_MISMATCH (§10) instead of being handed to the page as the document the asset names. WebCrypto missing from the runtime answers STORAGE_UNAVAILABLE because no byte can be verified."
+    },
+    {
+      "id": "TENANT-SCOPE-404",
+      "decision": "Every read and write is scoped by the actor's tenant. Another tenant's matter, activity and bytes answer RESOURCE_NOT_FOUND, and a create that reuses a matter id owned by another tenant is refused the same way, so nothing distinguishes it from a missing id (S06-A05)."
+    },
+    {
+      "id": "R1-MATTER-ACCESS",
+      "decision": "Within a tenant, the R1 local repository admits only the matter's creator: listMatters lists the actor's own matters, and another user of the same tenant gets RESOURCE_NOT_FOUND from loadMatter, listEvents, readBlob and commit, exactly as for a missing id (S06-A05's no-access answer). This ticket has no membership, role or matter ACL store in its write set, so creator identity is the only access fact available; the smallest safe rule is to admit that one user rather than every member of the tenant. The cloud backend replaces this with the contract's tenant roles and matter ACL and keeps the 404 answer for a matter the actor cannot reach."
+    },
+    {
+      "id": "IDENTITY-BINDING",
+      "decision": "The actor passed to the repository is the only identity a write may record: a create must set matter.createdBy to the actor's user, an update may not change it, and a user-kind event must have actorId equal to the actor's user. A write that records any other user is refused with INVALID_INPUT, so a caller cannot create a matter for, or add activity as, someone else. Worker- and webhook-kind events carry no user identity and are not checked against actorId."
+    },
+    {
+      "id": "ARCHIVED-READ-ONLY",
+      "decision": "A stored matter whose status is not active refuses updates with INVALID_TRANSITION (S06-A08). Archiving itself is an ordinary commit that moves the active matter to archived, so the archive action and the read-only rule do not fight each other."
+    },
+    {
+      "id": "ACTIVITY-METADATA-WHITELIST",
+      "decision": "The repository enforces the V6-03 conservative per-action metadata allowlist on every written event: the action must be in the §10 whitelist, only that action's keys may appear, values must match the contract's grammar (non-negative integers, a lowercase stage token, processor/model names, a §10 error code), and job.succeeded/job.adopted require provider and model. The action list, key matrix and error-code list are mirrored structurally because a runtime dependency on packages/contracts cannot be declared; the suite deep-equals the mirrors with the frozen contract, so a privacy rule cannot silently drift."
+    },
+    {
+      "id": "ACTIVITY-FEED-ORDER",
+      "decision": "listEvents returns a matter's activity newest first (occurredAt desc), as S06 requires for the activity feed, tie-breaking on id so equal timestamps are deterministic. listMatters keeps updatedAt desc with the same id tie-break for the case list."
+    },
+    {
+      "id": "CONTRACT-SHAPES-LOCAL",
+      "decision": "The repository declares Matter, Target, Asset, SnapshotRef and Activity structurally instead of importing packages/contracts at runtime, because package-lock.json cannot be regenerated in this environment. The suite parses every stored and returned record against the frozen schemas, so a structural drift is a test failure rather than a silent divergence."
+    }
+  ],
+  "decisionsRequested": []
+}

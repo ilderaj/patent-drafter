@@ -1,0 +1,11 @@
+ M .planning/2026-10-30-patent-saas-v6/progress.md
+ M .planning/2026-10-30-patent-saas-v6/task_plan.md
+ M packages/domain/src/index.ts
+?? node_modules
+?? packages/domain/src/v6/revision.ts
+?? qa/v6/evidence/V6-04/receipt.json
+?? qa/v6/evidence/V6-04/regression.txt
+?? qa/v6/evidence/V6-04/runner.tap
+?? qa/v6/evidence/V6-04/scope.txt
+?? qa/v6/evidence/V6-04/typecheck.txt
+?? qa/v6/scenarios/V6-04/revision.test.mjs

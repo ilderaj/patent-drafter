@@ -1,0 +1,137 @@
+{
+  "ticket": "V6-03",
+  "status": "accepted",
+  "baseCommit": "dc4b00882608354c266805a2fb2f4974f1a75401",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "changedFilesNote": "changedFiles lists the V6-03 ticket delta only. The baseline index already contained the root package.json test:v6 and package-lock.json dirty changes from earlier tickets; neither is attributed to V6-03. The lockfile hash remains the recorded baseline hash. All new files under packages/contracts/, qa/v6/scenarios/V6-03/, and qa/v6/evidence/V6-03/ are enumerated below.",
+  "changedFiles": [
+    "packages/contracts/README.md",
+    "packages/contracts/package.json",
+    "packages/contracts/tsconfig.json",
+    "packages/contracts/src/index.ts",
+    "packages/contracts/src/primitives.ts",
+    "packages/contracts/src/matter.ts",
+    "packages/contracts/src/draft.ts",
+    "packages/contracts/src/jobs.ts",
+    "packages/contracts/src/delivery.ts",
+    "packages/contracts/src/records.ts",
+    "packages/contracts/src/billing.ts",
+    "packages/contracts/src/privacy.ts",
+    "packages/contracts/src/fixtures.ts",
+    "qa/v6/scenarios/V6-03/contracts.test.mjs",
+    "qa/v6/evidence/V6-03/receipt.json",
+    "qa/v6/evidence/V6-03/runner.tap",
+    "qa/v6/evidence/V6-03/negative-probes.mjs",
+    "qa/v6/evidence/V6-03/negative-checks.txt",
+    "qa/v6/evidence/V6-03/typecheck.txt",
+    "qa/v6/evidence/V6-03/regression.txt",
+    "qa/v6/evidence/V6-03/preservation.txt"
+  ],
+  "acceptance": [
+    {
+      "id": "V6-03-A01",
+      "command": "npm run test:v6 -- V6-03",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-03/runner.tap",
+      "observed": "14 tests passed; 0 failed, 0 skipped. All 66 deterministic fixtures validate against the matching registered schema. Snapshot, command, and draft AST serialize and parse without shape loss. This verifies the contract serialization slice; it does not exercise a persisted application command path."
+    },
+    {
+      "id": "V6-03-A02",
+      "command": "npm run test:v6 -- V6-03; node qa/v6/evidence/V6-03/negative-probes.mjs",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-03/negative-checks.txt",
+      "observed": "All 22 invalid-input probes were rejected, including missing targetId, persisted version 0, unknown fields, forward claim dependency, dangling AST references, closed gate without a reason, incompatible price/quote selectors, unknown ErrorCode, unlisted activity actions, globally unapproved metadata keys, keys outside the per-action matrix, non-empty privacy-event metadata, missing S06-A06 processor/model identifiers, and free-form content in stage, provider or model fields. This verifies schema rejection; it does not exercise repeated actions against persisted stale or failed application state. The V6-03 TAP suite passed 14/14."
+    },
+    {
+      "id": "V6-03-A03",
+      "command": "npm run test:v6 -- V6-03; npm run typecheck --workspaces --if-present; npm test --workspaces --if-present",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-03/runner.tap",
+        "qa/v6/evidence/V6-03/typecheck.txt",
+        "qa/v6/evidence/V6-03/regression.txt"
+      ],
+      "observed": "Repeated schema parsing and serialization are deterministic and leave inputs unchanged; contract source dependency checks pass. Workspace typecheck and all workspace tests exit 0. These checks cover pure parsing, not persisted refresh/retry behavior. Preservation verification reports all 407 baseline untracked paths unchanged."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S06-A01",
+      "status": "not_applicable",
+      "reason": "This ticket defines schemas and deterministic fixtures; the empty-list UI and application state are implemented by later S06 work, not by the shared contract package."
+    },
+    {
+      "id": "S06-A02",
+      "status": "not_applicable",
+      "reason": "nextAction ordering is a packages/domain pure function and is outside this schema-only ticket."
+    },
+    {
+      "id": "S06-A03",
+      "status": "not_applicable",
+      "reason": "Approval invalidation after confirmation revocation is a domain state transition not implemented by this ticket."
+    },
+    {
+      "id": "S06-A04",
+      "status": "not_applicable",
+      "reason": "Inbox read and resolution behavior requires application persistence and derived state, neither of which is part of this ticket."
+    },
+    {
+      "id": "S06-A05",
+      "status": "not_applicable",
+      "reason": "Tenant-scoped API visibility and 404 behavior require authenticated runtime access; this ticket adds no API or storage."
+    },
+    {
+      "id": "S06-A06",
+      "status": "not_applicable",
+      "reason": "Job activity creation and redaction require worker and activity behavior; this ticket only validates their data shapes."
+    },
+    {
+      "id": "S06-A07",
+      "status": "not_applicable",
+      "reason": "Deadline inbox inclusion depends on persisted deadline state and derived inbox behavior, which are outside this ticket."
+    },
+    {
+      "id": "S06-A08",
+      "status": "not_applicable",
+      "reason": "Archive write refusal is a domain state transition; no mutation path is implemented by the shared contract package."
+    }
+  ],
+  "limitations": [
+    "package-lock.json was not updated: npm install --package-lock-only --ignore-scripts fails at baseline with 404 for @patent/vibescanner-core@0.0.1; npm ci --dry-run has the same pre-existing failure. The lockfile hash remains 46ebd95a1f1e237c91bad85c6d67ce540f5c6508d0efbc52f35b73543fdbefed.",
+    "The 05-contracts §10 502/504 row is refined as PROVIDER_TIMEOUT=504 and the other provider errors in that row=502. ApiError.reasons[].code is restricted to ErrorCode as specified by §6.",
+    "V6-03 A01–A03 are covered at the shared schema and deterministic parsing layer. They do not exercise a persisted application command, repeated action against stale/failed application state, or persisted refresh/retry behavior because this ticket creates no such runtime path; the receipt states this scope explicitly.",
+    "Decision ACTIVITY-METADATA-BY-ACTION (user-selected): freeze a conservative per-action matrix in ACTIVITY_METADATA_KEYS_BY_ACTION. Keys are limited to non-negative version/count integers, constrained stage/provider/model identifiers, and registered ErrorCode values; job.succeeded and job.adopted require both provider and model identifiers for S06-A06. privacy.export and privacy.delete require empty metadata. Free-text reasons/messages, payloads, secrets, payment amounts, contact details, consent scope, and manifests are excluded. The contract README records the rule and the source matrix is packages/contracts/src/records.ts.",
+    "Preservation check: all 407 baseline untracked paths match; the check does not cover pre-existing tracked dirty changes. No commit, deployment, network call, model call, or real customer data operation was performed."
+  ],
+  "review": {
+    "method": "independent read-only review, five rounds",
+    "verdict": "accept",
+    "round1": "not accept: Activity action/metadata whitelist and changedFiles attribution were incomplete; acceptance descriptions also needed scope qualification",
+    "round2": "not accept: reviewer withdrew the preliminary acceptance after noting the activity metadata allowlist is global rather than per-action, and disclosed incomplete evidence inspection; round2 remains open pending verification",
+    "round3": "not accept: job.succeeded/job.adopted did not require processor and model identifiers, and identifier fields accepted free-form content",
+    "round4": "not accept: the stage identifier constraint had no rejection test or probe; provider and model were covered. Fixed by adding a stage assertion to the V6-03-A02 scenario test and a stage probe, then regenerating all evidence files (suite 14/14, probes 22/22 rejected, 407 baseline paths unchanged)",
+    "round5": "accept: verified all 47 action matrix entries, required provider/model identifiers, privacy metadata rejection, stage/provider/model content constraints and rejection tests, 14/14 scenario tests, 22/22 negative probes, workspace checks, 407 preserved paths, and receipt scope",
+    "evidence": [
+      "qa/v6/evidence/V6-03/runner.tap",
+      "qa/v6/evidence/V6-03/negative-checks.txt",
+      "qa/v6/evidence/V6-03/typecheck.txt",
+      "qa/v6/evidence/V6-03/regression.txt",
+      "qa/v6/evidence/V6-03/preservation.txt"
+    ]
+  },
+  "decisionsRecorded": [
+    {
+      "id": "ACTIVITY-METADATA-BY-ACTION",
+      "decision": "User selected a conservative per-action allowlist frozen in V6-03. The contract README documents the policy; packages/contracts/src/records.ts contains the complete matrix and runtime enforcement."
+    }
+  ],
+  "decisionsRequested": [
+    {
+      "id": "S13-TICKET-MAPPING",
+      "question": "S13-A01/A02/A03/A09/A10 still have no explicit acceptance ticket mapping.",
+      "suggestion": "Map those acceptance items to an implementation ticket or explicitly assign them to V6-47b release acceptance.",
+      "impact": "Does not block V6-03; affects later independent review of S13 acceptance ownership."
+    }
+  ]
+}

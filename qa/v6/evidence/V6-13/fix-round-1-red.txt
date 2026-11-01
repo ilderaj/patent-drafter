@@ -1,0 +1,301 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-13
+
+TAP version 13
+# Subtest: V6-13-A01 each answer is saved with its source and the fact version it was based on; a reload shows the same refs
+ok 1 - V6-13-A01 each answer is saved with its source and the fact version it was based on; a reload shows the same refs
+  ---
+  duration_ms: 33.558625
+  type: 'test'
+  ...
+# Subtest: S03-A01 material mentioning 「给客户看过样品」 is suggested beside question 4; disclosure stays null until the user chooses
+ok 2 - S03-A01 material mentioning 「给客户看过样品」 is suggested beside question 4; disclosure stays null until the user chooses
+  ---
+  duration_ms: 6.065541
+  type: 'test'
+  ...
+# Subtest: S03-A02 an organization can never be an inventor; the field error is explicit and previously saved answers survive
+ok 3 - S03-A02 an organization can never be an inventor; the field error is explicit and previously saved answers survive
+  ---
+  duration_ms: 3.314875
+  type: 'test'
+  ...
+# Subtest: S03-A03 saving all five answers again unchanged writes no version, including a back-and-forward reconstructed from the view
+ok 4 - S03-A03 saving all five answers again unchanged writes no version, including a back-and-forward reconstructed from the view
+  ---
+  duration_ms: 4.654417
+  type: 'test'
+  ...
+# Subtest: S03-A04 changing a shared fact makes both derived drafts stale and keeps the version each draft was built from
+ok 5 - S03-A04 changing a shared fact makes both derived drafts stale and keeps the version each draft was built from
+  ---
+  duration_ms: 4.125917
+  type: 'test'
+  ...
+# Subtest: S03-A05 only explicitly adopted candidates enter the snapshot; the rest stay outside every target
+ok 6 - S03-A05 only explicitly adopted candidates enter the snapshot; the rest stay outside every target
+  ---
+  duration_ms: 3.46025
+  type: 'test'
+  ...
+# Subtest: S03-A06 a retained conflict needs a reason; once given, both facts stay preserved and locatable
+ok 7 - S03-A06 a retained conflict needs a reason; once given, both facts stay preserved and locatable
+  ---
+  duration_ms: 8.618417
+  type: 'test'
+  ...
+# Subtest: V6-13-A02 invalid input is reported per field, and an unanswered disclosure is never filled from the material or from an example
+ok 8 - V6-13-A02 invalid input is reported per field, and an unanswered disclosure is never filled from the material or from an example
+  ---
+  duration_ms: 3.011333
+  type: 'test'
+  ...
+# Subtest: V6-13-A02 changing a fact marks a derived draft stale, while the unanswered disclosure stays null
+ok 9 - V6-13-A02 changing a fact marks a derived draft stale, while the unanswered disclosure stays null
+  ---
+  duration_ms: 3.074208
+  type: 'test'
+  ...
+# Subtest: V6-13-A03 the same request key replays instead of writing twice; a different payload under it is refused; a stale base returns both sides
+ok 10 - V6-13-A03 the same request key replays instead of writing twice; a different payload under it is refused; a stale base returns both sides
+  ---
+  duration_ms: 2.858833
+  type: 'test'
+  ...
+# Subtest: V6-13-A03 a failed commit leaves the version untouched and retry succeeds; a post-commit snapshot failure reports committedVersion and never duplicates
+not ok 11 - V6-13-A03 a failed commit leaves the version untouched and retry succeeds; a post-commit snapshot failure reports committedVersion and never duplicates
+  ---
+  duration_ms: 4.37075
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:742:1'
+  failureType: 'testCodeFailure'
+  error: 'a committed version is never reported as not saved'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: '本机存储暂时不可用，内容没有保存。'
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:786:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-13 the empty, stale and error read states are explicit; a changed chunk marks facts and sources as stale
+not ok 12 - V6-13 the empty, stale and error read states are explicit; a changed chunk marks facts and sources as stale
+  ---
+  duration_ms: 4.557791
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:835:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":false,"errorCode":"STORAGE_UNAVAILABLE","message":"本机存储暂时不可用，内容没有保存。"}
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:901:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-13 user_confirmed facts keep their original confirmation when an unrelated save carries them forward
+ok 13 - V6-13 user_confirmed facts keep their original confirmation when an unrelated save carries them forward
+  ---
+  duration_ms: 3.315167
+  type: 'test'
+  ...
+# Subtest: V6-13 the contract snapshot is validated and includes only the active source ids
+ok 14 - V6-13 the contract snapshot is validated and includes only the active source ids
+  ---
+  duration_ms: 2.15975
+  type: 'test'
+  ...
+# Subtest: V6-13-A03 B1 after a post-commit snapshot failure a fresh read recovers at the committed version and a save there fills the gap
+not ok 15 - V6-13-A03 B1 after a post-commit snapshot failure a fresh read recovers at the committed version and a save there fills the gap
+  ---
+  duration_ms: 3.524084
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:992:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":false,"errorCode":"STORAGE_UNAVAILABLE","message":"本机存储暂时不可用，内容没有保存。"}
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1018:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-13-A03 B1 when the very first snapshot write fails, a fresh read shows an empty form at the committed version, not an error
+not ok 16 - V6-13-A03 B1 when the very first snapshot write fails, a fresh read shows an empty form at the committed version, not an error
+  ---
+  duration_ms: 2.398834
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1049:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    STORAGE_UNAVAILABLE 本机存储暂时不可用，内容没有保存。
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    viewOf (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:70:10)
+    async TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1061:16)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-13 B2 a disclosure evidence ref with a forged quote or hash is refused as SOURCE_LOCATOR_INVALID
+not ok 17 - V6-13 B2 a disclosure evidence ref with a forged quote or hash is refused as SOURCE_LOCATOR_INVALID
+  ---
+  duration_ms: 2.262875
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1084:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":true,"version":2,"snapshot":{"matterId":"55555555-5555-4555-8555-555555555555","version":2,"sourceIds":["b57b5843-6bf0-50ee-8ae8-4685b5e3a36a"],"facts":[],"conflicts":[],"answers":{"problem":"低温环境效率低，运行成本高。","difference":"改进了流道结构，降低了流动阻力。","inventorIds":[],"disclosure":"private_showing","maturity":null,"disclosureDetail":{"occurredOn":"2026-05-01","audience":"一位客户","confidentiality":"yes","evidenceRefs":[{"sourceId":"b57b5843-6bf0-50ee-8ae8-4685b5e3a36a","chunkId":"fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86","chunkHash":"f87cc2c8985b3f29f4451c44f65038906557dc13eb1d403c856cc87f15dbf44b","page":1,"start":0,"end":28,"quote":"不存在的证据文字"}]}},"parties":[],"createdBy":"33333333-3333-4333-8333-333333333333","createdAt":"2026-11-01T01:00:00.000Z"},"unchanged":false,"replayed":false}
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1098:12)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-13 B2 after the source changes, a stored disclosure evidence ref reads as changed
+not ok 18 - V6-13 B2 after the source changes, a stored disclosure evidence ref reads as changed
+  ---
+  duration_ms: 3.265208
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1119:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + undefined
+    - [
+    -   false
+    - ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: false
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1132:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-13 UI renders loading and an explicit error state instead of an empty form
+ok 19 - V6-13 UI renders loading and an explicit error state instead of an empty form
+  ---
+  duration_ms: 69.8085
+  type: 'test'
+  ...
+# Subtest: V6-13 UI empty state shows five questions, no disclosure or maturity value, and the located source suggestion
+ok 20 - V6-13 UI empty state shows five questions, no disclosure or maturity value, and the located source suggestion
+  ---
+  duration_ms: 26.012292
+  type: 'test'
+  ...
+# Subtest: V6-13 UI loaded state keeps the saved answer, its source and its provenance after a reload
+ok 21 - V6-13 UI loaded state keeps the saved answer, its source and its provenance after a reload
+  ---
+  duration_ms: 7.514291
+  type: 'test'
+  ...
+# Subtest: V6-13-A03 B1 UI after a post-commit snapshot failure and a reload, the form renders at the committed version and its save succeeds
+not ok 22 - V6-13-A03 B1 UI after a post-commit snapshot failure and a reload, the form renders at the committed version and its save succeeds
+  ---
+  duration_ms: 5.993125
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-ui.test.mjs:228:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":false,"errorCode":"STORAGE_UNAVAILABLE","message":"本机存储暂时不可用，内容没有保存。"}
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    viewOf (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-ui.test.mjs:99:10)
+    async TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-ui.test.mjs:253:24)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-13 B2 UI a disclosure evidence ref that no longer locates its paragraph is shown as changed
+not ok 23 - V6-13 B2 UI a disclosure evidence ref that no longer locates its paragraph is shown as changed
+  ---
+  duration_ms: 4.817208
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-ui.test.mjs:283:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /data-testid="intake-evidence-0"[^>]*data-source-changed="false"[^>]*>[\s\S]*?客户签署了保密约定/. Input:
+    
+    '<section class="card" data-testid="intake" data-state="ready" data-version="2" aria-labelledby="intake-title" style="display:flex;flex-direction:column;gap:16px"><header style="display:flex;flex-direction:column;gap:4px"><h2 class="card-title" id="intake-title">五题与事实</h2><p class="muted">每个答案都会连同来源和当时的事实版本一起保存。公开历史和成熟度只能由你选择，不会自动填写。</p><p class="field-hint" data-testid="intake-completeness">已填写 3/5 · 待补：发明人、成熟度</p><p class="field-hint" data-testid="intake-snapshot-version">当前事实版本：第 2 版</p></header><ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px"><li><fieldset data-testid="intake-question-problem" data-answered="true" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">1. 问题</legend><p class="field-hint">这项发明解决了什么问题？</p><textarea class="textarea" data-testid="intake-answer-problem" maxLength="2000">低温环境效率低，运行成本高。</textarea><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-problem"><option value="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct" selected="">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="suggest:1">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label><p class="field-hint" data-testid="intake-provenance-problem">来源记录于第 1 版事实 · 2026-11-01</p></fieldset></li><li><fieldset data-testid="intake-question-difference" data-answered="true" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">2. 区别</legend><p class="field-hint">与现有做法相比，改了什么？</p><textarea class="textarea" data-testid="intake-answer-difference" maxLength="4000">改进了流道结构，降低了流动阻力。</textarea><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-difference"><option value="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct" selected="">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="suggest:1">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label><p class="field-hint" data-testid="intake-provenance-difference">来源记录于第 1 版事实 · 2026-11-01</p></fieldset></li><li><fieldset data-testid="intake-question-inventorIds" data-answered="false" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">3. 发明人</legend><p class="field-hint">谁发明了它？</p><div data-testid="intake-inventors"><p class="field-hint">还没有添加人员；先在下方添加，再勾选发明人。</p></div><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-inventorIds"><option value="" selected="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label></fieldset></li><li><fieldset data-testid="intake-question-disclosure" data-answered="true" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">4. 公开历史</legend><p class="field-hint">今天之前，这项发明是否对外公开过？</p><select class="select" data-testid="intake-answer-disclosure"><option value="">请选择（不会自动填写）</option><option value="none">没有对外公开</option><option value="private_showing" selected="">私下展示（有保密约定）</option><option value="public_event">公开活动或展会</option><option value="publication">论文、出版物或其他发表</option><option value="sale">销售或许诺销售</option><option value="unsure">不确定</option></select><div data-testid="intake-disclosure-detail" style="display:grid;gap:6px"><span class="field-label">公开细节（可选）</span><input class="input" type="date" data-testid="intake-disclosure-date" value=""/><input class="input" type="text" placeholder="给谁看过、在哪里" data-testid="intake-disclosure-audience" value="一位客户"/><select class="select" data-testid="intake-disclosure-confidentiality"><option value="">保密约定：未填写</option><option value="yes" selected="">有保密约定</option><option value="no">没有保密约定</option><option value="unknown">不确定</option></select><button type="button" class="btn btn-ghost btn-sm">清除公开细节</button></div><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-disclosure"><option value="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct" selected="">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="suggest:1">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label><p class="field-hint" data-testid="intake-provenance-disclosure">来源记录于第 1 版事实 · 2026-11-01</p></fieldset></li><li><fieldset data-testid="intake-question-maturity" data-answered="false" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">5. 成熟度</legend><p class="field-hint">现在做到什么程度？</p><select class="select" data-testid="intake-answer-maturity"><option value="" selected="">请选择（不会自动填写）</option><option value="tested_sample">已有测试样品</option><option value="drawing">有图纸或完整方案</option><option value="idea">只有想法</option></select><p class="field-hint" data-testid="intake-choice-unset-maturity">尚未选择；保存后也会保持未选择。</p><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-maturity"><option value="" selected="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="suggest:1">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option va'... 4453 more characters
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: '<section class="card" data-testid="intake" data-state="ready" data-version="2" aria-labelledby="intake-title" style="display:flex;flex-direction:column;gap:16px"><header style="display:flex;flex-direction:column;gap:4px"><h2 class="card-title" id="intake-title">五题与事实</h2><p class="muted">每个答案都会连同来源和当时的事实版本一起保存。公开历史和成熟度只能由你选择，不会自动填写。</p><p class="field-hint" data-testid="intake-completeness">已填写 3/5 · 待补：发明人、成熟度</p><p class="field-hint" data-testid="intake-snapshot-version">当前事实版本：第 2 版</p></header><ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px"><li><fieldset data-testid="intake-question-problem" data-answered="true" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">1. 问题</legend><p class="field-hint">这项发明解决了什么问题？</p><textarea class="textarea" data-testid="intake-answer-problem" maxLength="2000">低温环境效率低，运行成本高。</textarea><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-problem"><option value="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct" selected="">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="suggest:1">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label><p class="field-hint" data-testid="intake-provenance-problem">来源记录于第 1 版事实 · 2026-11-01</p></fieldset></li><li><fieldset data-testid="intake-question-difference" data-answered="true" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">2. 区别</legend><p class="field-hint">与现有做法相比，改了什么？</p><textarea class="textarea" data-testid="intake-answer-difference" maxLength="4000">改进了流道结构，降低了流动阻力。</textarea><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-difference"><option value="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct" selected="">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="suggest:1">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label><p class="field-hint" data-testid="intake-provenance-difference">来源记录于第 1 版事实 · 2026-11-01</p></fieldset></li><li><fieldset data-testid="intake-question-inventorIds" data-answered="false" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">3. 发明人</legend><p class="field-hint">谁发明了它？</p><div data-testid="intake-inventors"><p class="field-hint">还没有添加人员；先在下方添加，再勾选发明人。</p></div><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-inventorIds"><option value="" selected="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label></fieldset></li><li><fieldset data-testid="intake-question-disclosure" data-answered="true" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">4. 公开历史</legend><p class="field-hint">今天之前，这项发明是否对外公开过？</p><select class="select" data-testid="intake-answer-disclosure"><option value="">请选择（不会自动填写）</option><option value="none">没有对外公开</option><option value="private_showing" selected="">私下展示（有保密约定）</option><option value="public_event">公开活动或展会</option><option value="publication">论文、出版物或其他发表</option><option value="sale">销售或许诺销售</option><option value="unsure">不确定</option></select><div data-testid="intake-disclosure-detail" style="display:grid;gap:6px"><span class="field-label">公开细节（可选）</span><input class="input" type="date" data-testid="intake-disclosure-date" value=""/><input class="input" type="text" placeholder="给谁看过、在哪里" data-testid="intake-disclosure-audience" value="一位客户"/><select class="select" data-testid="intake-disclosure-confidentiality"><option value="">保密约定：未填写</option><option value="yes" selected="">有保密约定</option><option value="no">没有保密约定</option><option value="unknown">不确定</option></select><button type="button" class="btn btn-ghost btn-sm">清除公开细节</button></div><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-disclosure"><option value="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct" selected="">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="suggest:1">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label><p class="field-hint" data-testid="intake-provenance-disclosure">来源记录于第 1 版事实 · 2026-11-01</p></fieldset></li><li><fieldset data-testid="intake-question-maturity" data-answered="false" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">5. 成熟度</legend><p class="field-hint">现在做到什么程度？</p><select class="select" data-testid="intake-answer-maturity"><option value="" selected="">请选择（不会自动填写）</option><option value="tested_sample">已有测试样品</option><option value="drawing">有图纸或完整方案</option><option value="idea">只有想法</option></select><p class="field-hint" data-testid="intake-choice-unset-maturity">尚未选择；保存后也会保持未选择。</p><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-maturity"><option value="" selected="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="suggest:1">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option va'... 4453 more characters
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-ui.test.mjs:302:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-13 UI stale state marks changed sources and derived drafts; a conflicts view shows both sides and the retained reason
+ok 24 - V6-13 UI stale state marks changed sources and derived drafts; a conflicts view shows both sides and the retained reason
+  ---
+  duration_ms: 4.832583
+  type: 'test'
+  ...
+# Subtest: V6-13 UI shows field errors without discarding what the user typed, and a version conflict side by side
+ok 25 - V6-13 UI shows field errors without discarding what the user typed, and a version conflict side by side
+  ---
+  duration_ms: 6.120125
+  type: 'test'
+  ...
+# Subtest: V6-13 UI reducer keeps the three source kinds exact and never invents a disclosure or maturity value
+ok 26 - V6-13 UI reducer keeps the three source kinds exact and never invents a disclosure or maturity value
+  ---
+  duration_ms: 2.4835
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 18
+# fail 8
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 334.706541
+V6 runner error: 8 test(s) failed

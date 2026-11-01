@@ -1,0 +1,38 @@
+ M .planning/2026-10-30-patent-saas-v6/progress.md
+ M .planning/2026-10-30-patent-saas-v6/task_plan.md
+ M apps/web/src/App.tsx
+?? apps/web/src/v6/components/Shell.tsx
+?? apps/web/src/v6/lib/legacy-import.ts
+?? apps/web/src/v6/routes/V6App.tsx
+?? apps/web/src/v6/routes/navigation.ts
+?? apps/web/src/v6/routes/v6.css
+?? docs/implementation/patent-saas-v6/migration-amendment.md
+?? node_modules
+?? qa/v6/evidence/V6-07/receipt.json
+?? qa/v6/evidence/V6-07/regression.txt
+?? qa/v6/evidence/V6-07/runner.tap
+?? qa/v6/evidence/V6-07/scope.txt
+?? qa/v6/evidence/V6-07/typecheck.txt
+?? qa/v6/evidence/V6-08/browser-drive.mjs
+?? qa/v6/evidence/V6-08/browser-log.json
+?? qa/v6/evidence/V6-08/build.txt
+?? qa/v6/evidence/V6-08/receipt.json
+?? qa/v6/evidence/V6-08/regression.txt
+?? qa/v6/evidence/V6-08/runner.tap
+?? qa/v6/evidence/V6-08/scope.txt
+?? qa/v6/evidence/V6-08/screens/01-start.png
+?? qa/v6/evidence/V6-08/screens/02-matters-empty.png
+?? qa/v6/evidence/V6-08/screens/03-self-service-create.png
+?? qa/v6/evidence/V6-08/screens/04-upload-after-refresh.png
+?? qa/v6/evidence/V6-08/screens/05-matter-overview.png
+?? qa/v6/evidence/V6-08/screens/06-tab-check-unavailable.png
+?? qa/v6/evidence/V6-08/screens/07-tab-direct-link-refresh.png
+?? qa/v6/evidence/V6-08/screens/08-matters-list.png
+?? qa/v6/evidence/V6-08/screens/09-missing-matter.png
+?? qa/v6/evidence/V6-08/screens/10-malformed-link.png
+?? qa/v6/evidence/V6-08/screens/11-services-section.png
+?? qa/v6/evidence/V6-08/screens/12-legacy-still-works.png
+?? qa/v6/evidence/V6-08/screens/browser-log.json
+?? qa/v6/evidence/V6-08/typecheck.txt
+?? qa/v6/scenarios/V6-07/legacy-import.test.mjs
+?? qa/v6/scenarios/V6-08/navigation.test.mjs

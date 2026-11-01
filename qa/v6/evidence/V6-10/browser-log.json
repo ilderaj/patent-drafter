@@ -1,0 +1,169 @@
+{
+  "base": "http://127.0.0.1:5174",
+  "fixtures": {
+    "goodDocx": "/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-10-fixtures-SLAfYj/检索报告.docx",
+    "fakeDocx": "/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-10-fixtures-SLAfYj/其实是图片.docx",
+    "fakeTxt": "/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-10-fixtures-SLAfYj/名字.txt"
+  },
+  "finalState": {
+    "path": "/patent/v6/matters/9a8d9a35-1496-4ba4-a1e9-cd75d7cef315/sources",
+    "rows": [
+      {
+        "stage": "saved",
+        "saved": "true",
+        "status": "已保存",
+        "name": "检索报告.docx"
+      }
+    ],
+    "problems": null,
+    "batchError": null,
+    "allSaved": "材料已保存在本机。可以继续添加，或进入下一步整理。",
+    "blobs": 1
+  },
+  "consoleErrors": [],
+  "steps": [
+    {
+      "step": "01-create-matter",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/9a8d9a35-1496-4ba4-a1e9-cd75d7cef315/upload",
+        "rows": [],
+        "problems": null,
+        "batchError": null,
+        "allSaved": null,
+        "blobs": 0
+      }
+    },
+    {
+      "step": "02-select-docx",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/9a8d9a35-1496-4ba4-a1e9-cd75d7cef315/upload",
+        "rows": [
+          {
+            "stage": "saved",
+            "saved": "true",
+            "status": "已保存",
+            "name": "检索报告.docx"
+          }
+        ],
+        "problems": null,
+        "batchError": null,
+        "allSaved": "材料已保存在本机。可以继续添加，或进入下一步整理。",
+        "blobs": 1
+      },
+      "notes": {
+        "blobs": 1
+      }
+    },
+    {
+      "step": "03-refresh-dedupe",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/9a8d9a35-1496-4ba4-a1e9-cd75d7cef315/upload",
+        "rows": [
+          {
+            "stage": "saved",
+            "saved": "true",
+            "status": "已保存",
+            "name": "检索报告.docx"
+          }
+        ],
+        "problems": null,
+        "batchError": null,
+        "allSaved": "材料已保存在本机。可以继续添加，或进入下一步整理。",
+        "blobs": 1
+      }
+    },
+    {
+      "step": "04-fake-docx",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/9a8d9a35-1496-4ba4-a1e9-cd75d7cef315/upload",
+        "rows": [
+          {
+            "stage": "saved",
+            "saved": "true",
+            "status": "已保存",
+            "name": "检索报告.docx"
+          },
+          {
+            "stage": "rejected",
+            "saved": "false",
+            "status": "文件内容与扩展名或声明类型不一致；换一个文件。",
+            "name": "其实是图片.docx"
+          }
+        ],
+        "problems": "!有文件没有保存，它们不会成为案件材料；请移除后换一个文件。",
+        "batchError": null,
+        "allSaved": null,
+        "blobs": 1
+      }
+    },
+    {
+      "step": "05-bad-txt",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/9a8d9a35-1496-4ba4-a1e9-cd75d7cef315/upload",
+        "rows": [
+          {
+            "stage": "saved",
+            "saved": "true",
+            "status": "已保存",
+            "name": "检索报告.docx"
+          },
+          {
+            "stage": "rejected",
+            "saved": "false",
+            "status": "文件内容与扩展名或声明类型不一致；换一个文件。",
+            "name": "其实是图片.docx"
+          },
+          {
+            "stage": "rejected",
+            "saved": "false",
+            "status": "文件无法通过校验；换一个文件。",
+            "name": "名字.txt"
+          }
+        ],
+        "problems": "!有文件没有保存，它们不会成为案件材料；请移除后换一个文件。",
+        "batchError": null,
+        "allSaved": null,
+        "blobs": 1
+      }
+    },
+    {
+      "step": "06-answer-without-documents",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/9a8d9a35-1496-4ba4-a1e9-cd75d7cef315/facts",
+        "rows": [],
+        "problems": null,
+        "batchError": null,
+        "allSaved": null,
+        "blobs": 1
+      },
+      "notes": {
+        "notice": "事实与冲突确认尚未开放，将随五个问题一起提供。"
+      }
+    },
+    {
+      "step": "07-matter-sources-tab",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/9a8d9a35-1496-4ba4-a1e9-cd75d7cef315/sources",
+        "rows": [
+          {
+            "stage": "saved",
+            "saved": "true",
+            "status": "已保存",
+            "name": "检索报告.docx"
+          }
+        ],
+        "problems": null,
+        "batchError": null,
+        "allSaved": "材料已保存在本机。可以继续添加，或进入下一步整理。",
+        "blobs": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+Fix round 4 rerun, 2026-11-02, V6App.tsx reverted (sha256 15b6f3c8...3543ac).
+Intake is not mounted in this branch, so the bundle hashes match the base build.
+With the temporary mount applied, npm run build also exited 0 (used for the browser drive);
+the mounted build is recorded in /tmp/v613-r4-build-mounted.txt (outside the repo).
+
+$ npm --prefix /private/tmp/patent-v6-13-worktree run build
+exit code: 0
+
+
+> build
+> npm run build -w @patent/web
+
+
+> build
+> tsc --noEmit && vite build && cp dist/patent/index.html dist/index.html && cp dist/patent/_headers dist/_headers
+
+vite v6.4.3 building for production...
+transforming...
+✓ 2182 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/patent/index.html                              0.80 kB │ gzip:   0.51 kB
+dist/patent/assets/pdf.worker.min-CLrFZWeq.mjs  1,312.45 kB
+dist/patent/assets/V6App-C4a6A9xU.css              11.63 kB │ gzip:   2.81 kB
+dist/patent/assets/index-DdwQeOia.css              24.34 kB │ gzip:   4.95 kB
+dist/patent/assets/V6App-CRyYlpsV.js              115.09 kB │ gzip:  36.48 kB
+dist/patent/assets/index-6yJDst_p.js              440.54 kB │ gzip: 182.57 kB
+dist/patent/assets/index-CnSbCLyr.js              510.71 kB │ gzip: 161.23 kB
+dist/patent/assets/pdf.min-C5rkUzaZ.js            531.78 kB │ gzip: 160.74 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.21s

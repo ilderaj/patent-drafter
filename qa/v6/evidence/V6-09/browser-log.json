@@ -1,0 +1,588 @@
+{
+  "base": "http://127.0.0.1:5174",
+  "finalState": {
+    "path": "/patent/v6/matters",
+    "theme": "graphite",
+    "mode": "dark",
+    "status": null,
+    "saved": null,
+    "failed": null,
+    "readNote": null,
+    "notification": null,
+    "themes": [],
+    "modes": [],
+    "checkedTheme": null,
+    "checkedMode": null,
+    "stored": {
+      "version": 1,
+      "themeId": "graphite",
+      "colorMode": "system"
+    },
+    "fakeMenu": false,
+    "width": 1280,
+    "focused": "BODY",
+    "focusVisible": false
+  },
+  "consoleErrors": [],
+  "steps": [
+    {
+      "step": "01-settings-light",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "light",
+        "status": "当前外观：原生 · 跟随系统（当前浅色）",
+        "saved": null,
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "system",
+        "stored": null,
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "02-switch-dark",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "dark",
+        "status": "当前外观：原生 · 深色",
+        "saved": "已保存。",
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "dark",
+        "stored": {
+          "version": 1,
+          "themeId": "native",
+          "colorMode": "dark"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "03-reload-dark",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "dark",
+        "status": "当前外观：原生 · 深色",
+        "saved": null,
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "dark",
+        "stored": {
+          "version": 1,
+          "themeId": "native",
+          "colorMode": "dark"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "04-system-follows-os",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "dark",
+        "status": "当前外观：原生 · 跟随系统（当前深色）",
+        "saved": null,
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "system",
+        "stored": {
+          "version": 1,
+          "themeId": "native",
+          "colorMode": "system"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "05-theme-selection",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "dark",
+        "status": "当前外观：原生 · 跟随系统（当前深色）",
+        "saved": "已保存。",
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "system",
+        "stored": {
+          "version": 1,
+          "themeId": "native",
+          "colorMode": "system"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "06-write-failure",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "dark",
+        "status": "当前外观：原生 · 深色",
+        "saved": null,
+        "failed": "尚未保存本机存储暂时不可写，外观没有保存。请稍后重试。重试",
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "dark",
+        "stored": {
+          "version": 1,
+          "themeId": "native",
+          "colorMode": "system"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "07-refresh-after-failure",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "dark",
+        "status": "当前外观：原生 · 跟随系统（当前深色）",
+        "saved": null,
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "system",
+        "stored": {
+          "version": 1,
+          "themeId": "native",
+          "colorMode": "system"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "08-retry-saves",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "light",
+        "status": "当前外观：原生 · 浅色",
+        "saved": null,
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "light",
+        "stored": {
+          "version": 1,
+          "themeId": "native",
+          "colorMode": "light"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "09-keyboard-375",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "graphite",
+        "mode": "dark",
+        "status": "当前外观：石墨 · 深色",
+        "saved": "已保存。",
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "graphite",
+        "checkedMode": "dark",
+        "stored": {
+          "version": 1,
+          "themeId": "graphite",
+          "colorMode": "dark"
+        },
+        "fakeMenu": false,
+        "width": 375,
+        "focused": "color-mode",
+        "focusVisible": true
+      }
+    },
+    {
+      "step": "10-final-native-light",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "light",
+        "status": "当前外观：原生 · 浅色",
+        "saved": "已保存。",
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "light",
+        "stored": {
+          "version": 1,
+          "themeId": "native",
+          "colorMode": "light"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "color-mode",
+        "focusVisible": true
+      }
+    },
+    {
+      "step": "11-final-native-dark",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "dark",
+        "status": "当前外观：原生 · 深色",
+        "saved": null,
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "dark",
+        "stored": {
+          "version": 1,
+          "themeId": "native",
+          "colorMode": "dark"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "12-reduced-motion",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "native",
+        "mode": "dark",
+        "status": "当前外观：原生 · 深色",
+        "saved": null,
+        "failed": null,
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "native",
+        "checkedMode": "dark",
+        "stored": {
+          "version": 1,
+          "themeId": "native",
+          "colorMode": "dark"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "13-navigation-keeps-saved",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters",
+        "theme": "graphite",
+        "mode": "dark",
+        "status": null,
+        "saved": null,
+        "failed": null,
+        "readNote": null,
+        "notification": null,
+        "themes": [],
+        "modes": [],
+        "checkedTheme": null,
+        "checkedMode": null,
+        "stored": {
+          "version": 1,
+          "themeId": "graphite",
+          "colorMode": "system"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "14-failed-save-stay",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/settings",
+        "theme": "graphite",
+        "mode": "light",
+        "status": "当前外观：石墨 · 浅色",
+        "saved": null,
+        "failed": "尚未保存本机存储暂时不可写，外观没有保存。请稍后重试。重试",
+        "readNote": null,
+        "notification": "通知R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。",
+        "themes": [
+          "native",
+          "graphite",
+          "cyan",
+          "celadon"
+        ],
+        "modes": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "checkedTheme": "graphite",
+        "checkedMode": "light",
+        "stored": {
+          "version": 1,
+          "themeId": "graphite",
+          "colorMode": "system"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      },
+      "notes": {
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "外观尚未保存。确定放弃未保存的选择并离开吗？取消可留在页面重试。",
+            "accepted": false
+          },
+          {
+            "type": "confirm",
+            "message": "外观尚未保存。确定放弃未保存的选择并离开吗？取消可留在页面重试。",
+            "accepted": false
+          }
+        ]
+      }
+    },
+    {
+      "step": "15-failed-save-discard",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters",
+        "theme": "graphite",
+        "mode": "dark",
+        "status": null,
+        "saved": null,
+        "failed": null,
+        "readNote": null,
+        "notification": null,
+        "themes": [],
+        "modes": [],
+        "checkedTheme": null,
+        "checkedMode": null,
+        "stored": {
+          "version": 1,
+          "themeId": "graphite",
+          "colorMode": "system"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    },
+    {
+      "step": "16-legacy-release",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters",
+        "theme": "graphite",
+        "mode": "dark",
+        "status": null,
+        "saved": null,
+        "failed": null,
+        "readNote": null,
+        "notification": null,
+        "themes": [],
+        "modes": [],
+        "checkedTheme": null,
+        "checkedMode": null,
+        "stored": {
+          "version": 1,
+          "themeId": "graphite",
+          "colorMode": "system"
+        },
+        "fakeMenu": false,
+        "width": 1280,
+        "focused": "BODY",
+        "focusVisible": false
+      }
+    }
+  ]
+}

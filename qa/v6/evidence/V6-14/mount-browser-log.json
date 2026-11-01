@@ -1,0 +1,691 @@
+{
+  "base": "http://localhost:4176/patent",
+  "matterId": "70abd091-5413-4f38-a4dc-274af67cdbc0",
+  "steps": [
+    {
+      "step": "01-empty-state",
+      "ok": true,
+      "notes": {
+        "panel": {
+          "state": "ready",
+          "matterVersion": "1",
+          "empty": "本案还没有目标选择一条路线并创建目标；同一案件可以为不同路线分别创建目标。",
+          "switches": [],
+          "selected": null,
+          "selectedVersion": null,
+          "selectedConfig": null,
+          "notice": "",
+          "actionError": null,
+          "createDisabledReason": null,
+          "createSaveDisabled": false,
+          "fallback": "true"
+        },
+        "db": {
+          "matterVersion": 1,
+          "targets": [],
+          "eventCount": 1,
+          "targetEvents": [],
+          "configRows": [],
+          "idempotency": []
+        }
+      }
+    },
+    {
+      "step": "02-create-target-a-cn_invention",
+      "ok": true,
+      "notes": {
+        "a": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+        "panel": {
+          "state": "ready",
+          "matterVersion": "2",
+          "empty": null,
+          "switches": [
+            {
+              "id": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "version": "1",
+              "active": true,
+              "text": "目标 1 · cn_invention · v1"
+            }
+          ],
+          "selected": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+          "selectedVersion": "配置版本 1 · 语言 zh-CN",
+          "selectedConfig": "路线中国发明申请人尚未填写发明人尚未填写优先权没有声明语言zh-CN",
+          "notice": "目标已保存。",
+          "actionError": null,
+          "createDisabledReason": null,
+          "createSaveDisabled": false,
+          "fallback": "true"
+        },
+        "db": {
+          "matterVersion": 2,
+          "targets": [
+            {
+              "id": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "status": "active",
+              "configVersion": 1
+            }
+          ],
+          "eventCount": 2,
+          "targetEvents": [
+            {
+              "action": "target.created",
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "keys": [
+                "action",
+                "actorId",
+                "actorKind",
+                "id",
+                "jobId",
+                "matterId",
+                "metadata",
+                "occurredAt",
+                "resourceId",
+                "snapshot",
+                "targetId",
+                "tenantId"
+              ]
+            }
+          ],
+          "configRows": [
+            {
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "route": "cn_invention",
+              "language": "zh-CN",
+              "version": 1
+            }
+          ],
+          "idempotency": [
+            "completed"
+          ]
+        }
+      }
+    },
+    {
+      "step": "03-create-target-b-pct",
+      "ok": true,
+      "notes": {
+        "b": "e9a66859-8333-5fea-8342-1368d223620d",
+        "language": "zh-CN",
+        "panel": {
+          "state": "ready",
+          "matterVersion": "3",
+          "empty": null,
+          "switches": [
+            {
+              "id": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "version": "1",
+              "active": false,
+              "text": "目标 1 · cn_invention · v1"
+            },
+            {
+              "id": "e9a66859-8333-5fea-8342-1368d223620d",
+              "version": "1",
+              "active": true,
+              "text": "目标 2 · pct · v1"
+            }
+          ],
+          "selected": "e9a66859-8333-5fea-8342-1368d223620d",
+          "selectedVersion": "配置版本 1 · 语言 zh-CN",
+          "selectedConfig": "路线PCT 国际申请申请人尚未填写发明人尚未填写优先权没有声明语言zh-CN",
+          "notice": "目标已保存。",
+          "actionError": null,
+          "createDisabledReason": null,
+          "createSaveDisabled": false,
+          "fallback": "true"
+        },
+        "db": {
+          "matterVersion": 3,
+          "targets": [
+            {
+              "id": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "status": "active",
+              "configVersion": 1
+            },
+            {
+              "id": "e9a66859-8333-5fea-8342-1368d223620d",
+              "status": "active",
+              "configVersion": 1
+            }
+          ],
+          "eventCount": 3,
+          "targetEvents": [
+            {
+              "action": "target.created",
+              "targetId": "e9a66859-8333-5fea-8342-1368d223620d",
+              "keys": [
+                "action",
+                "actorId",
+                "actorKind",
+                "id",
+                "jobId",
+                "matterId",
+                "metadata",
+                "occurredAt",
+                "resourceId",
+                "snapshot",
+                "targetId",
+                "tenantId"
+              ]
+            },
+            {
+              "action": "target.created",
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "keys": [
+                "action",
+                "actorId",
+                "actorKind",
+                "id",
+                "jobId",
+                "matterId",
+                "metadata",
+                "occurredAt",
+                "resourceId",
+                "snapshot",
+                "targetId",
+                "tenantId"
+              ]
+            }
+          ],
+          "configRows": [
+            {
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "route": "cn_invention",
+              "language": "zh-CN",
+              "version": 1
+            },
+            {
+              "targetId": "e9a66859-8333-5fea-8342-1368d223620d",
+              "route": "pct",
+              "language": "zh-CN",
+              "version": 1
+            }
+          ],
+          "idempotency": [
+            "completed",
+            "completed"
+          ]
+        }
+      }
+    },
+    {
+      "step": "04-switch-no-version-bump",
+      "ok": true,
+      "notes": {
+        "hashA": "#target=668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+        "chip": {
+          "active": true,
+          "color": "rgb(23, 21, 15)",
+          "background": "rgb(236, 232, 223)",
+          "text": "目标 1 · cn_invention · v1"
+        },
+        "matterVersion": 3,
+        "versions": [
+          {
+            "id": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+            "status": "active",
+            "configVersion": 1
+          },
+          {
+            "id": "e9a66859-8333-5fea-8342-1368d223620d",
+            "status": "active",
+            "configVersion": 1
+          }
+        ]
+      }
+    },
+    {
+      "step": "05-update-a-b-unchanged",
+      "ok": true,
+      "notes": {
+        "panel": {
+          "state": "ready",
+          "matterVersion": "4",
+          "empty": null,
+          "switches": [
+            {
+              "id": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "version": "2",
+              "active": true,
+              "text": "目标 1 · cn_um · v2"
+            },
+            {
+              "id": "e9a66859-8333-5fea-8342-1368d223620d",
+              "version": "1",
+              "active": false,
+              "text": "目标 2 · pct · v1"
+            }
+          ],
+          "selected": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+          "selectedVersion": "配置版本 2 · 语言 zh-CN",
+          "selectedConfig": "路线中国实用新型申请人尚未填写发明人尚未填写优先权没有声明语言zh-CN",
+          "notice": "目标配置已保存，其他目标没有变化。",
+          "actionError": null,
+          "createDisabledReason": null,
+          "createSaveDisabled": false,
+          "fallback": "true"
+        },
+        "db": {
+          "matterVersion": 4,
+          "targets": [
+            {
+              "id": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "status": "active",
+              "configVersion": 2
+            },
+            {
+              "id": "e9a66859-8333-5fea-8342-1368d223620d",
+              "status": "active",
+              "configVersion": 1
+            }
+          ],
+          "eventCount": 4,
+          "targetEvents": [
+            {
+              "action": "target.config_updated",
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "keys": [
+                "action",
+                "actorId",
+                "actorKind",
+                "id",
+                "jobId",
+                "matterId",
+                "metadata",
+                "occurredAt",
+                "resourceId",
+                "snapshot",
+                "targetId",
+                "tenantId"
+              ]
+            },
+            {
+              "action": "target.created",
+              "targetId": "e9a66859-8333-5fea-8342-1368d223620d",
+              "keys": [
+                "action",
+                "actorId",
+                "actorKind",
+                "id",
+                "jobId",
+                "matterId",
+                "metadata",
+                "occurredAt",
+                "resourceId",
+                "snapshot",
+                "targetId",
+                "tenantId"
+              ]
+            },
+            {
+              "action": "target.created",
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "keys": [
+                "action",
+                "actorId",
+                "actorKind",
+                "id",
+                "jobId",
+                "matterId",
+                "metadata",
+                "occurredAt",
+                "resourceId",
+                "snapshot",
+                "targetId",
+                "tenantId"
+              ]
+            }
+          ],
+          "configRows": [
+            {
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "route": "cn_invention",
+              "language": "zh-CN",
+              "version": 1
+            },
+            {
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "route": "cn_um",
+              "language": "zh-CN",
+              "version": 2
+            },
+            {
+              "targetId": "e9a66859-8333-5fea-8342-1368d223620d",
+              "route": "pct",
+              "language": "zh-CN",
+              "version": 1
+            }
+          ],
+          "idempotency": [
+            "completed",
+            "completed",
+            "completed"
+          ]
+        },
+        "updateEventKeys": [
+          "action",
+          "actorId",
+          "actorKind",
+          "id",
+          "jobId",
+          "matterId",
+          "metadata",
+          "occurredAt",
+          "resourceId",
+          "snapshot",
+          "targetId",
+          "tenantId"
+        ]
+      }
+    },
+    {
+      "step": "06-ep-refused",
+      "ok": true,
+      "notes": {
+        "actionError": {
+          "code": "INVALID_INPUT",
+          "text": "尚未保存输入有误，尚未保存。route：EP 不是可生成的目标路线，请改为人工服务需求；系统不会把它映射到其他路线。"
+        },
+        "db": {
+          "matterVersion": 4,
+          "targets": [
+            {
+              "id": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "status": "active",
+              "configVersion": 2
+            },
+            {
+              "id": "e9a66859-8333-5fea-8342-1368d223620d",
+              "status": "active",
+              "configVersion": 1
+            }
+          ],
+          "eventCount": 4,
+          "targetEvents": [
+            {
+              "action": "target.config_updated",
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "keys": [
+                "action",
+                "actorId",
+                "actorKind",
+                "id",
+                "jobId",
+                "matterId",
+                "metadata",
+                "occurredAt",
+                "resourceId",
+                "snapshot",
+                "targetId",
+                "tenantId"
+              ]
+            },
+            {
+              "action": "target.created",
+              "targetId": "e9a66859-8333-5fea-8342-1368d223620d",
+              "keys": [
+                "action",
+                "actorId",
+                "actorKind",
+                "id",
+                "jobId",
+                "matterId",
+                "metadata",
+                "occurredAt",
+                "resourceId",
+                "snapshot",
+                "targetId",
+                "tenantId"
+              ]
+            },
+            {
+              "action": "target.created",
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "keys": [
+                "action",
+                "actorId",
+                "actorKind",
+                "id",
+                "jobId",
+                "matterId",
+                "metadata",
+                "occurredAt",
+                "resourceId",
+                "snapshot",
+                "targetId",
+                "tenantId"
+              ]
+            }
+          ],
+          "configRows": [
+            {
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "route": "cn_invention",
+              "language": "zh-CN",
+              "version": 1
+            },
+            {
+              "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+              "route": "cn_um",
+              "language": "zh-CN",
+              "version": 2
+            },
+            {
+              "targetId": "e9a66859-8333-5fea-8342-1368d223620d",
+              "route": "pct",
+              "language": "zh-CN",
+              "version": 1
+            }
+          ],
+          "idempotency": [
+            "completed",
+            "completed",
+            "completed"
+          ]
+        }
+      }
+    },
+    {
+      "step": "07-us-pct-warning",
+      "ok": true,
+      "notes": {
+        "us": "中文准备稿，需翻译并由适格人员核对，不能直接作为该法域申请文件",
+        "pct": "中文准备稿，需翻译并由适格人员核对，不能直接作为该法域申请文件",
+        "unverified": [
+          [
+            "cn_um",
+            [
+              "未核实",
+              "未核实",
+              "未核实"
+            ]
+          ],
+          [
+            "cn_invention",
+            [
+              "未核实",
+              "未核实",
+              "未核实"
+            ]
+          ],
+          [
+            "us_nonprovisional",
+            [
+              "未核实",
+              "未核实",
+              "未核实"
+            ]
+          ],
+          [
+            "pct",
+            [
+              "未核实",
+              "未核实",
+              "未核实"
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "step": "08-en-us-disabled-reason",
+      "ok": true,
+      "notes": {
+        "present": true,
+        "disabled": true,
+        "reason": "R1 本机构没有可用的英文翻译与适格人员核对能力，暂不提供英文准备稿。",
+        "attrReason": "R1 本机构没有可用的英文翻译与适格人员核对能力，暂不提供英文准备稿。",
+        "zhChecked": true,
+        "createReason": "R1 本机构没有可用的英文翻译与适格人员核对能力，暂不提供英文准备稿。"
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "network": [
+    "http://localhost:4176/patent/v6",
+    "http://localhost:4176/patent/assets/index-MenlF652.js",
+    "http://localhost:4176/patent/assets/index-DdwQeOia.css",
+    "http://localhost:4176/patent/assets/V6App-mlQt-Vvu.js",
+    "http://localhost:4176/patent/assets/V6App-BKpE1eve.css",
+    "http://localhost:4176/patent/v6/matters/70abd091-5413-4f38-a4dc-274af67cdbc0/overview",
+    "http://localhost:4176/patent/assets/index-MenlF652.js",
+    "http://localhost:4176/patent/assets/index-DdwQeOia.css",
+    "http://localhost:4176/patent/assets/V6App-mlQt-Vvu.js",
+    "http://localhost:4176/patent/assets/V6App-BKpE1eve.css"
+  ],
+  "nonLocalRequests": [],
+  "screenshots": [
+    "01-empty-state.png",
+    "02-create-target-a-cn_invention.png",
+    "03-create-target-b-pct.png",
+    "04-switch-no-version-bump.png",
+    "05-update-a-b-unchanged.png",
+    "06-ep-refused.png",
+    "07-us-pct-warning.png",
+    "08-en-us-disabled-reason.png"
+  ],
+  "finalDb": {
+    "matterVersion": 4,
+    "targets": [
+      {
+        "id": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+        "status": "active",
+        "configVersion": 2
+      },
+      {
+        "id": "e9a66859-8333-5fea-8342-1368d223620d",
+        "status": "active",
+        "configVersion": 1
+      }
+    ],
+    "eventCount": 4,
+    "targetEvents": [
+      {
+        "action": "target.config_updated",
+        "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+        "keys": [
+          "action",
+          "actorId",
+          "actorKind",
+          "id",
+          "jobId",
+          "matterId",
+          "metadata",
+          "occurredAt",
+          "resourceId",
+          "snapshot",
+          "targetId",
+          "tenantId"
+        ]
+      },
+      {
+        "action": "target.created",
+        "targetId": "e9a66859-8333-5fea-8342-1368d223620d",
+        "keys": [
+          "action",
+          "actorId",
+          "actorKind",
+          "id",
+          "jobId",
+          "matterId",
+          "metadata",
+          "occurredAt",
+          "resourceId",
+          "snapshot",
+          "targetId",
+          "tenantId"
+        ]
+      },
+      {
+        "action": "target.created",
+        "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+        "keys": [
+          "action",
+          "actorId",
+          "actorKind",
+          "id",
+          "jobId",
+          "matterId",
+          "metadata",
+          "occurredAt",
+          "resourceId",
+          "snapshot",
+          "targetId",
+          "tenantId"
+        ]
+      }
+    ],
+    "configRows": [
+      {
+        "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+        "route": "cn_invention",
+        "language": "zh-CN",
+        "version": 1
+      },
+      {
+        "targetId": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+        "route": "cn_um",
+        "language": "zh-CN",
+        "version": 2
+      },
+      {
+        "targetId": "e9a66859-8333-5fea-8342-1368d223620d",
+        "route": "pct",
+        "language": "zh-CN",
+        "version": 1
+      }
+    ],
+    "idempotency": [
+      "completed",
+      "completed",
+      "completed"
+    ]
+  },
+  "finalPanel": {
+    "state": "ready",
+    "matterVersion": "4",
+    "empty": null,
+    "switches": [
+      {
+        "id": "668e48d8-dc7e-5bbd-89ae-46f6081e90c2",
+        "version": "2",
+        "active": false,
+        "text": "目标 1 · cn_um · v2"
+      },
+      {
+        "id": "e9a66859-8333-5fea-8342-1368d223620d",
+        "version": "1",
+        "active": true,
+        "text": "目标 2 · pct · v1"
+      }
+    ],
+    "selected": "e9a66859-8333-5fea-8342-1368d223620d",
+    "selectedVersion": "配置版本 1 · 语言 zh-CN",
+    "selectedConfig": "路线PCT 国际申请申请人尚未填写发明人尚未填写优先权没有声明语言zh-CN",
+    "notice": "",
+    "actionError": null,
+    "createDisabledReason": null,
+    "createSaveDisabled": false,
+    "fallback": "true"
+  },
+  "profileRemoved": true
+}

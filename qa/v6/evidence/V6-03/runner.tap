@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: V6-03-A01: every fixture validates against its registered schema
+ok 1 - V6-03-A01: every fixture validates against its registered schema
+  ---
+  duration_ms: 4.772125
+  type: 'test'
+  ...
+# Subtest: V6-03-A01: a valid snapshot and command survive a serialization round trip
+ok 2 - V6-03-A01: a valid snapshot and command survive a serialization round trip
+  ---
+  duration_ms: 0.176583
+  type: 'test'
+  ...
+# Subtest: V6-03-A01: a valid draft AST round-trips with its claim dependency graph intact
+ok 3 - V6-03-A01: a valid draft AST round-trips with its claim dependency graph intact
+  ---
+  duration_ms: 0.227917
+  type: 'test'
+  ...
+# Subtest: V6-03-A02: every snapshot field is required and none is defaulted to the current target
+ok 4 - V6-03-A02: every snapshot field is required and none is defaulted to the current target
+  ---
+  duration_ms: 0.706167
+  type: 'test'
+  ...
+# Subtest: V6-03-A02: invalid and stale versions are rejected
+ok 5 - V6-03-A02: invalid and stale versions are rejected
+  ---
+  duration_ms: 0.335
+  type: 'test'
+  ...
+# Subtest: V6-03-A02: unknown fields are rejected instead of silently carried
+ok 6 - V6-03-A02: unknown fields are rejected instead of silently carried
+  ---
+  duration_ms: 0.124583
+  type: 'test'
+  ...
+# Subtest: V6-03-A02: the closed enums reject unknown members
+ok 7 - V6-03-A02: the closed enums reject unknown members
+  ---
+  duration_ms: 0.106834
+  type: 'test'
+  ...
+# Subtest: V6-03-A02: references outside the AST are rejected
+ok 8 - V6-03-A02: references outside the AST are rejected
+  ---
+  duration_ms: 0.557958
+  type: 'test'
+  ...
+# Subtest: V6-03-A02: gate, confirmation and payment invariants hold
+ok 9 - V6-03-A02: gate, confirmation and payment invariants hold
+  ---
+  duration_ms: 0.32325
+  type: 'test'
+  ...
+# Subtest: V6-03-A03: repeated parsing is identical and never mutates the input
+ok 10 - V6-03-A03: repeated parsing is identical and never mutates the input
+  ---
+  duration_ms: 3.0295
+  type: 'test'
+  ...
+# Subtest: V6-03-A03: parsing adds no defaults and removes no supplied field
+ok 11 - V6-03-A03: parsing adds no defaults and removes no supplied field
+  ---
+  duration_ms: 0.304
+  type: 'test'
+  ...
+# Subtest: V6-03-A03: contract sources import no storage, network or runtime side effect
+ok 12 - V6-03-A03: contract sources import no storage, network or runtime side effect
+  ---
+  duration_ms: 0.751625
+  type: 'test'
+  ...
+# Subtest: V6-03-A02: activity actions and metadata keys follow the S06 allowlists
+ok 13 - V6-03-A02: activity actions and metadata keys follow the S06 allowlists
+  ---
+  duration_ms: 0.373917
+  type: 'test'
+  ...
+# Subtest: V6-03-A03: contract version and error-code mapping are complete and stable
+ok 14 - V6-03-A03: contract version and error-code mapping are complete and stable
+  ---
+  duration_ms: 0.233209
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 143.947625

@@ -1,0 +1,20 @@
+{
+  "status": "applied",
+  "appliedAt": "2026-10-30",
+  "rootPackageJson": {
+    "scripts": {
+      "test:v6": "node qa/v6/runner.mjs"
+    }
+  },
+  "rootPackageLock": {
+    "requiredChanges": "None. The applied script uses the existing Node.js runtime and adds no dependency; root lock metadata has no scripts section."
+  },
+  "registeredExistingRegressionCommands": [
+    "npm run test -w apps/worker",
+    "npm run test -w packages/export",
+    "npm run test -w packages/vibescanner-core",
+    "npm run test -w apps/vibescanner-web",
+    "npm run test -w apps/vibescanner-worker"
+  ],
+  "note": "Applied by the orchestrator as coordinator-owned integration. The ticket selector is passed after --, for example npm run test:v6 -- V6-02. Verified: V6-02 exits 0, V6-999 and V6-9 exit 2 through npm."
+}

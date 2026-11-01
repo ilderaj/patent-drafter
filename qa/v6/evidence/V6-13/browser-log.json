@@ -1,0 +1,193 @@
+{
+  "ticket": "V6-13",
+  "date": "2026-11-01T19:03:35.821Z",
+  "baseUrl": "http://localhost:4177/patent",
+  "fixture": "/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/fixtures/intake-source.txt",
+  "ok": true,
+  "steps": [
+    {
+      "step": "01 start page and empty database",
+      "ok": true,
+      "notes": {
+        "path": "/patent/v6",
+        "matches": 1
+      }
+    },
+    {
+      "step": "02 create a matter",
+      "ok": true,
+      "notes": {
+        "matterId": "892dcde3-1bd0-4e66-9f8b-19353230e07d",
+        "path": "/patent/v6/matters/892dcde3-1bd0-4e66-9f8b-19353230e07d/upload"
+      }
+    },
+    {
+      "step": "03 upload and parse the synthetic material",
+      "ok": true,
+      "notes": {
+        "rows": [
+          {
+            "state": "parsed",
+            "text": "▤intake-source.txt9 段 · 1 页 · 已保存已解析"
+          }
+        ]
+      }
+    },
+    {
+      "step": "04 facts tab: empty intake, five questions, no inferred history or maturity",
+      "ok": true,
+      "notes": {
+        "completeness": "已填写 0/5 · 待补：问题、区别、发明人、公开历史、成熟度",
+        "disclosure": "",
+        "maturity": "",
+        "suggestion": "intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。"
+      }
+    },
+    {
+      "step": "05 save an answer with its source and an inventor",
+      "ok": true,
+      "notes": {
+        "message": "已保存为第 2 版。",
+        "problemSource": "suggest:0",
+        "provenance": "来源记录于第 1 版事实 · 2026-11-01",
+        "quote": "问题：现有换热装置在低温环境下效率低，运行成本高。"
+      }
+    },
+    {
+      "step": "06 explicit public-history and maturity choice, saved with its own source",
+      "ok": true,
+      "notes": {
+        "message": "已保存为第 3 版。",
+        "maturitySource": "chunk:1f68c7c2-d01d-50f6-8328-41e3153b0bc9",
+        "view": {
+          "disclosure": "private_showing",
+          "maturity": "tested_sample",
+          "detail": "客户样机评审会",
+          "confidentiality": "yes",
+          "disclosureProvenance": "来源记录于第 2 版事实 · 2026-11-01"
+        }
+      }
+    },
+    {
+      "step": "07 two conflicting answers are both preserved and locatable",
+      "ok": true,
+      "notes": {
+        "factIds": [
+          "6b039ae7-7e9a-453a-bb44-17558ff744a9",
+          "7ca89bd8-2b9b-4a5b-b0ae-3cf08b3922e9"
+        ],
+        "conflictId": "bbe5a257-9dd6-4f5a-967a-2fbd872aa194",
+        "retained": "retained",
+        "message": "已保存为第 4 版。",
+        "withSource": "样机在低温环境下的运行成本明显低于现有装置。移除参数 · 材料支撑 · 1 段材料问题：现有换热装置在低温环境下效率低，运行成本高。 · 属于 1 个冲突",
+        "reasonValue": "材料只支持样机验证，出货说法来自口头转述，两者尚未核实。",
+        "stateValue": "retained"
+      }
+    },
+    {
+      "step": "08 a changed fact marks a derived draft stale",
+      "ok": true,
+      "notes": {
+        "targetId": "336034b7-f599-4622-a90c-49f1c8359e3b",
+        "injected": {
+          "sourceVersion": 4
+        },
+        "message": "已保存为第 5 版。",
+        "nextVersion": 5,
+        "draftText": "目标 1：第 4 版事实事实已变化，需重新生成"
+      }
+    },
+    {
+      "step": "09 reload: answers, sources, conflict and staleness all persist",
+      "ok": true,
+      "notes": {
+        "view": {
+          "state": "stale",
+          "version": "5",
+          "problem": "现有换热装置在低温环境下效率低，运行成本高。本次补充了维护成本数据。",
+          "disclosure": "private_showing",
+          "maturity": "tested_sample",
+          "provenance": "来源记录于第 4 版事实 · 2026-11-01",
+          "conflictCount": 1,
+          "conflictState": "retained",
+          "draftStale": "true",
+          "staleNotice": true
+        },
+        "snapshotKeys": [
+          "intake/snapshot/892dcde3-1bd0-4e66-9f8b-19353230e07d/2",
+          "intake/snapshot/892dcde3-1bd0-4e66-9f8b-19353230e07d/3",
+          "intake/snapshot/892dcde3-1bd0-4e66-9f8b-19353230e07d/4",
+          "intake/snapshot/892dcde3-1bd0-4e66-9f8b-19353230e07d/5"
+        ]
+      }
+    },
+    {
+      "step": "10 B1: a committed version whose snapshot is missing recovers after a reload and a save fills it",
+      "ok": true,
+      "notes": {
+        "version": 5,
+        "view": {
+          "version": "5",
+          "error": false,
+          "notSavedCopy": false,
+          "recovery": "第 5 版事实已记录，但这一版的答案快照没有写入本机。下面显示的是第 4 版保存的内容，可能比第 5 版旧。请核对后保存：会以第 5 版为基础写入新版本和完整快照。",
+          "save": true,
+          "problem": "现有换热装置在低温环境下效率低，运行成本高。"
+        },
+        "message": "已保存为第 6 版。",
+        "after": {
+          "version": "6",
+          "recovery": false,
+          "problem": "现有换热装置在低温环境下效率低，运行成本高。"
+        },
+        "snapshotKeys": [
+          "intake/snapshot/892dcde3-1bd0-4e66-9f8b-19353230e07d/2",
+          "intake/snapshot/892dcde3-1bd0-4e66-9f8b-19353230e07d/3",
+          "intake/snapshot/892dcde3-1bd0-4e66-9f8b-19353230e07d/4",
+          "intake/snapshot/892dcde3-1bd0-4e66-9f8b-19353230e07d/6"
+        ]
+      }
+    },
+    {
+      "step": "11 B3: a second tab saves first; this tab's save on the old base shows both sides at the real latest version",
+      "ok": true,
+      "notes": {
+        "base": 6,
+        "latestVersion": 7,
+        "view": {
+          "notice": "其他窗口已保存了更新的版本你编辑时基于第 6 版；最新是第 7 版。请对照下面的两列内容合并。你正在编辑的内容问题本标签页尚未保存的问题：运行成本高。区别改进了流道结构，降低了流动阻力。公开历史私下展示（有保密约定）成熟度已有测试样品事实2 条冲突1 个最新版本（第 7 版）问题另一个标签页保存的问题：低温下效率低。区别改进了流道结构，降低了流动阻力。公开历史私下展示（有保密约定）成熟度已有测试样品事实2 条冲突1 个保留我的修改，基于第 7 版保存以最新版本重新加载「保留我的修改」不会丢掉上面的内容；下一次保存会把它写到第 7 版之上。「重新加载」会放弃上面的修改，显示最新版本的内容。",
+          "mine": "你正在编辑的内容问题本标签页尚未保存的问题：运行成本高。区别改进了流道结构，降低了流动阻力。公开历史私下展示（有保密约定）成熟度已有测试样品事实2 条冲突1 个",
+          "latest": "最新版本（第 7 版）问题另一个标签页保存的问题：低温下效率低。区别改进了流道结构，降低了流动阻力。公开历史私下展示（有保密约定）成熟度已有测试样品事实2 条冲突1 个",
+          "reload": true,
+          "version": "6"
+        }
+      }
+    },
+    {
+      "step": "12 N-b: keeping my edits moves the base to the latest version and the save lands on top of it",
+      "ok": true,
+      "notes": {
+        "base": 6,
+        "savedVersion": 8,
+        "status": "已保存为第 8 版。"
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "consoleLogCount": 0,
+  "consoleErrorsCount": 0,
+  "screenshots": [
+    "01-start-empty.png",
+    "02-material-parsed.png",
+    "03-intake-empty.png",
+    "04-answer-saved-with-source.png",
+    "05-explicit-choice-saved.png",
+    "06-conflict-preserved.png",
+    "07-stale-derived-draft.png",
+    "08-reload-persisted.png",
+    "09-recovery-after-snapshot-loss.png",
+    "10-recovery-saved.png",
+    "11-version-conflict-side-by-side.png",
+    "12-merge-kept-mine.png"
+  ]
+}

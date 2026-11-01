@@ -1,0 +1,330 @@
+
+> test
+> node --test test/*.test.mjs
+
+✔ analytics emits only the declared minimal event schema (1.502291ms)
+✔ analytics rejects unexpected and potentially private parameters (0.070334ms)
+✔ score and risk values are reduced to approved coarse bands (0.067458ms)
+✔ GA4 bootstraps only a valid public measurement ID and never receives scan content (0.258417ms)
+✔ the browser accepts only the gtag-issued GA4 client id for a later verified purchase (0.3945ms)
+✔ the browser accepts a measurement ID only from the scoped public runtime config (26.369666ms)
+✔ funnel completion and failure analytics stay coarse and contain no scan material (0.158792ms)
+✔ a Checkout return is only a pending lookup instruction, never entitlement (28.131041ms)
+✔ a paid report is accepted only from a paid lookup response (0.209ms)
+✔ selected source files include native and mobile source extensions (11.936833ms)
+✔ document extraction stays browser-safe for DOCX, unsupported files, and size caps (2.204042ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 157.662458
+
+> test
+> node --test test/*.test.mjs
+
+✔ health route is scoped to VibeScanner base path (24.854208ms)
+✔ public runtime configuration exposes only a valid non-secret GA4 measurement ID (0.690125ms)
+✔ all Worker responses carry the documented same-origin security headers (0.23ms)
+✔ VibeScanner asset requests remove only the public base path before static asset lookup (0.475ms)
+✔ unrelated paths cannot reach the VibeScanner SPA fallback (0.187875ms)
+✔ scan requires the processing acknowledgement and does not echo private input (0.436084ms)
+✔ scan creation is limited per ephemeral Cloudflare client fingerprint (8.646083ms)
+✔ description scan returns a free evidence-backed report without raw source (0.482583ms)
+✔ D1 persistence receives only derived fields and a digest, never raw source (0.655917ms)
+✔ D1 evidence rows use scan-scoped keys when display evidence IDs recur (0.738875ms)
+✔ configured LLM extraction replaces the fixture miner only after valid schema output (1.151875ms)
+✔ a configured Pass 2 outage returns an explicit partial report instead of an invented assessment (0.522125ms)
+✔ invalid GitHub URL is rejected before an external request (0.171875ms)
+✔ valid GitHub input reaches only constructed GitHub API endpoints with bounded optional evidence (2.34375ms)
+✔ public GitHub inspection progresses through a capped tree and surfaces declared OSS licence evidence (1.321584ms)
+✔ GitHub API alias redirects are followed only when they stay on a fixed approved API path (0.5795ms)
+✔ GitHub API redirects to an unapproved path or host are rejected (0.216375ms)
+✔ GitHub failure is a recoverable provider error, not a fabricated report (0.148791ms)
+✔ optional GitHub evidence is bounded and never returned as raw report material (0.618417ms)
+✔ oversized optional GitHub JSON is ignored rather than expanding the scan input (0.521833ms)
+✔ unconfigured patent evidence renders a partial report with unknown patent signal (0.261708ms)
+✔ expert review request requires an existing completed scan and acknowledgement (1.040292ms)
+✔ Stripe Checkout is server-controlled and a return query never grants paid access (1.063417ms)
+✔ Stripe webhook rejects bad signatures and grants entitlement once after a verified paid event (2.022667ms)
+✔ a verified Stripe payment sends one minimal GA4 purchase only with the configured tag client id (0.919875ms)
+✔ Checkout rejects arbitrary values in the GA4 client-id slot (0.349625ms)
+✔ verified Stripe events with wrong payment facts remain non-entitling (0.45575ms)
+✔ unconfigured model provider does not accept source material (1.417792ms)
+✔ model input is explicitly untrusted and output is normalised to a bounded candidate schema (28.119417ms)
+✔ malformed model JSON retries once then returns a typed failure (0.382875ms)
+✔ Pass 2 sends only bounded candidate and evidence observations, never raw source or score instructions (0.444917ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 179.538417
+
+> test
+> node --test test/*.test.mjs
+
+✔ healthz reports cloud mode (26.454167ms)
+{"rid":"8a384376","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+✔ login rejects wrong password with 401 (3.263542ms)
+{"rid":"5cb33356","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"e8ce888b","method":"GET","path":"/patent/api/status","status":200,"ms":0}
+✔ login accepts correct password and issues a usable token (1.879542ms)
+{"rid":"b2cf6766","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"390d9f5c","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"02ff1fca","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"8c421315","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"af338ab0","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"adeaadf6","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"6788f709","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"027981fe","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"621bc007","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"a6cbd2c3","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"0b557f2f","method":"POST","path":"/patent/api/login","status":429,"ms":0}
+{"rid":"aec0e70e","method":"POST","path":"/patent/api/login","status":429,"ms":0}
+{"rid":"316895c4","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+{"rid":"c2875c8b","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+✔ login is rate-limited per IP after 10 attempts (3.171958ms)
+✔ status rejects missing/invalid token with 401 (0.208625ms)
+{"rid":"1a86113d","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"440572a3","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+{"rid":"7fba401c","method":"POST","path":"/patent/api/providers/deepseek/chat","status":401,"ms":0}
+✔ expired token is rejected (0.59025ms)
+✔ chat without session returns 401 and never reaches upstream (0.296334ms)
+{"rid":"3de9833d","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"0a0c4745","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"5ac6d2d6","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ preview gate: first send gets 428 + requiredConfirm, confirmed send reaches upstream (1.891208ms)
+{"rid":"a86888c4","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"7203d33f","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+✔ wrong preview hash still gets 428 (0.597625ms)
+{"rid":"b613fd45","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"46916ec5","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ preview gate disabled: single send reaches upstream without a confirm hash (0.63625ms)
+{"rid":"7db4bef8","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"f8b3edcb","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ streaming request passes the SSE stream straight through (1.27475ms)
+{"rid":"8be41774","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"247590b4","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"911192d8","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"86bfb9ca","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"e5e6383d","method":"POST","path":"/patent/api/providers/deepseek/chat","status":429,"ms":0}
+✔ daily chat rate limit returns 429 after the configured cap (1.078834ms)
+{"rid":"c7dabb96","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"50362a29","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"355862da","method":"POST","path":"/patent/api/providers/deepseek/chat","status":502,"ms":0}
+✔ upstream failure surfaces only the status, never the body (0.750375ms)
+{"rid":"c07d950c","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"4c21fde8","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"aab902da","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ API key is sent only as an upstream Bearer header (0.880375ms)
+✔ non-API paths fall through to static assets (0.101417ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 156.980875
+
+> @patent/export@0.0.1 test
+> node tests/export-builders.test.mjs && node tests/delivery.test.mjs && node tests/drawings.test.mjs && node tests/backup.test.mjs
+
+  [PASS] docx starts with zip magic PK
+  [PASS] docx contains [Content_Types].xml / _rels/.rels / word/document.xml
+  [PASS] document.xml contains claim 1 text
+  [PASS] document.xml escapes XML entities (& -> &amp;)
+  [PASS] document.xml escapes angle brackets
+  [PASS] docx has no plain <w:body> nesting issue
+  [PASS] docx builder handles empty paragraph
+  [PASS] figures pdf starts with %PDF
+  [PASS] figures pdf page count equals figure count
+  [PASS] brief figure without raster gets placeholder page
+  [PASS] no-figures pdf has single 无附图 page
+  [PASS] review pdf starts with %PDF
+  [PASS] review pdf has at least 1 page
+  [PASS] report spec carries support matrix rows
+  [PASS] report spec carries audit checks and states the check scope
+  [PASS] report spec carries AI label + rule pack version
+  [PASS] report spec lists the drawings
+  [PASS] report spec carries a self-reported review section
+  [PASS] report spec carries exported time
+  [PASS] figureSvg is self-contained svg with title
+  [PASS] patentpack is JSON envelope v1
+  [PASS] patentpack uses PBKDF2-SHA256-AESGCM-200000
+  [PASS] patentpack has salt+iv base64
+  [PASS] patentpack envelope is ASCII-only (no plaintext CJK)
+  [PASS] patentpack file contains no plaintext claim text
+  [PASS] patentpack decrypts with same passphrase
+  [PASS] patentpack rejects wrong passphrase
+  [PASS] patentpack requires non-empty passphrase
+  [PASS] selection subset produces exactly selected files in UI order
+  [PASS] unselected 合集 not produced
+  [PASS] unselected report not produced
+  [PASS] unselected patentpack not produced
+  [PASS] all-selected produces 8 files in UI order
+  [PASS] version note lists real exported file names
+  [PASS] patentpack assembly without passphrase throws
+  [PASS] empty selection produces zero files
+  [PASS] patentpack payload snapshot matches project data
+  [PASS] zip preserves entry names and bytes
+  [PASS] note derives claim count
+  [PASS] note derives spec sections
+  [PASS] note derives abstract char count
+  [PASS] note derives figure counts
+  [PASS] note derives report stats
+  [PASS] empty project notes fall back to generic copy
+  [PASS] sanitizeFileName handles slashes/spaces
+  [PASS] sanitizeFileName empty fallback
+
+结果: 46 通过 / 0 失败
+  [PASS] current check derives as current 
+  [PASS] bound to an older revision derives as stale 
+  [PASS] a stored-but-unbound record derives as unbound 
+  [PASS] no record at all derives as none 
+  [PASS] retired materials do not count 
+  [PASS] complete evidence allows a checked pre-check 
+  [PASS] no materials refuses 
+  [PASS] unbound record refuses as no_current_check 
+  [PASS] stale record refuses as audit_stale 
+  [PASS] no record refuses as no_audit 
+  [PASS] audit errors refuse 
+  [PASS] placeholder figure refuses 
+  [PASS] no figures refuses 
+  [PASS] no owner review refuses 
+  [PASS] an owner review without a drawing binding refuses when drawings exist 
+  [PASS] an owner review of another drawing set refuses 
+  [PASS] duplicate figure numbers refuse a checked package 
+  [PASS] empty abstract refuses 
+  [PASS] draft allowed with missing checks 
+  [PASS] empty project: draft refused too 
+  [PASS] placeholder svg says so 
+  [PASS] kind=checked does not unlock a package with no evidence 
+  [PASS] assembly refuses a claimed-but-unevidenced checked package 
+  [PASS] a claimed checked package is labelled as a client pre-check, never as an issuance 
+  [PASS] no check -> 检查未完成 
+  [PASS] stale check -> 检查已过期 
+  [PASS] current check -> 检查覆盖当前修订 + 仅所有人自查 
+  [PASS] unreviewed draft says 未经专业审阅 
+  [PASS] sample data is labelled in the file 
+  [PASS] sample report marks the data nature 
+  [PASS] sample report does not claim human review 
+all delivery tests passed
+  [PASS] docx contains the media part 
+  [PASS] docx media bytes are the original bytes 
+  [PASS] docx document references the image 
+  [PASS] docx declares the image content type 
+  [PASS] docx relationship points at media 
+  [PASS] figure page received the real drawing bytes 
+  [PASS] figure page is not a placeholder 
+  [PASS] figures pdf is a valid pdf 
+  [PASS] a declared drawing with no bytes becomes an explicit missing page 
+  [PASS] the original drawing ships in the zip 
+  [PASS] shipped drawing bytes are the original bytes 
+  [PASS] manifest is produced 
+  [PASS] manifest records the drawing hash 
+  [PASS] manifest records the missing figure as such 
+  [PASS] manifest binds the draft revision 
+  [PASS] manifest carries the review records as self-reported 
+  [PASS] manifest states the client pre-check limitation 
+  [PASS] every manifest file hash matches the produced artifact 
+  [PASS] manifest lists the drawings folder as a file 
+  [PASS] manifest does not list itself 
+  [PASS] zip entry is safe: 专利申请文件草案合集.docx 
+  [PASS] zip entry is safe: 权利要求书.docx 
+  [PASS] zip entry is safe: 说明书.docx 
+  [PASS] zip entry is safe: 说明书摘要.docx 
+  [PASS] zip entry is safe: 说明书附图.pdf 
+  [PASS] zip entry is safe: drawings/fig-1-e558c766.png 
+  [PASS] zip entry is safe: 交付清单.json 
+  [PASS] no drawing entry embeds the user figure number 
+  [PASS] duplicate figure numbers still get distinct entry paths 
+  [PASS] duplicate figure numbers are reported by the gate 
+  [PASS] bundle-only refuses a declared mime that does not match the bytes 
+  [PASS] bundle-only refuses bytes that are not a decodable image 
+  [PASS] a drawing whose bytes do not match its recorded hash is refused 
+  [PASS] a declared drawing with unreachable bytes is refused 
+  [PASS] a declared drawing with no byte source is refused 
+  [PASS] empty-IDAT PNG is rejected by the real decoder 
+  [PASS] invalid-zlib PNG is rejected by the real decoder 
+  [PASS] JPEG without a scan is rejected by the real decoder 
+  [PASS] a real JPEG still decodes (64x64) 
+  [PASS] the real PNG still decodes 
+  [PASS] bundle-only refuses empty-IDAT PNG 
+  [PASS] bundle-only refuses invalid-zlib PNG 
+  [PASS] bundle-only refuses JPEG without a scan 
+  [PASS] declared dimensions must match the header 
+  [PASS] orientation 1 keeps encoded == display 
+  [PASS] orientation 6 swaps display dimensions 
+  [PASS] orientation 8 swaps display dimensions 
+  [PASS] an oriented drawing verifies against recorded encoded size 
+  [PASS] legacy records with display dimensions are accepted 
+  [PASS] legacy records with encoded dimensions are accepted 
+  [PASS] an unrelated declared size is refused 
+  [PASS] a mismatched recorded orientation is refused 
+  [PASS] manifest records orientation and both sizes 
+  [PASS] the zip keeps the original oriented bytes 
+  [PASS] the DOCX part is a normalized render, labelled as derived 
+  [PASS] the bundle embeds the normalized PNG 
+  [PASS] an oriented drawing without a renderer is refused with a clear reason 
+  [PASS] a 40 MP JPEG is refused with the documented 16 MP limit 
+  [PASS] an inflate bomb is stopped by the bounded inflate 
+  [PASS] png16.png still decodes 
+  [PASS] interlace.png still decodes 
+  [PASS] gray1bit.png still decodes 
+  [PASS] palette4bit.png still decodes 
+  [PASS] a normal 12 MP JPEG verifies in Node 
+  [PASS] a normal 16 MP JPEG verifies in Node 
+  [PASS] a 16 MP RGBA16 PNG verifies in Node 
+  [PASS] a 4:4:4 JPEG verifies 
+  [PASS] bundle-only accepts a normal 12 MP JPEG 
+  [PASS] bundle-only accepts a normal 16 MP JPEG 
+  [PASS] bundle-only accepts a normal 16 MP PNG 
+  [PASS] RGBA16 4000x4000 needs 128,004,000 bytes (filters included) 
+  [PASS] that fits inside the documented 9x budget 
+  [PASS] no legal layout at the pixel cap exceeds the 9x budget 
+  [PASS] the worst legal layout needs at most 9 bytes per pixel 
+all drawing tests passed
+  [PASS] snapshot schema is v2 
+  [PASS] snapshot carries the draft revision id 
+  [PASS] snapshot carries the audit binding 
+  [PASS] snapshot carries the owner review with its drawing set 
+  [PASS] snapshot carries review records with derived status 
+  [PASS] a retraction event is never marked active 
+  [PASS] snapshot carries the superseded checks with their old bindings 
+  [PASS] snapshot has no missing drawings 
+  [PASS] current drawing bytes are embedded 
+  [PASS] history-only drawing bytes are embedded 
+  [PASS] no drawing is silently dropped 
+  [PASS] a missing drawing is recorded as missing 
+  [PASS] a missing drawing produces a warning 
+  [PASS] snapshot states that there is no restore UI 
+  [PASS] encrypted snapshot decrypts to v2 
+  [PASS] decrypted drawing bytes hash to the recorded value 
+  [PASS] decrypted review history keeps the retraction 
+  [PASS] decrypted snapshot keeps the superseded check history 
+  [PASS] wrong passphrase does not open the snapshot 
+  [PASS] an oversized snapshot fails with a clear message 
+all backup tests passed
+
+> test
+> node --test test/*.test.mjs
+
+✔ only canonical public GitHub repository URLs are accepted (1.439708ms)
+✔ technical fixture material produces evidence-backed candidates and deterministic signals (2.780583ms)
+✔ missing patent provider results in a partial report rather than a fabricated patent conclusion (0.090959ms)
+✔ small and oversized inputs are rejected before analysis (10.726375ms)
+✔ validated Pass 2 observations change deterministic signals without creating model scores (0.176625ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 131.545833

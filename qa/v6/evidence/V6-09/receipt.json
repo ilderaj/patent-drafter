@@ -1,0 +1,144 @@
+{
+  "ticket": "V6-09",
+  "status": "accepted",
+  "review": {
+    "verdict": "accept",
+    "evidence": ["qa/v6/evidence/V6-09/review-01.md", "qa/v6/evidence/V6-09/review-02.md"],
+    "note": "Round 1 returned CHANGES_REQUIRED with four blockers (stale shell preference after navigation, failed save lost on navigation without warning, root attributes leaking to legacy screens, browser driver always exiting 0). All four are fixed: one AppearanceProvider owns the preference for the /v6 shell, a failed save guards departure (stay/discard), unmount restores the previous root attributes, and the driver exits 1 on a failed step or console error. Scenarios 21/21 and browser steps 13-16 cover each path. Round 2 independent re-review: VERDICT: ACCEPT, with non-blocking notes recorded as limitations."
+  },
+  "baseCommit": "5f44c05e5e06cde68586460909e24f5edcc606b0",
+  "contractVersion": "v6.1",
+  "changedFilesNote": "Delta against baseCommit in the isolated worktree. The ticket write set is apps/web/src/v6/styles/, apps/web/src/v6/features/settings/Appearance.tsx, qa/v6/scenarios/V6-09/ and qa/v6/evidence/V6-09/. The two edits in apps/web/src/v6/routes/V6App.tsx and apps/web/src/v6/routes/navigation.ts are orchestrator-written shared registration: importing theme.css, wrapping the /v6 pages in one AppearanceProvider, rendering the settings panel, and marking settings available. No shared barrel, manifest, lockfile or package.json changed. The untracked node_modules symlink is the local dependency mount and is not staged; the untracked .claude/launch.json is local orchestrator tool configuration and is not staged.",
+  "changedFiles": [
+    ".planning/2026-10-30-patent-saas-v6/task_plan.md",
+    ".planning/2026-10-30-patent-saas-v6/progress.md",
+    "apps/web/src/v6/styles/preferences.ts",
+    "apps/web/src/v6/styles/theme.css",
+    "apps/web/src/v6/features/settings/Appearance.tsx",
+    "apps/web/src/v6/routes/V6App.tsx",
+    "apps/web/src/v6/routes/navigation.ts",
+    "qa/v6/scenarios/V6-09/appearance.test.mjs",
+    "qa/v6/scenarios/V6-09/lifecycle-app.tsx",
+    "qa/v6/evidence/V6-09/receipt.json",
+    "qa/v6/evidence/V6-09/review-01.md",
+    "qa/v6/evidence/V6-09/review-02.md",
+    "qa/v6/evidence/V6-09/runner.tap",
+    "qa/v6/evidence/V6-09/typecheck.txt",
+    "qa/v6/evidence/V6-09/regression.txt",
+    "qa/v6/evidence/V6-09/build.txt",
+    "qa/v6/evidence/V6-09/scope.txt",
+    "qa/v6/evidence/V6-09/browser-drive.mjs",
+    "qa/v6/evidence/V6-09/browser-log.json",
+    "qa/v6/evidence/V6-09/01-settings-light.png",
+    "qa/v6/evidence/V6-09/02-switch-dark.png",
+    "qa/v6/evidence/V6-09/03-reload-dark.png",
+    "qa/v6/evidence/V6-09/04-system-follows-os.png",
+    "qa/v6/evidence/V6-09/05-theme-selection.png",
+    "qa/v6/evidence/V6-09/06-write-failure.png",
+    "qa/v6/evidence/V6-09/07-refresh-after-failure.png",
+    "qa/v6/evidence/V6-09/08-retry-saves.png",
+    "qa/v6/evidence/V6-09/09-keyboard-375.png",
+    "qa/v6/evidence/V6-09/10-final-native-light.png",
+    "qa/v6/evidence/V6-09/11-final-native-dark.png",
+    "qa/v6/evidence/V6-09/12-reduced-motion.png",
+    "qa/v6/evidence/V6-09/13-navigation-keeps-saved.png",
+    "qa/v6/evidence/V6-09/14-failed-save-stay.png",
+    "qa/v6/evidence/V6-09/15-failed-save-discard.png",
+    "qa/v6/evidence/V6-09/16-legacy-release.png"
+  ],
+  "interface": {
+    "modules": [
+      "apps/web/src/v6/styles/preferences.ts",
+      "apps/web/src/v6/styles/theme.css",
+      "apps/web/src/v6/features/settings/Appearance.tsx"
+    ],
+    "exports": [
+      "APPEARANCE_STORAGE_KEY", "APPEARANCE_VERSION", "AppearancePreference", "ThemeId", "ColorMode", "ResolvedMode",
+      "PreferenceStorage", "MediaQueryLike", "AppearanceTarget", "THEME_IDS", "COLOR_MODES", "THEME_LABELS", "MODE_LABELS",
+      "DEFAULT_APPEARANCE", "isThemeId", "isColorMode", "isAppearancePreference", "parseAppearance",
+      "AppearanceReadState", "AppearanceRead", "readAppearance", "AppearanceSaveCode", "AppearanceSave",
+      "APPEARANCE_SAVE_FAILED", "APPEARANCE_INVALID", "saveAppearance", "resolveColorMode", "appearanceAttributes",
+      "applyAppearance", "describeAppearance", "systemPrefersDark", "watchSystemColorMode",
+      "AppearanceProvider", "AppearancePage"
+    ],
+    "lifecycle": "AppearanceProvider is mounted once around the /v6 pages and owns the current preference, the last saved preference, the save state and the OS colour subscription, so leaving settings never re-applies a stale initial read. While a save is failed it guards departure with one confirm (stay/discard): in-app navigation through the router navigator, Back/Forward through a capture popstate listener that runs before BrowserRouter's, and reload/close through beforeunload. Discard restores the last saved preference. On unmount the provider restores the data-theme/data-mode values <html> had before V6 mounted (or removes them), so legacy screens are not restyled.",
+    "preference": "One versioned localStorage record, patent-drafter.v6.appearance: {\"version\":1,\"themeId\":\"native|graphite|cyan|celadon\",\"colorMode\":\"system|light|dark\"}. Defaults are native/system (05-contracts). The theme and mode fall back to their defaults independently only in parseAppearance, for objects the caller already holds; a stored record must carry the current version and both valid fields, or the read is `invalid` and the defaults apply. JSON that is not an object, a wrong version, a foreign value or an unreadable storage never throws: readAppearance answers default/invalid/unavailable with a fresh default preference. Reads never write. saveAppearance writes exactly the three known fields; unknown input is refused as INVALID_INPUT before storage, and unknown fields in a tampered stored object are ignored rather than re-written. A storage that throws returns STORAGE_UNAVAILABLE with one static message; the exception text is never surfaced.",
+    "resolution": "resolveColorMode maps system to the OS preference and passes explicit light/dark through. appearanceAttributes/applyAppearance write data-theme and data-mode on the document root and overwrite stale values. describeAppearance returns the text state, e.g. `原生 · 跟随系统（当前深色）`. watchSystemColorMode subscribes with addEventListener and falls back to addListener, returning one unsubscribe; the system listener follows the OS at runtime without writing the resolved colour back to storage.",
+    "theme": "theme.css defines :root[data-theme][data-mode] token sets for all four themes in both modes. Native light/dark reuse the warm tokens styles.css already ships. Graphite, Cyanotype and Celadon port the historical v5 palette values (background, surface, line, text, accent, focus, status colours, radii) onto the same semantic token names, so every existing v6 component follows the selection. Focus uses --ring in every theme; prefers-reduced-motion collapses transitions and animations inside .v6-shell. The settings panel styles only cover the field/choice/status layout and a single-column choice list below 480px.",
+    "ui": "The settings section renders AppearancePage: native radio inputs in two groups (four themes, three modes), a live text state, `已保存。` only after a successful write, and `尚未保存` plus a retry after a failed one. Selecting an option applies it immediately and attempts the synchronous write. A read that is invalid or unavailable shows the defaults with a note. A notification card states the R1 limit (no email, no simulated delivery, not configured yet). No system menu, traffic lights or menu bar is drawn.",
+    "registration": "V6App wraps its pages in AppearanceProvider, imports theme.css with the v6 chunk, and renders AppearancePage for the settings section; navigation.ts marks settings available. Both files are outside the ticket write set and are orchestrator-written registration."
+  },
+  "acceptance": [
+    {
+      "id": "V6-09-A01",
+      "command": "npm run test:v6 -- V6-09; node qa/v6/evidence/V6-09/browser-drive.mjs qa/v6/evidence/V6-09 http://127.0.0.1:5174",
+      "exitCode": 0,
+      "evidence": ["qa/v6/evidence/V6-09/runner.tap", "qa/v6/evidence/V6-09/browser-log.json", "qa/v6/evidence/V6-09/02-switch-dark.png", "qa/v6/evidence/V6-09/03-reload-dark.png", "qa/v6/evidence/V6-09/10-final-native-light.png", "qa/v6/evidence/V6-09/11-final-native-dark.png"],
+      "observed": "Scenarios 21/21 (including three real-browser lifecycle tests on the bundled V6App under BrowserRouter basename /patent and StrictMode). Browser driver 16/16 steps, exit 0, no console errors. Step 13 saves Graphite/system, leaves settings, switches the OS light then dark, and the shell keeps Graphite with the stored record unchanged. The default is native/system; every theme x mode pair is stored and read back unchanged in a new page over the same storage. The browser run switches dark (step 02), reloads and still shows dark (step 03), and the status text reads `原生 · 深色`. Final screenshots show Native light and Native dark with the selected radio and readable body text."
+    },
+    {
+      "id": "V6-09-A02",
+      "command": "npm run test:v6 -- V6-09; node qa/v6/evidence/V6-09/browser-drive.mjs qa/v6/evidence/V6-09 http://127.0.0.1:5174",
+      "exitCode": 0,
+      "evidence": ["qa/v6/evidence/V6-09/runner.tap", "qa/v6/evidence/V6-09/browser-log.json", "qa/v6/evidence/V6-09/06-write-failure.png", "qa/v6/evidence/V6-09/09-keyboard-375.png"],
+      "observed": "Corrupt JSON, an array, a stale/foreign version, an invalid theme or mode and a value of the wrong type each read as invalid with the native/system defaults; an unreadable storage reads as unavailable with the defaults and a later save still works. A throwing setItem produces STORAGE_UNAVAILABLE with the static `尚未保存` message, writes nothing and leaks no exception text; invalid save input is refused before storage. The browser run at 375px reaches the theme group with Tab, changes it with ArrowRight, tabs into the colour group and changes it with ArrowDown; both changes persist and the focus ring is visible (`focusVisible: true`). `[role=menubar]`, traffic-light and fake-menu selectors are absent throughout; all four themes and three modes remain rendered."
+    },
+    {
+      "id": "V6-09-A03",
+      "command": "npm run test:v6 -- V6-09; node qa/v6/evidence/V6-09/browser-drive.mjs qa/v6/evidence/V6-09 http://127.0.0.1:5174",
+      "exitCode": 0,
+      "evidence": ["qa/v6/evidence/V6-09/runner.tap", "qa/v6/evidence/V6-09/browser-log.json", "qa/v6/evidence/V6-09/07-refresh-after-failure.png", "qa/v6/evidence/V6-09/08-retry-saves.png", "qa/v6/evidence/V6-09/14-failed-save-stay.png", "qa/v6/evidence/V6-09/15-failed-save-discard.png", "qa/v6/evidence/V6-09/16-legacy-release.png"],
+      "observed": "After a failed save, an in-app link and Back each raise one confirm; Stay keeps the settings page, the unsaved live choice and the retry (step 14). Discard leaves and restores the last saved Graphite/system with nothing written (step 15). Switching to the legacy screen removes the V6 root attributes, and Back into V6 re-applies the saved theme (step 16). Saving the same preference twice writes one identical JSON string to one key. A failed save followed by a successful retry writes once and reads back the retried value. A refresh after a failed save reads the previous stored record (system) and does not claim the failed choice. The browser run reproduces the same sequence: failure notice with live preview (step 06), reload shows the persisted value and no `已保存` (step 07), retry succeeds and survives another reload (step 08), and the final reload (step 11) keeps Native dark."
+    },
+    {
+      "id": "V6-09-M01",
+      "command": "node qa/v6/evidence/V6-09/browser-drive.mjs qa/v6/evidence/V6-09 http://127.0.0.1:5174",
+      "exitCode": 0,
+      "evidence": ["qa/v6/evidence/V6-09/browser-log.json", "qa/v6/evidence/V6-09/05-theme-selection.png"],
+      "observed": "All four selection values are present and persist. In dark mode the computed root tokens match the historical assets: graphite #14171b/#86b4ea, cyan #0b1d31/#5ccbea, celadon #151b19/#7cc1c9, native #17150f/#ff9636 (background/primary). The four theme choices remain rendered after the OS change and reload (step 04)."
+    },
+    {
+      "id": "V6-09-M02",
+      "command": "npm run test:v6 -- V6-09",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-09/runner.tap",
+      "observed": "The stored record contains exactly version, themeId and colorMode. A stored record carrying a matter title and a model key reads back only its theme and colour mode, and the next save rewrites the clean record. Error messages are static and contain neither storage exception text nor a file path. The preference never holds case data, keys, authorisation or document text."
+    },
+    {
+      "id": "V6-09-M03",
+      "command": "node qa/v6/evidence/V6-09/browser-drive.mjs qa/v6/evidence/V6-09 http://127.0.0.1:5174",
+      "exitCode": 0,
+      "evidence": ["qa/v6/evidence/V6-09/browser-log.json", "qa/v6/evidence/V6-09/12-reduced-motion.png"],
+      "observed": "With prefers-reduced-motion: reduce emulated, the computed transition duration of a settings choice is below 1ms. The focus ring is the theme ring token and is visible under keyboard operation. Neither check changed persisted preference values."
+    }
+  ],
+  "specAcceptance": [
+    { "id": "S01-A01", "status": "not_applicable", "reason": "The empty-matter entry state is delivered by V6-08; this ticket changes only the settings section, and the V6-08 suite was re-run after the navigation change (12/12)." },
+    { "id": "S01-A02", "status": "not_applicable", "reason": "Matter/target tab switching and URL restoration belong to V6-08. The only shared route edit is the settings panel registration; the V6-08 suite still passes 12/12." },
+    { "id": "S01-A03", "status": "covered", "reason": "Browser step 04 selects native/system, changes the emulated OS light -> dark at runtime, reloads and still resolves dark while all four theme choices remain; steps 09 and 12 show keyboard focus and reduced motion. The status text names the theme and the current resolved mode." },
+    { "id": "S01-A04", "status": "covered", "reason": "Browser steps 06-08: a failing setItem shows 尚未保存 with a retry, nothing is persisted, a reload reads the previous stored value and does not claim the failed one, and the retry saves and survives another reload. Steps 14-15 and the lifecycle scenario: leaving with a failed save warns with stay/discard; Stay keeps the retry, Discard restores the saved value." },
+    { "id": "S01-A05", "status": "partial", "reason": "The settings page shows a definite R1 limitation: email is not configured, R1 does not send mail and no simulated delivery appears. Per-channel notification preferences (deadline/review/job/service) are not part of this ticket's write set and remain pending." },
+    { "id": "S01-A06", "status": "not_applicable", "reason": "Demo mode and its separate storage namespace are not implemented in R1/V6-09." },
+    { "id": "S01-A07", "status": "not_applicable", "reason": "The local R1 build has no sign-in or protected deep links; there is no auth recovery path to restore." }
+  ],
+  "limitations": [
+    "R1 stores the preference in localStorage only. The R2 server `preferences.version` and the VERSION_CONFLICT/409 path are not implemented; the local record is a cache for first paint, not an authority.",
+    "Notifications are represented by a static capability notice only. The Preference notification channels and their save flow belong to the notifications ticket; this ticket does not write them.",
+    "The theme port maps the v5 values that styles.css consumes (background, surface, line, text, accent, focus, status, radii, shadows). The v5 document/grid/density/serif tokens are not used by the v6 shell and were not ported; this is not four full theme redesigns, as S01 requires.",
+    "Appearance is applied in a layout effect after the lazy /v6 chunk mounts. index.html is outside the write set, so there is no pre-paint inline script and a first load can briefly show the default theme before the stored one applies.",
+    "The data-theme/data-mode attributes are set on <html> while V6 is mounted and restored to their previous values on unmount. theme.css stays loaded after the /v6 chunk loads, but its selectors need both attributes, so legacy screens keep their own styles.css appearance; the legacy screens do not read the preference.",
+    "BrowserRouter has no useBlocker, so the departure guard wraps the router navigator from UNSAFE_NavigationContext and adds a capture popstate listener. A future React Router upgrade may change that unstable context; the lifecycle scenario fails if the guard stops working.",
+    "On Stay after a Back/Forward to an entry without a router index (history state not written by the router), the guard pushes a fresh settings entry instead of stepping back, which adds one history entry. Router-written entries step back by their index delta.",
+    "The beforeunload guard (reload/close with a failed save) is covered by the lifecycle scenario only; headless Chrome does not show a beforeunload dialog without a user gesture, so the browser driver does not exercise it.",
+    "The lifecycle scenario and browser driver launch Chrome from /Applications/Google Chrome.app; on a machine without that path they fail rather than skip.",
+    "When the app is the tab's first history entry, Back with a failed save leaves the document without the stay/discard confirm; only beforeunload covers cross-document exits, and a browser may drop that dialog without user activation (review-02 note 1).",
+    "If a StrictMode effect re-run happened while a save is failed, the guard would wrap the already-patched navigator and its cleanup would leave it patched. Production builds do not double-run effects, so this is latent only (review-02 note 2).",
+    "Clicking the current section's own nav link with a failed save also asks to leave; Discard then drops the unsaved choice although the page stays (review-02 note 4).",
+    "The browser driver's evaluate does not inspect exceptionDetails, and unhandled promise rejections bypass its console-error gate (review-02 note 3). No test guards against a re-introduced per-route stale preference read; the fix is structural (review-02 note 5).",
+    "System colour changes are observed through matchMedia. The legacy Safari addListener branch is covered by a fake only, not by a real browser. Browser evidence is headless Chrome with CDP emulation of prefers-color-scheme and prefers-reduced-motion; a real OS switch and a real reduced-motion setting were not exercised.",
+    "A storage write failure is simulated by patching Storage.prototype.setItem. Quota and private-mode failures reach the same catch and are expected to behave identically; only the simulated path was run.",
+    "Saving is synchronous, so there is no in-flight state. Rapid repeated clicks each write the latest value; the record is idempotent and there is one key, so no duplicate side effect was observed.",
+    "The settings section is marked available while only appearance is implemented; the notification card states the missing capability instead of a disabled control."
+  ],
+  "decisionsRequested": []
+}
