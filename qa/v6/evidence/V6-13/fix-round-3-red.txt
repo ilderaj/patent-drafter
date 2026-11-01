@@ -1,0 +1,403 @@
+# V6-13 fix round 3: new tests run against the pre-fix code (red first)
+#
+# Pre-fix copies: /private/tmp/v613-r3-prefix-intake.ts (sha256 e26955285b1f4b53e44926d438c4dcf0d44ca3b8c2f021fe8abbb49c3c27b1fd)
+#                 /private/tmp/v613-r3-prefix-Intake.tsx (sha256 ebcc571c8f0f5fc09499d3de0d2c6b1d725d1f41e519eb0a4bc96de81538639a)
+# Command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+# Result: exit 1; tests 39, pass 34, fail 5. The 5 failures are exactly the new round-3 tests.
+#
+# B4 (I1, I5): a no-op save returned before writing the idempotency record, so a different
+# payload under the same key was executed as a new version (I1) and an identical replay
+# after an unrelated write reported replayed: false (I5).
+# B4 (I3): the status gate ran before the idempotency lookup, so replaying a landed
+# request after the matter was archived returned INVALID_TRANSITION.
+# N-c: a retired source was still listed in the chunk and suggestion pickers.
+# UI: the version-conflict panel offered only reload, which drops the user's edits.
+#
+# After the run the fixed files were copied back and verified by sha256:
+#   intake.ts  d6d780a01999f55bb32a728ca358745e6e8dd6e5d5e26bd8028b85b7a28573ba
+#   Intake.tsx 9f00036ee546d7f702b17ecc5e295d62c6c394fa0858d2c80ee363f97e8491ac
+#
+# Failing-tests section of the node --test output follows.
+
+not ok 25 - V6-13 B4 I1 a no-op save with a request key is replayable and refuses a different payload under the same key
+  ---
+  duration_ms: 3.008333
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1411:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":true,"version":2,"snapshot":{"matterId":"55555555-5555-4555-8555-555555555555","version":2,"sourceIds":["b57b5843-6bf0-50ee-8ae8-4685b5e3a36a"],"facts":[],"conflicts":[],"answers":{"problem":"同号但内容不同。","difference":"改进了流道结构，降低了流动阻力。","inventorIds":[],"disclosure":null,"maturity":null,"disclosureDetail":null},"parties":[],"createdBy":"33333333-3333-4333-8333-333333333333","createdAt":"2026-11-01T02:00:00.000Z"},"unchanged":false,"replayed":false}
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1434:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+...
+
+not ok 26 - V6-13 B4 I5 after a no-op save, a later unrelated write and then an identical replay return the original result
+  ---
+  duration_ms: 5.190541
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1449:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1468:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+...
+
+not ok 27 - V6-13 B4 I3 replay of a landed request after the matter is archived returns the original success
+  ---
+  duration_ms: 2.907625
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1473:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":false,"errorCode":"INVALID_TRANSITION","message":"案件当前不可编辑。"}
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1485:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+...
+
+not ok 28 - V6-13 a retired source is not offered in the chunk or suggestion pickers
+  ---
+  duration_ms: 4.045709
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1508:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    no chunk of a retired source is offered
+    + actual - expected
+    
+    + [
+    +   {
+    +     chunkId: '92baabda-5bd5-5b06-8229-325a0486db32',
+    +     page: 1,
+    +     ref: {
+    +       chunkHash: '67ac0e85cb971baa42f06a9b18e5dcd5cadb6387a33b7a4b7d2c109adada895a',
+    +       chunkId: '92baabda-5bd5-5b06-8229-325a0486db32',
+    +       end: 25,
+    +       page: 1,
+    +       quote: '问题：现有换热装置在低温环境下效率低，运行成本高。',
+    +       sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +       start: 0
+    +     },
+    +     sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +     sourceName: 'intake-source.txt',
+    +     text: '问题：现有换热装置在低温环境下效率低，运行成本高。'
+    +   },
+    +   {
+    +     chunkId: 'c4ee7f01-c3d6-5933-8047-e8ace8a1b63e',
+    +     page: 1,
+    +     ref: {
+    +       chunkHash: 'ee7d39783841f40624194675f42f459f6e419d1133ab78bd763eede863e16222',
+    +       chunkId: 'c4ee7f01-c3d6-5933-8047-e8ace8a1b63e',
+    +       end: 20,
+    +       page: 1,
+    +       quote: '问题：维修时需要整机停机，影响连续生产。',
+    +       sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +       start: 0
+    +     },
+    +     sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +     sourceName: 'intake-source.txt',
+    +     text: '问题：维修时需要整机停机，影响连续生产。'
+    +   },
+    +   {
+    +     chunkId: '71845dc3-9ca8-59a3-84f0-32279c5ae22a',
+    +     page: 1,
+    +     ref: {
+    +       chunkHash: 'ca887a90bfac5c8a385a187d69f7bcd90d8337b6f641a0e3bc8e62e332904869',
+    +       chunkId: '71845dc3-9ca8-59a3-84f0-32279c5ae22a',
+    +       end: 30,
+    +       page: 1,
+    +       quote: '区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。',
+    +       sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +       start: 0
+    +     },
+    +     sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +     sourceName: 'intake-source.txt',
+    +     text: '区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。'
+    +   },
+    +   {
+    +     chunkId: '0339d774-f081-5973-8e91-f569e2fffd06',
+    +     page: 1,
+    +     ref: {
+    +       chunkHash: 'c08f3ffe2a839cbfbdede6479fb3f0056bbd5d77768b6c2f4208b109b596f781',
+    +       chunkId: '0339d774-f081-5973-8e91-f569e2fffd06',
+    +       end: 23,
+    +       page: 1,
+    +       quote: '区别：传统方案需要两套管路，本方案只保留一套。',
+    +       sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +       start: 0
+    +     },
+    +     sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +     sourceName: 'intake-source.txt',
+    +     text: '区别：传统方案需要两套管路，本方案只保留一套。'
+    +   },
+    +   {
+    +     chunkId: '505433e6-898d-5610-8a16-5e6b71b039b3',
+    +     page: 1,
+    +     ref: {
+    +       chunkHash: '6bc324591789fc744c35a88ece2b7e1cdc370550500a9266bb10315fad3582a5',
+    +       chunkId: '505433e6-898d-5610-8a16-5e6b71b039b3',
+    +       end: 24,
+    +       page: 1,
+    +       quote: '发明人：王工负责研发与设计，团队完成了样机验证。',
+    +       sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +       start: 0
+    +     },
+    +     sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +     sourceName: 'intake-source.txt',
+    +     text: '发明人：王工负责研发与设计，团队完成了样机验证。'
+    +   },
+    +   {
+    +     chunkId: 'fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86',
+    +     page: 1,
+    +     ref: {
+    +       chunkHash: 'f87cc2c8985b3f29f4451c44f65038906557dc13eb1d403c856cc87f15dbf44b',
+    +       chunkId: 'fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86',
+    +       end: 28,
+    +       page: 1,
+    +       quote: '公开历史：上市前我们给客户看过样品，客户签署了保密约定。',
+    +       sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +       start: 0
+    +     },
+    +     sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +     sourceName: 'intake-source.txt',
+    +     text: '公开历史：上市前我们给客户看过样品，客户签署了保密约定。'
+    +   },
+    +   {
+    +     chunkId: '19184db8-1d2e-58e1-85ca-4aa39337b88a',
+    +     page: 1,
+    +     ref: {
+    +       chunkHash: 'f07e78da82ea997b19f4168329dbcef3097b8042e5c5c4e484e336a9b8156daa',
+    +       chunkId: '19184db8-1d2e-58e1-85ca-4aa39337b88a',
+    +       end: 24,
+    +       page: 1,
+    +       quote: '公开历史：2025 年行业展会曾公开展示过样机。',
+    +       sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +       start: 0
+    +     },
+    +     sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +     sourceName: 'intake-source.txt',
+    +     text: '公开历史：2025 年行业展会曾公开展示过样机。'
+    +   },
+    +   {
+    +     chunkId: '38a59d71-ea56-5969-8bc7-733b8e01c166',
+    +     page: 1,
+    +     ref: {
+    +       chunkHash: '8e2f2e8529e8b0f32331b2c010355259cbe08c0744dda17189ddd00f262bd4d7',
+    +       chunkId: '38a59d71-ea56-5969-8bc7-733b8e01c166',
+    +       end: 21,
+    +       page: 1,
+    +       quote: '成熟度：目前已有测试样品，正在做寿命试验。',
+    +       sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +       start: 0
+    +     },
+    +     sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +     sourceName: 'intake-source.txt',
+    +     text: '成熟度：目前已有测试样品，正在做寿命试验。'
+    +   },
+    +   {
+    +     chunkId: '2323811e-f653-5ee8-8934-e82e93835a47',
+    +     page: 1,
+    +     ref: {
+    +       chunkHash: 'eec0d9a2a04ce6b02a8c27793666f9a6d533730b57c0a1cef8d25e67a94e37b1',
+    +       chunkId: '2323811e-f653-5ee8-8934-e82e93835a47',
+    +       end: 20,
+    +       page: 1,
+    +       quote: '成熟度：装配图纸已经完成，但还没有样机。',
+    +       sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +       start: 0
+    +     },
+    +     sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a',
+    +     sourceName: 'intake-source.txt',
+    +     text: '成熟度：装配图纸已经完成，但还没有样机。'
+    +   }
+    + ]
+    - []
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      chunkId: '92baabda-5bd5-5b06-8229-325a0486db32'
+      sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+      sourceName: 'intake-source.txt'
+      page: 1
+      text: '问题：现有换热装置在低温环境下效率低，运行成本高。'
+      ref:
+        sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+        chunkId: '92baabda-5bd5-5b06-8229-325a0486db32'
+        chunkHash: '67ac0e85cb971baa42f06a9b18e5dcd5cadb6387a33b7a4b7d2c109adada895a'
+        page: 1
+        start: 0
+        end: 25
+        quote: '问题：现有换热装置在低温环境下效率低，运行成本高。'
+    1:
+      chunkId: 'c4ee7f01-c3d6-5933-8047-e8ace8a1b63e'
+      sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+      sourceName: 'intake-source.txt'
+      page: 1
+      text: '问题：维修时需要整机停机，影响连续生产。'
+      ref:
+        sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+        chunkId: 'c4ee7f01-c3d6-5933-8047-e8ace8a1b63e'
+        chunkHash: 'ee7d39783841f40624194675f42f459f6e419d1133ab78bd763eede863e16222'
+        page: 1
+        start: 0
+        end: 20
+        quote: '问题：维修时需要整机停机，影响连续生产。'
+    2:
+      chunkId: '71845dc3-9ca8-59a3-84f0-32279c5ae22a'
+      sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+      sourceName: 'intake-source.txt'
+      page: 1
+      text: '区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。'
+      ref:
+        sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+        chunkId: '71845dc3-9ca8-59a3-84f0-32279c5ae22a'
+        chunkHash: 'ca887a90bfac5c8a385a187d69f7bcd90d8337b6f641a0e3bc8e62e332904869'
+        page: 1
+        start: 0
+        end: 30
+        quote: '区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。'
+    3:
+      chunkId: '0339d774-f081-5973-8e91-f569e2fffd06'
+      sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+      sourceName: 'intake-source.txt'
+      page: 1
+      text: '区别：传统方案需要两套管路，本方案只保留一套。'
+      ref:
+        sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+        chunkId: '0339d774-f081-5973-8e91-f569e2fffd06'
+        chunkHash: 'c08f3ffe2a839cbfbdede6479fb3f0056bbd5d77768b6c2f4208b109b596f781'
+        page: 1
+        start: 0
+        end: 23
+        quote: '区别：传统方案需要两套管路，本方案只保留一套。'
+    4:
+      chunkId: '505433e6-898d-5610-8a16-5e6b71b039b3'
+      sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+      sourceName: 'intake-source.txt'
+      page: 1
+      text: '发明人：王工负责研发与设计，团队完成了样机验证。'
+      ref:
+        sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+        chunkId: '505433e6-898d-5610-8a16-5e6b71b039b3'
+        chunkHash: '6bc324591789fc744c35a88ece2b7e1cdc370550500a9266bb10315fad3582a5'
+        page: 1
+        start: 0
+        end: 24
+        quote: '发明人：王工负责研发与设计，团队完成了样机验证。'
+    5:
+      chunkId: 'fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86'
+      sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+      sourceName: 'intake-source.txt'
+      page: 1
+      text: '公开历史：上市前我们给客户看过样品，客户签署了保密约定。'
+      ref:
+        sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+        chunkId: 'fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86'
+        chunkHash: 'f87cc2c8985b3f29f4451c44f65038906557dc13eb1d403c856cc87f15dbf44b'
+        page: 1
+        start: 0
+        end: 28
+        quote: '公开历史：上市前我们给客户看过样品，客户签署了保密约定。'
+    6:
+      chunkId: '19184db8-1d2e-58e1-85ca-4aa39337b88a'
+      sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+      sourceName: 'intake-source.txt'
+      page: 1
+      text: '公开历史：2025 年行业展会曾公开展示过样机。'
+      ref:
+        sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+        chunkId: '19184db8-1d2e-58e1-85ca-4aa39337b88a'
+        chunkHash: 'f07e78da82ea997b19f4168329dbcef3097b8042e5c5c4e484e336a9b8156daa'
+        page: 1
+        start: 0
+        end: 24
+        quote: '公开历史：2025 年行业展会曾公开展示过样机。'
+    7:
+      chunkId: '38a59d71-ea56-5969-8bc7-733b8e01c166'
+      sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+      sourceName: 'intake-source.txt'
+      page: 1
+      text: '成熟度：目前已有测试样品，正在做寿命试验。'
+      ref:
+        sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+        chunkId: '38a59d71-ea56-5969-8bc7-733b8e01c166'
+        chunkHash: '8e2f2e8529e8b0f32331b2c010355259cbe08c0744dda17189ddd00f262bd4d7'
+        page: 1
+        start: 0
+        end: 21
+        quote: '成熟度：目前已有测试样品，正在做寿命试验。'
+    8:
+      chunkId: '2323811e-f653-5ee8-8934-e82e93835a47'
+      sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+      sourceName: 'intake-source.txt'
+      page: 1
+      text: '成熟度：装配图纸已经完成，但还没有样机。'
+      ref:
+        sourceId: 'b57b5843-6bf0-50ee-8ae8-4685b5e3a36a'
+        chunkId: '2323811e-f653-5ee8-8934-e82e93835a47'
+        chunkHash: 'eec0d9a2a04ce6b02a8c27793666f9a6d533730b57c0a1cef8d25e67a94e37b1'
+        page: 1
+        start: 0
+        end: 20
+        quote: '成熟度：装配图纸已经完成，但还没有样机。'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-engine.test.mjs:1519:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+...
+
+not ok 39 - V6-13 UI a version conflict keeps the user's edits and offers both choices
+  ---
+  duration_ms: 4.220167
+  type: 'test'
+  location: '/private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-ui.test.mjs:619:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /data-testid="intake-keep-mine"/. Input:
+    
+    '<section class="card" data-testid="intake" data-state="ready" data-version="2" aria-labelledby="intake-title" style="display:flex;flex-direction:column;gap:16px"><header style="display:flex;flex-direction:column;gap:4px"><h2 class="card-title" id="intake-title">五题与事实</h2><p class="muted">每个答案都会连同来源和当时的事实版本一起保存。公开历史和成熟度只能由你选择，不会自动填写。</p><p class="field-hint" data-testid="intake-completeness">已填写 2/5 · 待补：发明人、公开历史、成熟度</p><p class="field-hint" data-testid="intake-snapshot-version">当前事实版本：第 2 版</p></header><ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px"><li><fieldset data-testid="intake-question-problem" data-answered="true" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">1. 问题</legend><p class="field-hint">这项发明解决了什么问题？</p><textarea class="textarea" data-testid="intake-answer-problem" maxLength="2000">我尚未保存的修改。</textarea><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-problem"><option value="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct" selected="">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="suggest:1">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label><p class="field-hint" data-testid="intake-provenance-problem">来源记录于第 1 版事实 · 2026-11-01</p></fieldset></li><li><fieldset data-testid="intake-question-difference" data-answered="true" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">2. 区别</legend><p class="field-hint">与现有做法相比，改了什么？</p><textarea class="textarea" data-testid="intake-answer-difference" maxLength="4000">改进了流道结构，降低了流动阻力。</textarea><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-difference"><option value="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct" selected="">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="suggest:1">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label><p class="field-hint" data-testid="intake-provenance-difference">来源记录于第 1 版事实 · 2026-11-01</p></fieldset></li><li><fieldset data-testid="intake-question-inventorIds" data-answered="false" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">3. 发明人</legend><p class="field-hint">谁发明了它？</p><div data-testid="intake-inventors"><p class="field-hint">还没有添加人员；先在下方添加，再勾选发明人。</p></div><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-inventorIds"><option value="" selected="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label></fieldset></li><li><fieldset data-testid="intake-question-disclosure" data-answered="false" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">4. 公开历史</legend><p class="field-hint">今天之前，这项发明是否对外公开过？</p><select class="select" data-testid="intake-answer-disclosure"><option value="" selected="">请选择（不会自动填写）</option><option value="none">没有对外公开</option><option value="private_showing">私下展示（有保密约定）</option><option value="public_event">公开活动或展会</option><option value="publication">论文、出版物或其他发表</option><option value="sale">销售或许诺销售</option><option value="unsure">不确定</option></select><p class="field-hint" data-testid="intake-choice-unset-disclosure">尚未选择；保存后也会保持未选择。</p><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-disclosure"><option value="" selected="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="suggest:1">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label></fieldset></li><li><fieldset data-testid="intake-question-maturity" data-answered="false" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">5. 成熟度</legend><p class="field-hint">现在做到什么程度？</p><select class="select" data-testid="intake-answer-maturity"><option value="" selected="">请选择（不会自动填写）</option><option value="tested_sample">已有测试样品</option><option value="drawing">有图纸或完整方案</option><option value="idea">只有想法</option></select><p class="field-hint" data-testid="intake-choice-unset-maturity">尚未选择；保存后也会保持未选择。</p><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-maturity"><option value="" selected="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="suggest:1">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-8'... 5157 more characters
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: '<section class="card" data-testid="intake" data-state="ready" data-version="2" aria-labelledby="intake-title" style="display:flex;flex-direction:column;gap:16px"><header style="display:flex;flex-direction:column;gap:4px"><h2 class="card-title" id="intake-title">五题与事实</h2><p class="muted">每个答案都会连同来源和当时的事实版本一起保存。公开历史和成熟度只能由你选择，不会自动填写。</p><p class="field-hint" data-testid="intake-completeness">已填写 2/5 · 待补：发明人、公开历史、成熟度</p><p class="field-hint" data-testid="intake-snapshot-version">当前事实版本：第 2 版</p></header><ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px"><li><fieldset data-testid="intake-question-problem" data-answered="true" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">1. 问题</legend><p class="field-hint">这项发明解决了什么问题？</p><textarea class="textarea" data-testid="intake-answer-problem" maxLength="2000">我尚未保存的修改。</textarea><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-problem"><option value="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct" selected="">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="suggest:1">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label><p class="field-hint" data-testid="intake-provenance-problem">来源记录于第 1 版事实 · 2026-11-01</p></fieldset></li><li><fieldset data-testid="intake-question-difference" data-answered="true" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">2. 区别</legend><p class="field-hint">与现有做法相比，改了什么？</p><textarea class="textarea" data-testid="intake-answer-difference" maxLength="4000">改进了流道结构，降低了流动阻力。</textarea><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-difference"><option value="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct" selected="">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="suggest:1">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label><p class="field-hint" data-testid="intake-provenance-difference">来源记录于第 1 版事实 · 2026-11-01</p></fieldset></li><li><fieldset data-testid="intake-question-inventorIds" data-answered="false" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">3. 发明人</legend><p class="field-hint">谁发明了它？</p><div data-testid="intake-inventors"><p class="field-hint">还没有添加人员；先在下方添加，再勾选发明人。</p></div><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-inventorIds"><option value="" selected="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label></fieldset></li><li><fieldset data-testid="intake-question-disclosure" data-answered="false" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">4. 公开历史</legend><p class="field-hint">今天之前，这项发明是否对外公开过？</p><select class="select" data-testid="intake-answer-disclosure"><option value="" selected="">请选择（不会自动填写）</option><option value="none">没有对外公开</option><option value="private_showing">私下展示（有保密约定）</option><option value="public_event">公开活动或展会</option><option value="publication">论文、出版物或其他发表</option><option value="sale">销售或许诺销售</option><option value="unsure">不确定</option></select><p class="field-hint" data-testid="intake-choice-unset-disclosure">尚未选择；保存后也会保持未选择。</p><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-disclosure"><option value="" selected="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="suggest:1">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-80ab-d7cfb6f4ef86">intake-source.txt 第 1 页：公开历史：上市前我们给客户看过样品，客户签署了保密约定。</option><option value="chunk:19184db8-1d2e-58e1-85ca-4aa39337b88a">intake-source.txt 第 1 页：公开历史：2025 年行业展会曾公开展示过样机。</option><option value="chunk:38a59d71-ea56-5969-8bc7-733b8e01c166">intake-source.txt 第 1 页：成熟度：目前已有测试样品，正在做寿命试验。</option><option value="chunk:2323811e-f653-5ee8-8934-e82e93835a47">intake-source.txt 第 1 页：成熟度：装配图纸已经完成，但还没有样机。</option></select></label></fieldset></li><li><fieldset data-testid="intake-question-maturity" data-answered="false" style="border:1px solid var(--line);border-radius:var(--radius-s);padding:12px"><legend class="field-label">5. 成熟度</legend><p class="field-hint">现在做到什么程度？</p><select class="select" data-testid="intake-answer-maturity"><option value="" selected="">请选择（不会自动填写）</option><option value="tested_sample">已有测试样品</option><option value="drawing">有图纸或完整方案</option><option value="idea">只有想法</option></select><p class="field-hint" data-testid="intake-choice-unset-maturity">尚未选择；保存后也会保持未选择。</p><label class="field-label" style="margin-top:8px;display:block">这道题的来源<select class="select" data-testid="intake-source-maturity"><option value="" selected="">请选择来源</option><option value="not_found">材料中未找到</option><option value="direct">用户直接回答</option><option value="suggest:0">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="suggest:1">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:92baabda-5bd5-5b06-8229-325a0486db32">intake-source.txt 第 1 页：问题：现有换热装置在低温环境下效率低，运行成本高。</option><option value="chunk:c4ee7f01-c3d6-5933-8047-e8ace8a1b63e">intake-source.txt 第 1 页：问题：维修时需要整机停机，影响连续生产。</option><option value="chunk:71845dc3-9ca8-59a3-84f0-32279c5ae22a">intake-source.txt 第 1 页：区别：与现有做法相比，本方案改进了流道结构，降低了流动阻力。</option><option value="chunk:0339d774-f081-5973-8e91-f569e2fffd06">intake-source.txt 第 1 页：区别：传统方案需要两套管路，本方案只保留一套。</option><option value="chunk:505433e6-898d-5610-8a16-5e6b71b039b3">intake-source.txt 第 1 页：发明人：王工负责研发与设计，团队完成了样机验证。</option><option value="chunk:fa0b3c62-7a39-5593-8'... 5157 more characters
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-13-worktree/qa/v6/scenarios/V6-13/intake-ui.test.mjs:642:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+...

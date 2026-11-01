@@ -1,0 +1,261 @@
+V6-13 red-before-fix evidence
+worktree: /private/tmp/patent-v6-13-worktree (base 953e05d)
+intake.ts sha256 before: e121cd3747f9cff4c489fb62d07decc05c6d35657104f23ff0e13bc955a1f57d
+
+Each guard was disabled one at a time in apps/web/src/v6/features/intake/intake.ts,
+then `npm run test:v6 -- V6-13` was run. Exit code 1 with the named test failing is
+the expected red state. The file was restored from a byte copy after every run.
+
+## G1-source-required
+guarantee: an answered question must name its source (material / not found / direct)
+expected red test: V6-13-A02 invalid input ... (sources.problem)
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 1 - V6-13-A01 each answer is saved with its source and the fact version it was based on; a reload shows the same refs
+  - not ok 2 - S03-A01 material mentioning 「给客户看过样品」 is suggested beside question 4; disclosure stays null until the user chooses
+  - not ok 4 - S03-A03 saving all five answers again unchanged writes no version, including a back-and-forward reconstructed from the view
+  - not ok 8 - V6-13-A02 invalid input is reported per field, and an unanswered disclosure is never filled from the material or from an example
+  - not ok 12 - V6-13 the empty, stale and error read states are explicit; a changed chunk marks facts and sources as stale
+  - not ok 15 - V6-13-A03 B1 after a post-commit snapshot failure a fresh read recovers at the committed version and a save there fills the gap
+  - not ok 19 - V6-13 B2 after the source changes, a stored disclosure evidence ref reads as changed
+  - not ok 23 - V6-13 a source ref naming a real chunk under another source id is refused
+  - not ok 37 - V6-13 UI loaded state keeps the saved answer, its source and its provenance after a reload
+
+## G2-fact-version-required
+guarantee: a save must state the fact version it was based on
+expected red test: V6-13-A02 invalid input ... (baseSourceVersion)
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 8 - V6-13-A02 invalid input is reported per field, and an unanswered disclosure is never filled from the material or from an example
+
+## G2b-fact-version-recorded
+guarantee: each answer's provenance records the fact version it was based on
+expected red test: V6-13-A01 / S03-A01 provenance basedOnVersion
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 1 - V6-13-A01 each answer is saved with its source and the fact version it was based on; a reload shows the same refs
+  - not ok 2 - S03-A01 material mentioning 「给客户看过样品」 is suggested beside question 4; disclosure stays null until the user chooses
+  - not ok 15 - V6-13-A03 B1 after a post-commit snapshot failure a fresh read recovers at the committed version and a save there fills the gap
+  - not ok 37 - V6-13 UI loaded state keeps the saved answer, its source and its provenance after a reload
+
+## G3-no-inferred-history
+guarantee: disclosure is never inferred; an unanswered question stays null
+expected red test: S03-A01 / V6-13-A02 / UI empty-state disclosure stays null
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 2 - S03-A01 material mentioning 「给客户看过样品」 is suggested beside question 4; disclosure stays null until the user chooses
+  - not ok 8 - V6-13-A02 invalid input is reported per field, and an unanswered disclosure is never filled from the material or from an example
+  - not ok 12 - V6-13 the empty, stale and error read states are explicit; a changed chunk marks facts and sources as stale
+  - not ok 14 - V6-13 the contract snapshot is validated and includes only the active source ids
+  - not ok 16 - V6-13-A03 B1 when the very first snapshot write fails, a fresh read shows an empty form at the committed version, not an error
+  - not ok 25 - V6-13 B4 I1 a no-op save with a request key is replayable and refuses a different payload under the same key
+  - not ok 26 - V6-13 B4 I5 after a no-op save, a later unrelated write and then an identical replay return the original result
+  - not ok 30 - V6-13 B5 no-op first: the version write under the same key is refused and writes nothing
+  - not ok 32 - V6-13 B5 no-op/no-op: the waiter replays the completed no-op instead of claiming a second success
+  - not ok 36 - V6-13 UI empty state shows five questions, no disclosure or maturity value, and the located source suggestion
+
+## G4-conflicts-preserved
+guarantee: conflicting answers are preserved instead of collapsed
+expected red test: S03-A06 retained conflict is preserved
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 7 - S03-A06 a retained conflict needs a reason; once given, both facts stay preserved and locatable
+  - not ok 40 - V6-13 UI stale state marks changed sources and derived drafts; a conflicts view shows both sides and the retained reason
+
+## G5-stale-derived-draft
+guarantee: a fact change makes a draft derived from it stale
+expected red test: S03-A04 / V6-13-A02 derived draft becomes stale
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 5 - S03-A04 changing a shared fact makes both derived drafts stale and keeps the version each draft was built from
+  - not ok 9 - V6-13-A02 changing a fact marks a derived draft stale, while the unanswered disclosure stays null
+  - not ok 40 - V6-13 UI stale state marks changed sources and derived drafts; a conflicts view shows both sides and the retained reason
+
+## G6-B1-recovery-read
+guarantee: a committed version without its snapshot reads as recovery, not a lockout
+expected red test: V6-13-A03 B1 fresh read recovers at the committed version (engine and UI)
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 11 - V6-13-A03 a failed commit leaves the version untouched and retry succeeds; a post-commit snapshot failure reports committedVersion and never duplicates
+  - not ok 12 - V6-13 the empty, stale and error read states are explicit; a changed chunk marks facts and sources as stale
+  - not ok 15 - V6-13-A03 B1 after a post-commit snapshot failure a fresh read recovers at the committed version and a save there fills the gap
+  - not ok 16 - V6-13-A03 B1 when the very first snapshot write fails, a fresh read shows an empty form at the committed version, not an error
+  - not ok 24 - V6-13 recovery never shows an older snapshot whose matterId is not this matter's
+  - not ok 38 - V6-13-A03 B1 UI after a post-commit snapshot failure and a reload, the form renders at the committed version and its save succeeds
+
+## G6b-B1-gap-filled
+guarantee: a save on a recovered version always writes, so the missing snapshot is filled
+expected red test: V6-13-A03 B1 save at the committed version fills the gap
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 15 - V6-13-A03 B1 after a post-commit snapshot failure a fresh read recovers at the committed version and a save there fills the gap
+  - not ok 38 - V6-13-A03 B1 UI after a post-commit snapshot failure and a reload, the form renders at the committed version and its save succeeds
+
+## G6c-B1-committed-copy
+guarantee: a committed version is never reported as not saved
+expected red test: V6-13-A03 post-commit failure copy (engine and UI)
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 11 - V6-13-A03 a failed commit leaves the version untouched and retry succeeds; a post-commit snapshot failure reports committedVersion and never duplicates
+  - not ok 38 - V6-13-A03 B1 UI after a post-commit snapshot failure and a reload, the form renders at the committed version and its save succeeds
+
+## G7-B2-evidence-validated
+guarantee: disclosure evidence refs must locate their chunk (hash and quote) at save
+expected red test: V6-13 B2 forged evidence ref is refused as SOURCE_LOCATOR_INVALID
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 18 - V6-13 B2 a disclosure evidence ref with a forged quote or hash is refused as SOURCE_LOCATOR_INVALID
+
+## G7b-B2-evidence-stale-read
+guarantee: a stored disclosure evidence ref that no longer locates reads as changed
+expected red test: V6-13 B2 evidence ref reads as changed (engine and UI)
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 19 - V6-13 B2 after the source changes, a stored disclosure evidence ref reads as changed
+  - not ok 39 - V6-13 B2 UI a disclosure evidence ref that no longer locates its paragraph is shown as changed
+
+## G8-idempotency-scope
+guarantee: idempotency is scoped by (tenant, actor, operation, key)
+expected red test: V6-13 idempotency records are scoped by (tenant, actor, operation, key)
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 17 - V6-13 idempotency records are scoped by (tenant, actor, operation, key) and bind the matter in the request hash
+
+## G9-B3-commit-conflict-reload
+guarantee: a commit that loses its version check reloads instead of reporting the aggregate matter version
+expected red test: V6-13 B3 two-save race (engine and UI) / unrelated commit / bounded rebuild
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 20 - V6-13 B3 two saves race at the same base: one commits, the other gets VERSION_CONFLICT at the real sourceVersion with the winner's snapshot
+  - not ok 21 - V6-13 B3 a save that races an unrelated matter commit (a target add) is rebuilt and commits once, keeping the target
+  - not ok 22 - V6-13 B3 the rebuild is bounded: a save that keeps losing to unrelated commits writes nothing and can be retried
+  - not ok 34 - V6-13 B5 an expired pending claim is taken over once, and the stalled owner then replays the winner
+  - not ok 43 - V6-13 B3 UI the loser of a two-tab save race sees both sides with the real latest version
+
+## G10-B3-conflict-latest-snapshot
+guarantee: a fact conflict carries the latest version's readable snapshot for the side-by-side view
+expected red test: V6-13 B3 two-save race (engine and UI) / A03 stale base returns both sides
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 10 - V6-13-A03 the same request key replays instead of writing twice; a different payload under it is refused; a stale base returns both sides
+  - not ok 20 - V6-13 B3 two saves race at the same base: one commits, the other gets VERSION_CONFLICT at the real sourceVersion with the winner's snapshot
+  - not ok 41 - V6-13 UI shows field errors without discarding what the user typed, and a version conflict side by side
+  - not ok 43 - V6-13 B3 UI the loser of a two-tab save race sees both sides with the real latest version
+
+## G11-B3-rebuild-on-fresh-matter
+guarantee: a save that lost only to an unrelated matter write is rebuilt and retried
+expected red test: V6-13 B3 save racing a target add commits once
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 21 - V6-13 B3 a save that races an unrelated matter commit (a target add) is rebuilt and commits once, keeping the target
+  - not ok 22 - V6-13 B3 the rebuild is bounded: a save that keeps losing to unrelated commits writes nothing and can be retried
+  - not ok 34 - V6-13 B5 an expired pending claim is taken over once, and the stalled owner then replays the winner
+
+## G12-B3-rebuild-bounded
+guarantee: the rebuild is bounded to MAX_SAVE_ATTEMPTS commits
+expected red test: V6-13 B3 the rebuild is bounded
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 22 - V6-13 B3 the rebuild is bounded: a save that keeps losing to unrelated commits writes nothing and can be retried
+
+## G12b-B3-conflict-older-snapshot
+guarantee: a conflict whose latest snapshot is missing shows the newest older snapshot
+expected red test: V6-13 UI conflict whose latest snapshot was never written
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 44 - V6-13 UI a conflict whose latest snapshot was never written shows the newest older one and says so
+
+## G13-N4-chunk-source-match
+guarantee: a source ref must name the source its chunk belongs to
+expected red test: V6-13 a source ref naming a real chunk under another source id is refused
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 23 - V6-13 a source ref naming a real chunk under another source id is refused
+
+## G14-N4-recovery-matter-match
+guarantee: recovery only shows an older snapshot of this matter
+expected red test: V6-13 recovery never shows an older snapshot whose matterId is not this matter's
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 24 - V6-13 recovery never shows an older snapshot whose matterId is not this matter's
+
+## G15-B4-noop-idempotency
+guarantee: a no-op save with a request key settles its claim with the response, so an identical replay returns it and a different payload is refused
+expected red test: V6-13 B4 I1 / I5 no-op idempotency
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 25 - V6-13 B4 I1 a no-op save with a request key is replayable and refuses a different payload under the same key
+  - not ok 26 - V6-13 B4 I5 after a no-op save, a later unrelated write and then an identical replay return the original result
+  - not ok 30 - V6-13 B5 no-op first: the version write under the same key is refused and writes nothing
+  - not ok 32 - V6-13 B5 no-op/no-op: the waiter replays the completed no-op instead of claiming a second success
+
+## G16-B4-replay-before-status
+guarantee: a completed request is replayed before the matter status gate, so a replay still succeeds after archive
+expected red test: V6-13 B4 I3 replay after archive
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 27 - V6-13 B4 I3 replay of a landed request after the matter is archived returns the original success
+
+## G18-B5-atomic-claim
+guarantee: the idempotency key is claimed in one read-write transaction before any business write, so only one request owns it
+expected red test: V6-13 B5 one owner per key (no-op vs write race)
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 1 - V6-13-A01 each answer is saved with its source and the fact version it was based on; a reload shows the same refs
+  - not ok 10 - V6-13-A03 the same request key replays instead of writing twice; a different payload under it is refused; a stale base returns both sides
+  - not ok 11 - V6-13-A03 a failed commit leaves the version untouched and retry succeeds; a post-commit snapshot failure reports committedVersion and never duplicates
+  - not ok 13 - V6-13 user_confirmed facts keep their original confirmation when an unrelated save carries them forward
+  - not ok 15 - V6-13-A03 B1 after a post-commit snapshot failure a fresh read recovers at the committed version and a save there fills the gap
+  - not ok 16 - V6-13-A03 B1 when the very first snapshot write fails, a fresh read shows an empty form at the committed version, not an error
+  - not ok 17 - V6-13 idempotency records are scoped by (tenant, actor, operation, key) and bind the matter in the request hash
+  - not ok 20 - V6-13 B3 two saves race at the same base: one commits, the other gets VERSION_CONFLICT at the real sourceVersion with the winner's snapshot
+  - not ok 21 - V6-13 B3 a save that races an unrelated matter commit (a target add) is rebuilt and commits once, keeping the target
+  - not ok 22 - V6-13 B3 the rebuild is bounded: a save that keeps losing to unrelated commits writes nothing and can be retried
+  - not ok 25 - V6-13 B4 I1 a no-op save with a request key is replayable and refuses a different payload under the same key
+  - not ok 26 - V6-13 B4 I5 after a no-op save, a later unrelated write and then an identical replay return the original result
+  - not ok 27 - V6-13 B4 I3 replay of a landed request after the matter is archived returns the original success
+  - not ok 29 - V6-13 B5 write first: a no-op under the same key is refused, and the write's success survives replay
+  - not ok 30 - V6-13 B5 no-op first: the version write under the same key is refused and writes nothing
+  - not ok 31 - V6-13 B5 write/write: two payloads under one key get one version and one conflict
+  - not ok 32 - V6-13 B5 no-op/no-op: the waiter replays the completed no-op instead of claiming a second success
+  - not ok 33 - V6-13 B5 a live claim makes an identical request wait, then fail as retryable busy, then replay once it completes
+  - not ok 34 - V6-13 B5 an expired pending claim is taken over once, and the stalled owner then replays the winner
+  - not ok 38 - V6-13-A03 B1 UI after a post-commit snapshot failure and a reload, the form renders at the committed version and its save succeeds
+  - not ok 43 - V6-13 B3 UI the loser of a two-tab save race sees both sides with the real latest version
+
+## G17-retired-source-hidden
+guarantee: a retired source is not offered in the chunk or suggestion pickers
+expected red test: V6-13 a retired source is not offered in the chunk or suggestion pickers
+command: npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+exit code: 1
+failing tests: 
+  - not ok 28 - V6-13 a retired source is not offered in the chunk or suggestion pickers
+
+## Restore proof
+backup (outside the repo): /tmp/v6-13-red-before-fix-intake.41957.ts
+intake.ts sha256 after: e121cd3747f9cff4c489fb62d07decc05c6d35657104f23ff0e13bc955a1f57d
+identical to before: true
+
+all guards produced a red run: true

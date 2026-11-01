@@ -1,0 +1,750 @@
+{
+  "ticket": "V6-13",
+  "title": "五题与事实冲突 — five-question intake and fact conflicts",
+  "status": "accepted",
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-13/review-05.md",
+    "note": "Independent fifth review (review-05.md) accepted after four NOT_ACCEPT rounds. B5 is closed for every named case: the claim protocol serializes no-op vs write in both orderings, write/write and no-op/no-op; no successful response became unreplayable; no duplicate event or version was written; pre-commit failures release the claim; the live-claim busy path and the required lease-takeover ordering behave as specified; N1 replays the original committed error. B1-B4 regressions pass independently. Non-blocking: the disclosed inverted-takeover failure-response replay gap, the adjacent committed-marker put failure, and IndexedDB not executed as a separate backend run (the adapter's transaction semantics were inspected and the browser evidence covers that path)."
+  },
+  "baseCommit": "953e05d",
+  "branch": "codex/v6-13-intake",
+  "worktree": "/private/tmp/patent-v6-13-worktree",
+  "date": "2026-11-02",
+  "changedFiles": [
+    "apps/web/src/v6/features/intake/Intake.tsx",
+    "apps/web/src/v6/features/intake/intake.ts",
+    "qa/v6/evidence/V6-13/01-start-empty.png",
+    "qa/v6/evidence/V6-13/02-material-parsed.png",
+    "qa/v6/evidence/V6-13/03-intake-empty.png",
+    "qa/v6/evidence/V6-13/04-answer-saved-with-source.png",
+    "qa/v6/evidence/V6-13/05-explicit-choice-saved.png",
+    "qa/v6/evidence/V6-13/06-conflict-preserved.png",
+    "qa/v6/evidence/V6-13/07-stale-derived-draft.png",
+    "qa/v6/evidence/V6-13/08-reload-persisted.png",
+    "qa/v6/evidence/V6-13/09-recovery-after-snapshot-loss.png",
+    "qa/v6/evidence/V6-13/10-recovery-saved.png",
+    "qa/v6/evidence/V6-13/11-version-conflict-side-by-side.png",
+    "qa/v6/evidence/V6-13/12-merge-kept-mine.png",
+    "qa/v6/evidence/V6-13/browser-drive.mjs",
+    "qa/v6/evidence/V6-13/browser-log.json",
+    "qa/v6/evidence/V6-13/build.txt",
+    "qa/v6/evidence/V6-13/fix-round-1-red.txt",
+    "qa/v6/evidence/V6-13/fix-round-2-red.txt",
+    "qa/v6/evidence/V6-13/fix-round-3-red.txt",
+    "qa/v6/evidence/V6-13/fix-round-4-red.txt",
+    "qa/v6/evidence/V6-13/mount-patch.md",
+    "qa/v6/evidence/V6-13/receipt.json",
+    "qa/v6/evidence/V6-13/red-before-fix.mjs",
+    "qa/v6/evidence/V6-13/red-before-fix.txt",
+    "qa/v6/evidence/V6-13/regression.txt",
+    "qa/v6/evidence/V6-13/review-01.md",
+    "qa/v6/evidence/V6-13/review-02.md",
+    "qa/v6/evidence/V6-13/review-03.md",
+    "qa/v6/evidence/V6-13/review-04.md",
+    "qa/v6/evidence/V6-13/review-05.md",
+    "qa/v6/evidence/V6-13/runner.tap",
+    "qa/v6/evidence/V6-13/scope.txt",
+    "qa/v6/evidence/V6-13/typecheck.txt",
+    "qa/v6/scenarios/V6-13/fixtures/intake-source.txt",
+    "qa/v6/scenarios/V6-13/harness.mjs",
+    "qa/v6/scenarios/V6-13/intake-engine.test.mjs",
+    "qa/v6/scenarios/V6-13/intake-ui.test.mjs"
+  ],
+  "contractTypes": [
+    "intakeAnswersSchema",
+    "sourceSnapshotSchema",
+    "factSchema",
+    "factConflictSchema",
+    "partySchema",
+    "sourceRefSchema",
+    "chunkSchema",
+    "matterSchema",
+    "targetSchema",
+    "activityRecord (event metadata: version, count)",
+    "DraftInputRef / isInputStale from the V6-04 revision module"
+  ],
+  "runs": {
+    "v613": {
+      "command": "npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13",
+      "file": "qa/v6/evidence/V6-13/runner.tap",
+      "exitCode": 0,
+      "tests": 45,
+      "pass": 45,
+      "fail": 0,
+      "skipped": 0
+    },
+    "regressions": [
+      {
+        "suite": "V6-11",
+        "command": "npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-11",
+        "exitCode": 0,
+        "tests": 53,
+        "pass": 53,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "V6-10",
+        "command": "npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-10",
+        "exitCode": 0,
+        "tests": 36,
+        "pass": 36,
+        "fail": 0,
+        "skipped": 0
+      }
+    ],
+    "typecheck": {
+      "command": "node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+      "file": "qa/v6/evidence/V6-13/typecheck.txt",
+      "exitCode": 0,
+      "output": "(no output)"
+    },
+    "build": {
+      "command": "npm --prefix /private/tmp/patent-v6-13-worktree run build",
+      "file": "qa/v6/evidence/V6-13/build.txt",
+      "exitCode": 0
+    }
+  },
+  "redBeforeFix": {
+    "script": "qa/v6/evidence/V6-13/red-before-fix.mjs",
+    "output": "qa/v6/evidence/V6-13/red-before-fix.txt",
+    "method": "each guard disabled in apps/web/src/v6/features/intake/intake.ts, the V6-13 suite run, the file restored from a byte copy kept outside the repo (/tmp/v6-13-red-before-fix-intake.<pid>.ts, deleted after the run) and compared by sha256",
+    "guards": [
+      {
+        "id": "G1-source-required",
+        "guarantee": "an answered question must name its source (material / not found / direct)",
+        "exitCode": 1,
+        "failingTests": [
+          1,
+          2,
+          4,
+          8,
+          12,
+          15,
+          19,
+          23,
+          37
+        ]
+      },
+      {
+        "id": "G2-fact-version-required",
+        "guarantee": "a save must state the fact version it was based on",
+        "exitCode": 1,
+        "failingTests": [
+          8
+        ]
+      },
+      {
+        "id": "G2b-fact-version-recorded",
+        "guarantee": "each answer's provenance records the fact version it was based on",
+        "exitCode": 1,
+        "failingTests": [
+          1,
+          2,
+          15,
+          37
+        ]
+      },
+      {
+        "id": "G3-no-inferred-history",
+        "guarantee": "disclosure is never inferred; an unanswered question stays null",
+        "exitCode": 1,
+        "failingTests": [
+          2,
+          8,
+          12,
+          14,
+          16,
+          25,
+          26,
+          30,
+          32,
+          36
+        ]
+      },
+      {
+        "id": "G4-conflicts-preserved",
+        "guarantee": "conflicting answers are preserved instead of collapsed",
+        "exitCode": 1,
+        "failingTests": [
+          7,
+          40
+        ]
+      },
+      {
+        "id": "G5-stale-derived-draft",
+        "guarantee": "a fact change makes a draft derived from it stale",
+        "exitCode": 1,
+        "failingTests": [
+          5,
+          9,
+          40
+        ]
+      },
+      {
+        "id": "G6-B1-recovery-read",
+        "guarantee": "a committed version without its snapshot reads as recovery, not a lockout",
+        "exitCode": 1,
+        "failingTests": [
+          11,
+          12,
+          15,
+          16,
+          24,
+          38
+        ]
+      },
+      {
+        "id": "G6b-B1-gap-filled",
+        "guarantee": "a save on a recovered version always writes, so the missing snapshot is filled",
+        "exitCode": 1,
+        "failingTests": [
+          15,
+          38
+        ]
+      },
+      {
+        "id": "G6c-B1-committed-copy",
+        "guarantee": "a committed version is never reported as not saved",
+        "exitCode": 1,
+        "failingTests": [
+          11,
+          38
+        ]
+      },
+      {
+        "id": "G7-B2-evidence-validated",
+        "guarantee": "disclosure evidence refs must locate their chunk (hash and quote) at save",
+        "exitCode": 1,
+        "failingTests": [
+          18
+        ]
+      },
+      {
+        "id": "G7b-B2-evidence-stale-read",
+        "guarantee": "a stored disclosure evidence ref that no longer locates reads as changed",
+        "exitCode": 1,
+        "failingTests": [
+          19,
+          39
+        ]
+      },
+      {
+        "id": "G8-idempotency-scope",
+        "guarantee": "idempotency is scoped by (tenant, actor, operation, key)",
+        "exitCode": 1,
+        "failingTests": [
+          17
+        ]
+      },
+      {
+        "id": "G9-B3-commit-conflict-reload",
+        "guarantee": "a commit that loses its version check reloads instead of reporting the aggregate matter version",
+        "exitCode": 1,
+        "failingTests": [
+          20,
+          21,
+          22,
+          34,
+          43
+        ]
+      },
+      {
+        "id": "G10-B3-conflict-latest-snapshot",
+        "guarantee": "a fact conflict carries the latest version's readable snapshot for the side-by-side view",
+        "exitCode": 1,
+        "failingTests": [
+          10,
+          20,
+          41,
+          43
+        ]
+      },
+      {
+        "id": "G11-B3-rebuild-on-fresh-matter",
+        "guarantee": "a save that lost only to an unrelated matter write is rebuilt and retried",
+        "exitCode": 1,
+        "failingTests": [
+          21,
+          22,
+          34
+        ]
+      },
+      {
+        "id": "G12-B3-rebuild-bounded",
+        "guarantee": "the rebuild is bounded to MAX_SAVE_ATTEMPTS commits",
+        "exitCode": 1,
+        "failingTests": [
+          22
+        ]
+      },
+      {
+        "id": "G12b-B3-conflict-older-snapshot",
+        "guarantee": "a conflict whose latest snapshot is missing shows the newest older snapshot",
+        "exitCode": 1,
+        "failingTests": [
+          44
+        ]
+      },
+      {
+        "id": "G13-N4-chunk-source-match",
+        "guarantee": "a source ref must name the source its chunk belongs to",
+        "exitCode": 1,
+        "failingTests": [
+          23
+        ]
+      },
+      {
+        "id": "G14-N4-recovery-matter-match",
+        "guarantee": "recovery only shows an older snapshot of this matter",
+        "exitCode": 1,
+        "failingTests": [
+          24
+        ]
+      },
+      {
+        "id": "G15-B4-noop-idempotency",
+        "guarantee": "a no-op save with a request key settles its claim with the response, so an identical replay returns it and a different payload is refused",
+        "exitCode": 1,
+        "failingTests": [
+          25,
+          26,
+          30,
+          32
+        ]
+      },
+      {
+        "id": "G16-B4-replay-before-status",
+        "guarantee": "a completed request is replayed before the matter status gate, so a replay still succeeds after archive",
+        "exitCode": 1,
+        "failingTests": [
+          27
+        ]
+      },
+      {
+        "id": "G18-B5-atomic-claim",
+        "guarantee": "the idempotency key is claimed in one read-write transaction before any business write, so only one request owns it",
+        "exitCode": 1,
+        "failingTests": [
+          1,
+          10,
+          11,
+          13,
+          15,
+          16,
+          17,
+          20,
+          21,
+          22,
+          25,
+          26,
+          27,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          38,
+          43
+        ]
+      },
+      {
+        "id": "G17-retired-source-hidden",
+        "guarantee": "a retired source is not offered in the chunk or suggestion pickers",
+        "exitCode": 1,
+        "failingTests": [
+          28
+        ]
+      }
+    ],
+    "failingTestsNote": "numbers refer to the test order in runner.tap (45 tests; 1-34 engine, 35-45 UI)",
+    "guardCount": 23,
+    "scriptExitCode": 0,
+    "allRed": true,
+    "restored": true,
+    "intakeTsSha256BeforeAndAfter": "e121cd3747f9cff4c489fb62d07decc05c6d35657104f23ff0e13bc955a1f57d"
+  },
+  "browserEvidence": {
+    "server": "vite preview on http://localhost:4177/patent (port 4177; V6-12 uses 4176)",
+    "build": "production build with the temporary Intake mount (mount-patch.md)",
+    "driver": "qa/v6/evidence/V6-13/browser-drive.mjs",
+    "log": "qa/v6/evidence/V6-13/browser-log.json",
+    "steps": 12,
+    "failedSteps": 0,
+    "consoleErrors": 0,
+    "screenshots": [
+      "01-start-empty.png",
+      "02-material-parsed.png",
+      "03-intake-empty.png",
+      "04-answer-saved-with-source.png",
+      "05-explicit-choice-saved.png",
+      "06-conflict-preserved.png",
+      "07-stale-derived-draft.png",
+      "08-reload-persisted.png",
+      "09-recovery-after-snapshot-loss.png",
+      "10-recovery-saved.png",
+      "11-version-conflict-side-by-side.png",
+      "12-merge-kept-mine.png"
+    ],
+    "coverage": [
+      "empty state: five questions, disclosure and maturity unset, material suggestion offered but not chosen, 0/5",
+      "an answer saved with a material source and an inventor, with provenance naming fact version 1",
+      "public history and maturity chosen explicitly and saved with their own sources, version 3",
+      "two conflicting facts both preserved and locatable; the conflict retained with a reason, version 4",
+      "a derived draft turns stale after a fact change, version 5",
+      "a reload keeps answers, sources, provenance, the conflict and the stale draft",
+      "B1: with the current snapshot blob deleted (a post-commit write failure), a reload shows the recovery notice for version 5 with version 4's answers, the form and the save button, and no 没有保存 copy; saving writes version 6 and a further reload clears the recovery notice",
+      "B3: a second tab (its own CDP target) saves at base+1; this tab then saves on the old base and shows 其他窗口已保存了更新的版本 with 最新是第 {base+1} 版, its own unsaved text beside the second tab's saved text as two label/value columns, and the reload button",
+      "N-b: after the conflict, keeping my edits moves the panel to the latest version without resetting the form, and the next save lands one version above it with this tab's text (12-merge-kept-mine.png)"
+    ]
+  },
+  "fixRound1": {
+    "review": "qa/v6/evidence/V6-13/review-01.md (NOT_ACCEPT)",
+    "B1": {
+      "problem": "a post-commit snapshot write failure locked the matter: a reload read STORAGE_UNAVAILABLE and the failure copy said the content was not saved",
+      "fix": "read recovery. readIntake treats a missing current envelope at version > 1 as recovery: it returns the newest older valid snapshot (or an empty form) at the committed version with view.recovery = { missingVersion, recoveredFromVersion }. saveIntake on a recovered version always writes (no 没有变化 shortcut), so the gap is filled. A malformed current envelope is still STORAGE_UNAVAILABLE. The post-commit and replay-without-envelope failures use committedWithoutSnapshotMessage, which says the version is recorded.",
+      "whyNotSameTransaction": "LocalRepository.commit only writes asset-backed blobs; carrying the intake snapshot in the same transaction needs a repository change outside the V6-13 write set",
+      "ui": "Intake.tsx shows an intake-recovery alert naming both versions and keeps the form and save button; the committed-version paragraph says the page content is kept and a reload can continue at that version",
+      "tests": [
+        15,
+        16,
+        23
+      ]
+    },
+    "B2": {
+      "problem": "answers.disclosureDetail.evidenceRefs were not validated at save and not checked on read",
+      "fix": "each ref is checked with validateRefList and a failure returns SOURCE_LOCATOR_INVALID at answers.disclosureDetail.evidenceRefs[i] with no write; on read, QuestionView.evidenceChanged marks refs that no longer locate, sourceChanged includes them, and the view is stale. The UI lists the refs with a changed marker and a remove button.",
+      "tests": [
+        18,
+        19,
+        24
+      ]
+    },
+    "idempotency": {
+      "fix": "the record key is intake/idempotency/{enc(tenant)}/{enc(user)}/intake.save/{key}; the record stores operation and matterId, and the request hash includes matterId",
+      "tests": [
+        17
+      ]
+    },
+    "mountPatch": "mount-patch.md rewritten as instructions (exact import line after the Parse import; the facts branch placed before the existing tab === \"sources\" branch), because the PR branch's V6App.tsx imports and renders Figures and a diff against base 953e05d would not apply",
+    "redFirst": {
+      "file": "qa/v6/evidence/V6-13/fix-round-1-red.txt",
+      "description": "the new and changed tests run against the pre-fix intake.ts and Intake.tsx",
+      "tests": 26,
+      "pass": 18,
+      "fail": 8,
+      "failingTests": [
+        11,
+        12,
+        15,
+        16,
+        17,
+        18,
+        22,
+        23
+      ],
+      "exitCode": 1
+    },
+    "newGuards": [
+      "G6-B1-recovery-read",
+      "G6b-B1-gap-filled",
+      "G6c-B1-committed-copy",
+      "G7-B2-evidence-validated",
+      "G7b-B2-evidence-stale-read",
+      "G8-idempotency-scope"
+    ],
+    "rerun": {
+      "v613": "27/27 pass, exit 0",
+      "V6-11": "53/53 pass, exit 0",
+      "V6-10": "36/36 pass, exit 0",
+      "typecheck": "exit 0 (unmounted and mounted)",
+      "build": "exit 0 (unmounted and mounted)",
+      "redBeforeFix": "12 guards, all exit 1, script exit 0, intake.ts sha256 identical before and after",
+      "browser": "10/10 steps, 0 console errors, 10 screenshots, port 4177",
+      "mountRevert": "V6App.tsx sha256 15b6f3c87175fa240cb8cf6c0e86956bbee947c2e66367d3d1a23d78953543ac after restore, not listed by git status"
+    },
+    "testNumberingNote": "test numbers in fixRound1 refer to the round-1 runner.tap (27 tests); current numbers are in redBeforeFix and fixRound2"
+  },
+  "fixRound2": {
+    "review": "qa/v6/evidence/V6-13/review-02.md (NOT_ACCEPT)",
+    "testNumberingNote": "test numbers in this section refer to the round-2 runner.tap (34 tests); round 3 added tests, so the current numbers are in redBeforeFix and fixRound3",
+    "B3": {
+      "problem": "when repository.commit failed its version check, saveIntake returned committed.error.latestVersion, the matter's aggregate version (it moves on every write, e.g. a target add), not sourceVersion; the conflict panel then pointed at a version with no snapshot and a retry on it could never land",
+      "fix": "a commit VERSION_CONFLICT now reloads the matter. If sourceVersion still equals the save's base, the commit is rebuilt against the fresh matter and retried, up to MAX_SAVE_ATTEMPTS = 3 commits. A failed version check writes nothing, so a rebuild never records a second event; with a request key every attempt also derives the same event id. If sourceVersion moved, the reply is VERSION_CONFLICT with latestVersion = the real sourceVersion and latest = that version's snapshot (the newest older valid snapshot of this matter when it is missing). If the bound is exhausted while sourceVersion has not moved, the reply is STORAGE_UNAVAILABLE with MATTER_BUSY_MESSAGE (案件同时有其他写入，这次没有保存。请再保存一次。) and nothing is written.",
+      "ui": "the conflict panel shows 你编辑时基于第 N 版；最新是第 M 版 with mine and latest as two label/value columns; when only an older snapshot exists it says so (intake-merge-latest-older); 以最新版本重新加载 also clears a stale recovery base",
+      "tests": {
+        "engine": [
+          20,
+          21,
+          22
+        ],
+        "ui": [
+          33,
+          34
+        ]
+      }
+    },
+    "nonBlocking": {
+      "staleDocComment": "the saveIntake doc comment now describes the bounded rebuild and the no-duplicate-event guarantee; the outdated storage_unavailable wording is gone",
+      "notApplicableReasons": "S03-A07, S03-A08 and S03-A09 reasons rewritten to name the actual behaviours (unverified CN grant period, us_nonprovisional preview, cn_um not recommended for method facts) and the downstream ticket that owns them",
+      "defensiveChecks": "tests 23 (a source ref naming a real chunk under another source id is refused) and 24 (recovery never shows an older snapshot of another matter), each proven by a guard (G13, G14)",
+      "noticeLayout": "the browser screenshot showed .notice (a flex row) squeezing multi-block notices and .kv (one pair per row) collapsing six pairs into one line; Intake.tsx now stacks its multi-block notices and lays the merge lists out as a label/value grid. Inline styles only; styles.css and v6.css are untouched."
+    },
+    "backupMoved": "qa/v6/evidence/V6-13/intake.ts.original is deleted. red-before-fix.mjs keeps its backup at /tmp/v6-13-red-before-fix-intake.<pid>.ts, restores the file after every guard, verifies the restore by sha256 and deletes the backup at the end",
+    "redFirst": {
+      "file": "qa/v6/evidence/V6-13/fix-round-2-red.txt",
+      "description": "the round-2 tests run against the pre-fix intake.ts (sha256 029f9115...78850a7) and Intake.tsx",
+      "tests": 34,
+      "pass": 29,
+      "fail": 5,
+      "failingTests": [
+        20,
+        21,
+        22,
+        33,
+        34
+      ],
+      "exitCode": 1,
+      "note": "tests 23 and 24 pass on the pre-fix code because those defensive checks already existed; guards G13 and G14 prove each test fails when its check is removed"
+    },
+    "newGuards": [
+      "G9-B3-commit-conflict-reload",
+      "G10-B3-conflict-latest-snapshot",
+      "G11-B3-rebuild-on-fresh-matter",
+      "G12-B3-rebuild-bounded",
+      "G12b-B3-conflict-older-snapshot",
+      "G13-N4-chunk-source-match",
+      "G14-N4-recovery-matter-match"
+    ],
+    "finalSha256": {
+      "intake.ts": "e26955285b1f4b53e44926d438c4dcf0d44ca3b8c2f021fe8abbb49c3c27b1fd",
+      "Intake.tsx": "ebcc571c8f0f5fc09499d3de0d2c6b1d725d1f41e519eb0a4bc96de81538639a"
+    },
+    "rerun": {
+      "v613": "34/34 pass, exit 0",
+      "V6-11": "53/53 pass, exit 0",
+      "V6-10": "36/36 pass, exit 0",
+      "typecheck": "exit 0 (unmounted and mounted)",
+      "build": "exit 0 (unmounted and mounted)",
+      "redBeforeFix": "19 guards, all exit 1, script exit 0, intake.ts sha256 identical before and after, backup outside the repo",
+      "browser": "11/11 steps, 0 console errors, 11 screenshots, port 4177",
+      "mountRevert": "V6App.tsx sha256 15b6f3c87175fa240cb8cf6c0e86956bbee947c2e66367d3d1a23d78953543ac after restore, not listed by git status"
+    }
+  },
+  "mount": {
+    "temporary": true,
+    "file": "qa/v6/evidence/V6-13/mount-patch.md",
+    "restoredFile": "apps/web/src/v6/routes/V6App.tsx",
+    "sha256": "15b6f3c87175fa240cb8cf6c0e86956bbee947c2e66367d3d1a23d78953543ac",
+    "inScopeAfterRestore": false
+  },
+  "decisions": [
+    "A question's provenance stores { key, source, basedOnVersion, savedAt, savedBy }. It is written on every answered question whose value or source changed, and the previous record is kept when both are unchanged. An unanswered question has no provenance and no source.",
+    "The three sources are exactly material paragraph (a validated SourceRef), 材料中未找到, and 用户直接回答. A source is required for each answered question, and a SourceRef must still locate its chunk (same source, chunk, hash, page, start/end and quote) before a save can succeed.",
+    "Public history (disclosure) and maturity are never inferred. Suggestions only locate paragraphs that mention a keyword; they never set an answer. The UI's select starts on 请选择（不会自动填写） and the saved snapshot keeps null until the user chooses.",
+    "A conflict is a record over two or more fact ids from the same snapshot. States: open (no chosen side, no reason), resolved (at least one chosen side, no reason), retained (no chosen side, a required reason). Both fact statements are always echoed in the view, so both sides stay locatable.",
+    "Unchanged answers, facts, conflicts and provisions write no version; the reply says 没有变化. A request key is a true idempotency key scoped by (tenant, actor, operation, key): the record lives at intake/idempotency/{tenant}/{user}/intake.save/{key} and stores the operation and matter id. The key is claimed in one read-write transaction before any business write. A completed record with the same request hash replays the stored response; a committed record is finished or replays its committed outcome; a live pending claim makes the same request wait briefly, then fail retryably as busy; a pending claim past its 30s lease may be taken over. A different request hash under the key is IDEMPOTENCY_CONFLICT whatever the record's state. Only the claim owner may commit.",
+    "Commit first, then the intake blobs, as V6-11 does for parse transitions. A post-commit blob failure returns STORAGE_UNAVAILABLE with committedVersion and a message that says the version is recorded but its snapshot is missing (never 没有保存). A fresh read of a committed version without its snapshot is a recovery read, not an error: it shows the newest older valid snapshot (or an empty form when none exists) with a recovery notice, at the committed version, and the next save at that version always writes a new version with the complete snapshot.",
+    "Draft staleness is read through the V6-04 isInputStale over DraftInputRef, and bindings live in intake/drafts/{matterId}. bindDraftInput is the seam a later drafting ticket will call; V6-13 only reads the bindings.",
+    "Candidate facts are staged, never adopted implicitly. Only adoptCandidateIds enters the snapshot, and the adoption is recorded on the candidate set (adoptedFactId).",
+    "Re-suggesting a citation: the source select may encode the same ref either as the question's suggestion (suggest:i) or as the plain chunk (chunk:id). Both decode to the identical SourceRef, so the stored record is the same bytes either way.",
+    "05-contracts §2: every successful save response is replayable, including an unchanged save that writes no version. The record holds the request hash, the version, and (for a no-op) the baseline snapshot. The claim runs before the matter status gate, so an identical retry returns the original response after the matter moves or is archived while a different payload under a used key is IDEMPOTENCY_CONFLICT. A version write marks the record committed before writing its snapshot blob batch and completes it in that same batch; a failed batch leaves a committed record, so a same-key retry returns the original committed error instead of a conflict (review-04 N1).",
+    "After a VERSION_CONFLICT the panel offers two choices. 「保留我的修改」 refreshes the view (chunks, staleness, sourceVersion) but keeps the edited form, and the next save writes the user's text as a new version above the latest. 「以最新版本重新加载」 drops the edits and reloads. Neither merges the two sides automatically.",
+    "One atomic claim protocol serves both the no-op and version-writing branches: absent key -> put a pending record with claimId, requestHash, matterId, operation, requestKey, at and leaseExpiresAt; completed same hash -> replay; committed same hash -> finish or replay that commit; pending same hash -> one owner, bounded wait then busy; pending past its lease -> takeover; different hash in any state -> IDEMPOTENCY_CONFLICT. A pre-commit failure or VERSION_CONFLICT retry releases only this attempt's pending claim. The deterministic event id v6/intake/event/{matterId}/{requestKey} remains the backstop against a duplicate commit."
+  ],
+  "limitations": [
+    "This branch does not mount the Intake panel: apps/web/src/v6/routes/V6App.tsx is outside the V6-13 write set. Browser evidence was produced with the temporary mount in mount-patch.md, which was reverted byte for byte; the permanent patch is recorded there for the route-owning ticket.",
+    "There is no drafting feature and no target-creation surface in V6-13. The browser drive injects one target and one draft input binding straight into IndexedDB (the same schema bindDraftInput writes) to show the stale-derived-draft state; the engine tests drive the real bindDraftInput instead.",
+    "The snapshot is not written in the same transaction as the commit: LocalRepository.commit only carries asset-backed blobs, and changing it is outside the V6-13 write set (packages/ and lib/ are forbidden). B1 is closed by read recovery instead. During recovery the form may show answers older than the committed version; the notice says so explicitly and names both versions.",
+    "Suggestion quotes use a fixed ±40-codepoint window. For short paragraphs the window covers the whole paragraph, so the suggestion and the plain chunk entry carry the same SourceRef; this is correct but makes the two options look identical in the select.",
+    "S03-A07, S03-A08 and S03-A09 are route-recommendation and target-preview behaviours (an unverified CN grant period, the us_nonprovisional preview, and not recommending cn_um for method facts). They belong to the downstream targets/route-recommendation ticket. V6-13 neither implements nor claims them, so they are recorded as not_applicable.",
+    "All material is synthetic. The browser run used the one fixture under qa/v6/scenarios/V6-13 with a throwaway headless Chrome profile; nothing was uploaded, no network request was made, and no model was called."
+  ],
+  "acceptance": [
+    {
+      "row": "V6-13-A01",
+      "status": "covered",
+      "evidence": "V6-13-A01 each answer is saved with its source and the fact version it was based on; a reload shows the same refs (intake-engine.test.mjs); browser steps 05, 06 and 09"
+    },
+    {
+      "row": "V6-13-A02",
+      "status": "covered",
+      "evidence": "V6-13-A02 invalid input is reported per field, and an unanswered disclosure is never filled from the material or from an example; V6-13-A02 changing a fact marks a derived draft stale, while the unanswered disclosure stays null"
+    },
+    {
+      "row": "V6-13-A03",
+      "status": "covered",
+      "evidence": "V6-13-A03 the same request key replays instead of writing twice; a different payload under it is refused; a stale base returns both sides; V6-13-A03 a failed commit leaves the version untouched and retry succeeds; a post-commit snapshot failure reports committedVersion and never duplicates; V6-13-A03 B1 after a post-commit snapshot failure a fresh read recovers and a save at the committed version fills the gap (tests 15, 16, UI test 38); B3 two saves at the same base: one commits, the other gets VERSION_CONFLICT at the real sourceVersion with the winner's snapshot, and a retry on it lands; a save racing an unrelated target add succeeds with one event; the rebuild is bounded (tests 20-22, UI tests 43, 44); browser steps 10 and 11; B4 a no-op save with a request key is recorded and replays, a different payload under that key is IDEMPOTENCY_CONFLICT, and a landed request replays unchanged after the matter is archived (tests 25-27); B5 one key has one claim: a no-op and a version write under the same key cannot both succeed. The write-first race gives one success, one IDEMPOTENCY_CONFLICT and exactly one event and snapshot; the no-op-first race gives one no-op success and one conflict with no version; write/write and no-op/no-op are covered; an identical request under a live claim gets the retryable busy message and replays once the owner completes; an expired lease is taken over once and the stalled owner replays the winner (tests 29-34). The claim, committed and completed records are also shown live by guard G18. A same-key retry after a post-commit snapshot failure now replays the original committed error with committedVersion, closing N1 (test 11)"
+    },
+    {
+      "row": "S03-A01",
+      "status": "covered",
+      "evidence": "S03-A01 material mentioning 「给客户看过样品」 is suggested beside question 4; disclosure stays null until the user chooses; UI empty state test; browser steps 04 and 06"
+    },
+    {
+      "row": "S03-A02",
+      "status": "covered",
+      "evidence": "S03-A02 an organization can never be an inventor; the field error is explicit and previously saved answers survive; UI field-errors test"
+    },
+    {
+      "row": "S03-A03",
+      "status": "covered",
+      "evidence": "S03-A03 saving all five answers again unchanged writes no version, including a back-and-forward reconstructed from the view"
+    },
+    {
+      "row": "S03-A04",
+      "status": "covered",
+      "evidence": "S03-A04 changing a shared fact makes both derived drafts stale and keeps the version each draft was built from; browser steps 08 and 09"
+    },
+    {
+      "row": "S03-A05",
+      "status": "covered",
+      "evidence": "S03-A05 only explicitly adopted candidates enter the snapshot; the rest stay outside every target"
+    },
+    {
+      "row": "S03-A06",
+      "status": "covered",
+      "evidence": "S03-A06 a retained conflict needs a reason; once given, both facts stay preserved and locatable; browser step 07"
+    },
+    {
+      "row": "S03-A07",
+      "status": "not_applicable",
+      "reason": "route recommendation: an unverified CN grant period must not be presented as verified. V6-13 has no route recommendation; it belongs to the downstream targets/route-recommendation ticket. No V6-13 code implements or claims it."
+    },
+    {
+      "row": "S03-A08",
+      "status": "not_applicable",
+      "reason": "target preview: the us_nonprovisional preview. V6-13 creates and previews no targets; it belongs to the downstream targets/route-recommendation ticket. No V6-13 code implements or claims it."
+    },
+    {
+      "row": "S03-A09",
+      "status": "not_applicable",
+      "reason": "route recommendation: cn_um is not recommended for method facts. V6-13 recommends no route; it belongs to the downstream targets/route-recommendation ticket. No V6-13 code implements or claims it."
+    }
+  ],
+  "fixRound3": {
+    "review": "qa/v6/evidence/V6-13/review-03.md (NOT_ACCEPT)",
+    "B4": {
+      "problem": "an unchanged (no-op) save returned before writing the idempotency record. After a no-op with key K a different payload under K was executed as a new version (I1), and an identical replay after other writes was no longer replayable (I5). The status gate also ran before the idempotency lookup, so a landed request replayed after archive returned INVALID_TRANSITION (I3).",
+      "fix": "a no-op save with a request key now records its response (request hash, sourceVersion, the baseline snapshot, unchanged: true) in one check-and-write transaction, so two different requests under one key cannot both record. Replay returns the stored baseline with unchanged: true and replayed: true. The idempotency lookup moved before the matter status gate: a replay succeeds after archive, while a new request on an archived matter is still INVALID_TRANSITION. A no-op still writes no version (S03-A03). Round 4 superseded the no-op-only check-and-write with the shared claim protocol (see fixRound4): that transaction serialized no-op writers but could not stop a concurrent version write from passing its own lookup and overwriting the record.",
+      "tests": {
+        "engine": [
+          25,
+          26,
+          27
+        ],
+        "ui": [
+          39
+        ]
+      }
+    },
+    "nonBlocking": {
+      "replayAfterArchive": "closed by moving the idempotency lookup before the status gate (I3, guard G16).",
+      "keepMine": "the conflict panel now offers 「保留我的修改，基于第 N 版保存」 beside 「以最新版本重新加载」. Keep-mine refreshes the view without resetting the form and clears the conflict, so the next save writes the user's text above the latest version; UI test 39 and browser step 12.",
+      "retiredSources": "loadChunkIndex no longer lists a retired source's chunks or suggestions in the pickers; its chunks stay indexed so a stored ref still reads 「来源材料已退役」. Engine test 28, guard G17.",
+      "emptyState": "N-d left as it is: the five questions are directly answerable in the empty state, and the notice already says so."
+    },
+    "redFirst": {
+      "file": "qa/v6/evidence/V6-13/fix-round-3-red.txt",
+      "description": "the round-3 tests run against the pre-fix intake.ts (sha256 e2695528...c27b1fd) and Intake.tsx (sha256 ebcc571c...7538ed)",
+      "tests": 39,
+      "pass": 34,
+      "fail": 5,
+      "failingTests": [
+        25,
+        26,
+        27,
+        28,
+        39
+      ],
+      "exitCode": 1
+    },
+    "newGuards": [
+      "G15-B4-noop-idempotency",
+      "G16-B4-replay-before-status",
+      "G17-retired-source-hidden"
+    ],
+    "finalSha256": {
+      "intake.ts": "d6d780a01999f55bb32a728ca358745e6e8dd6e5d5e26bd8028b85b7a28573ba",
+      "Intake.tsx": "9f00036ee546d7f702b17ecc5e295d62c6c394fa0858d2c80ee363f97e8491ac"
+    },
+    "rerun": {
+      "v613": "39/39 pass, exit 0",
+      "V6-11": "53/53 pass, exit 0",
+      "V6-10": "36/36 pass, exit 0",
+      "typecheck": "exit 0 (unmounted and mounted)",
+      "build": "exit 0 (unmounted and mounted)",
+      "redBeforeFix": "22 guards, all exit 1, script exit 0, intake.ts sha256 identical before and after, backup outside the repo",
+      "browser": "12/12 steps, 0 console errors, 12 screenshots, port 4177",
+      "mountRevert": "V6App.tsx sha256 15b6f3c87175fa240cb8cf6c0e86956bbee947c2e66367d3d1a23d78953543ac after restore, not listed by git status"
+    }
+  },
+  "fixRound4": {
+    "review": "qa/v6/evidence/V6-13/review-04.md (NOT_ACCEPT)",
+    "B5": {
+      "problem": "two concurrent saveIntake calls with the same request key, one an unchanged no-op and one a version write with a different payload, could both return success. The only idempotency lookup was a read-only transaction before the gates; the no-op recorded with its own atomic transaction, but the write path never rechecked the key and its post-commit blob batch overwrote the no-op record, so replaying the no-op afterwards returned IDEMPOTENCY_CONFLICT.",
+      "fix": "both branches now use one atomic claim protocol. After loading the matter and computing the request hash, and before any gate that can write, saveIntake claims the key in one read-write transaction: absent -> pending record with claimId, requestHash, matterId, operation, requestKey, at and leaseExpiresAt; completed same hash -> replay; committed same hash -> finish or replay the commit; live pending same hash -> bounded wait (500ms, poll 25ms) then STORAGE_UNAVAILABLE with 同一请求正在处理中，请稍候再试。; pending past its 30s lease -> takeover; different hash in any state -> IDEMPOTENCY_CONFLICT. Only the claim owner may commit. A no-op settles the claim as completed with unchanged: true and the baseline snapshot, writing no version and no event (S03-A03). A version write marks the claim committed with its version before the blob batch, then writes the snapshot, any adopted-candidate links and the completed record in that same blob batch. A pre-commit failure or VERSION_CONFLICT retry releases only this attempt's pending claim; after a landed commit the claim is never released. The deterministic event id v6/intake/event/{matterId}/{requestKey} stays the duplicate-commit backstop, and a duplicate-event or VERSION_CONFLICT failure first looks for that event and finishes or replays it.",
+      "lifecycle": {
+        "claim": "single readwrite transaction: get the key and conditionally put a pending record. A live pending claim of the same hash is never overwritten; one past its lease is.",
+        "replay": "completed record with the same request hash returns the stored response: version snapshot for a write, baseline snapshot with unchanged: true for a no-op.",
+        "committed": "committed record with the same hash has a real commit. If its snapshot exists the response replays; if not, the original committed error (STORAGE_UNAVAILABLE with committedVersion) is returned, not a conflict (N1).",
+        "conflict": "a different request hash is IDEMPOTENCY_CONFLICT whatever the state of the record.",
+        "busy": "a live pending claim of the same hash is waited on for at most 500ms, then the request fails retryably with the in-flight copy. It never becomes a second owner.",
+        "takeover": "a pending claim past its 30s lease (judged from the attempt's injected now) may be replaced with this attempt's claim id; committed and completed records are never taken over.",
+        "release": "only this attempt's pending claim is deleted, and only on a pre-commit failure or the VERSION_CONFLICT retry path. A landed commit, a committed record or a completed record is never deleted.",
+        "backstop": "the deterministic event id and repository.listEvents metadata.version let a later attempt find and finish a commit whose record was lost."
+      },
+      "tests": {
+        "engine": [
+          29,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "ui": []
+      }
+    },
+    "N1": {
+      "status": "closed",
+      "fix": "a version write now marks a committed record before the snapshot blob batch, so a post-commit blob failure keeps a replayable committed record. A same-key retry returns the original STORAGE_UNAVAILABLE with committedVersion and the committed-without-snapshot message, not VERSION_CONFLICT or a duplicate-event error (test 11)."
+    },
+    "redFirst": {
+      "file": "qa/v6/evidence/V6-13/fix-round-4-red.txt",
+      "description": "the round-4 tests run against the pre-fix intake.ts (sha256 d6d780a0...8573ba; the round-3 file). The test file itself is the current one.",
+      "tests": 45,
+      "pass": 40,
+      "fail": 5,
+      "failingTests": [
+        11,
+        29,
+        30,
+        31,
+        33
+      ],
+      "exitCode": 1,
+      "note": "tests 32 (no-op/no-op) and 34 (lease takeover) pass on the pre-fix code because those two orderings already produced the intended outcome there; the claim itself is shown live by G18, which is red on the current code."
+    },
+    "newGuards": [
+      "G18-B5-atomic-claim"
+    ],
+    "finalSha256": {
+      "intake.ts": "e121cd3747f9cff4c489fb62d07decc05c6d35657104f23ff0e13bc955a1f57d",
+      "Intake.tsx": "9f00036ee546d7f702b17ecc5e295d62c6c394fa0858d2c80ee363f97e8491ac"
+    },
+    "rerun": {
+      "v613": "45/45 pass, exit 0",
+      "V6-11": "53/53 pass, exit 0",
+      "V6-10": "36/36 pass, exit 0",
+      "typecheck": "exit 0 (unmounted and mounted)",
+      "build": "exit 0 (unmounted and mounted)",
+      "redBeforeFix": "23 guards, all exit 1, script exit 0, intake.ts sha256 identical before and after (e121cd37...a1f57d), backup outside the repo",
+      "browser": "12/12 steps, 0 console errors, 12 screenshots, port 4177",
+      "mountRevert": "V6App.tsx sha256 15b6f3c87175fa240cb8cf6c0e86956bbee947c2e66367d3d1a23d78953543ac after restore, not listed by git status"
+    },
+    "residualLimitation": "A takeover is safe for the normal interleavings: if the stalled owner commits after another attempt took over, the takeover attempt loses its version check and finishes that commit from its deterministic event. A narrow window remains if the takeover attempt then fails before its own commit and releases the claim while the stalled owner's commit has landed; the deterministic event still prevents a duplicate commit, but a same-key retry may see VERSION_CONFLICT rather than the original response. The shipped panel opens a new request key whenever committedVersion or a conflict is reported, so the product path does not use that window."
+  }
+}
