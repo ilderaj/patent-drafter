@@ -1,0 +1,284 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-13
+
+TAP version 13
+# Subtest: V6-13-A01 each answer is saved with its source and the fact version it was based on; a reload shows the same refs
+ok 1 - V6-13-A01 each answer is saved with its source and the fact version it was based on; a reload shows the same refs
+  ---
+  duration_ms: 39.058875
+  type: 'test'
+  ...
+# Subtest: S03-A01 material mentioning 「给客户看过样品」 is suggested beside question 4; disclosure stays null until the user chooses
+ok 2 - S03-A01 material mentioning 「给客户看过样品」 is suggested beside question 4; disclosure stays null until the user chooses
+  ---
+  duration_ms: 4.185625
+  type: 'test'
+  ...
+# Subtest: S03-A02 an organization can never be an inventor; the field error is explicit and previously saved answers survive
+ok 3 - S03-A02 an organization can never be an inventor; the field error is explicit and previously saved answers survive
+  ---
+  duration_ms: 4.153625
+  type: 'test'
+  ...
+# Subtest: S03-A03 saving all five answers again unchanged writes no version, including a back-and-forward reconstructed from the view
+ok 4 - S03-A03 saving all five answers again unchanged writes no version, including a back-and-forward reconstructed from the view
+  ---
+  duration_ms: 4.941
+  type: 'test'
+  ...
+# Subtest: S03-A04 changing a shared fact makes both derived drafts stale and keeps the version each draft was built from
+ok 5 - S03-A04 changing a shared fact makes both derived drafts stale and keeps the version each draft was built from
+  ---
+  duration_ms: 3.976584
+  type: 'test'
+  ...
+# Subtest: S03-A05 only explicitly adopted candidates enter the snapshot; the rest stay outside every target
+ok 6 - S03-A05 only explicitly adopted candidates enter the snapshot; the rest stay outside every target
+  ---
+  duration_ms: 6.33525
+  type: 'test'
+  ...
+# Subtest: S03-A06 a retained conflict needs a reason; once given, both facts stay preserved and locatable
+ok 7 - S03-A06 a retained conflict needs a reason; once given, both facts stay preserved and locatable
+  ---
+  duration_ms: 5.193416
+  type: 'test'
+  ...
+# Subtest: V6-13-A02 invalid input is reported per field, and an unanswered disclosure is never filled from the material or from an example
+ok 8 - V6-13-A02 invalid input is reported per field, and an unanswered disclosure is never filled from the material or from an example
+  ---
+  duration_ms: 2.647375
+  type: 'test'
+  ...
+# Subtest: V6-13-A02 changing a fact marks a derived draft stale, while the unanswered disclosure stays null
+ok 9 - V6-13-A02 changing a fact marks a derived draft stale, while the unanswered disclosure stays null
+  ---
+  duration_ms: 3.063958
+  type: 'test'
+  ...
+# Subtest: V6-13-A03 the same request key replays instead of writing twice; a different payload under it is refused; a stale base returns both sides
+ok 10 - V6-13-A03 the same request key replays instead of writing twice; a different payload under it is refused; a stale base returns both sides
+  ---
+  duration_ms: 2.966708
+  type: 'test'
+  ...
+# Subtest: V6-13-A03 a failed commit leaves the version untouched and retry succeeds; a post-commit snapshot failure reports committedVersion and never duplicates
+ok 11 - V6-13-A03 a failed commit leaves the version untouched and retry succeeds; a post-commit snapshot failure reports committedVersion and never duplicates
+  ---
+  duration_ms: 5.855459
+  type: 'test'
+  ...
+# Subtest: V6-13 the empty, stale and error read states are explicit; a changed chunk marks facts and sources as stale
+ok 12 - V6-13 the empty, stale and error read states are explicit; a changed chunk marks facts and sources as stale
+  ---
+  duration_ms: 3.592334
+  type: 'test'
+  ...
+# Subtest: V6-13 user_confirmed facts keep their original confirmation when an unrelated save carries them forward
+ok 13 - V6-13 user_confirmed facts keep their original confirmation when an unrelated save carries them forward
+  ---
+  duration_ms: 3.431583
+  type: 'test'
+  ...
+# Subtest: V6-13 the contract snapshot is validated and includes only the active source ids
+ok 14 - V6-13 the contract snapshot is validated and includes only the active source ids
+  ---
+  duration_ms: 3.976292
+  type: 'test'
+  ...
+# Subtest: V6-13-A03 B1 after a post-commit snapshot failure a fresh read recovers at the committed version and a save there fills the gap
+ok 15 - V6-13-A03 B1 after a post-commit snapshot failure a fresh read recovers at the committed version and a save there fills the gap
+  ---
+  duration_ms: 3.607208
+  type: 'test'
+  ...
+# Subtest: V6-13-A03 B1 when the very first snapshot write fails, a fresh read shows an empty form at the committed version, not an error
+ok 16 - V6-13-A03 B1 when the very first snapshot write fails, a fresh read shows an empty form at the committed version, not an error
+  ---
+  duration_ms: 2.41225
+  type: 'test'
+  ...
+# Subtest: V6-13 idempotency records are scoped by (tenant, actor, operation, key) and bind the matter in the request hash
+ok 17 - V6-13 idempotency records are scoped by (tenant, actor, operation, key) and bind the matter in the request hash
+  ---
+  duration_ms: 2.336666
+  type: 'test'
+  ...
+# Subtest: V6-13 B2 a disclosure evidence ref with a forged quote or hash is refused as SOURCE_LOCATOR_INVALID
+ok 18 - V6-13 B2 a disclosure evidence ref with a forged quote or hash is refused as SOURCE_LOCATOR_INVALID
+  ---
+  duration_ms: 3.824167
+  type: 'test'
+  ...
+# Subtest: V6-13 B2 after the source changes, a stored disclosure evidence ref reads as changed
+ok 19 - V6-13 B2 after the source changes, a stored disclosure evidence ref reads as changed
+  ---
+  duration_ms: 2.59875
+  type: 'test'
+  ...
+# Subtest: V6-13 B3 two saves race at the same base: one commits, the other gets VERSION_CONFLICT at the real sourceVersion with the winner's snapshot
+ok 20 - V6-13 B3 two saves race at the same base: one commits, the other gets VERSION_CONFLICT at the real sourceVersion with the winner's snapshot
+  ---
+  duration_ms: 3.74975
+  type: 'test'
+  ...
+# Subtest: V6-13 B3 a save that races an unrelated matter commit (a target add) is rebuilt and commits once, keeping the target
+ok 21 - V6-13 B3 a save that races an unrelated matter commit (a target add) is rebuilt and commits once, keeping the target
+  ---
+  duration_ms: 2.852958
+  type: 'test'
+  ...
+# Subtest: V6-13 B3 the rebuild is bounded: a save that keeps losing to unrelated commits writes nothing and can be retried
+ok 22 - V6-13 B3 the rebuild is bounded: a save that keeps losing to unrelated commits writes nothing and can be retried
+  ---
+  duration_ms: 4.762083
+  type: 'test'
+  ...
+# Subtest: V6-13 a source ref naming a real chunk under another source id is refused
+ok 23 - V6-13 a source ref naming a real chunk under another source id is refused
+  ---
+  duration_ms: 2.478625
+  type: 'test'
+  ...
+# Subtest: V6-13 recovery never shows an older snapshot whose matterId is not this matter's
+ok 24 - V6-13 recovery never shows an older snapshot whose matterId is not this matter's
+  ---
+  duration_ms: 3.256959
+  type: 'test'
+  ...
+# Subtest: V6-13 B4 I1 a no-op save with a request key is replayable and refuses a different payload under the same key
+ok 25 - V6-13 B4 I1 a no-op save with a request key is replayable and refuses a different payload under the same key
+  ---
+  duration_ms: 3.798791
+  type: 'test'
+  ...
+# Subtest: V6-13 B4 I5 after a no-op save, a later unrelated write and then an identical replay return the original result
+ok 26 - V6-13 B4 I5 after a no-op save, a later unrelated write and then an identical replay return the original result
+  ---
+  duration_ms: 3.823042
+  type: 'test'
+  ...
+# Subtest: V6-13 B4 I3 replay of a landed request after the matter is archived returns the original success
+ok 27 - V6-13 B4 I3 replay of a landed request after the matter is archived returns the original success
+  ---
+  duration_ms: 2.376084
+  type: 'test'
+  ...
+# Subtest: V6-13 a retired source is not offered in the chunk or suggestion pickers
+ok 28 - V6-13 a retired source is not offered in the chunk or suggestion pickers
+  ---
+  duration_ms: 2.302
+  type: 'test'
+  ...
+# Subtest: V6-13 B5 write first: a no-op under the same key is refused, and the write's success survives replay
+ok 29 - V6-13 B5 write first: a no-op under the same key is refused, and the write's success survives replay
+  ---
+  duration_ms: 2.574458
+  type: 'test'
+  ...
+# Subtest: V6-13 B5 no-op first: the version write under the same key is refused and writes nothing
+ok 30 - V6-13 B5 no-op first: the version write under the same key is refused and writes nothing
+  ---
+  duration_ms: 2.8035
+  type: 'test'
+  ...
+# Subtest: V6-13 B5 write/write: two payloads under one key get one version and one conflict
+ok 31 - V6-13 B5 write/write: two payloads under one key get one version and one conflict
+  ---
+  duration_ms: 3.582709
+  type: 'test'
+  ...
+# Subtest: V6-13 B5 no-op/no-op: the waiter replays the completed no-op instead of claiming a second success
+ok 32 - V6-13 B5 no-op/no-op: the waiter replays the completed no-op instead of claiming a second success
+  ---
+  duration_ms: 29.600125
+  type: 'test'
+  ...
+# Subtest: V6-13 B5 a live claim makes an identical request wait, then fail as retryable busy, then replay once it completes
+ok 33 - V6-13 B5 a live claim makes an identical request wait, then fail as retryable busy, then replay once it completes
+  ---
+  duration_ms: 513.850875
+  type: 'test'
+  ...
+# Subtest: V6-13 B5 an expired pending claim is taken over once, and the stalled owner then replays the winner
+ok 34 - V6-13 B5 an expired pending claim is taken over once, and the stalled owner then replays the winner
+  ---
+  duration_ms: 8.797167
+  type: 'test'
+  ...
+# Subtest: V6-13 UI renders loading and an explicit error state instead of an empty form
+ok 35 - V6-13 UI renders loading and an explicit error state instead of an empty form
+  ---
+  duration_ms: 67.555459
+  type: 'test'
+  ...
+# Subtest: V6-13 UI empty state shows five questions, no disclosure or maturity value, and the located source suggestion
+ok 36 - V6-13 UI empty state shows five questions, no disclosure or maturity value, and the located source suggestion
+  ---
+  duration_ms: 27.268833
+  type: 'test'
+  ...
+# Subtest: V6-13 UI loaded state keeps the saved answer, its source and its provenance after a reload
+ok 37 - V6-13 UI loaded state keeps the saved answer, its source and its provenance after a reload
+  ---
+  duration_ms: 9.051458
+  type: 'test'
+  ...
+# Subtest: V6-13-A03 B1 UI after a post-commit snapshot failure and a reload, the form renders at the committed version and its save succeeds
+ok 38 - V6-13-A03 B1 UI after a post-commit snapshot failure and a reload, the form renders at the committed version and its save succeeds
+  ---
+  duration_ms: 7.818916
+  type: 'test'
+  ...
+# Subtest: V6-13 B2 UI a disclosure evidence ref that no longer locates its paragraph is shown as changed
+ok 39 - V6-13 B2 UI a disclosure evidence ref that no longer locates its paragraph is shown as changed
+  ---
+  duration_ms: 6.113458
+  type: 'test'
+  ...
+# Subtest: V6-13 UI stale state marks changed sources and derived drafts; a conflicts view shows both sides and the retained reason
+ok 40 - V6-13 UI stale state marks changed sources and derived drafts; a conflicts view shows both sides and the retained reason
+  ---
+  duration_ms: 5.028542
+  type: 'test'
+  ...
+# Subtest: V6-13 UI shows field errors without discarding what the user typed, and a version conflict side by side
+ok 41 - V6-13 UI shows field errors without discarding what the user typed, and a version conflict side by side
+  ---
+  duration_ms: 5.214708
+  type: 'test'
+  ...
+# Subtest: V6-13 UI reducer keeps the three source kinds exact and never invents a disclosure or maturity value
+ok 42 - V6-13 UI reducer keeps the three source kinds exact and never invents a disclosure or maturity value
+  ---
+  duration_ms: 3.2435
+  type: 'test'
+  ...
+# Subtest: V6-13 B3 UI the loser of a two-tab save race sees both sides with the real latest version
+ok 43 - V6-13 B3 UI the loser of a two-tab save race sees both sides with the real latest version
+  ---
+  duration_ms: 4.071458
+  type: 'test'
+  ...
+# Subtest: V6-13 UI a conflict whose latest snapshot was never written shows the newest older one and says so
+ok 44 - V6-13 UI a conflict whose latest snapshot was never written shows the newest older one and says so
+  ---
+  duration_ms: 4.58575
+  type: 'test'
+  ...
+# Subtest: V6-13 UI a version conflict keeps the user's edits and offers both choices
+ok 45 - V6-13 UI a version conflict keeps the user's edits and offers both choices
+  ---
+  duration_ms: 3.314042
+  type: 'test'
+  ...
+1..45
+# tests 45
+# suites 0
+# pass 45
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 890.077542

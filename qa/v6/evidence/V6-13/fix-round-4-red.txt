@@ -1,0 +1,80 @@
+V6-13 fix round 4 red evidence (review-04 B5)
+worktree: /private/tmp/patent-v6-13-worktree (base 953e05d)
+pre-fix intake.ts sha256: d6d780a01999f55bb32a728ca358745e6e8dd6e5d5e26bd8028b85b7a28573ba
+post-fix intake.ts sha256: e121cd3747f9cff4c489fb62d07decc05c6d35657104f23ff0e13bc955a1f57d
+
+Command:
+  cp /tmp/v613-r4-prefix-intake.ts /private/tmp/patent-v6-13-worktree/apps/web/src/v6/features/intake/intake.ts
+  npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-13
+  cp /tmp/v613-r4-postfix-intake.ts /private/tmp/patent-v6-13-worktree/apps/web/src/v6/features/intake/intake.ts
+
+Result against the pre-fix file: exit code 1, 45 tests, 40 pass, 5 fail.
+
+The failing tests are exactly the ones that describe the claim protocol, plus the
+N1 replay assertion in test 11:
+
+## not ok 29 — V6-13 B5 write first: a no-op under the same key is refused, and the write's success survives replay
+
+Pre-fix observed: the no-op returned `{ok:true, version:1, unchanged:true,
+replayed:false}` while the version write also returned success. Two different
+payloads under one key both succeeded. The test expects the no-op to be
+`IDEMPOTENCY_CONFLICT` because the write already claimed the key.
+
+  {"ok":true,"version":1,"unchanged":true,"replayed":false}
+  true !== false
+
+## not ok 30 — V6-13 B5 no-op first: the version write under the same key is refused and writes nothing
+
+Pre-fix observed: the version write returned `{ok:true, version:2,
+unchanged:false, replayed:false}` although the no-op had already started (and,
+in the new protocol, claimed) the same key. The test expects the write to be
+`IDEMPOTENCY_CONFLICT` and to write no event or snapshot.
+
+  {"ok":true,"version":2,"unchanged":false,"replayed":false}
+  true !== false
+
+## not ok 31 — V6-13 B5 write/write: two payloads under one key get one version and one conflict
+
+Pre-fix observed: the second payload committed and recorded itself while the
+first request was held before its commit; the held request then lost its version
+check and reported a conflict. The test expects one success (the claim owner)
+and one `IDEMPOTENCY_CONFLICT`, with one event and one snapshot.
+
+  {"ok":true,"version":2,"unchanged":false,"replayed":false}
+  true !== false
+
+## not ok 33 — V6-13 B5 a live claim makes an identical request wait, then fail as retryable busy, then replay once it completes
+
+Pre-fix observed: an identical request did not wait for the in-flight owner; it
+opened its own save and returned success. The test expects
+`STORAGE_UNAVAILABLE` with 「同一请求正在处理中，请稍候再试。」, then a replay
+after the owner completes.
+
+  {"ok":true,"version":2,"unchanged":false,"replayed":false}
+  true !== false
+
+## not ok 11 — V6-13-A03 post-commit snapshot failure
+
+Pre-fix observed: a same-key identical retry after the commit landed but the
+snapshot blob failed returned `VERSION_CONFLICT` (review-04 N1). The test now
+expects the original committed error, replayed from the committed record:
+`STORAGE_UNAVAILABLE` with `committedVersion: 3`, no second event.
+
+  actual 'VERSION_CONFLICT' !== expected 'STORAGE_UNAVAILABLE'
+
+## New tests that are green against the pre-fix file
+
+Tests 32 (no-op/no-op) and 34 (lease takeover) pass against the pre-fix file.
+They state outcomes the pre-fix code already produced for those two orderings:
+the no-op record's own get-and-put serialized two no-ops, and a stale owner's
+retry found the winner's record because the old lookup ran before the base
+gate. They remain part of the protocol evidence; the claim itself is shown red
+by G18 in red-before-fix.txt on the post-fix file.
+
+Restore proof:
+  post-fix file restored from /tmp/v613-r4-postfix-intake.ts
+  sha256 after restore: e121cd3747f9cff4c489fb62d07decc05c6d35657104f23ff0e13bc955a1f57d
+  identical to the post-fix file: true
+
+The pre-fix bytes remain at /tmp/v613-r4-prefix-intake.ts; the red run output
+was captured at /tmp/fix-round-4-red-run.txt before the restore.
