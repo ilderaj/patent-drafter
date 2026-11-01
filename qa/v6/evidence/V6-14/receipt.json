@@ -276,7 +276,50 @@
         "revertedSha256": "91a04dbe435e74256f13bb49a0231cafdc1dd440e4d1ebafbcb917a568c2431b"
       }
     ],
-    "reverted": true
+    "reverted": true,
+    "permanent": {
+      "branch": "codex/patent-saas-v6-foundation-origin",
+      "worktree": "/private/tmp/patent-v6-worktree",
+      "date": "2026-11-02",
+      "changes": [
+        "V6App.tsx imports TargetsPanel and renders it under the overview tab, after the matter summary, inside a fragment.",
+        "useMatterView keeps the current view on a retry and only clears it when the URL's matter or target id changes; TargetsPanel gets onSettled={retry}, so the target switcher and target count refresh after a create or update without a reload (review-01 finding 5).",
+        "Targets.tsx gains an optional onSettled prop, called after a successful create and update.",
+        "v6.css: `.v6-targets .chip { color: inherit }` removed, so `.chip.active` keeps its contrast in the MatterPage target nav."
+      ],
+      "files": {
+        "apps/web/src/v6/routes/V6App.tsx": "8b7292a799c951cbd25f9311e523557cbe56209e2d47732f74a71750d2e20be5",
+        "apps/web/src/v6/routes/v6.css": "90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7",
+        "apps/web/src/v6/features/targets/Targets.tsx": "9369ad4bbe2257bc7b758bbd4b4c5f4c47544b9194c60acb04b6ba4b3ded5392"
+      },
+      "verification": {
+        "typecheck": {
+          "command": "npm run typecheck",
+          "exitCode": 0
+        },
+        "build": {
+          "command": "npm run build",
+          "exitCode": 0
+        },
+        "suites": {
+          "command": "node qa/v6/runner.mjs <ticket> for V6-02..V6-15",
+          "suites": 14,
+          "tests": 413,
+          "failed": 0
+        },
+        "browser": {
+          "command": "node qa/v6/evidence/V6-14/browser-drive.mjs <tmp> http://localhost:4176/patent (vite preview of the PR build)",
+          "log": "qa/v6/evidence/V6-14/mount-browser-log.json",
+          "logSha256": "d2e702f28a7b847e930b51cc8e6c5f0b7b9d523d8d73dc51a30522d0ab4289fb",
+          "steps": 8,
+          "passed": 8,
+          "consoleErrors": 0,
+          "nonLocalRequests": 0,
+          "requests": 10,
+          "observed": "After the second create, the shell shows the 目标 1 / 目标 2 switcher and 目标 2 个 without a reload; the active chip is readable."
+        }
+      }
+    }
   },
   "decisions": [
     "Config rows are stored in blobs at targets/config/{tenant}/{matter}/{target}/{version}/{writeId}, keyed by the event id. A recovered or retried write never overwrites the row of a different attempt. committedWriteIds maps targetId/version to the event id that landed.",

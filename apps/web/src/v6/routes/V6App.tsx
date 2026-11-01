@@ -15,6 +15,7 @@ import { Parse } from "../features/sources/Parse.tsx";
 import { Intake } from "../features/intake/Intake.tsx";
 import { Figures } from "../features/sources/Figures.tsx";
 import { AiPage } from "../features/ai/Ai.tsx";
+import { TargetsPanel } from "../features/targets/Targets.tsx";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
 import { openLocalRepository, type LocalRepository } from "../lib/repository.ts";
 import {
@@ -289,13 +290,18 @@ function MattersPage({ repository }: { repository: LocalRepository }) {
   );
 }
 
-/** Load a matter view for the URL; reloads when the URL's ids change. */
+/** Load a matter view for the URL; reloads when the URL's ids change. A retry refreshes in place. */
 function useMatterView(repository: LocalRepository, matterId: string, targetId: string | null) {
   const [view, setView] = useState<MatterView | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const ids = useRef(`${matterId}:${targetId ?? ""}`);
   useEffect(() => {
     let live = true;
-    setView(null);
+    const nextIds = `${matterId}:${targetId ?? ""}`;
+    if (ids.current !== nextIds) {
+      ids.current = nextIds;
+      setView(null);
+    }
     void resolveMatterView(repository, LOCAL_ACTOR, matterId, targetId).then((next) => live && setView(next));
     return () => {
       live = false;
@@ -425,20 +431,25 @@ function MatterPage({
           {capability.reason}
         </div>
       ) : (
-        <dl className="kv v6-overview">
-          <dt>状态</dt>
-          <dd>{view.matter.status === "active" ? "进行中" : view.matter.status}</dd>
-          <dt>创建时间</dt>
-          <dd>{formatTime(view.matter.createdAt)}</dd>
-          <dt>材料版本</dt>
-          <dd>{view.matter.sourceVersion}</dd>
-          <dt>目标</dt>
-          <dd>{view.targets.length === 0 ? "尚未创建" : `${view.targets.length} 个`}</dd>
-          <dt>下一步</dt>
-          <dd>
-            <Link to={v6Path({ kind: "upload", matterId })}>上传材料</Link>
-          </dd>
-        </dl>
+        <>
+          <dl className="kv v6-overview">
+            <dt>状态</dt>
+            <dd>{view.matter.status === "active" ? "进行中" : view.matter.status}</dd>
+            <dt>创建时间</dt>
+            <dd>{formatTime(view.matter.createdAt)}</dd>
+            <dt>材料版本</dt>
+            <dd>{view.matter.sourceVersion}</dd>
+            <dt>目标</dt>
+            <dd>{view.targets.length === 0 ? "尚未创建" : `${view.targets.length} 个`}</dd>
+            <dt>下一步</dt>
+            <dd>
+              <Link to={v6Path({ kind: "upload", matterId })}>上传材料</Link>
+            </dd>
+          </dl>
+          {tab === "overview" ? (
+            <TargetsPanel repository={repository} actor={LOCAL_ACTOR} matterId={matterId} onSettled={retry} />
+          ) : null}
+        </>
       )}
     </div>
   );

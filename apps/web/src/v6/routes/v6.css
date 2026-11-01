@@ -19,7 +19,7 @@
 .v6-list .project-row { display: flex; justify-content: space-between; gap: 16px; }
 
 .v6-targets { display: flex; flex-wrap: wrap; gap: 8px; }
-.v6-targets .chip { text-decoration: none; color: inherit; }
+.v6-targets .chip { text-decoration: none; }
 .v6-targets .chip.active { border-color: var(--foreground); }
 .v6-tabs { display: flex; flex-wrap: wrap; }
 .v6-tabs .tabs-trigger { text-decoration: none; }

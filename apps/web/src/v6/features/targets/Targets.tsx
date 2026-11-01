@@ -151,6 +151,8 @@ export interface TargetsPanelProps {
   loading?: boolean;
   loadError?: TargetFailure | null;
   selectedTargetId?: string | null;
+  /** Called after a successful create or update so the shell can refresh. */
+  onSettled?: () => void;
 }
 
 export interface TargetsViewProps {
@@ -170,7 +172,7 @@ export interface TargetsViewProps {
 // Container
 // ---------------------------------------------------------------------------
 
-export function TargetsPanel({ repository, actor, matterId, initialView, loading, loadError, selectedTargetId }: TargetsPanelProps) {
+export function TargetsPanel({ repository, actor, matterId, initialView, loading, loadError, selectedTargetId, onSettled }: TargetsPanelProps) {
   const injected = initialView !== undefined;
   const [view, setView] = useState<TargetsView | null>(initialView ?? null);
   const [readError, setReadError] = useState<TargetFailure | null>(loadError ?? null);
@@ -274,6 +276,7 @@ export function TargetsPanel({ repository, actor, matterId, initialView, loading
           applyTarget(outcome.data);
           setSelected(outcome.data.target.id);
           setNotice("目标已保存。");
+          onSettled?.();
           return;
         }
         if (outcome.error.code === "VERSION_CONFLICT") setStale(outcome.error);
@@ -283,7 +286,7 @@ export function TargetsPanel({ repository, actor, matterId, initialView, loading
         setBusy(false);
       }
     },
-    [repository, actor, matterId, applyTarget],
+    [repository, actor, matterId, applyTarget, onSettled],
   );
 
   const update = useCallback(
@@ -312,6 +315,7 @@ export function TargetsPanel({ repository, actor, matterId, initialView, loading
         if (outcome.ok) {
           applyTarget(outcome.data);
           setNotice("目标配置已保存，其他目标没有变化。");
+          onSettled?.();
           return;
         }
         if (outcome.error.code === "VERSION_CONFLICT") setStale(outcome.error);
@@ -321,7 +325,7 @@ export function TargetsPanel({ repository, actor, matterId, initialView, loading
         setBusy(false);
       }
     },
-    [repository, actor, matterId, applyTarget],
+    [repository, actor, matterId, applyTarget, onSettled],
   );
 
   const actions = useMemo<TargetsActions>(() => ({ refresh, select, create, update }), [refresh, select, create, update]);
