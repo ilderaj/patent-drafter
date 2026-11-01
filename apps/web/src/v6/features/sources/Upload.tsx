@@ -145,13 +145,15 @@ export interface UploadProps {
    * to the question flow; this component writes nothing for it.
    */
   onAnswerWithoutDocuments: () => void;
+  /** Called once a save batch settles, so sibling views can re-read the repository. */
+  onSettled?: () => void;
 }
 
 export function newFileId(): string {
   return globalThis.crypto.randomUUID();
 }
 
-export function Upload({ repository, actor, matterId, onAnswerWithoutDocuments }: UploadProps) {
+export function Upload({ repository, actor, matterId, onAnswerWithoutDocuments, onSettled }: UploadProps) {
   const [state, dispatch] = useReducer(uploadReducer, initialUploadState);
   const [dragOver, setDragOver] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -189,8 +191,9 @@ export function Upload({ repository, actor, matterId, onAnswerWithoutDocuments }
       .finally(() => {
         abortRef.current = null;
         dispatch({ type: "idle" });
+        onSettled?.();
       });
-  }, [actor, matterId, repository, state]);
+  }, [actor, matterId, onSettled, repository, state]);
 
   const cancel = useCallback(() => {
     abortRef.current?.abort();

@@ -1,0 +1,1365 @@
+{
+  "base": "http://127.0.0.1:4176/patent",
+  "fixtures": {
+    "text": "合成-文字稿.txt",
+    "pdf": "合成-两页.pdf",
+    "scan": "合成-扫描件.pdf",
+    "legacyDoc": "合成-旧格式.doc",
+    "tooLong": "合成-201页.pdf",
+    "interrupt": "合成-长文-中断.pdf",
+    "abandon": "合成-长文-放弃.pdf",
+    "duplicate": "合成-长文-复制标签.pdf",
+    "refresh": "合成-上传中解析.pdf",
+    "extra": "合成-解析时新增.txt"
+  },
+  "finalState": {
+    "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+    "parsePanels": 1,
+    "parseState": "error",
+    "rows": [
+      {
+        "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+        "state": "parsed",
+        "stage": "chunk",
+        "name": "合成-文字稿.txt",
+        "status": "已解析",
+        "detail": "2 段 · 1 页 · 已保存",
+        "progress": "100",
+        "canStart": false,
+        "canCancel": false,
+        "canResume": false,
+        "resumeText": null,
+        "canAbandon": false,
+        "abandonText": null,
+        "canRetry": false,
+        "manualDisabled": null
+      },
+      {
+        "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+        "state": "parsed",
+        "stage": "chunk",
+        "name": "合成-两页.pdf",
+        "status": "已解析",
+        "detail": "4 段 · 2 页 · 已保存",
+        "progress": "100",
+        "canStart": false,
+        "canCancel": false,
+        "canResume": false,
+        "resumeText": null,
+        "canAbandon": false,
+        "abandonText": null,
+        "canRetry": false,
+        "manualDisabled": null
+      },
+      {
+        "id": "17d46640-3e4a-4b0b-8fe1-b3aa2cf6092f",
+        "state": "partial",
+        "stage": "ocr_check",
+        "name": "合成-扫描件.pdf",
+        "status": "部分解析",
+        "detail": "— · 已保存",
+        "progress": "100",
+        "canStart": false,
+        "canCancel": false,
+        "canResume": false,
+        "resumeText": null,
+        "canAbandon": false,
+        "abandonText": null,
+        "canRetry": true,
+        "manualDisabled": true
+      },
+      {
+        "id": "b3592bac-9e8e-49fe-9012-83bc58367788",
+        "state": "failed",
+        "stage": "verify",
+        "name": "合成-201页.pdf",
+        "status": "解析失败",
+        "detail": "—",
+        "progress": "20",
+        "canStart": false,
+        "canCancel": false,
+        "canResume": false,
+        "resumeText": null,
+        "canAbandon": false,
+        "abandonText": null,
+        "canRetry": true,
+        "manualDisabled": null
+      },
+      {
+        "id": "666e0962-2af3-4479-a79e-64ede0dba6e4",
+        "state": "parsed",
+        "stage": "chunk",
+        "name": "合成-长文-中断.pdf",
+        "status": "已解析",
+        "detail": "10450 段 · 190 页 · 已保存",
+        "progress": "100",
+        "canStart": false,
+        "canCancel": false,
+        "canResume": false,
+        "resumeText": null,
+        "canAbandon": false,
+        "abandonText": null,
+        "canRetry": false,
+        "manualDisabled": null
+      },
+      {
+        "id": "b26a99c6-7c44-4482-8c07-a02c9c3e7891",
+        "state": "cancelled",
+        "stage": "ocr_check",
+        "name": "合成-长文-放弃.pdf",
+        "status": "已取消",
+        "detail": "—",
+        "progress": "60",
+        "canStart": false,
+        "canCancel": false,
+        "canResume": false,
+        "resumeText": null,
+        "canAbandon": false,
+        "abandonText": null,
+        "canRetry": true,
+        "manualDisabled": null
+      },
+      {
+        "id": "a068a309-930a-492a-98de-acec336000d1",
+        "state": "parsed",
+        "stage": "chunk",
+        "name": "合成-上传中解析.pdf",
+        "status": "已解析",
+        "detail": "10746 段 · 199 页 · 已保存",
+        "progress": "100",
+        "canStart": false,
+        "canCancel": false,
+        "canResume": false,
+        "resumeText": null,
+        "canAbandon": false,
+        "abandonText": null,
+        "canRetry": false,
+        "manualDisabled": null
+      },
+      {
+        "id": "169eaeb8-ef82-422a-8b61-cf21332d1c20",
+        "state": "pending",
+        "stage": "",
+        "name": "合成-解析时新增.txt",
+        "status": "未解析",
+        "detail": "—",
+        "progress": "0",
+        "canStart": true,
+        "canCancel": false,
+        "canResume": false,
+        "resumeText": null,
+        "canAbandon": false,
+        "abandonText": null,
+        "canRetry": false,
+        "manualDisabled": null
+      },
+      {
+        "id": "7957783f-040f-415f-9edc-9d340769ce48",
+        "state": "parsed",
+        "stage": "chunk",
+        "name": "合成-长文-复制标签.pdf",
+        "status": "已解析",
+        "detail": "10945 段 · 199 页 · 已保存",
+        "progress": "100",
+        "canStart": false,
+        "canCancel": false,
+        "canResume": false,
+        "resumeText": null,
+        "canAbandon": false,
+        "abandonText": null,
+        "canRetry": false,
+        "manualDisabled": null
+      }
+    ],
+    "uploads": [
+      {
+        "name": "合成-上传中解析.pdf",
+        "saved": "true",
+        "status": "已保存"
+      },
+      {
+        "name": "合成-解析时新增.txt",
+        "saved": "true",
+        "status": "已保存"
+      },
+      {
+        "name": "合成-长文-复制标签.pdf",
+        "saved": "true",
+        "status": "已保存"
+      }
+    ],
+    "problems": null
+  },
+  "consoleErrors": [],
+  "steps": [
+    {
+      "step": "01-create-matter",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "empty",
+        "rows": [],
+        "uploads": [],
+        "problems": null
+      },
+      "notes": {
+        "matterId": "11268e1c-efb6-4591-a87f-1c230d590d6a"
+      }
+    },
+    {
+      "step": "02-upload-text-appears-without-reload",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "ready",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "pending",
+            "stage": "",
+            "name": "合成-文字稿.txt",
+            "status": "未解析",
+            "detail": "—",
+            "progress": "0",
+            "canStart": true,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          }
+        ],
+        "uploads": [
+          {
+            "name": "合成-文字稿.txt",
+            "saved": "true",
+            "status": "已保存"
+          }
+        ],
+        "problems": null
+      },
+      "notes": {
+        "marker": "load-1",
+        "status": "未解析"
+      }
+    },
+    {
+      "step": "03-upload-pdf-appears-without-reload",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "ready",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "pending",
+            "stage": "",
+            "name": "合成-文字稿.txt",
+            "status": "未解析",
+            "detail": "—",
+            "progress": "0",
+            "canStart": true,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+            "state": "pending",
+            "stage": "",
+            "name": "合成-两页.pdf",
+            "status": "未解析",
+            "detail": "—",
+            "progress": "0",
+            "canStart": true,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          }
+        ],
+        "uploads": [
+          {
+            "name": "合成-文字稿.txt",
+            "saved": "true",
+            "status": "已保存"
+          },
+          {
+            "name": "合成-两页.pdf",
+            "saved": "true",
+            "status": "已保存"
+          }
+        ],
+        "problems": null
+      },
+      "notes": {
+        "rows": 2
+      }
+    },
+    {
+      "step": "04-parse-both-to-parsed",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "parsed",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-文字稿.txt",
+            "status": "已解析",
+            "detail": "2 段 · 1 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-两页.pdf",
+            "status": "已解析",
+            "detail": "4 段 · 2 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          }
+        ],
+        "uploads": [
+          {
+            "name": "合成-文字稿.txt",
+            "saved": "true",
+            "status": "已保存"
+          },
+          {
+            "name": "合成-两页.pdf",
+            "saved": "true",
+            "status": "已保存"
+          }
+        ],
+        "problems": null
+      },
+      "notes": {
+        "text": "2 段 · 1 页 · 已保存",
+        "pdf": "4 段 · 2 页 · 已保存",
+        "engine": {
+          "status": "succeeded",
+          "jobId": "f32f475e-0743-50b7-8e3b-b7611b488f98",
+          "jobState": "succeeded",
+          "jobStage": "chunk",
+          "jobVersion": 7,
+          "leaseOwner": null,
+          "ownerPageId": "716f77c8-4f20-4208-bee4-ffca668cb0f8",
+          "errorCode": null,
+          "leaseExpiresAt": null,
+          "previousJobId": null,
+          "resumedFromStage": null,
+          "savedStages": [
+            "chunk",
+            "extract_text",
+            "ocr_check",
+            "verify"
+          ],
+          "jobCount": 1,
+          "sourceStatus": "parsed",
+          "ocrNeeded": false,
+          "pageCount": 2,
+          "chunkCount": 4,
+          "chunkTextChars": 86
+        }
+      }
+    },
+    {
+      "step": "05-reload-keeps-parsed",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "parsed",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-文字稿.txt",
+            "status": "已解析",
+            "detail": "2 段 · 1 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-两页.pdf",
+            "status": "已解析",
+            "detail": "4 段 · 2 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          }
+        ],
+        "uploads": [],
+        "problems": null
+      },
+      "notes": {
+        "after": [
+          [
+            "合成-文字稿.txt",
+            "2 段 · 1 页 · 已保存",
+            "已解析"
+          ],
+          [
+            "合成-两页.pdf",
+            "4 段 · 2 页 · 已保存",
+            "已解析"
+          ]
+        ]
+      }
+    },
+    {
+      "step": "06-scanned-pdf-partial",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "error",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-文字稿.txt",
+            "status": "已解析",
+            "detail": "2 段 · 1 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-两页.pdf",
+            "status": "已解析",
+            "detail": "4 段 · 2 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "17d46640-3e4a-4b0b-8fe1-b3aa2cf6092f",
+            "state": "partial",
+            "stage": "ocr_check",
+            "name": "合成-扫描件.pdf",
+            "status": "部分解析",
+            "detail": "— · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": true
+          }
+        ],
+        "uploads": [
+          {
+            "name": "合成-扫描件.pdf",
+            "saved": "true",
+            "status": "已保存"
+          }
+        ],
+        "problems": null
+      },
+      "notes": {
+        "row": {
+          "status": "部分解析",
+          "detail": "— · 已保存"
+        },
+        "engine": {
+          "status": "succeeded",
+          "jobId": "bdeb16a2-15e5-5d4e-8c98-dddc9b8fc8ba",
+          "jobState": "succeeded",
+          "jobStage": "ocr_check",
+          "jobVersion": 7,
+          "leaseOwner": null,
+          "ownerPageId": "74d953bb-4cfd-43d0-8aa3-b8a61f4ba029",
+          "errorCode": "OCR_UNAVAILABLE",
+          "leaseExpiresAt": null,
+          "previousJobId": null,
+          "resumedFromStage": null,
+          "savedStages": [
+            "chunk",
+            "extract_text",
+            "ocr_check",
+            "verify"
+          ],
+          "jobCount": 1,
+          "sourceStatus": "partial",
+          "ocrNeeded": true,
+          "pageCount": 1,
+          "chunkCount": 0,
+          "chunkTextChars": 0
+        }
+      }
+    },
+    {
+      "step": "07-legacy-doc-refused-at-upload",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "error",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-文字稿.txt",
+            "status": "已解析",
+            "detail": "2 段 · 1 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-两页.pdf",
+            "status": "已解析",
+            "detail": "4 段 · 2 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "17d46640-3e4a-4b0b-8fe1-b3aa2cf6092f",
+            "state": "partial",
+            "stage": "ocr_check",
+            "name": "合成-扫描件.pdf",
+            "status": "部分解析",
+            "detail": "— · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": true
+          }
+        ],
+        "uploads": [
+          {
+            "name": "合成-扫描件.pdf",
+            "saved": "true",
+            "status": "已保存"
+          },
+          {
+            "name": "合成-旧格式.doc",
+            "saved": "false",
+            "status": "不接受这种文件；只接受 PDF、DOCX、TXT、MD、PNG、JPEG。"
+          }
+        ],
+        "problems": "!有文件没有保存，它们不会成为案件材料；请移除后换一个文件。"
+      },
+      "notes": {
+        "status": "不接受这种文件；只接受 PDF、DOCX、TXT、MD、PNG、JPEG。",
+        "problems": "!有文件没有保存，它们不会成为案件材料；请移除后换一个文件。"
+      }
+    },
+    {
+      "step": "08-failed-parse-then-retry-new-job",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "error",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-文字稿.txt",
+            "status": "已解析",
+            "detail": "2 段 · 1 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-两页.pdf",
+            "status": "已解析",
+            "detail": "4 段 · 2 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "17d46640-3e4a-4b0b-8fe1-b3aa2cf6092f",
+            "state": "partial",
+            "stage": "ocr_check",
+            "name": "合成-扫描件.pdf",
+            "status": "部分解析",
+            "detail": "— · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": true
+          },
+          {
+            "id": "b3592bac-9e8e-49fe-9012-83bc58367788",
+            "state": "failed",
+            "stage": "verify",
+            "name": "合成-201页.pdf",
+            "status": "解析失败",
+            "detail": "—",
+            "progress": "20",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": null
+          }
+        ],
+        "uploads": [
+          {
+            "name": "合成-扫描件.pdf",
+            "saved": "true",
+            "status": "已保存"
+          },
+          {
+            "name": "合成-旧格式.doc",
+            "saved": "false",
+            "status": "不接受这种文件；只接受 PDF、DOCX、TXT、MD、PNG、JPEG。"
+          },
+          {
+            "name": "合成-201页.pdf",
+            "saved": "true",
+            "status": "已保存"
+          }
+        ],
+        "problems": "!有文件没有保存，它们不会成为案件材料；请移除后换一个文件。"
+      },
+      "notes": {
+        "errorCode": "PARSE_BUDGET_EXCEEDED",
+        "rowText": "▤合成-201页.pdf—单个文件超过 200 页上限，无法在本地解析。请拆分后重新上传。（PARSE_BUDGET_EXCEEDED）解析失败重试",
+        "before": "3f26aa4a-bd69-503c-89bb-a480ab2446a6",
+        "after": "868c7385-6794-573a-84b0-056ef913e4d5"
+      }
+    },
+    {
+      "step": "09-interrupt-by-reload-then-resume",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "error",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-文字稿.txt",
+            "status": "已解析",
+            "detail": "2 段 · 1 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-两页.pdf",
+            "status": "已解析",
+            "detail": "4 段 · 2 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "17d46640-3e4a-4b0b-8fe1-b3aa2cf6092f",
+            "state": "partial",
+            "stage": "ocr_check",
+            "name": "合成-扫描件.pdf",
+            "status": "部分解析",
+            "detail": "— · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": true
+          },
+          {
+            "id": "b3592bac-9e8e-49fe-9012-83bc58367788",
+            "state": "failed",
+            "stage": "verify",
+            "name": "合成-201页.pdf",
+            "status": "解析失败",
+            "detail": "—",
+            "progress": "20",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": null
+          },
+          {
+            "id": "666e0962-2af3-4479-a79e-64ede0dba6e4",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-长文-中断.pdf",
+            "status": "已解析",
+            "detail": "10450 段 · 190 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          }
+        ],
+        "uploads": [],
+        "problems": null
+      },
+      "notes": {
+        "runningBeforeReload": "正在提取文字",
+        "insideLeaseAfterReload": {
+          "state": "interrupted",
+          "status": "已中断"
+        },
+        "savedAtReload": [
+          "verify"
+        ],
+        "reloadToInterruptedMs": 1008,
+        "leaseRemainingMsAfterReload": 58798,
+        "jobVersionBeforeReload": 3,
+        "jobVersionAfterReload": 4,
+        "immediatelyAfterReload": "已中断",
+        "resumedFromStage": "extract_text",
+        "detail": "10450 段 · 190 页 · 已保存"
+      }
+    },
+    {
+      "step": "10-interrupt-by-reload-then-abandon",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "error",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-文字稿.txt",
+            "status": "已解析",
+            "detail": "2 段 · 1 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-两页.pdf",
+            "status": "已解析",
+            "detail": "4 段 · 2 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "17d46640-3e4a-4b0b-8fe1-b3aa2cf6092f",
+            "state": "partial",
+            "stage": "ocr_check",
+            "name": "合成-扫描件.pdf",
+            "status": "部分解析",
+            "detail": "— · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": true
+          },
+          {
+            "id": "b3592bac-9e8e-49fe-9012-83bc58367788",
+            "state": "failed",
+            "stage": "verify",
+            "name": "合成-201页.pdf",
+            "status": "解析失败",
+            "detail": "—",
+            "progress": "20",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": null
+          },
+          {
+            "id": "666e0962-2af3-4479-a79e-64ede0dba6e4",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-长文-中断.pdf",
+            "status": "已解析",
+            "detail": "10450 段 · 190 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "b26a99c6-7c44-4482-8c07-a02c9c3e7891",
+            "state": "cancelled",
+            "stage": "ocr_check",
+            "name": "合成-长文-放弃.pdf",
+            "status": "已取消",
+            "detail": "—",
+            "progress": "60",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": null
+          }
+        ],
+        "uploads": [],
+        "problems": null
+      },
+      "notes": {
+        "insideLease": "已中断",
+        "after": "已取消",
+        "savedAtReload": [
+          "extract_text",
+          "ocr_check",
+          "verify"
+        ],
+        "reloadToInterruptedMs": 1010,
+        "leaseRemainingMsAfterReload": 58361,
+        "jobVersionBeforeReload": 3,
+        "jobVersionAfterReload": 6
+      }
+    },
+    {
+      "step": "11-upload-during-parse-keeps-progress",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "error",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-文字稿.txt",
+            "status": "已解析",
+            "detail": "2 段 · 1 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-两页.pdf",
+            "status": "已解析",
+            "detail": "4 段 · 2 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "17d46640-3e4a-4b0b-8fe1-b3aa2cf6092f",
+            "state": "partial",
+            "stage": "ocr_check",
+            "name": "合成-扫描件.pdf",
+            "status": "部分解析",
+            "detail": "— · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": true
+          },
+          {
+            "id": "b3592bac-9e8e-49fe-9012-83bc58367788",
+            "state": "failed",
+            "stage": "verify",
+            "name": "合成-201页.pdf",
+            "status": "解析失败",
+            "detail": "—",
+            "progress": "20",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": null
+          },
+          {
+            "id": "666e0962-2af3-4479-a79e-64ede0dba6e4",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-长文-中断.pdf",
+            "status": "已解析",
+            "detail": "10450 段 · 190 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "b26a99c6-7c44-4482-8c07-a02c9c3e7891",
+            "state": "cancelled",
+            "stage": "ocr_check",
+            "name": "合成-长文-放弃.pdf",
+            "status": "已取消",
+            "detail": "—",
+            "progress": "60",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": null
+          },
+          {
+            "id": "a068a309-930a-492a-98de-acec336000d1",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-上传中解析.pdf",
+            "status": "已解析",
+            "detail": "10746 段 · 199 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "169eaeb8-ef82-422a-8b61-cf21332d1c20",
+            "state": "pending",
+            "stage": "",
+            "name": "合成-解析时新增.txt",
+            "status": "未解析",
+            "detail": "—",
+            "progress": "0",
+            "canStart": true,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          }
+        ],
+        "uploads": [
+          {
+            "name": "合成-上传中解析.pdf",
+            "saved": "true",
+            "status": "已保存"
+          },
+          {
+            "name": "合成-解析时新增.txt",
+            "saved": "true",
+            "status": "已保存"
+          }
+        ],
+        "problems": null
+      },
+      "notes": {
+        "runningStatus": "正在校验文件",
+        "atArrival": {
+          "state": "running",
+          "stage": "verify",
+          "progress": "20"
+        },
+        "newSourceAppearedMs": 108,
+        "completedMs": 901,
+        "samples": 7,
+        "stagesSeen": [
+          "verify",
+          "extract_text",
+          "ocr_check",
+          "chunk"
+        ],
+        "completion": "10746 段 · 199 页 · 已保存",
+        "jobId": "7ae70c8c-1c0b-5465-88c5-3332bc2387d1"
+      }
+    },
+    {
+      "step": "12-duplicated-tab-does-not-interrupt",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/11268e1c-efb6-4591-a87f-1c230d590d6a/upload",
+        "parsePanels": 1,
+        "parseState": "error",
+        "rows": [
+          {
+            "id": "fa4fe60f-2f11-4947-9ea3-961f723a66f9",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-文字稿.txt",
+            "status": "已解析",
+            "detail": "2 段 · 1 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "daad53e1-7302-46b6-b20d-b51d5150ba08",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-两页.pdf",
+            "status": "已解析",
+            "detail": "4 段 · 2 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "17d46640-3e4a-4b0b-8fe1-b3aa2cf6092f",
+            "state": "partial",
+            "stage": "ocr_check",
+            "name": "合成-扫描件.pdf",
+            "status": "部分解析",
+            "detail": "— · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": true
+          },
+          {
+            "id": "b3592bac-9e8e-49fe-9012-83bc58367788",
+            "state": "failed",
+            "stage": "verify",
+            "name": "合成-201页.pdf",
+            "status": "解析失败",
+            "detail": "—",
+            "progress": "20",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": null
+          },
+          {
+            "id": "666e0962-2af3-4479-a79e-64ede0dba6e4",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-长文-中断.pdf",
+            "status": "已解析",
+            "detail": "10450 段 · 190 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "b26a99c6-7c44-4482-8c07-a02c9c3e7891",
+            "state": "cancelled",
+            "stage": "ocr_check",
+            "name": "合成-长文-放弃.pdf",
+            "status": "已取消",
+            "detail": "—",
+            "progress": "60",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": true,
+            "manualDisabled": null
+          },
+          {
+            "id": "a068a309-930a-492a-98de-acec336000d1",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-上传中解析.pdf",
+            "status": "已解析",
+            "detail": "10746 段 · 199 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "169eaeb8-ef82-422a-8b61-cf21332d1c20",
+            "state": "pending",
+            "stage": "",
+            "name": "合成-解析时新增.txt",
+            "status": "未解析",
+            "detail": "—",
+            "progress": "0",
+            "canStart": true,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          },
+          {
+            "id": "7957783f-040f-415f-9edc-9d340769ce48",
+            "state": "parsed",
+            "stage": "chunk",
+            "name": "合成-长文-复制标签.pdf",
+            "status": "已解析",
+            "detail": "10945 段 · 199 页 · 已保存",
+            "progress": "100",
+            "canStart": false,
+            "canCancel": false,
+            "canResume": false,
+            "resumeText": null,
+            "canAbandon": false,
+            "abandonText": null,
+            "canRetry": false,
+            "manualDisabled": null
+          }
+        ],
+        "uploads": [
+          {
+            "name": "合成-上传中解析.pdf",
+            "saved": "true",
+            "status": "已保存"
+          },
+          {
+            "name": "合成-解析时新增.txt",
+            "saved": "true",
+            "status": "已保存"
+          },
+          {
+            "name": "合成-长文-复制标签.pdf",
+            "saved": "true",
+            "status": "已保存"
+          }
+        ],
+        "problems": null
+      },
+      "notes": {
+        "copiedSession": true,
+        "secondPageRow": {
+          "state": "running",
+          "status": "正在校验文件"
+        },
+        "jobId": "99583be3-2569-5319-8e3d-d1be0a0eec68",
+        "jobStateAfterMount": "running",
+        "leaseExpiresAtAfterMount": "2026-11-01T09:20:33.497Z",
+        "ownerPageIdAfterMount": "0491c236-6f30-4794-b042-b1d6817db932",
+        "jobVersionBeforeMount": 3,
+        "jobVersionAfterMount": 3,
+        "originalPageStayedRunning": true,
+        "completedWhileSecondPageOpen": true,
+        "completion": "10945 段 · 199 页 · 已保存",
+        "chunkCount": 10945,
+        "pageCount": 199
+      }
+    }
+  ]
+}

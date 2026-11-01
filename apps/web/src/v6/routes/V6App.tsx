@@ -11,6 +11,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Shell } from "../components/Shell.tsx";
 import { AppearancePage, AppearanceProvider } from "../features/settings/Appearance.tsx";
 import { Upload } from "../features/sources/Upload.tsx";
+import { Parse } from "../features/sources/Parse.tsx";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
 import { openLocalRepository, type LocalRepository } from "../lib/repository.ts";
 import {
@@ -302,6 +303,8 @@ function useMatterView(repository: LocalRepository, matterId: string, targetId: 
 function UploadPage({ repository, matterId }: { repository: LocalRepository; matterId: string }) {
   const [view, retry] = useMatterView(repository, matterId, null);
   const navigate = useNavigate();
+  const [parseKey, setParseKey] = useState(0);
+  const bumpParse = useCallback(() => setParseKey((n) => n + 1), []);
   if (view === null) return <Loading />;
   if (view.state === "storage_unavailable") return <StorageUnavailable message={view.message} onRetry={retry} />;
   if (view.state === "unavailable") return <UnavailablePage />;
@@ -313,7 +316,9 @@ function UploadPage({ repository, matterId }: { repository: LocalRepository; mat
         actor={LOCAL_ACTOR}
         matterId={matterId}
         onAnswerWithoutDocuments={() => navigate(v6Path({ kind: "matter", matterId, targetId: null, tab: "facts" }))}
+        onSettled={bumpParse}
       />
+      <Parse refreshToken={parseKey} repository={repository} actor={LOCAL_ACTOR} matterId={matterId} />
       <p>
         <Link className="link-button" to={v6Path({ kind: "matter", matterId, targetId: null, tab: "overview" })}>
           返回案件
@@ -336,6 +341,8 @@ function MatterPage({
 }) {
   const [view, retry] = useMatterView(repository, matterId, targetId);
   const navigate = useNavigate();
+  const [parseKey, setParseKey] = useState(0);
+  const bumpParse = useCallback(() => setParseKey((n) => n + 1), []);
   if (view === null) return <Loading />;
   if (view.state === "storage_unavailable") return <StorageUnavailable message={view.message} onRetry={retry} />;
   if (view.state === "unavailable") return <UnavailablePage />;
@@ -377,12 +384,16 @@ function MatterPage({
         ))}
       </nav>
       {tab === "sources" ? (
-        <Upload
-          repository={repository}
-          actor={LOCAL_ACTOR}
-          matterId={matterId}
-          onAnswerWithoutDocuments={() => navigate(v6Path({ kind: "matter", matterId, targetId: null, tab: "facts" }))}
-        />
+        <>
+          <Upload
+            repository={repository}
+            actor={LOCAL_ACTOR}
+            matterId={matterId}
+            onAnswerWithoutDocuments={() => navigate(v6Path({ kind: "matter", matterId, targetId: null, tab: "facts" }))}
+            onSettled={bumpParse}
+          />
+          <Parse refreshToken={parseKey} repository={repository} actor={LOCAL_ACTOR} matterId={matterId} />
+        </>
       ) : capability.state === "unavailable" ? (
         <div className="notice" data-testid="tab-unavailable">
           {capability.reason}

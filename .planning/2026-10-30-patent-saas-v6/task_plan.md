@@ -6,7 +6,7 @@
 
 ## 下一步
 
-V6-06 已接受并提交 813fe90。V6-07 经四轮独立复核后 accept（32/32），提交 57c8de4；V6-08 独立复核 accept，提交 32d8e99。分支已推送，PR https://github.com/ilderaj/patent-drafter/pull/1 已创建。发布复核结论：R1 为 V6-08–26，当前只完成 V6-08，且无 patent.paymond.me 的 Worker 配置，不满足发布条件，不部署。下一步按依赖图继续 V6-09 及其后续 R1 票；完整 R1 和 V6-47a 通过前不部署。
+V6-10 已接受并提交 f89236a。V6-11 经两轮独立复核（第二轮 accept，53/53 场景、浏览器 12/12 步、独立探针 16/16）后接受并随本轮提交。下一步按依赖图进入 V6-12，Foundation/R1 余票继续串行；发布仍不满足条件（R1 未完成、无 V6-47a 证据、无 patent.paymond.me 的独立 Worker 配置、无用户部署授权）。
 
 ## 当前阶段
 
@@ -31,6 +31,7 @@ V6-06 已接受并提交 813fe90。V6-07 经四轮独立复核后 accept（32/32
 - [x] V6-08 导航与三入口：独立复核 accept，12 步无头浏览器验证
 - [x] V6-09 外观设置：首轮四项阻断修复后第二轮独立复核 accept，21/21 场景、16 步浏览器验证
 - [x] V6-10 材料选择与字节保存：五轮独立复核后第五轮 accept（36/36 场景、7 步浏览器验证）。历程：30/30 场景、7 步浏览器验证；第二轮两项阻断已修复，第三轮独立复核确认修复有效，但新发现阻断 B1（`[Content_Types].xml` 按原文匹配，注释诱饵与字符引用可让启用宏的 DOCX 被接受；关系 `Type` 未检查 vbaProject），已修复（33/33，编排者 8 项探针全部拒绝）；第四轮独立复核新发现两项阻断：含中点等合法 NameChar 的前缀绕过扫描、加密 PDF 被接受，已修复，第五轮 accept
+- [x] V6-11 解析进度与失败恢复：两轮独立复核后 accept（review-02.md）。第 1 轮阻断为复制/恢复标签页共享 sessionStorage 导致第二页面中断第一页面有效租约的作业；已修复为页面实例 id 与持久会话分离、`ownerPageId` 与 `pagehide` 退出标记、`orphanInterruptAllowed` 证据链、过期租约任意读者可中断、`parseSource` 并发防线。53/53 场景、V6-10 回归 36/36、tsc/build exit 0、浏览器 12/12 步 0 console 错误、独立探针 16/16；回执 accepted，45 项与 scope 一致。非阻断见 review-02 第四节
 - [ ] 按依赖图继续完成 Foundation/R1
 - **状态：** in_progress
 
