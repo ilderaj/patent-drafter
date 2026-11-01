@@ -511,7 +511,31 @@
         "match": true
       }
     ],
-    "status": "Temporary edits were applied twice for browser runs, then restored from byte backups. git status no longer lists either file."
+    "status": "Permanently mounted on the PR branch after review 01 ACCEPT. The temporary candidate mount described above was reverted before the ticket commit.",
+    "permanent": {
+      "branch": "codex/patent-saas-v6-foundation-origin",
+      "date": "2026-11-02",
+      "by": "orchestrator",
+      "files": [
+        {
+          "path": "apps/web/src/v6/routes/V6App.tsx",
+          "sha256": "91a04dbe435e74256f13bb49a0231cafdc1dd440e4d1ebafbcb917a568c2431b",
+          "change": "import AiPage; the section route renders AiPage for key ai"
+        },
+        {
+          "path": "apps/web/src/v6/routes/navigation.ts",
+          "sha256": "ccbc78d67d51e8980bf1f513edb0e1a5ce0f75f890cb99980669380f8177d7e3",
+          "change": "GLOBAL_NAV ai entry is AVAILABLE"
+        }
+      ],
+      "verification": {
+        "suites": "V6-02..V6-13 and V6-15 on the merged tree: 13 suites, 372 tests, 0 failures",
+        "typecheck": "npm run typecheck exit 0",
+        "build": "npm run build exit 0",
+        "browser": "browser-drive.mjs against the merged build on localhost:4178: 8/8 steps pass, 0 console errors, 20 requests, all localhost"
+      },
+      "note": "The PR-branch browser run reused this ticket's driver; its screenshots were not committed because they repeat the committed 01-07 states."
+    }
   },
   "decisions": [
     "The manifest is built from the matter aggregate plus persisted parse rows (structural reads of existing rows). It does not import intake code or call a provider.",

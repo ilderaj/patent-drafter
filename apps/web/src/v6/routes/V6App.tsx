@@ -14,6 +14,7 @@ import { Upload } from "../features/sources/Upload.tsx";
 import { Parse } from "../features/sources/Parse.tsx";
 import { Intake } from "../features/intake/Intake.tsx";
 import { Figures } from "../features/sources/Figures.tsx";
+import { AiPage } from "../features/ai/Ai.tsx";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
 import { openLocalRepository, type LocalRepository } from "../lib/repository.ts";
 import {
@@ -117,6 +118,7 @@ function Page({ route, repository }: { route: V6Route; repository: LocalReposito
     case "matter":
       return <MatterPage repository={repository} matterId={route.matterId} targetId={route.targetId} tab={route.tab} />;
     case "section":
+      if (route.key === "ai") return <AiPage repository={repository} actor={LOCAL_ACTOR} />;
       return <SectionPage sectionKey={route.key} />;
     case "not_found":
       return <UnavailablePage />;

@@ -6,11 +6,11 @@
 
 ## 下一步
 
-V6-11 已提交 953e05d。V6-12 经三轮独立复核（第三轮 accept）后接受并随本轮提交。用户已批准并行：V6-13 在独立工作树 `/private/tmp/patent-v6-13-worktree`（分支 `codex/v6-13-intake`，基于 953e05d）执行。V6-13 第五轮独立复核 ACCEPT（review-05.md）：B5 以原子 claim/finalize 协议关闭，B1-B4 独立复现仍成立，45/45、V6-11 53/53、V6-10 36/36、tsc/build 0、38 项 scope 一致；已提交 `d3f2a6d`，合并回 PR 分支并在 `facts` 标签永久挂载（`V6App.tsx`、`navigation.ts`），PR 分支重跑 V6-13 45/45、V6-12 42/42、V6-11 53/53、V6-10 36/36、浏览器 12/12 步 0 console 错误。V6-15（AI 能力与授权界面，依赖 V6-08/V6-03）已按并行授权在 `/private/tmp/patent-v6-15-worktree`（分支 `codex/v6-15-ai`，基于 593ba33）完成候选并通过编排者核验（30/30、回归全绿、24 项 scope 一致）；复核前发现与 B5 同型的 grant/revoke 幂等并发缺口与授权行清理竞态，修复执行者已派发（claim/finalize 协议 + 7 类并发测试），修复后先由编排者复核再派第一轮独立复核。其余 R1 票按依赖图继续，互不依赖且写集不相交的票可并行。发布仍不满足条件（R1 未完成、无 V6-47a 证据、无 patent.paymond.me 的独立 Worker 配置、无用户部署授权）。
+V6-11 已提交 953e05d。V6-12 经三轮独立复核（第三轮 accept）后接受并随本轮提交。用户已批准并行：V6-13 在独立工作树 `/private/tmp/patent-v6-13-worktree`（分支 `codex/v6-13-intake`，基于 953e05d）执行。V6-13 第五轮独立复核 ACCEPT（review-05.md）：B5 以原子 claim/finalize 协议关闭，B1-B4 独立复现仍成立，45/45、V6-11 53/53、V6-10 36/36、tsc/build 0、38 项 scope 一致；已提交 `d3f2a6d`，合并回 PR 分支并在 `facts` 标签永久挂载（`V6App.tsx`、`navigation.ts`），PR 分支重跑 V6-13 45/45、V6-12 42/42、V6-11 53/53、V6-10 36/36、浏览器 12/12 步 0 console 错误。V6-15（AI 能力与授权界面）经三轮复核前加固（claim/finalize 协议、过期租约接管后清理不得删除新所有者的授权行、失败提交后同键重试可重新执行）后，第一轮独立复核 ACCEPT（review-01.md，无阻断）；已提交 `691eade`，`--no-ff` 合并回 PR 分支，并在 `ai` 全局导航永久挂载。PR 分支 13 个套件 372/372、tsc/build 0、浏览器 8/8 步 0 console 错误。复核非阻断 F1–F4 记为后续项，其中 F4（合同 §2 的 30 天幂等保留与 `IDEMPOTENCY_EXPIRED`）须在服务端或真实适配器票之前解决。下一张票：V6-14（依赖 V6-13，已满足）。其余 R1 票按依赖图继续，互不依赖且写集不相交的票可并行。发布仍不满足条件（R1 未完成、无 V6-47a 证据、无 patent.paymond.me 的独立 Worker 配置、无用户部署授权）。
 
 ## 当前阶段
 
-阶段 2：V6-03 至 V6-13 accepted 并已提交；V6-13 已挂载到 PR 分支；V6-15 加固修复中。Foundation/R1 余票待按依赖图继续。
+阶段 2：V6-03 至 V6-13 accepted 并已提交；V6-13 与 V6-15 已 accepted 并挂载到 PR 分支。Foundation/R1 余票待按依赖图继续。
 
 ## 阶段
 
@@ -34,7 +34,7 @@ V6-11 已提交 953e05d。V6-12 经三轮独立复核（第三轮 accept）后�
 - [x] V6-11 解析进度与失败恢复：两轮独立复核后 accept（review-02.md）。第 1 轮阻断为复制/恢复标签页共享 sessionStorage 导致第二页面中断第一页面有效租约的作业；已修复为页面实例 id 与持久会话分离、`ownerPageId` 与 `pagehide` 退出标记、`orphanInterruptAllowed` 证据链、过期租约任意读者可中断、`parseSource` 并发防线。53/53 场景、V6-10 回归 36/36、tsc/build exit 0、浏览器 12/12 步 0 console 错误、独立探针 16/16；回执 accepted，45 项与 scope 一致。非阻断见 review-02 第四节
 - [x] V6-12 图纸与图集修订：三轮独立复核后 accept（review-03.md）。第 1 轮阻断：非交错 JPEG 网格与未扫描分量、同字节并发导入；第 2 轮阻断：交错 PNG 过滤字节未校验。修复为 Adam7 逐 pass 行过滤校验、仅接受 SOF0/SOF1、拒绝重复分量 id、交错 MCU 上限 10、`source.committed`/`source.retired` 写 `{version}`。42/42 场景、V6-10 36/36、V6-11 53/53、tsc 通过；复核 42/42 逐行损坏被拒、Pillow 90 文件一致。回执 accepted，49 项与 scope 一致。非阻断见 review-03
 - [x] V6-13 五问引导与事实冲突：五轮独立复核后 accept（review-05.md）。第 4 轮 B5（同键并发无变更/写版本）以原子 claim/finalize 协议关闭，B1-B4 独立复现仍成立；45/45、V6-11 53/53、V6-10 36/36、tsc/build 0、38 项 scope 一致。提交 `d3f2a6d`，合并回 PR 分支后在 `facts` 标签永久挂载；PR 分支重跑 V6-13 45/45、V6-12 42/42、V6-11 53/53、V6-10 36/36、浏览器 12/12 步 0 console 错误
-- [ ] V6-15 AI 能力与授权界面：独立工作树 `/private/tmp/patent-v6-15-worktree` 候选完成（依赖 V6-08/V6-03，基于 593ba33）；复核前加固 grant/revoke 幂等并发与授权行清理，修复中
+- [x] V6-15 AI 能力与授权界面：独立复核 ACCEPT（review-01.md，无阻断）。复核前加固 three rounds：授权/撤回共用 claim/finalize 幂等协议；过期租约接管时旧所有者的清理不得删除新所有者的授权行；失败提交后同键重试可重新执行。41/41（含 11 项并发/故障测试）、回归 42/53/36、tsc/build 0、35 项 scope 一致；提交 `691eade`，合并后在 `ai` 导航永久挂载；PR 分支 13 套件 372/372、浏览器 8/8 步 0 console 错误。非阻断 F1–F4 见 review-01；F4（30 天幂等保留与 `IDEMPOTENCY_EXPIRED`）须在服务端/真实适配器票前解决
 - [ ] 按依赖图继续完成 Foundation/R1
 - **状态：** in_progress
 

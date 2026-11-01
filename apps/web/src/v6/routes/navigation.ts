@@ -92,7 +92,7 @@ export const GLOBAL_NAV = Object.freeze([
   { key: "matters", label: "案件", capability: AVAILABLE },
   { key: "filings", label: "申请", capability: unavailable("跨案件申请状态需要专业协作功能，本地版暂不提供。") },
   { key: "activity", label: "动态", capability: unavailable("跨案件动态尚未开放；单个案件的记录保存在本机。") },
-  { key: "ai", label: "AI 与数据", capability: unavailable("AI 设置尚未开放：本地版目前不调用任何模型。") },
+  { key: "ai", label: "AI 与数据", capability: AVAILABLE },
   { key: "services", label: "服务", capability: unavailable("人工服务（咨询、复核、代理对接）尚未开放，暂不能下单。") },
   { key: "billing", label: "账单", capability: unavailable("本地版不收费，没有订单或额度。") },
   { key: "settings", label: "设置", capability: AVAILABLE },
