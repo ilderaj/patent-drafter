@@ -1,0 +1,54 @@
+V6-14 regression runs, started 2026-11-01T21:25:20.918Z
+worktree /private/tmp/patent-v6-14-worktree; command per ticket: npm run test:v6 -- <ticket>
+
+== V6-13 exit=0
+# tests 45
+# suites 0
+# pass 45
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+(no 'not ok' lines)
+
+== V6-15 exit=0
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+(no 'not ok' lines)
+
+== V6-12 exit=0
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+(no 'not ok' lines)
+
+== V6-11 exit=0
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+(no 'not ok' lines)
+
+== V6-10 exit=0
+# tests 36
+# suites 0
+# pass 36
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+(no 'not ok' lines)
+
+finished 2026-11-01T21:25:26.021Z
