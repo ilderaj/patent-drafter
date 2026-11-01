@@ -1,0 +1,545 @@
+{
+  "ticket": "V6-12",
+  "status": "accepted",
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-12/review-03.md",
+    "note": "Independent third review (review-03.md) accepted after two NOT_ACCEPT rounds (review-01: corrupt non-interleaved JPEG grids and same-bytes concurrent import; review-02: interlaced PNG filter bytes unchecked). Review-03 re-proved every blocker fix: 42/42 Adam7 per-row corruptions refused with Pillow/libpng agreeing on 90 files, SOF0/SOF1-only frame markers, duplicate component ids, MCU cap 10, and source.committed/source.retired versions matching landed commits. Non-blocking items are listed in review-03.md: zlib FCHECK/FDICT unchecked, ff c8 marker accepted, MCU cap sums frame rather than scan components (stricter), 6-way concurrent imports can exhaust the retry budget (fail-closed), and receipt wording on libjpeg duplicate-id agreement."
+  },
+  "baseCommit": "953e05dc6f8026bfa85f1f2d7a2cb6d6ba9aaf47",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "changedFilesNote": "Delta against baseCommit in the isolated worktree: scope.txt is git status --porcelain --untracked-files=all minus node_modules and .claude/launch.json, and changedFiles is exactly that list (49 paths after acceptance; review-03.md added by the orchestrator). apps/web/src/v6/routes/V6App.tsx appears because the orchestrator's registration edit (blob c997eeae) is present in the worktree; it is not an executor edit and was not modified in this round. review-02.md is the reviewer's file, preserved unedited. The remaining entries are executor edits inside the V6-12 write set (drawings.ts, Figures.tsx, qa/v6/scenarios/V6-12/, qa/v6/evidence/V6-12/). No other shared file (navigation.ts, v6.css, repository.ts, ingest.ts, Upload.tsx, parse.ts, Parse.tsx, contracts, domain, package.json, lockfile, .planning/) is changed. Prerequisites V6-04, V6-05, V6-06 and V6-10 receipts are status accepted.",
+  "changedFiles": [
+    "apps/web/src/v6/routes/V6App.tsx",
+    "apps/web/src/v6/features/sources/Figures.tsx",
+    "apps/web/src/v6/features/sources/drawings.ts",
+    "qa/v6/evidence/V6-12/01-create-matter-sources-tab.png",
+    "qa/v6/evidence/V6-12/02-empty-drawings-state.png",
+    "qa/v6/evidence/V6-12/03-import-png-and-jpeg-without-reload.png",
+    "qa/v6/evidence/V6-12/04-reload-keeps-drawings.png",
+    "qa/v6/evidence/V6-12/05a-corrupt-png-refused.png",
+    "qa/v6/evidence/V6-12/05b-17mp-png-refused.png",
+    "qa/v6/evidence/V6-12/05c-progressive-jpeg-refused.png",
+    "qa/v6/evidence/V6-12/05d-not-an-image-refused.png",
+    "qa/v6/evidence/V6-12/06-delete-and-reimport-new-id.png",
+    "qa/v6/evidence/V6-12/07-duplicate-import-no-second-row.png",
+    "qa/v6/evidence/V6-12/08-target-states-not-reachable.png",
+    "qa/v6/evidence/V6-12/08a-fabricated-target-refused.png",
+    "qa/v6/evidence/V6-12/browser-drive.mjs",
+    "qa/v6/evidence/V6-12/browser-log.json",
+    "qa/v6/evidence/V6-12/build.txt",
+    "qa/v6/evidence/V6-12/receipt.json",
+    "qa/v6/evidence/V6-12/red-before-fix.txt",
+    "qa/v6/evidence/V6-12/regression.txt",
+    "qa/v6/evidence/V6-12/review-01.md",
+    "qa/v6/evidence/V6-12/review-02.md",
+    "qa/v6/evidence/V6-12/review-03.md",
+    "qa/v6/evidence/V6-12/runner.tap",
+    "qa/v6/evidence/V6-12/scope.txt",
+    "qa/v6/evidence/V6-12/typecheck.txt",
+    "qa/v6/scenarios/V6-12/drawings.test.mjs",
+    "qa/v6/scenarios/V6-12/figure-currency.test.mjs",
+    "qa/v6/scenarios/V6-12/figures-ui.test.mjs",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-17mp.png",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-corrupt.png",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-dimension-lie.jpg",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-dimension-lie.png",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-duplicate-component.jpg",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-interlaced-bad-filter.png",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-interlaced-valid.png",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-mcu-overflow.jpg",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-missing-component-scan.jpg",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-noninterleaved-lie.jpg",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-not-an-image.png",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-restart-order.jpg",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-truncated.jpg",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-valid-noninterleaved.jpg",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-valid-restart.jpg",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-valid.jpg",
+    "qa/v6/scenarios/V6-12/fixtures/drawing-valid.png",
+    "qa/v6/scenarios/V6-12/fixtures/generate.mjs",
+    "qa/v6/scenarios/V6-12/harness.mjs"
+  ],
+  "interface": {
+    "modules": [
+      "apps/web/src/v6/features/sources/drawings.ts",
+      "apps/web/src/v6/features/sources/Figures.tsx"
+    ],
+    "exports": [
+      "DRAWING_MAX_BYTES",
+      "DRAWING_MAX_PIXELS",
+      "FIGURE_COMMIT_ATTEMPTS",
+      "MAX_FIGURES",
+      "FigureErrorCode",
+      "FigureError",
+      "FigureResult",
+      "FIGURE_ERROR_MESSAGES",
+      "figureErrorMessage",
+      "drawingKindOf",
+      "inspectDrawing",
+      "importDrawing",
+      "readDrawingLibrary",
+      "deleteDrawing",
+      "checkFigureNumbers",
+      "figureSetHash",
+      "bindFigures",
+      "createEmptyFigureSet",
+      "readFigureLibrary",
+      "resolveFigureReferences",
+      "collectFigureIds",
+      "checkFigureExportGate",
+      "figuresStale",
+      "loadFigurePanel",
+      "FigurePanelView",
+      "FigurePanelData",
+      "FigurePanelRevision",
+      "LibraryDrawing",
+      "FigureEntryInput",
+      "FigureGateDecision",
+      "Figures",
+      "FiguresLoading",
+      "FiguresPanel",
+      "drawingSummary",
+      "formatBytes",
+      "appendEntry",
+      "removeEntry",
+      "FiguresProps",
+      "FiguresPanelProps"
+    ],
+    "persistence": "Through the V6-06 LocalRepository commit (CAS on matter version, actor/tenant ownership, activity allowlist). Drawing bytes are V6-10 asset + blob rows (sha256, byteLength). Drawing rows and append-only FigureSetRevision rows (validated by figureSetRevisionSchema on read) live in the blobs store under the drawings/ and figures/ namespaces (V6-11 precedent). Activity actions: source.committed {version}, source.retired {version}, figures.bound {version, count}; version is the matter version the commit writes. Drawing rows and figure-set revision rows are written outside the matter commit (it cannot carry namespaced rows) under an id unique to each attempt, so a writer that loses the commit race removes only its own row.",
+    "v6AppSeam": "Orchestrator registration (V6App.tsx, not an executor edit): beside <Parse> in UploadPage and MatterPage, <Figures repository={repository} actor={LOCAL_ACTOR} matterId={matterId} targetId={null until a target ticket lands} refreshToken={figuresKey} onSettled={bumpFigures} /> with a figuresKey/bumpFigures pair mirroring parseKey/bumpParse. The orchestrator's working copy (git blob c997eeae5517e9bd6731b76776f605f666e6520e) already imports and mounts Figures in both pages; the typecheck and build below ran against it."
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "subject": "Seeding targets directly in tests",
+      "decision": "Accepted. No ticket before V6-12 creates targets; the harness writes the targets in the seeded matter commit and the UI receives targetId null until a target-creation ticket lands."
+    },
+    {
+      "id": "D2",
+      "subject": "Activity actions for drawings",
+      "decision": "Accepted. Import reuses source.committed ({version}), delete reuses source.retired ({version}), binds use figures.bound {version, count}. These are listed contract actions; no new action names are added. version is the matter version written by the same commit, so the event names the state change it belongs to (review-02 non-blocking 4)."
+    },
+    {
+      "id": "D3",
+      "subject": "Clearing confirmations/checks/approvals after BindFigures",
+      "decision": "Not missing: V6-05 derives it. confirmation.ts (isConfirmationCurrent, currentConfirmations via sameSnapshot), gate.ts (sameSnapshot incl. figureRevisionId) and revision.ts (isCurrent, isInputStale, currentInput) all treat a changed target.figureRevisionId as stale. figure-currency.test.mjs proves it through the real domain functions; S02-A08 is now covered."
+    },
+    {
+      "id": "D4",
+      "subject": "V6-04 revision module vs figure-set storage",
+      "decision": "Accepted. revision.ts models draft revisions that consume figure sets; append-only FigureSetRevision rows validated by figureSetRevisionSchema are owned by drawings.ts. figure-currency.test.mjs proves the minted ids interoperate with revision.ts (saveRevision binds them, adoptInputs moves to the new id, restoreRevision restore_bound finds the persisted old set by id and copies its entries and hash)."
+    },
+    {
+      "id": "D5",
+      "subject": "Rows under drawings/ and figures/ in the blobs store",
+      "decision": "Accepted for R1, following the V6-11 parse-row precedent. Dedicated tables are an R2 follow-up (see limitations)."
+    },
+    {
+      "id": "D6",
+      "subject": "Interlaced PNG filter bytes (review-02 B1)",
+      "decision": "Fixed. verifyPngData builds one row list from the Adam7 pass geometry and walks it with the same MAX_PNG_FILTER check as non-interlaced rows. Every pass row's first byte must be 0-4; anything else is BAD_DRAWING before import can store, bind or pass the export gate. The walk asserts its final offset equals the inflated length, and the old interlaced early return is gone. Independent decode outside the repo: Pillow 12.1.0 (libpng) decodes drawing-interlaced-valid.png as 33x7 RGB and raises on drawing-interlaced-bad-filter.png."
+    },
+    {
+      "id": "D7",
+      "subject": "JPEG coding process and frame shape (review-02 non-blocking 1-3)",
+      "decision": "Fixed. Only SOF0 (baseline) and SOF1 (extended sequential Huffman) frames are accepted; every other frame marker is BAD_DRAWING (SOF2 keeps its progressive message, the rest share a generic unsupported-coding message). parseFrame rejects a repeated component id, and an interleaved scan whose frame components sum(h*v) exceeds 10 is refused per T.81 B.2.3."
+    },
+    {
+      "id": "D8",
+      "subject": "Browser evidence for the review-02 fix round",
+      "decision": "Re-run on the rebuilt bundle. These fixes are image-validation and activity-metadata changes, so no screenshot-visible behaviour changed; the drive was still re-run against the new build and browser-log.json plus all screenshots were refreshed. 11/11 steps passed with 0 console errors."
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "V6-12-A01",
+      "command": "npm run test:v6 -- V6-12",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-12/runner.tap",
+      "observed": "\"V6-12-A01 deleting and re-importing a figure creates a new drawing and a new figure-set version; the old one is not mutated\" passes: re-import gets a new drawing and asset id, the rebind appends a new FigureSetRevision whose parentId is the old one with a different hash, and the old revision row is deep-equal before and after."
+    },
+    {
+      "id": "V6-12-A02",
+      "command": "npm run test:v6 -- V6-12",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-12/runner.tap",
+      "observed": "Eight V6-12-A02 tests and two V6-12 B1 tests pass through the pure checkFigureExportGate and the import/bind validators: corrupt/lying images refused with no writes (now including a 4000x3000 non-interleaved 4:2:0 file whose luma scan holds 47,000 of 187,500 blocks, and a 3-component frame with only component 1 scanned, both BAD_DRAWING; a valid non-interleaved 4:2:0 file with DRI is accepted at 40x16); deleted drawing, digest mismatch and missing blob give MISSING_BYTES; a draft on an older set gives STALE_BINDING and an unaddressed reference RESOURCE_NOT_FOUND, with filesAvailable still true because every byte is present; the gate writes nothing (store dump equal); non-1..n numbering refused by BindFigures with no writes; a persisted legacy revision with repeated numbers is reported as DUPLICATE_FIGURE_NUMBER with filesAvailable true and is not repaired; a stale base gives INPUT_STALE with currentFigureRevisionId; a fromAssetId that is not an available asset of this matter is RESOURCE_NOT_FOUND with no writes. Review-02 additions: a valid Adam7 33x7 PNG is accepted, imports, binds and leaves the gate allowed, while the same image with one pass row's filter byte set to 7 is BAD_DRAWING and writes nothing; SOF3/SOF5/SOF6/SOF7/SOF9/SOF10/SOF11/SOF13/SOF14/SOF15 frame markers, a frame listing component id 1 twice, and an interleaved 4x4+1x1+1x1 (18-block) MCU are all BAD_DRAWING and write nothing."
+    },
+    {
+      "id": "V6-12-A03",
+      "command": "npm run test:v6 -- V6-12",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-12/runner.tap",
+      "observed": "Seven V6-12-A03 tests pass: duplicate import is refused or reused with no new asset/row/event; retrying a completed bind returns the persisted revision and appends nothing; a failed import leaves no partial state and the retry lands once; two concurrent imports of different bytes each land once through the version check; two concurrent imports of the same bytes give one asset, one drawing row and one source.committed event, one answer created and the other the duplicate refusal naming that row (every returned id resolves); two concurrent identical binds forced to both read the base before either writes leave the seed revision plus exactly one bind revision, the pointer on an existing row, one figures.bound event and a passing gate; a fresh repository over the same backend shows exactly the persisted library, binding and stale flag."
+    },
+    {
+      "id": "V6-12-suite",
+      "command": "npm run test:v6 -- V6-12",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-12/runner.tap",
+      "observed": "42 tests, 42 pass, 0 fail, 0 skipped: drawings.test.mjs 31 (26 + 5 added for review-02), figure-currency.test.mjs 2, figures-ui.test.mjs 9. Re-run after the review-02 fixes; the runner.tap in evidence is that run."
+    },
+    {
+      "id": "V6-12-regression",
+      "command": "npm run test:v6 -- V6-10; npm run test:v6 -- V6-11",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-12/regression.txt",
+      "observed": "V6-10 36/36 pass, V6-11 53/53 pass, 0 skipped; both exit 0."
+    },
+    {
+      "id": "V6-12-typecheck",
+      "command": "./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-12/typecheck.txt",
+      "observed": "No diagnostics. Re-ran after the review-02 fixes against the orchestrator's working-copy V6App.tsx (blob c997eeae), which mounts Figures."
+    },
+    {
+      "id": "V6-12-build",
+      "command": "npm run build --workspace @patent/web",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-12/build.txt",
+      "observed": "Vite build succeeds (existing chunk-size warning only), with Figures mounted by the orchestrator's working-copy V6App.tsx (blob c997eeae). Re-ran after the review-02 fixes."
+    },
+    {
+      "id": "V6-12-fixtures",
+      "command": "node qa/v6/scenarios/V6-12/fixtures/generate.mjs (sha256 of all 17 fixtures before and after)",
+      "exitCode": 0,
+      "evidence": "qa/v6/scenarios/V6-12/fixtures/generate.mjs",
+      "observed": "Regeneration is byte-identical for all 17 synthetic fixtures (4 added in this round: drawing-interlaced-valid.png, drawing-interlaced-bad-filter.png, drawing-duplicate-component.jpg, drawing-mcu-overflow.jpg; the earlier 13 are unchanged). Drawing-valid.jpg is reused, mutated in memory, for the frame-marker test. No customer material."
+    },
+    {
+      "id": "V6-12-browser",
+      "command": "node qa/v6/evidence/V6-12/browser-drive.mjs qa/v6/evidence/V6-12 http://127.0.0.1:4176/patent (headless Chrome over CDP, against vite preview --port 4176 of the production build in build.txt; V6App.tsx at orchestrator blob c997eeae)",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-12/browser-drive.mjs",
+        "qa/v6/evidence/V6-12/browser-log.json",
+        "qa/v6/evidence/V6-12/01-create-matter-sources-tab.png",
+        "qa/v6/evidence/V6-12/02-empty-drawings-state.png",
+        "qa/v6/evidence/V6-12/03-import-png-and-jpeg-without-reload.png",
+        "qa/v6/evidence/V6-12/04-reload-keeps-drawings.png",
+        "qa/v6/evidence/V6-12/05a-corrupt-png-refused.png",
+        "qa/v6/evidence/V6-12/05b-17mp-png-refused.png",
+        "qa/v6/evidence/V6-12/05c-progressive-jpeg-refused.png",
+        "qa/v6/evidence/V6-12/05d-not-an-image-refused.png",
+        "qa/v6/evidence/V6-12/06-delete-and-reimport-new-id.png",
+        "qa/v6/evidence/V6-12/07-duplicate-import-no-second-row.png",
+        "qa/v6/evidence/V6-12/08-target-states-not-reachable.png",
+        "qa/v6/evidence/V6-12/08a-fabricated-target-refused.png"
+      ],
+      "observed": "Re-run in the review-02 fix round against the rebuilt bundle; browser-log.json and every screenshot were refreshed (the fixes are image-validation and activity-metadata changes, so no screenshot-visible state changed). 11/11 steps passed, 0 console errors, driver exit 0. Matter e8c86d4e-f603-4347-918e-62b47b5196ac created through the UI and opened on its 材料 tab (MatterPage, targetId null). 02: panel state empty, empty copy shown, no-target hint shown, IndexedDB has matter version 1, 1 seed event, 0 drawing assets, 0 drawing rows, 0 figure revisions. 03: the PNG shows '128 × 96 · PNG · 36.2 KB · ff59bad3618f' and the baseline JPEG '40 × 16 · JPEG · 143 B · 5195c0f8c367' with no reload (page marker kept); IndexedDB +2 assets, +2 drawing rows, +2 byte rows, matter version 1→3, +2 events. 04: after a real reload both rows return with the same ids, names and details, and the IndexedDB snapshot is unchanged. 05a-d: corrupt PNG → BAD_DRAWING 'PNG 的图像数据无法解压，文件已损坏。'; 4352×4000 PNG → IMAGE_TOO_LARGE '图片超过 16 MP 上限…'; progressive JPEG (the baseline fixture with SOF0 flipped to SOF2) → BAD_DRAWING '暂不支持渐进式 JPEG…'; UTF-8 text named .png → BAD_DRAWING '附图必须是 PNG 或 JPEG…'. Each attempt was proven read (File.arrayBuffer counter), and the IndexedDB snapshot (version 3, 3 events, 2 assets, 2 rows, 2 byte rows) was deep-equal before and after each. 06: deleting the PNG removed its asset and drawing row (version +1, +1 source.retired event); re-importing the same bytes gave a new drawing id (0b94f32c-0138-563d-899b-2d046cbec642 → 0c9b14b6-d37f-55a5-8694-0d27b7ad97c0) with the same detail, version 3→5, no reload. The old byte row stays as an orphan (3 byte rows for 2 drawings), as recorded in D5. 07: importing the JPEG bytes again → INVALID_INPUT '这张图已经在附图库里；删除后重新导入才会生成新版本。'; still one row with that name, 2 rows total, IndexedDB unchanged. 08: with targetId null the panel shows no figure set, stale, gate or set-missing notice, only the no-target hint. A fabricated target URL renders 案件不可用 with no figures panel; returning to /sources (a real document load) shows the 2 drawings.",
+      "status": "run"
+    },
+    {
+      "id": "V6-12-red-before-fix",
+      "command": "npm run test:v6 -- V6-12 and node --test --test-name-pattern=... drawings.test.mjs, against the pre-fix logic (temporary in-place reverts, reapplied afterwards)",
+      "exitCode": 1,
+      "evidence": "qa/v6/evidence/V6-12/red-before-fix.txt",
+      "observed": "Each new test fails before its fix: both B1 tests (the non-interleaved lie and the missing-component file are accepted); the same-bytes import test (2 drawing assets); the identical-bind test (1 revision row left for 2 expected: the loser deleted the row the winner's pointer names); filesAvailable false on the STALE_BINDING and legacy duplicate-number tests; fromAssetId accepted; both numerals UI tests (numerals dropped). Review-02 round appends five more exit-1 runs: the interlaced bad-filter PNG is accepted, SOF3 and the other non-SOF0/SOF1 markers are accepted, the duplicate-component frame is accepted, the 18-block interleaved MCU is accepted, and source.committed/source.retired carry {} so their version is undefined."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S02-A02",
+      "status": "covered",
+      "tests": [
+        "S02-A02 a 17 MP PNG is refused as IMAGE_TOO_LARGE and no reduced copy is stored"
+      ],
+      "reason": "A 4352x4000 PNG returns IMAGE_TOO_LARGE before decode; no asset, blob, drawing row or event is written."
+    },
+    {
+      "id": "S02-A08",
+      "status": "covered",
+      "tests": [
+        "S02-A08 rebinding target A creates a new A revision; target B's figure-set id does not change",
+        "S02-A08 a figure bind on A retires A's confirmation, check and approval; B's figure set, confirmation and input are unchanged",
+        "S02-A08 figure-set ids minted by drawings.ts interoperate with revision.ts restore and adopt"
+      ],
+      "reason": "A and B share one drawing library and bind the same drawing; each has a draft (saveRevision), a full_read confirmation, a succeeded check run and an internal-release approval on its snapshot, and both export gates pass. After a bind on A only: A has a new FigureSetRevision (parent = old); isCurrent(oldA, liveA) is false, isInputStale is true, isConfirmationCurrent is false and currentConfirmations is empty; evaluateGate on the old snapshot returns STALE_BINDING, on the live snapshot with the old check CHECK_REQUIRED, and with a fresh check INPUT_STALE + CONFIRMATION_REQUIRED + APPROVAL_REQUIRED. B's figureRevisionId and live snapshot are unchanged, its confirmation is still current, its input is not stale and its export gate still passes."
+    },
+    {
+      "id": "S02-A09",
+      "status": "partial",
+      "tests": [
+        "V6-12-A02 stored bytes that no longer match their digest block export with MISSING_BYTES",
+        "V6-12-A02 a deleted drawing that a figure still needs blocks export with MISSING_BYTES"
+      ],
+      "reason": "For drawings: a missing or digest-mismatched blob makes the export gate return MISSING_BYTES and the figure entry/reference is kept, not deleted. The source-page asset status `missing_bytes` display belongs to the source surface (V6-10/V6-11), not this ticket."
+    },
+    {
+      "id": "S02-A01",
+      "status": "not_applicable",
+      "reason": "PDF source upload limits (V6-10)."
+    },
+    {
+      "id": "S02-A03",
+      "status": "not_applicable",
+      "reason": "Source MIME mismatch (V6-10). Drawing magic-byte checks are covered by the V6-12 BAD_DRAWING tests."
+    },
+    {
+      "id": "S02-A04",
+      "status": "not_applicable",
+      "reason": "Scanned PDF parsing (V6-11)."
+    },
+    {
+      "id": "S02-A05",
+      "status": "not_applicable",
+      "reason": "Parse job interruption (V6-11)."
+    },
+    {
+      "id": "S02-A06",
+      "status": "not_applicable",
+      "reason": "Parse job polling (V6-11)."
+    },
+    {
+      "id": "S02-A07",
+      "status": "not_applicable",
+      "reason": "Source retirement and fact SourceRef (source/fact tickets)."
+    },
+    {
+      "id": "S02-A10",
+      "status": "not_applicable",
+      "reason": "Original-file download ACL and paywall (later ticket)."
+    }
+  ],
+  "limitations": [
+    "Browser run covers the library surface with targetId null only. Target-bound states (figure set, gate, set-missing, INPUT_STALE), the stale notice and the load-failure notice are not reachable in R1 through the UI (see browser.notReachable); they are covered by the server-rendered markup and domain tests only.",
+    "No target-creation command exists (D1); the harness seeds targets directly and the UI gets targetId null.",
+    "JPEG support is baseline/extended sequential Huffman (SOF0/SOF1) with DRI/RSTn, interleaved or one scan per component. Every other frame marker (SOF2 progressive, SOF3 lossless, SOF5/6/7 differential, SOF9/10/11 arithmetic, SOF13/14/15 differential arithmetic) is refused as BAD_DRAWING, as are a frame that lists one component id twice, an interleaved MCU with more than 10 data units (T.81 B.2.3), a component coded by more than one scan, and a frame component that no scan codes. Users must save such files as baseline JPEG or PNG.",
+    "R2 follow-up: dedicated storage tables for drawings and figure-set revisions. In R1 the rows live in the blobs store under the drawings/ and figures/ namespaces (D5).",
+    "No draft store exists yet, so the S02-A08 tests hold draft revisions, confirmations, check runs and approvals in V6-04/V6-05 domain state; only drawings and figure sets are persisted.",
+    "There are no thumbnails; the library shows name, decoder-verified dimensions, type, size and digest prefix only.",
+    "Deleted drawing bytes stay in the blobs store (review-01 finding 2; browser step 06 shows orphanBytesKept). readBlob refuses them because the asset is gone, but a purge path per contract §11 is still needed before R2.",
+    "verifyPngData inflates the whole IDAT in memory: a 16 MP 16-bit RGBA PNG needs about 128 MB (review-01 finding 9). It is inside the limits but heavy on mobile; a streaming row check is a follow-up.",
+    "Drawing rows and figure-set revision rows are written in their own transaction just before the matter commit, not inside it (LocalRepository.commit cannot carry namespaced rows). A crash between the two leaves an unreferenced row with an attempt-unique id; readers ignore it and it is never reused, but it is not swept.",
+    "Not changed (review-01 findings 6, 7, 10; review-02 finding 6): the gate surfaces only DUPLICATE_FIGURE_NUMBER from the numbering check (bindFigures refuses gaps and over-limit sets at write time); referencedFigureIds come from the caller until the export ticket derives them from DraftAST; zlib Adler-32, the zlib FCHECK/FDICT header fields and JPEG coefficient ranges are not checked."
+  ],
+  "decisionsRequested": [],
+  "browser": {
+    "status": "run",
+    "command": "node qa/v6/evidence/V6-12/browser-drive.mjs qa/v6/evidence/V6-12 http://127.0.0.1:4176/patent (headless Chrome over CDP, against vite preview --port 4176 of the production build in build.txt; V6App.tsx at orchestrator blob c997eeae)",
+    "exitCode": 0,
+    "evidence": [
+      "qa/v6/evidence/V6-12/browser-drive.mjs",
+      "qa/v6/evidence/V6-12/browser-log.json",
+      "qa/v6/evidence/V6-12/01-create-matter-sources-tab.png",
+      "qa/v6/evidence/V6-12/02-empty-drawings-state.png",
+      "qa/v6/evidence/V6-12/03-import-png-and-jpeg-without-reload.png",
+      "qa/v6/evidence/V6-12/04-reload-keeps-drawings.png",
+      "qa/v6/evidence/V6-12/05a-corrupt-png-refused.png",
+      "qa/v6/evidence/V6-12/05b-17mp-png-refused.png",
+      "qa/v6/evidence/V6-12/05c-progressive-jpeg-refused.png",
+      "qa/v6/evidence/V6-12/05d-not-an-image-refused.png",
+      "qa/v6/evidence/V6-12/06-delete-and-reimport-new-id.png",
+      "qa/v6/evidence/V6-12/07-duplicate-import-no-second-row.png",
+      "qa/v6/evidence/V6-12/08-target-states-not-reachable.png",
+      "qa/v6/evidence/V6-12/08a-fabricated-target-refused.png"
+    ],
+    "steps": [
+      {
+        "step": "01-create-matter-sources-tab",
+        "ok": true
+      },
+      {
+        "step": "02-empty-drawings-state",
+        "ok": true
+      },
+      {
+        "step": "03-import-png-and-jpeg-without-reload",
+        "ok": true
+      },
+      {
+        "step": "04-reload-keeps-drawings",
+        "ok": true
+      },
+      {
+        "step": "05a-corrupt-png-refused",
+        "ok": true
+      },
+      {
+        "step": "05b-17mp-png-refused",
+        "ok": true
+      },
+      {
+        "step": "05c-progressive-jpeg-refused",
+        "ok": true
+      },
+      {
+        "step": "05d-not-an-image-refused",
+        "ok": true
+      },
+      {
+        "step": "06-delete-and-reimport-new-id",
+        "ok": true
+      },
+      {
+        "step": "07-duplicate-import-no-second-row",
+        "ok": true
+      },
+      {
+        "step": "08-target-states-not-reachable",
+        "ok": true
+      }
+    ],
+    "passed": 11,
+    "failed": 0,
+    "consoleErrors": 0,
+    "notReachable": [
+      {
+        "state": "figures-set / figures-gate-blocked / figures-set-missing (target-bound panel)",
+        "reason": "Requires a target. No ticket before V6-12 creates one and the UI has no target command, so targetId is null on both pages. Not faked; the run asserts an unknown target URL is refused with 案件不可用."
+      },
+      {
+        "state": "figures-stale",
+        "reason": "Requires draftFigureRevisionId. V6App passes none (there is no draft store yet), so the panel never claims a draft is stale. Not injected."
+      },
+      {
+        "state": "figures-action-error INPUT_STALE",
+        "reason": "Requires binding a figure set to a target; the library-only surface cannot reach it."
+      },
+      {
+        "state": "figures-failed / figures-load-error (STORAGE_UNAVAILABLE)",
+        "reason": "Requires a repository read fault. The shell renders its own unavailable page before the panel mounts, and the run may not inject storage faults. Covered by the unit/UI-render tests in the suite."
+      }
+    ]
+  },
+  "fixRound": {
+    "review": "qa/v6/evidence/V6-12/review-01.md",
+    "verdict": "NOT_ACCEPT",
+    "blockers": [
+      {
+        "id": "B1",
+        "fix": "decodeBaselineScan measures a single-component scan on that component's own block grid, ceil(ceil(X*h/Hmax)/8) x ceil(ceil(Y*v/Vmax)/8), one block per MCU (DRI counts these); interleaved scans keep the frame MCU grid with h*v blocks per component. verifyJpegScan refuses a file in which any SOF component was not scanned before EOI. A component scanned by more than one scan fails closed as BAD_DRAWING.",
+        "tests": [
+          "V6-12 B1 a non-interleaved scan is counted on its component's own block grid",
+          "V6-12 B1 every component the frame declares must be scanned before EOI"
+        ],
+        "fixtures": [
+          "qa/v6/scenarios/V6-12/fixtures/drawing-noninterleaved-lie.jpg",
+          "qa/v6/scenarios/V6-12/fixtures/drawing-missing-component-scan.jpg",
+          "qa/v6/scenarios/V6-12/fixtures/drawing-valid-noninterleaved.jpg"
+        ]
+      },
+      {
+        "id": "B2",
+        "fix": "storeDrawing mints a drawing id with a per-attempt nonce, deletes only its own row after a failed commit, and on VERSION_CONFLICT reloads and runs the sha256 duplicate check again, so the second caller gets the duplicate refusal (or the existing drawing with reuseExisting). bindFigures mints a per-attempt revision id, deletes only its own row after a failed pointer commit, and on VERSION_CONFLICT or INPUT_STALE re-reads: the same bind already landed (answer it), the target moved (INPUT_STALE), or only the version moved (write again; at most FIGURE_COMMIT_ATTEMPTS). Because revision ids are no longer derived from content, history is ordered by parent-chain depth, then createdAt, then id.",
+        "tests": [
+          "V6-12-A03 concurrent identical imports never leave a dangling drawing id",
+          "V6-12-A03 concurrent identical binds keep the pointer on a persisted revision and no orphan rows"
+        ]
+      }
+    ],
+    "nonBlocking": [
+      {
+        "finding": 1,
+        "fix": "filesAvailable is true unless a MISSING_BYTES reason exists; a missing revision row fails closed (false) because no files can be shown present."
+      },
+      {
+        "finding": 3,
+        "fix": "FigurePanelEntry and the panel revision carry numerals; appendEntry and removeEntry copy each remaining figure's numerals.",
+        "tests": [
+          "V6-12 UI numerals survive append, remove and a reload through the persisted panel",
+          "V6-12 UI numerals of untouched figures survive removing another figure"
+        ]
+      },
+      {
+        "finding": 4,
+        "fix": "fromAssetId must name an available asset of the same tenant and matter, otherwise RESOURCE_NOT_FOUND before any write.",
+        "tests": [
+          "V6-12 fromAssetId must name an existing asset of this matter; nothing else is accepted"
+        ]
+      },
+      {
+        "finding": 5,
+        "fix": "Round-1 receipt text corrected to say metadata {}. Superseded by review-02 non-blocking 4: source.committed and source.retired now carry {version} (see fixRound2)."
+      }
+    ]
+  },
+  "fixRound2": {
+    "review": "qa/v6/evidence/V6-12/review-02.md",
+    "verdict": "NOT_ACCEPT",
+    "blockers": [
+      {
+        "id": "B1",
+        "fix": "verifyPngData no longer returns early for interlaced data. It builds the row list from the Adam7 pass geometry (seven passes, empty passes skipped, each row = 1 filter byte + ceil(passWidth*channels*depth/8) bytes) and walks every pass row through the same MAX_PNG_FILTER check the non-interlaced path uses. The walk asserts its final offset equals rows.byteLength; a filter byte above 4 is BAD_DRAWING before any write, so a corrupted interlaced PNG cannot be imported, bound or pass the export gate.",
+        "tests": [
+          "V6-12 B1 an interlaced PNG is walked pass by pass, so a bad filter byte is BAD_DRAWING"
+        ],
+        "fixtures": [
+          "qa/v6/scenarios/V6-12/fixtures/drawing-interlaced-valid.png",
+          "qa/v6/scenarios/V6-12/fixtures/drawing-interlaced-bad-filter.png"
+        ]
+      }
+    ],
+    "nonBlocking": [
+      {
+        "finding": 1,
+        "fix": "Only SOF0 and SOF1 frame markers are accepted. Every other frame marker is BAD_DRAWING; SOF2 keeps the progressive-JPEG message, the rest share a generic unsupported-coding message. The receipt's JPEG limitation now states this rule.",
+        "tests": [
+          "V6-12 a JPEG frame marker other than SOF0 or SOF1 is refused"
+        ]
+      },
+      {
+        "finding": 2,
+        "fix": "parseFrame rejects a repeated component id, matching libjpeg's \"Duplicate component ID\".",
+        "tests": [
+          "V6-12 a JPEG frame that lists one component id twice is refused"
+        ],
+        "fixtures": [
+          "qa/v6/scenarios/V6-12/fixtures/drawing-duplicate-component.jpg"
+        ]
+      },
+      {
+        "finding": 3,
+        "fix": "An interleaved scan whose frame components sum(h*v) exceeds 10 is refused per T.81 B.2.3.",
+        "tests": [
+          "V6-12 an interleaved scan with more than 10 blocks per MCU is refused"
+        ],
+        "fixtures": [
+          "qa/v6/scenarios/V6-12/fixtures/drawing-mcu-overflow.jpg"
+        ]
+      },
+      {
+        "finding": 4,
+        "fix": "source.committed and source.retired now carry {version} of the matter commit that writes them, exactly as figures.bound carries {version, count}. No new action names or metadata keys are used.",
+        "tests": [
+          "V6-12 activity source.committed and source.retired carry the committed matter version"
+        ]
+      },
+      {
+        "finding": 5,
+        "fix": "No change. The Adam7 filter walk (B1) walks pass rows, not a flat stride."
+      },
+      {
+        "finding": 6,
+        "fix": "No change, documented: zlib FCHECK/FDICT are still unchecked; added to the limitations."
+      },
+      {
+        "finding": 7,
+        "fix": "No change, documented: an extra-row PNG is still reported as corrupt rather than a size mismatch. The refusal is correct."
+      },
+      {
+        "finding": 8,
+        "fix": "No change, documented: crash-orphan revisions remain restorable history; a future crash sweep must consider drafts that recorded one."
+      },
+      {
+        "finding": 9,
+        "fix": "No change, documented: historyOrder can put a crash-orphan before its never-written parent; not reachable through the public API in one session."
+      },
+      {
+        "finding": 10,
+        "fix": "No change, documented: readDrawingLibrary sorts by id, not chronologically. Display-only."
+      },
+      {
+        "finding": 11,
+        "fix": "No change, documented: removeEntry keeps the old default title. Cosmetic; S02 does not require title renumbering."
+      },
+      {
+        "finding": 12,
+        "fix": "No change, documented: the synchronous 16 MP inflate remains the accepted R1 limit."
+      }
+    ]
+  }
+}

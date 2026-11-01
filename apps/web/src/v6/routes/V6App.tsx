@@ -12,6 +12,7 @@ import { Shell } from "../components/Shell.tsx";
 import { AppearancePage, AppearanceProvider } from "../features/settings/Appearance.tsx";
 import { Upload } from "../features/sources/Upload.tsx";
 import { Parse } from "../features/sources/Parse.tsx";
+import { Figures } from "../features/sources/Figures.tsx";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
 import { openLocalRepository, type LocalRepository } from "../lib/repository.ts";
 import {
@@ -305,6 +306,8 @@ function UploadPage({ repository, matterId }: { repository: LocalRepository; mat
   const navigate = useNavigate();
   const [parseKey, setParseKey] = useState(0);
   const bumpParse = useCallback(() => setParseKey((n) => n + 1), []);
+  const [figuresKey, setFiguresKey] = useState(0);
+  const bumpFigures = useCallback(() => setFiguresKey((n) => n + 1), []);
   if (view === null) return <Loading />;
   if (view.state === "storage_unavailable") return <StorageUnavailable message={view.message} onRetry={retry} />;
   if (view.state === "unavailable") return <UnavailablePage />;
@@ -319,6 +322,14 @@ function UploadPage({ repository, matterId }: { repository: LocalRepository; mat
         onSettled={bumpParse}
       />
       <Parse refreshToken={parseKey} repository={repository} actor={LOCAL_ACTOR} matterId={matterId} />
+      <Figures
+        repository={repository}
+        actor={LOCAL_ACTOR}
+        matterId={matterId}
+        targetId={null}
+        refreshToken={figuresKey}
+        onSettled={bumpFigures}
+      />
       <p>
         <Link className="link-button" to={v6Path({ kind: "matter", matterId, targetId: null, tab: "overview" })}>
           返回案件
@@ -343,6 +354,8 @@ function MatterPage({
   const navigate = useNavigate();
   const [parseKey, setParseKey] = useState(0);
   const bumpParse = useCallback(() => setParseKey((n) => n + 1), []);
+  const [figuresKey, setFiguresKey] = useState(0);
+  const bumpFigures = useCallback(() => setFiguresKey((n) => n + 1), []);
   if (view === null) return <Loading />;
   if (view.state === "storage_unavailable") return <StorageUnavailable message={view.message} onRetry={retry} />;
   if (view.state === "unavailable") return <UnavailablePage />;
@@ -393,6 +406,14 @@ function MatterPage({
             onSettled={bumpParse}
           />
           <Parse refreshToken={parseKey} repository={repository} actor={LOCAL_ACTOR} matterId={matterId} />
+          <Figures
+            repository={repository}
+            actor={LOCAL_ACTOR}
+            matterId={matterId}
+            targetId={targetId}
+            refreshToken={figuresKey}
+            onSettled={bumpFigures}
+          />
         </>
       ) : capability.state === "unavailable" ? (
         <div className="notice" data-testid="tab-unavailable">

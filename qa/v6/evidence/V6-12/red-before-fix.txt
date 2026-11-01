@@ -1,0 +1,696 @@
+V6-12 fix round (review-01): the new tests, run before each fix. Exit 1 on all three runs.
+
+=== 1. Blocker B1, the JPEG coverage tests, against the original decoder logic (exit 1) ===
+Temporary in-place revert in drawings.ts: every scan counted on the frame MCU grid, and no check that each frame component was scanned. Reapplied afterwards.
+$ node --test --test-reporter=tap --test-name-pattern="V6-12 B1" qa/v6/scenarios/V6-12/drawings.test.mjs
+
+TAP version 13
+# Subtest: V6-12 B1 a non-interleaved scan is counted on its component's own block grid
+not ok 1 - V6-12 B1 a non-interleaved scan is counted on its component's own block grid
+  ---
+  duration_ms: 7.803667
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:122:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:126:10)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1201:25)
+    Test.start (node:internal/test_runner/test:1096:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17)
+  ...
+# Subtest: V6-12 B1 every component the frame declares must be scanned before EOI
+not ok 2 - V6-12 B1 every component the frame declares must be scanned before EOI
+  ---
+  duration_ms: 0.782458
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:136:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:138:10)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1201:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+    Test.postRun (node:internal/test_runner/test:1330:19)
+    Test.run (node:internal/test_runner/test:1258:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 215.965666
+
+
+=== 2. Blocker B2 and the non-blocking items, against the original storeDrawing, bindFigures, gate, panel and Figures.tsx (exit 1, 7 fail) ===
+At this point the bind race test held only lookups of the new revision key. The final test holds that lookup and also the read of the base revision (run 3).
+$ npm run test:v6 -- V6-12
+
+
+> test:v6
+> node qa/v6/runner.mjs V6-12
+
+TAP version 13
+# Subtest: V6-12 valid PNG and baseline JPEG pass with the dimensions their data really carries
+ok 1 - V6-12 valid PNG and baseline JPEG pass with the dimensions their data really carries
+  ---
+  duration_ms: 10.495667
+  type: 'test'
+  ...
+# Subtest: V6-12 corrupt bytes, wrong magic, truncation and dimension lies are BAD_DRAWING
+ok 2 - V6-12 corrupt bytes, wrong magic, truncation and dimension lies are BAD_DRAWING
+  ---
+  duration_ms: 8.063083
+  type: 'test'
+  ...
+# Subtest: V6-12 B1 a non-interleaved scan is counted on its component's own block grid
+ok 3 - V6-12 B1 a non-interleaved scan is counted on its component's own block grid
+  ---
+  duration_ms: 4.875709
+  type: 'test'
+  ...
+# Subtest: V6-12 B1 every component the frame declares must be scanned before EOI
+ok 4 - V6-12 B1 every component the frame declares must be scanned before EOI
+  ---
+  duration_ms: 18.846041
+  type: 'test'
+  ...
+# Subtest: S02-A02 a 17 MP PNG is refused as IMAGE_TOO_LARGE and no reduced copy is stored
+ok 5 - S02-A02 a 17 MP PNG is refused as IMAGE_TOO_LARGE and no reduced copy is stored
+  ---
+  duration_ms: 2.139959
+  type: 'test'
+  ...
+# Subtest: V6-12 bytes over 8 MiB are IMAGE_TOO_LARGE before any decode
+ok 6 - V6-12 bytes over 8 MiB are IMAGE_TOO_LARGE before any decode
+  ---
+  duration_ms: 0.174125
+  type: 'test'
+  ...
+# Subtest: V6-12-A01 deleting and re-importing a figure creates a new drawing and a new figure-set version; the old one is not mutated
+ok 7 - V6-12-A01 deleting and re-importing a figure creates a new drawing and a new figure-set version; the old one is not mutated
+  ---
+  duration_ms: 15.8875
+  type: 'test'
+  ...
+# Subtest: S02-A08 rebinding target A creates a new A revision; target B's figure-set id does not change
+ok 8 - S02-A08 rebinding target A creates a new A revision; target B's figure-set id does not change
+  ---
+  duration_ms: 4.990667
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 corrupt or lying images are refused at import and leave no asset, row or event
+ok 9 - V6-12-A02 corrupt or lying images are refused at import and leave no asset, row or event
+  ---
+  duration_ms: 3.205542
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a deleted drawing that a figure still needs blocks export with MISSING_BYTES
+ok 10 - V6-12-A02 a deleted drawing that a figure still needs blocks export with MISSING_BYTES
+  ---
+  duration_ms: 3.976084
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 stored bytes that no longer match their digest block export with MISSING_BYTES
+ok 11 - V6-12-A02 stored bytes that no longer match their digest block export with MISSING_BYTES
+  ---
+  duration_ms: 2.170834
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a draft built on an older figure set is STALE_BINDING; a reference the set does not address is RESOURCE_NOT_FOUND
+not ok 12 - V6-12-A02 a draft built on an older figure set is STALE_BINDING; a reference the set does not address is RESOURCE_NOT_FOUND
+  ---
+  duration_ms: 2.925917
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:294:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:314:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-12-A02 the export gate reads only: two calls agree and nothing is written
+ok 13 - V6-12-A02 the export gate reads only: two calls agree and nothing is written
+  ---
+  duration_ms: 3.355333
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 numbering must be 1..n contiguous and unique; a refused bind writes nothing
+ok 14 - V6-12-A02 numbering must be 1..n contiguous and unique; a refused bind writes nothing
+  ---
+  duration_ms: 2.575041
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a persisted revision with repeated numbers (legacy import) is reported as DUPLICATE_FIGURE_NUMBER by the export gate
+not ok 15 - V6-12-A02 a persisted revision with repeated numbers (legacy import) is reported as DUPLICATE_FIGURE_NUMBER by the export gate
+  ---
+  duration_ms: 2.423166
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:369:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    a numbering finding is not missing bytes
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:413:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-12-A02 a bind from a stale base is INPUT_STALE and names the current revision
+ok 16 - V6-12-A02 a bind from a stale base is INPUT_STALE and names the current revision
+  ---
+  duration_ms: 3.492042
+  type: 'test'
+  ...
+# Subtest: V6-12 body-text references bind to one figure-set revision and unknown numbers are never dropped
+ok 17 - V6-12 body-text references bind to one figure-set revision and unknown numbers are never dropped
+  ---
+  duration_ms: 1.839542
+  type: 'test'
+  ...
+# Subtest: V6-12 fromAssetId must name an existing drawing asset of this matter; nothing else is accepted
+not ok 18 - V6-12 fromAssetId must name an existing drawing asset of this matter; nothing else is accepted
+  ---
+  duration_ms: 1.585625
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:462:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    99999999-9999-4999-8999-999999999999
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:477:12)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-12 ownership: another user or tenant can neither import into nor read the matter's drawings
+ok 19 - V6-12 ownership: another user or tenant can neither import into nor read the matter's drawings
+  ---
+  duration_ms: 1.87025
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 importing the same bytes again writes nothing: duplicate is refused or reused
+ok 20 - V6-12-A03 importing the same bytes again writes nothing: duplicate is refused or reused
+  ---
+  duration_ms: 2.804625
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 retrying a completed bind returns the persisted revision and appends nothing
+ok 21 - V6-12-A03 retrying a completed bind returns the persisted revision and appends nothing
+  ---
+  duration_ms: 2.098875
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 a failed import leaves no partial state and a retry lands exactly once
+ok 22 - V6-12-A03 a failed import leaves no partial state and a retry lands exactly once
+  ---
+  duration_ms: 2.790083
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 concurrent imports both land through the version check, each exactly once
+ok 23 - V6-12-A03 concurrent imports both land through the version check, each exactly once
+  ---
+  duration_ms: 2.199875
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 concurrent identical imports never leave a dangling drawing id
+not ok 24 - V6-12-A03 concurrent identical imports never leave a dangling drawing id
+  ---
+  duration_ms: 2.113042
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:578:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    exactly one drawing asset
+    
+    2 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 2
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:588:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-12-A03 concurrent identical binds keep the pointer on a persisted revision and no orphan rows
+not ok 25 - V6-12-A03 concurrent identical binds keep the pointer on a persisted revision and no orphan rows
+  ---
+  duration_ms: 2.753459
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:615:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    the seed revision plus exactly one bind revision
+    
+    1 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:666:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-12-A03 a reload through a fresh repository shows exactly the persisted library and binding
+ok 26 - V6-12-A03 a reload through a fresh repository shows exactly the persisted library and binding
+  ---
+  duration_ms: 4.760667
+  type: 'test'
+  ...
+# Subtest: S02-A08 a figure bind on A retires A's confirmation, check and approval; B's figure set, confirmation and input are unchanged
+ok 27 - S02-A08 a figure bind on A retires A's confirmation, check and approval; B's figure set, confirmation and input are unchanged
+  ---
+  duration_ms: 42.200542
+  type: 'test'
+  ...
+# Subtest: S02-A08 figure-set ids minted by drawings.ts interoperate with revision.ts restore and adopt
+ok 28 - S02-A08 figure-set ids minted by drawings.ts interoperate with revision.ts restore and adopt
+  ---
+  duration_ms: 7.454583
+  type: 'test'
+  ...
+# Subtest: V6-12 UI loading: the first render reads storage and shows no rows
+ok 29 - V6-12 UI loading: the first render reads storage and shows no rows
+  ---
+  duration_ms: 94.259792
+  type: 'test'
+  ...
+# Subtest: V6-12 UI empty: a matter with no drawings and no targets says so and offers import only
+ok 30 - V6-12 UI empty: a matter with no drawings and no targets says so and offers import only
+  ---
+  duration_ms: 1.007042
+  type: 'test'
+  ...
+# Subtest: V6-12 UI library: rows show the persisted, decoder-verified dimensions and the bound set
+ok 31 - V6-12 UI library: rows show the persisted, decoder-verified dimensions and the bound set
+  ---
+  duration_ms: 20.140042
+  type: 'test'
+  ...
+# Subtest: V6-12 UI failed: unavailable storage shows the error with retry, never an empty library
+ok 32 - V6-12 UI failed: unavailable storage shows the error with retry, never an empty library
+  ---
+  duration_ms: 1.015333
+  type: 'test'
+  ...
+# Subtest: V6-12 UI failed action: a refused import shows its code and the library is unchanged
+ok 33 - V6-12 UI failed action: a refused import shows its code and the library is unchanged
+  ---
+  duration_ms: 2.24125
+  type: 'test'
+  ...
+# Subtest: V6-12 UI stale and blocked: a draft on an older set is marked stale and a missing drawing blocks export
+ok 34 - V6-12 UI stale and blocked: a draft on an older set is marked stale and a missing drawing blocks export
+  ---
+  duration_ms: 3.102917
+  type: 'test'
+  ...
+# Subtest: V6-12 UI bind inputs: append numbers the next figure and remove renumbers 1..n
+ok 35 - V6-12 UI bind inputs: append numbers the next figure and remove renumbers 1..n
+  ---
+  duration_ms: 0.917542
+  type: 'test'
+  ...
+# Subtest: V6-12 UI numerals survive append, remove and a reload through the persisted panel
+not ok 36 - V6-12 UI numerals survive append, remove and a reload through the persisted panel
+  ---
+  duration_ms: 5.211125
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/figures-ui.test.mjs:191:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + undefined
+    - [
+    -   {
+    -     label: '卡口',
+    -     value: '10'
+    -   },
+    -   {
+    -     label: '壳体',
+    -     value: '12'
+    -   }
+    - ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0:
+      value: '10'
+      label: '卡口'
+    1:
+      value: '12'
+      label: '壳体'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/figures-ui.test.mjs:219:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-12 UI numerals of untouched figures survive removing another figure
+not ok 37 - V6-12 UI numerals of untouched figures survive removing another figure
+  ---
+  duration_ms: 0.721875
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/figures-ui.test.mjs:256:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+        [
+          '88888888-8888-4888-8888-888888888882',
+          1,
+    +     []
+    -     [
+    -       {
+    -         label: '盖板',
+    -         value: '20'
+    -       }
+    -     ]
+        ]
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0:
+      0: '88888888-8888-4888-8888-888888888882'
+      1: 1
+      2:
+        0:
+          value: '20'
+          label: '盖板'
+  actual:
+    0:
+      0: '88888888-8888-4888-8888-888888888882'
+      1: 1
+      2:
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/figures-ui.test.mjs:269:10)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1201:25)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 30
+# fail 7
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 442.944292
+V6 runner error: 7 test(s) failed
+
+
+=== 3. Blocker B2 (bind), the final concurrent identical binds test, against the original bindFigures cleanup (exit 1) ===
+Temporary in-place revert: deterministic revision id, an existence read before the write, and delete-on-failure when no row was seen. Reapplied afterwards.
+$ node --test --test-reporter=tap --test-name-pattern="concurrent identical binds" qa/v6/scenarios/V6-12/drawings.test.mjs
+
+TAP version 13
+# Subtest: V6-12-A03 concurrent identical binds keep the pointer on a persisted revision and no orphan rows
+not ok 1 - V6-12-A03 concurrent identical binds keep the pointer on a persisted revision and no orphan rows
+  ---
+  duration_ms: 115.924459
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:615:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    the seed revision plus exactly one bind revision
+    
+    1 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:673:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1027.623584
+
+V6-12 fix round (review-02): each new test, run before its fix. Exit 1 on every run.
+
+=== 1. Blocker B1 (PNG), the new interlaced test, against the old early return (exit 1) ===
+Temporary in-place revert: verifyPngData returns ok for interlaced data before the row walk, as at review-02 HEAD; only the non-interlaced rows are checked.
+$ node --test --test-reporter=tap --test-name-pattern="interlaced PNG is walked pass by pass" qa/v6/scenarios/V6-12/drawings.test.mjs
+TAP version 13
+# Subtest: V6-12 B1 an interlaced PNG is walked pass by pass, so a bad filter byte is BAD_DRAWING
+not ok 1 - V6-12 B1 an interlaced PNG is walked pass by pass, so a bad filter byte is BAD_DRAWING
+  ---
+  duration_ms: 5.644167
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:151:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:161:10)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1201:25)
+    Test.start (node:internal/test_runner/test:1096:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 281.023958
+
+=== 2. JPEG frame markers, the new marker-set test, against the old SOF2-only refusal (exit 1) ===
+Temporary in-place revert: Only SOF2 is refused, as at review-02 HEAD; every other frame marker is parsed as a baseline frame.
+$ node --test --test-reporter=tap --test-name-pattern="JPEG frame marker other than SOF0 or SOF1" qa/v6/scenarios/V6-12/drawings.test.mjs
+TAP version 13
+# Subtest: V6-12 a JPEG frame marker other than SOF0 or SOF1 is refused
+not ok 1 - V6-12 a JPEG frame marker other than SOF0 or SOF1 is refused
+  ---
+  duration_ms: 12.303958
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:185:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    SOF3 is refused
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:197:12)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 236.774209
+
+=== 3. Duplicate frame component ids, the new test, against the old parseFrame (exit 1) ===
+Temporary in-place revert: parseFrame accepts a repeated component id, as at review-02 HEAD.
+$ node --test --test-reporter=tap --test-name-pattern="JPEG frame that lists one component id twice" qa/v6/scenarios/V6-12/drawings.test.mjs
+TAP version 13
+# Subtest: V6-12 a JPEG frame that lists one component id twice is refused
+not ok 1 - V6-12 a JPEG frame that lists one component id twice is refused
+  ---
+  duration_ms: 2.872292
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:210:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:213:10)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1201:25)
+    Test.start (node:internal/test_runner/test:1096:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 196.601208
+
+=== 4. Interleaved MCU block cap, the new test, against the old decoder (exit 1) ===
+Temporary in-place revert: decodeBaselineScan codes h*v blocks per component without a 10-block MCU limit, as at review-02 HEAD.
+$ node --test --test-reporter=tap --test-name-pattern="interleaved scan with more than 10 blocks per MCU" qa/v6/scenarios/V6-12/drawings.test.mjs
+TAP version 13
+# Subtest: V6-12 an interleaved scan with more than 10 blocks per MCU is refused
+not ok 1 - V6-12 an interleaved scan with more than 10 blocks per MCU is refused
+  ---
+  duration_ms: 3.200833
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:224:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:227:10)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1201:25)
+    Test.start (node:internal/test_runner/test:1096:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 193.504167
+
+=== 5. Activity metadata, the new version test, against the old empty metadata (exit 1) ===
+Temporary in-place revert: source.committed and source.retired write metadata {}, as at review-02 HEAD.
+$ node --test --test-reporter=tap --test-name-pattern="activity source.committed and source.retired carry the committed matter version" qa/v6/scenarios/V6-12/drawings.test.mjs
+TAP version 13
+# Subtest: V6-12 activity source.committed and source.retired carry the committed matter version
+not ok 1 - V6-12 activity source.committed and source.retired carry the committed matter version
+  ---
+  duration_ms: 20.137334
+  type: 'test'
+  location: '/private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:238:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+    +   undefined,
+    +   undefined
+    -   2,
+    -   3
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 2
+    1: 3
+  actual:
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-worktree/qa/v6/scenarios/V6-12/drawings.test.mjs:249:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 217.129542

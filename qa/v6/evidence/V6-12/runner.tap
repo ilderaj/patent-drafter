@@ -1,0 +1,266 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-12
+
+TAP version 13
+# Subtest: V6-12 valid PNG and baseline JPEG pass with the dimensions their data really carries
+ok 1 - V6-12 valid PNG and baseline JPEG pass with the dimensions their data really carries
+  ---
+  duration_ms: 12.311541
+  type: 'test'
+  ...
+# Subtest: V6-12 corrupt bytes, wrong magic, truncation and dimension lies are BAD_DRAWING
+ok 2 - V6-12 corrupt bytes, wrong magic, truncation and dimension lies are BAD_DRAWING
+  ---
+  duration_ms: 7.110834
+  type: 'test'
+  ...
+# Subtest: V6-12 B1 a non-interleaved scan is counted on its component's own block grid
+ok 3 - V6-12 B1 a non-interleaved scan is counted on its component's own block grid
+  ---
+  duration_ms: 10.202875
+  type: 'test'
+  ...
+# Subtest: V6-12 B1 every component the frame declares must be scanned before EOI
+ok 4 - V6-12 B1 every component the frame declares must be scanned before EOI
+  ---
+  duration_ms: 20.780875
+  type: 'test'
+  ...
+# Subtest: V6-12 B1 an interlaced PNG is walked pass by pass, so a bad filter byte is BAD_DRAWING
+ok 5 - V6-12 B1 an interlaced PNG is walked pass by pass, so a bad filter byte is BAD_DRAWING
+  ---
+  duration_ms: 8.398708
+  type: 'test'
+  ...
+# Subtest: V6-12 a JPEG frame marker other than SOF0 or SOF1 is refused
+ok 6 - V6-12 a JPEG frame marker other than SOF0 or SOF1 is refused
+  ---
+  duration_ms: 1.575917
+  type: 'test'
+  ...
+# Subtest: V6-12 a JPEG frame that lists one component id twice is refused
+ok 7 - V6-12 a JPEG frame that lists one component id twice is refused
+  ---
+  duration_ms: 1.005125
+  type: 'test'
+  ...
+# Subtest: V6-12 an interleaved scan with more than 10 blocks per MCU is refused
+ok 8 - V6-12 an interleaved scan with more than 10 blocks per MCU is refused
+  ---
+  duration_ms: 1.521208
+  type: 'test'
+  ...
+# Subtest: V6-12 activity source.committed and source.retired carry the committed matter version
+ok 9 - V6-12 activity source.committed and source.retired carry the committed matter version
+  ---
+  duration_ms: 3.072584
+  type: 'test'
+  ...
+# Subtest: S02-A02 a 17 MP PNG is refused as IMAGE_TOO_LARGE and no reduced copy is stored
+ok 10 - S02-A02 a 17 MP PNG is refused as IMAGE_TOO_LARGE and no reduced copy is stored
+  ---
+  duration_ms: 1.093917
+  type: 'test'
+  ...
+# Subtest: V6-12 bytes over 8 MiB are IMAGE_TOO_LARGE before any decode
+ok 11 - V6-12 bytes over 8 MiB are IMAGE_TOO_LARGE before any decode
+  ---
+  duration_ms: 0.168792
+  type: 'test'
+  ...
+# Subtest: V6-12-A01 deleting and re-importing a figure creates a new drawing and a new figure-set version; the old one is not mutated
+ok 12 - V6-12-A01 deleting and re-importing a figure creates a new drawing and a new figure-set version; the old one is not mutated
+  ---
+  duration_ms: 14.394333
+  type: 'test'
+  ...
+# Subtest: S02-A08 rebinding target A creates a new A revision; target B's figure-set id does not change
+ok 13 - S02-A08 rebinding target A creates a new A revision; target B's figure-set id does not change
+  ---
+  duration_ms: 5.343292
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 corrupt or lying images are refused at import and leave no asset, row or event
+ok 14 - V6-12-A02 corrupt or lying images are refused at import and leave no asset, row or event
+  ---
+  duration_ms: 2.256709
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a deleted drawing that a figure still needs blocks export with MISSING_BYTES
+ok 15 - V6-12-A02 a deleted drawing that a figure still needs blocks export with MISSING_BYTES
+  ---
+  duration_ms: 2.66425
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 stored bytes that no longer match their digest block export with MISSING_BYTES
+ok 16 - V6-12-A02 stored bytes that no longer match their digest block export with MISSING_BYTES
+  ---
+  duration_ms: 2.58325
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a draft built on an older figure set is STALE_BINDING; a reference the set does not address is RESOURCE_NOT_FOUND
+ok 17 - V6-12-A02 a draft built on an older figure set is STALE_BINDING; a reference the set does not address is RESOURCE_NOT_FOUND
+  ---
+  duration_ms: 4.332875
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 the export gate reads only: two calls agree and nothing is written
+ok 18 - V6-12-A02 the export gate reads only: two calls agree and nothing is written
+  ---
+  duration_ms: 2.062083
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 numbering must be 1..n contiguous and unique; a refused bind writes nothing
+ok 19 - V6-12-A02 numbering must be 1..n contiguous and unique; a refused bind writes nothing
+  ---
+  duration_ms: 2.053583
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a persisted revision with repeated numbers (legacy import) is reported as DUPLICATE_FIGURE_NUMBER by the export gate
+ok 20 - V6-12-A02 a persisted revision with repeated numbers (legacy import) is reported as DUPLICATE_FIGURE_NUMBER by the export gate
+  ---
+  duration_ms: 3.183625
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a bind from a stale base is INPUT_STALE and names the current revision
+ok 21 - V6-12-A02 a bind from a stale base is INPUT_STALE and names the current revision
+  ---
+  duration_ms: 1.965416
+  type: 'test'
+  ...
+# Subtest: V6-12 body-text references bind to one figure-set revision and unknown numbers are never dropped
+ok 22 - V6-12 body-text references bind to one figure-set revision and unknown numbers are never dropped
+  ---
+  duration_ms: 1.859334
+  type: 'test'
+  ...
+# Subtest: V6-12 fromAssetId must name an existing asset of this matter; nothing else is accepted
+ok 23 - V6-12 fromAssetId must name an existing asset of this matter; nothing else is accepted
+  ---
+  duration_ms: 1.895625
+  type: 'test'
+  ...
+# Subtest: V6-12 ownership: another user or tenant can neither import into nor read the matter's drawings
+ok 24 - V6-12 ownership: another user or tenant can neither import into nor read the matter's drawings
+  ---
+  duration_ms: 1.387125
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 importing the same bytes again writes nothing: duplicate is refused or reused
+ok 25 - V6-12-A03 importing the same bytes again writes nothing: duplicate is refused or reused
+  ---
+  duration_ms: 2.120084
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 retrying a completed bind returns the persisted revision and appends nothing
+ok 26 - V6-12-A03 retrying a completed bind returns the persisted revision and appends nothing
+  ---
+  duration_ms: 4.504709
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 a failed import leaves no partial state and a retry lands exactly once
+ok 27 - V6-12-A03 a failed import leaves no partial state and a retry lands exactly once
+  ---
+  duration_ms: 3.372667
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 concurrent imports both land through the version check, each exactly once
+ok 28 - V6-12-A03 concurrent imports both land through the version check, each exactly once
+  ---
+  duration_ms: 1.698916
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 concurrent identical imports never leave a dangling drawing id
+ok 29 - V6-12-A03 concurrent identical imports never leave a dangling drawing id
+  ---
+  duration_ms: 2.182833
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 concurrent identical binds keep the pointer on a persisted revision and no orphan rows
+ok 30 - V6-12-A03 concurrent identical binds keep the pointer on a persisted revision and no orphan rows
+  ---
+  duration_ms: 2.634334
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 a reload through a fresh repository shows exactly the persisted library and binding
+ok 31 - V6-12-A03 a reload through a fresh repository shows exactly the persisted library and binding
+  ---
+  duration_ms: 2.847459
+  type: 'test'
+  ...
+# Subtest: S02-A08 a figure bind on A retires A's confirmation, check and approval; B's figure set, confirmation and input are unchanged
+ok 32 - S02-A08 a figure bind on A retires A's confirmation, check and approval; B's figure set, confirmation and input are unchanged
+  ---
+  duration_ms: 55.867333
+  type: 'test'
+  ...
+# Subtest: S02-A08 figure-set ids minted by drawings.ts interoperate with revision.ts restore and adopt
+ok 33 - S02-A08 figure-set ids minted by drawings.ts interoperate with revision.ts restore and adopt
+  ---
+  duration_ms: 6.052416
+  type: 'test'
+  ...
+# Subtest: V6-12 UI loading: the first render reads storage and shows no rows
+ok 34 - V6-12 UI loading: the first render reads storage and shows no rows
+  ---
+  duration_ms: 98.355375
+  type: 'test'
+  ...
+# Subtest: V6-12 UI empty: a matter with no drawings and no targets says so and offers import only
+ok 35 - V6-12 UI empty: a matter with no drawings and no targets says so and offers import only
+  ---
+  duration_ms: 1.022208
+  type: 'test'
+  ...
+# Subtest: V6-12 UI library: rows show the persisted, decoder-verified dimensions and the bound set
+ok 36 - V6-12 UI library: rows show the persisted, decoder-verified dimensions and the bound set
+  ---
+  duration_ms: 18.148666
+  type: 'test'
+  ...
+# Subtest: V6-12 UI failed: unavailable storage shows the error with retry, never an empty library
+ok 37 - V6-12 UI failed: unavailable storage shows the error with retry, never an empty library
+  ---
+  duration_ms: 1.091958
+  type: 'test'
+  ...
+# Subtest: V6-12 UI failed action: a refused import shows its code and the library is unchanged
+ok 38 - V6-12 UI failed action: a refused import shows its code and the library is unchanged
+  ---
+  duration_ms: 2.102916
+  type: 'test'
+  ...
+# Subtest: V6-12 UI stale and blocked: a draft on an older set is marked stale and a missing drawing blocks export
+ok 39 - V6-12 UI stale and blocked: a draft on an older set is marked stale and a missing drawing blocks export
+  ---
+  duration_ms: 3.20025
+  type: 'test'
+  ...
+# Subtest: V6-12 UI bind inputs: append numbers the next figure and remove renumbers 1..n
+ok 40 - V6-12 UI bind inputs: append numbers the next figure and remove renumbers 1..n
+  ---
+  duration_ms: 1.027541
+  type: 'test'
+  ...
+# Subtest: V6-12 UI numerals survive append, remove and a reload through the persisted panel
+ok 41 - V6-12 UI numerals survive append, remove and a reload through the persisted panel
+  ---
+  duration_ms: 7.061459
+  type: 'test'
+  ...
+# Subtest: V6-12 UI numerals of untouched figures survive removing another figure
+ok 42 - V6-12 UI numerals of untouched figures survive removing another figure
+  ---
+  duration_ms: 0.168
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 411.261875
