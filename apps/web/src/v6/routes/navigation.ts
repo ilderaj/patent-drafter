@@ -78,7 +78,7 @@ const AVAILABLE: Capability = { state: "available", reason: null };
 export const TAB_CAPABILITIES: Readonly<Record<MatterTab, Capability>> = Object.freeze({
   overview: AVAILABLE,
   sources: AVAILABLE,
-  facts: unavailable("事实与冲突确认尚未开放，将随五个问题一起提供。"),
+  facts: AVAILABLE,
   draft: unavailable("草稿尚未开放：本地版还不能生成或编辑申请文本。"),
   check: unavailable("检查尚未开放：本地版还没有检查规则运行结果。"),
   review: unavailable("审阅需要专业协作功能，本地版暂不提供。"),

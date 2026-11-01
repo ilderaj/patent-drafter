@@ -12,6 +12,7 @@ import { Shell } from "../components/Shell.tsx";
 import { AppearancePage, AppearanceProvider } from "../features/settings/Appearance.tsx";
 import { Upload } from "../features/sources/Upload.tsx";
 import { Parse } from "../features/sources/Parse.tsx";
+import { Intake } from "../features/intake/Intake.tsx";
 import { Figures } from "../features/sources/Figures.tsx";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
 import { openLocalRepository, type LocalRepository } from "../lib/repository.ts";
@@ -396,7 +397,9 @@ function MatterPage({
           </Link>
         ))}
       </nav>
-      {tab === "sources" ? (
+      {tab === "facts" ? (
+        <Intake repository={repository} actor={LOCAL_ACTOR} matterId={matterId} />
+      ) : tab === "sources" ? (
         <>
           <Upload
             repository={repository}
