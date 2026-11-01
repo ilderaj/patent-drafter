@@ -1,0 +1,836 @@
+=== V6-12 ===
+
+
+> test:v6
+> node qa/v6/runner.mjs V6-12
+
+TAP version 13
+# Subtest: V6-12 valid PNG and baseline JPEG pass with the dimensions their data really carries
+ok 1 - V6-12 valid PNG and baseline JPEG pass with the dimensions their data really carries
+  ---
+  duration_ms: 9.081208
+  type: 'test'
+  ...
+# Subtest: V6-12 corrupt bytes, wrong magic, truncation and dimension lies are BAD_DRAWING
+ok 2 - V6-12 corrupt bytes, wrong magic, truncation and dimension lies are BAD_DRAWING
+  ---
+  duration_ms: 5.516916
+  type: 'test'
+  ...
+# Subtest: V6-12 B1 a non-interleaved scan is counted on its component's own block grid
+ok 3 - V6-12 B1 a non-interleaved scan is counted on its component's own block grid
+  ---
+  duration_ms: 5.840958
+  type: 'test'
+  ...
+# Subtest: V6-12 B1 every component the frame declares must be scanned before EOI
+ok 4 - V6-12 B1 every component the frame declares must be scanned before EOI
+  ---
+  duration_ms: 17.3525
+  type: 'test'
+  ...
+# Subtest: V6-12 B1 an interlaced PNG is walked pass by pass, so a bad filter byte is BAD_DRAWING
+ok 5 - V6-12 B1 an interlaced PNG is walked pass by pass, so a bad filter byte is BAD_DRAWING
+  ---
+  duration_ms: 8.605041
+  type: 'test'
+  ...
+# Subtest: V6-12 a JPEG frame marker other than SOF0 or SOF1 is refused
+ok 6 - V6-12 a JPEG frame marker other than SOF0 or SOF1 is refused
+  ---
+  duration_ms: 0.814083
+  type: 'test'
+  ...
+# Subtest: V6-12 a JPEG frame that lists one component id twice is refused
+ok 7 - V6-12 a JPEG frame that lists one component id twice is refused
+  ---
+  duration_ms: 2.439375
+  type: 'test'
+  ...
+# Subtest: V6-12 an interleaved scan with more than 10 blocks per MCU is refused
+ok 8 - V6-12 an interleaved scan with more than 10 blocks per MCU is refused
+  ---
+  duration_ms: 1.173667
+  type: 'test'
+  ...
+# Subtest: V6-12 activity source.committed and source.retired carry the committed matter version
+ok 9 - V6-12 activity source.committed and source.retired carry the committed matter version
+  ---
+  duration_ms: 2.5655
+  type: 'test'
+  ...
+# Subtest: S02-A02 a 17 MP PNG is refused as IMAGE_TOO_LARGE and no reduced copy is stored
+ok 10 - S02-A02 a 17 MP PNG is refused as IMAGE_TOO_LARGE and no reduced copy is stored
+  ---
+  duration_ms: 0.758875
+  type: 'test'
+  ...
+# Subtest: V6-12 bytes over 8 MiB are IMAGE_TOO_LARGE before any decode
+ok 11 - V6-12 bytes over 8 MiB are IMAGE_TOO_LARGE before any decode
+  ---
+  duration_ms: 0.151209
+  type: 'test'
+  ...
+# Subtest: V6-12-A01 deleting and re-importing a figure creates a new drawing and a new figure-set version; the old one is not mutated
+ok 12 - V6-12-A01 deleting and re-importing a figure creates a new drawing and a new figure-set version; the old one is not mutated
+  ---
+  duration_ms: 13.979292
+  type: 'test'
+  ...
+# Subtest: S02-A08 rebinding target A creates a new A revision; target B's figure-set id does not change
+ok 13 - S02-A08 rebinding target A creates a new A revision; target B's figure-set id does not change
+  ---
+  duration_ms: 4.219667
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 corrupt or lying images are refused at import and leave no asset, row or event
+ok 14 - V6-12-A02 corrupt or lying images are refused at import and leave no asset, row or event
+  ---
+  duration_ms: 2.669375
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a deleted drawing that a figure still needs blocks export with MISSING_BYTES
+ok 15 - V6-12-A02 a deleted drawing that a figure still needs blocks export with MISSING_BYTES
+  ---
+  duration_ms: 5.280417
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 stored bytes that no longer match their digest block export with MISSING_BYTES
+ok 16 - V6-12-A02 stored bytes that no longer match their digest block export with MISSING_BYTES
+  ---
+  duration_ms: 2.147416
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a draft built on an older figure set is STALE_BINDING; a reference the set does not address is RESOURCE_NOT_FOUND
+ok 17 - V6-12-A02 a draft built on an older figure set is STALE_BINDING; a reference the set does not address is RESOURCE_NOT_FOUND
+  ---
+  duration_ms: 3.875917
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 the export gate reads only: two calls agree and nothing is written
+ok 18 - V6-12-A02 the export gate reads only: two calls agree and nothing is written
+  ---
+  duration_ms: 1.88725
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 numbering must be 1..n contiguous and unique; a refused bind writes nothing
+ok 19 - V6-12-A02 numbering must be 1..n contiguous and unique; a refused bind writes nothing
+  ---
+  duration_ms: 1.422167
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a persisted revision with repeated numbers (legacy import) is reported as DUPLICATE_FIGURE_NUMBER by the export gate
+ok 20 - V6-12-A02 a persisted revision with repeated numbers (legacy import) is reported as DUPLICATE_FIGURE_NUMBER by the export gate
+  ---
+  duration_ms: 2.644125
+  type: 'test'
+  ...
+# Subtest: V6-12-A02 a bind from a stale base is INPUT_STALE and names the current revision
+ok 21 - V6-12-A02 a bind from a stale base is INPUT_STALE and names the current revision
+  ---
+  duration_ms: 1.639625
+  type: 'test'
+  ...
+# Subtest: V6-12 body-text references bind to one figure-set revision and unknown numbers are never dropped
+ok 22 - V6-12 body-text references bind to one figure-set revision and unknown numbers are never dropped
+  ---
+  duration_ms: 1.837875
+  type: 'test'
+  ...
+# Subtest: V6-12 fromAssetId must name an existing asset of this matter; nothing else is accepted
+ok 23 - V6-12 fromAssetId must name an existing asset of this matter; nothing else is accepted
+  ---
+  duration_ms: 2.148625
+  type: 'test'
+  ...
+# Subtest: V6-12 ownership: another user or tenant can neither import into nor read the matter's drawings
+ok 24 - V6-12 ownership: another user or tenant can neither import into nor read the matter's drawings
+  ---
+  duration_ms: 1.522334
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 importing the same bytes again writes nothing: duplicate is refused or reused
+ok 25 - V6-12-A03 importing the same bytes again writes nothing: duplicate is refused or reused
+  ---
+  duration_ms: 3.4805
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 retrying a completed bind returns the persisted revision and appends nothing
+ok 26 - V6-12-A03 retrying a completed bind returns the persisted revision and appends nothing
+  ---
+  duration_ms: 2.123375
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 a failed import leaves no partial state and a retry lands exactly once
+ok 27 - V6-12-A03 a failed import leaves no partial state and a retry lands exactly once
+  ---
+  duration_ms: 2.345625
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 concurrent imports both land through the version check, each exactly once
+ok 28 - V6-12-A03 concurrent imports both land through the version check, each exactly once
+  ---
+  duration_ms: 1.457417
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 concurrent identical imports never leave a dangling drawing id
+ok 29 - V6-12-A03 concurrent identical imports never leave a dangling drawing id
+  ---
+  duration_ms: 1.633625
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 concurrent identical binds keep the pointer on a persisted revision and no orphan rows
+ok 30 - V6-12-A03 concurrent identical binds keep the pointer on a persisted revision and no orphan rows
+  ---
+  duration_ms: 2.263209
+  type: 'test'
+  ...
+# Subtest: V6-12-A03 a reload through a fresh repository shows exactly the persisted library and binding
+ok 31 - V6-12-A03 a reload through a fresh repository shows exactly the persisted library and binding
+  ---
+  duration_ms: 1.87175
+  type: 'test'
+  ...
+# Subtest: S02-A08 a figure bind on A retires A's confirmation, check and approval; B's figure set, confirmation and input are unchanged
+ok 32 - S02-A08 a figure bind on A retires A's confirmation, check and approval; B's figure set, confirmation and input are unchanged
+  ---
+  duration_ms: 44.095166
+  type: 'test'
+  ...
+# Subtest: S02-A08 figure-set ids minted by drawings.ts interoperate with revision.ts restore and adopt
+ok 33 - S02-A08 figure-set ids minted by drawings.ts interoperate with revision.ts restore and adopt
+  ---
+  duration_ms: 4.744584
+  type: 'test'
+  ...
+# Subtest: V6-12 UI loading: the first render reads storage and shows no rows
+ok 34 - V6-12 UI loading: the first render reads storage and shows no rows
+  ---
+  duration_ms: 74.81
+  type: 'test'
+  ...
+# Subtest: V6-12 UI empty: a matter with no drawings and no targets says so and offers import only
+ok 35 - V6-12 UI empty: a matter with no drawings and no targets says so and offers import only
+  ---
+  duration_ms: 0.920541
+  type: 'test'
+  ...
+# Subtest: V6-12 UI library: rows show the persisted, decoder-verified dimensions and the bound set
+ok 36 - V6-12 UI library: rows show the persisted, decoder-verified dimensions and the bound set
+  ---
+  duration_ms: 16.331791
+  type: 'test'
+  ...
+# Subtest: V6-12 UI failed: unavailable storage shows the error with retry, never an empty library
+ok 37 - V6-12 UI failed: unavailable storage shows the error with retry, never an empty library
+  ---
+  duration_ms: 0.768042
+  type: 'test'
+  ...
+# Subtest: V6-12 UI failed action: a refused import shows its code and the library is unchanged
+ok 38 - V6-12 UI failed action: a refused import shows its code and the library is unchanged
+  ---
+  duration_ms: 1.063541
+  type: 'test'
+  ...
+# Subtest: V6-12 UI stale and blocked: a draft on an older set is marked stale and a missing drawing blocks export
+ok 39 - V6-12 UI stale and blocked: a draft on an older set is marked stale and a missing drawing blocks export
+  ---
+  duration_ms: 2.725042
+  type: 'test'
+  ...
+# Subtest: V6-12 UI bind inputs: append numbers the next figure and remove renumbers 1..n
+ok 40 - V6-12 UI bind inputs: append numbers the next figure and remove renumbers 1..n
+  ---
+  duration_ms: 0.841709
+  type: 'test'
+  ...
+# Subtest: V6-12 UI numerals survive append, remove and a reload through the persisted panel
+ok 41 - V6-12 UI numerals survive append, remove and a reload through the persisted panel
+  ---
+  duration_ms: 6.11675
+  type: 'test'
+  ...
+# Subtest: V6-12 UI numerals of untouched figures survive removing another figure
+ok 42 - V6-12 UI numerals of untouched figures survive removing another figure
+  ---
+  duration_ms: 0.137708
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 341.953208
+
+=== V6-11 ===
+
+
+> test:v6
+> node qa/v6/runner.mjs V6-11
+
+TAP version 13
+# Subtest: V6-11-A01 a TXT source becomes chunks with hash, locators and deterministic ids; a refresh reads the same state
+ok 1 - V6-11-A01 a TXT source becomes chunks with hash, locators and deterministic ids; a refresh reads the same state
+  ---
+  duration_ms: 36.389125
+  type: 'test'
+  ...
+# Subtest: V6-11-A01 a text PDF keeps page numbers per chunk and normalises each page
+ok 2 - V6-11-A01 a text PDF keeps page numbers per chunk and normalises each page
+  ---
+  duration_ms: 204.279875
+  type: 'test'
+  ...
+# Subtest: V6-11-A01 a DOCX source is extracted through the shared reader and chunked
+ok 3 - V6-11-A01 a DOCX source is extracted through the shared reader and chunked
+  ---
+  duration_ms: 4.609791
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 a scanned PDF ends partial with ocrNeeded and OCR_UNAVAILABLE, and invents no text
+ok 4 - V6-11-A02 a scanned PDF ends partial with ocrNeeded and OCR_UNAVAILABLE, and invents no text
+  ---
+  duration_ms: 6.418375
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 a legacy .doc fails explicitly and creates no chunk set
+ok 5 - V6-11-A02 a legacy .doc fails explicitly and creates no chunk set
+  ---
+  duration_ms: 1.640083
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 bytes renamed to a PDF are refused as a MIME mismatch, not parsed
+ok 6 - V6-11-A02 bytes renamed to a PDF are refused as a MIME mismatch, not parsed
+  ---
+  duration_ms: 1.499042
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 the 200-page limit is enforced before any text is extracted
+ok 7 - V6-11-A02 the 200-page limit is enforced before any text is extracted
+  ---
+  duration_ms: 1.271959
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 progress comes only from real stages and pages, never from the lease timer
+ok 8 - V6-11-A02 progress comes only from real stages and pages, never from the lease timer
+  ---
+  duration_ms: 8.726125
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 an interrupted parse shows `interrupted` (never queued) and resumes from the saved stage
+ok 9 - V6-11-A03 an interrupted parse shows `interrupted` (never queued) and resumes from the saved stage
+  ---
+  duration_ms: 15.616958
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 abandon ends an interrupted job for good
+ok 10 - V6-11-A03 abandon ends an interrupted job for good
+  ---
+  duration_ms: 5.577916
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 a cancelled run stops at a real stage and keeps the stages already saved
+ok 11 - V6-11-A03 a cancelled run stops at a real stage and keeps the stages already saved
+  ---
+  duration_ms: 4.976792
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 retry creates a new job linked to the old one, and never replays the old id
+ok 12 - V6-11-A03 retry creates a new job linked to the old one, and never replays the old id
+  ---
+  duration_ms: 5.169917
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 a parser version change writes a new chunk set and keeps the old one
+ok 13 - V6-11-A03 a parser version change writes a new chunk set and keeps the old one
+  ---
+  duration_ms: 16.674541
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 a resume under a newer parser reuses the saved text stages and writes only the new set
+ok 14 - V6-11-A03 a resume under a newer parser reuses the saved text stages and writes only the new set
+  ---
+  duration_ms: 13.952
+  type: 'test'
+  ...
+# Subtest: V6-11 stored Source, Chunk and Job rows all parse against the frozen contract
+ok 15 - V6-11 stored Source, Chunk and Job rows all parse against the frozen contract
+  ---
+  duration_ms: 7.500959
+  type: 'test'
+  ...
+# Subtest: V6-11 job versions move forward exactly once per transition and the matter commits every time
+ok 16 - V6-11 job versions move forward exactly once per transition and the matter commits every time
+  ---
+  duration_ms: 7.152584
+  type: 'test'
+  ...
+# Subtest: V6-11 a storage failure during a checkpoint is reported and leaves no fake success
+ok 17 - V6-11 a storage failure during a checkpoint is reported and leaves no fake success
+  ---
+  duration_ms: 1.228875
+  type: 'test'
+  ...
+# Subtest: V6-11 leases stay live past their original expiry without inventing progress
+ok 18 - V6-11 leases stay live past their original expiry without inventing progress
+  ---
+  duration_ms: 2.907333
+  type: 'test'
+  ...
+# Subtest: V6-11 renewal handles retry-conflict and cannot revive a stopped job
+ok 19 - V6-11 renewal handles retry-conflict and cannot revive a stopped job
+  ---
+  duration_ms: 1.585292
+  type: 'test'
+  ...
+# Subtest: V6-11 renewal handles exhaust-conflict and cannot revive a stopped job
+ok 20 - V6-11 renewal handles exhaust-conflict and cannot revive a stopped job
+  ---
+  duration_ms: 0.967958
+  type: 'test'
+  ...
+# Subtest: V6-11 renewal handles cancel and cannot revive a stopped job
+ok 21 - V6-11 renewal handles cancel and cannot revive a stopped job
+  ---
+  duration_ms: 1.174208
+  type: 'test'
+  ...
+# Subtest: V6-11 renewal handles abort and cannot revive a stopped job
+ok 22 - V6-11 renewal handles abort and cannot revive a stopped job
+  ---
+  duration_ms: 1.151167
+  type: 'test'
+  ...
+# Subtest: V6-11 orphanInterruptAllowed requires the owning page's exit marker, not just the session
+ok 23 - V6-11 orphanInterruptAllowed requires the owning page's exit marker, not just the session
+  ---
+  duration_ms: 0.209958
+  type: 'test'
+  ...
+# Subtest: V6-11 a duplicated tab sharing the session id cannot interrupt the first page's live job
+ok 24 - V6-11 a duplicated tab sharing the session id cannot interrupt the first page's live job
+  ---
+  duration_ms: 2.01425
+  type: 'test'
+  ...
+# Subtest: V6-11 the owning page's exit marker interrupts inside the lease and leaves a resumable record
+ok 25 - V6-11 the owning page's exit marker interrupts inside the lease and leaves a resumable record
+  ---
+  duration_ms: 1.654833
+  type: 'test'
+  ...
+# Subtest: V6-11 parseSource refuses a second job while this page is already starting one
+ok 26 - V6-11 parseSource refuses a second job while this page is already starting one
+  ---
+  duration_ms: 1.581792
+  type: 'test'
+  ...
+# Subtest: V6-11 parseSource refuses a second job while a stored live lease exists
+ok 27 - V6-11 parseSource refuses a second job while a stored live lease exists
+  ---
+  duration_ms: 1.207459
+  type: 'test'
+  ...
+# Subtest: V6-11 an expired lease reads interrupted for any reader without a write
+ok 28 - V6-11 an expired lease reads interrupted for any reader without a write
+  ---
+  duration_ms: 4.415375
+  type: 'test'
+  ...
+# Subtest: V6-11 splitParagraphs keeps every paragraph, caps long ones, and emits nothing empty
+ok 29 - V6-11 splitParagraphs keeps every paragraph, caps long ones, and emits nothing empty
+  ---
+  duration_ms: 0.110584
+  type: 'test'
+  ...
+# Subtest: V6-11 normalizeText unifies newlines and composes NFC without changing code points after it
+ok 30 - V6-11 normalizeText unifies newlines and composes NFC without changing code points after it
+  ---
+  duration_ms: 0.066709
+  type: 'test'
+  ...
+# Subtest: V6-11 buildParseRows derives actions from persisted state, and an empty list is the empty state
+ok 31 - V6-11 buildParseRows derives actions from persisted state, and an empty list is the empty state
+  ---
+  duration_ms: 1.966041
+  type: 'test'
+  ...
+# Subtest: V6-11 session identity survives reload and falls back when sessionStorage is unavailable
+ok 32 - V6-11 session identity survives reload and falls back when sessionStorage is unavailable
+  ---
+  duration_ms: 33.385334
+  type: 'test'
+  ...
+# Subtest: V6-11 the page instance id is per document in memory, and the exit marker carries session, page and time
+ok 33 - V6-11 the page instance id is per document in memory, and the exit marker carries session, page and time
+  ---
+  duration_ms: 1.0435
+  type: 'test'
+  ...
+# Subtest: V6-11 without sessionStorage the exit marker is unavailable and nothing throws
+ok 34 - V6-11 without sessionStorage the exit marker is unavailable and nothing throws
+  ---
+  duration_ms: 0.138083
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll after this page instance exited (reload)
+ok 35 - V6-11 loadAll after this page instance exited (reload)
+  ---
+  duration_ms: 9.270375
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll in a duplicated tab that copied the session id
+ok 36 - V6-11 loadAll in a duplicated tab that copied the session id
+  ---
+  duration_ms: 2.757
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll with refreshToken while this page runs that asset
+ok 37 - V6-11 loadAll with refreshToken while this page runs that asset
+  ---
+  duration_ms: 2.694833
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll with a marker from a different page instance of the same session
+ok 38 - V6-11 loadAll with a marker from a different page instance of the same session
+  ---
+  duration_ms: 2.689709
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll with a marker from a different session
+ok 39 - V6-11 loadAll with a marker from a different session
+  ---
+  duration_ms: 3.734333
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll with a marker older than the job's latest renewal
+ok 40 - V6-11 loadAll with a marker older than the job's latest renewal
+  ---
+  duration_ms: 2.49125
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll reads and spends this tab's stored exit marker without injected evidence
+ok 41 - V6-11 loadAll reads and spends this tab's stored exit marker without injected evidence
+  ---
+  duration_ms: 2.388666
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll falls back to lease expiry when no exit marker exists (crash or blocked storage)
+ok 42 - V6-11 loadAll falls back to lease expiry when no exit marker exists (crash or blocked storage)
+  ---
+  duration_ms: 2.034125
+  type: 'test'
+  ...
+# Subtest: V6-11 the initial surface reads persisted records and shows no fabricated progress
+ok 43 - V6-11 the initial surface reads persisted records and shows no fabricated progress
+  ---
+  duration_ms: 4.02125
+  type: 'test'
+  ...
+# Subtest: V6-11 S02 empty state: no source material offers upload, not a parse
+ok 44 - V6-11 S02 empty state: no source material offers upload, not a parse
+  ---
+  duration_ms: 0.493959
+  type: 'test'
+  ...
+# Subtest: V6-11 an unparsed source offers 解析 and shows 0% with no saved claim
+ok 45 - V6-11 an unparsed source offers 解析 and shows 0% with no saved claim
+  ---
+  duration_ms: 1.321083
+  type: 'test'
+  ...
+# Subtest: V6-11 S02 loading state: a running row shows its real stage counter and a cancel button
+ok 46 - V6-11 S02 loading state: a running row shows its real stage counter and a cancel button
+  ---
+  duration_ms: 0.823625
+  type: 'test'
+  ...
+# Subtest: V6-11 S02 loading state: the row this page is parsing reads 正在… with cancel, not 未解析
+ok 47 - V6-11 S02 loading state: the row this page is parsing reads 正在… with cancel, not 未解析
+  ---
+  duration_ms: 0.866083
+  type: 'test'
+  ...
+# Subtest: V6-11 a parsed source shows its chunk count and 已保存 only after the commit
+ok 48 - V6-11 a parsed source shows its chunk count and 已保存 only after the commit
+  ---
+  duration_ms: 191.573542
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 a scanned PDF renders as partial with OCR copy, 手动补充 and 重试 — no text
+ok 49 - V6-11-A02 a scanned PDF renders as partial with OCR copy, 手动补充 and 重试 — no text
+  ---
+  duration_ms: 4.263875
+  type: 'test'
+  ...
+# Subtest: V6-11 S02 error state: an unsupported file shows the failure, 重试 and 换一个文件
+ok 50 - V6-11 S02 error state: an unsupported file shows the failure, 重试 and 换一个文件
+  ---
+  duration_ms: 3.072833
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 R1 stale state: an interrupted job offers 从已保存阶段继续 and 放弃, never 已排队
+ok 51 - V6-11-A03 R1 stale state: an interrupted job offers 从已保存阶段继续 and 放弃, never 已排队
+  ---
+  duration_ms: 9.503
+  type: 'test'
+  ...
+# Subtest: V6-11 a storage failure on load shows 尚未保存 and a reload, not a saved claim
+ok 52 - V6-11 a storage failure on load shows 尚未保存 and a reload, not a saved claim
+  ---
+  duration_ms: 0.183625
+  type: 'test'
+  ...
+# Subtest: V6-11 every rendered control has a stable test id and the markup has no timer hook
+ok 53 - V6-11 every rendered control has a stable test id and the markup has no timer hook
+  ---
+  duration_ms: 0.775209
+  type: 'test'
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 552.121084
+
+=== V6-10 ===
+
+
+> test:v6
+> node qa/v6/runner.mjs V6-10
+
+TAP version 13
+# Subtest: V6-10-A02 XML name prefixes with XML NameChars cannot hide relationships or macros
+ok 1 - V6-10-A02 XML name prefixes with XML NameChars cannot hide relationships or macros
+  ---
+  duration_ms: 15.586125
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 a password-protected PDF is refused before storage
+ok 2 - V6-10-A02 a password-protected PDF is refused before storage
+  ---
+  duration_ms: 9.031542
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 an encrypted PDF leaves a fresh matter at version 1 with no asset or blob
+ok 3 - V6-10-A03 an encrypted PDF leaves a fresh matter at version 1 with no asset or blob
+  ---
+  duration_ms: 0.3355
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 content-type mappings refuse encoded macros and decoys before storage
+ok 4 - V6-10-A02 content-type mappings refuse encoded macros and decoys before storage
+  ---
+  duration_ms: 2.463291
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 normal content types accept BOM encodings, Unicode names and text decoys
+ok 5 - V6-10-A02 normal content types accept BOM encodings, Unicode names and text decoys
+  ---
+  duration_ms: 1.931666
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 decoded VBA relationship types refuse benign part names
+ok 6 - V6-10-A02 decoded VBA relationship types refuse benign part names
+  ---
+  duration_ms: 1.060709
+  type: 'test'
+  ...
+# Subtest: V6-10-A01 a valid DOCX is saved with its bytes and survives a refresh
+ok 7 - V6-10-A01 a valid DOCX is saved with its bytes and survives a refresh
+  ---
+  duration_ms: 2.849917
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 accepts every whitelisted format from its own bytes
+ok 8 - V6-10-S02 accepts every whitelisted format from its own bytes
+  ---
+  duration_ms: 2.780958
+  type: 'test'
+  ...
+# Subtest: V6-10-S02-A01 a 49 MiB PDF is saved while a 51 MiB PDF in the same batch is FILE_TOO_LARGE
+ok 9 - V6-10-S02-A01 a 49 MiB PDF is saved while a 51 MiB PDF in the same batch is FILE_TOO_LARGE
+  ---
+  duration_ms: 376.19775
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the bytes decide the format, never the extension or declared type
+ok 10 - V6-10-S02 the bytes decide the format, never the extension or declared type
+  ---
+  duration_ms: 0.703958
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the DOCX archive budget refuses too many entries and an over-cap declared size
+ok 11 - V6-10-S02 the DOCX archive budget refuses too many entries and an over-cap declared size
+  ---
+  duration_ms: 54.162125
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a real 16 MiB deflate stream inflates in linear time
+ok 12 - V6-10-S02 a real 16 MiB deflate stream inflates in linear time
+  ---
+  duration_ms: 165.098917
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 many tiny deflated parts retain no 64 KiB backing buffer each
+ok 13 - V6-10-A02 many tiny deflated parts retain no 64 KiB backing buffer each
+  ---
+  duration_ms: 28.665708
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 remote or absolute relationships are refused in every .rels part
+ok 14 - V6-10-A02 remote or absolute relationships are refused in every .rels part
+  ---
+  duration_ms: 1.656167
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 standards-valid .rels encodings and prefixes cannot hide an external relationship
+ok 15 - V6-10-A02 standards-valid .rels encodings and prefixes cannot hide an external relationship
+  ---
+  duration_ms: 1.830875
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 NUL, drive-letter and Unix symlink entries are refused
+ok 16 - V6-10-A02 NUL, drive-letter and Unix symlink entries are refused
+  ---
+  duration_ms: 0.636166
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 an OLE compound file declared .docx reports encryption, not a mismatch
+ok 17 - V6-10-A02 an OLE compound file declared .docx reports encryption, not a mismatch
+  ---
+  duration_ms: 0.080666
+  type: 'test'
+  ...
+# Subtest: V6-10 stores a display name without a path and without control characters
+ok 18 - V6-10 stores a display name without a path and without control characters
+  ---
+  duration_ms: 3.771208
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 oversize, fake-extension and hostile DOCX files leave nothing usable
+ok 19 - V6-10-A02 oversize, fake-extension and hostile DOCX files leave nothing usable
+  ---
+  duration_ms: 29.021375
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 repeated picks of the same bytes create one asset, even in parallel
+ok 20 - V6-10-A02 repeated picks of the same bytes create one asset, even in parallel
+  ---
+  duration_ms: 1.67625
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 a retry after success keeps one asset at one version
+ok 21 - V6-10-A03 a retry after success keeps one asset at one version
+  ---
+  duration_ms: 0.793958
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 a storage failure mid-write leaves neither metadata nor bytes
+ok 22 - V6-10-A03 a storage failure mid-write leaves neither metadata nor bytes
+  ---
+  duration_ms: 2.169083
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 a partly failed batch keeps its successes and retries only what failed
+ok 23 - V6-10-A03 a partly failed batch keeps its successes and retries only what failed
+  ---
+  duration_ms: 1.237959
+  type: 'test'
+  ...
+# Subtest: V6-10 identity and matter state gate the write
+ok 24 - V6-10 identity and matter state gate the write
+  ---
+  duration_ms: 0.441417
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 reads at most three files at once
+ok 25 - V6-10-S02 reads at most three files at once
+  ---
+  duration_ms: 44.735625
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 progress reports real stages and real byte counts
+ok 26 - V6-10-S02 progress reports real stages and real byte counts
+  ---
+  duration_ms: 1.30975
+  type: 'test'
+  ...
+# Subtest: V6-10 a cancelled upload stores nothing and can be restarted
+ok 27 - V6-10 a cancelled upload stores nothing and can be restarted
+  ---
+  duration_ms: 0.51875
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 cancelling mid-batch after the first slice stores nothing
+ok 28 - V6-10-A03 cancelling mid-batch after the first slice stores nothing
+  ---
+  duration_ms: 25.801833
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the initial surface offers a picker, a drop zone and answering without documents
+ok 29 - V6-10-S02 the initial surface offers a picker, a drop zone and answering without documents
+  ---
+  duration_ms: 36.951041
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a committed file shows 已保存 only after the asset exists
+ok 30 - V6-10-S02 a committed file shows 已保存 only after the asset exists
+  ---
+  duration_ms: 0.531917
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a storage failure never shows 已保存 and stays removable and retryable
+ok 31 - V6-10-S02 a storage failure never shows 已保存 and stays removable and retryable
+  ---
+  duration_ms: 0.329875
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a rejected file states the reason and creates no saved state
+ok 32 - V6-10-S02 a rejected file states the reason and creates no saved state
+  ---
+  duration_ms: 0.249667
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 progress is the real read fraction and a busy batch can be cancelled
+ok 33 - V6-10-S02 progress is the real read fraction and a busy batch can be cancelled
+  ---
+  duration_ms: 0.24525
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the reducer keeps one row per file and never removes a stored asset
+ok 34 - V6-10-S02 the reducer keeps one row per file and never removes a stored asset
+  ---
+  duration_ms: 1.314
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a file that has not started is an explicit selected row at zero
+ok 35 - V6-10-S02 a file that has not started is an explicit selected row at zero
+  ---
+  duration_ms: 0.289417
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a cancelled row is removable and is not reported as a problem
+ok 36 - V6-10-S02 a cancelled row is removable and is not reported as a problem
+  ---
+  duration_ms: 0.217416
+  type: 'test'
+  ...
+1..36
+# tests 36
+# suites 0
+# pass 36
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 963.247708
