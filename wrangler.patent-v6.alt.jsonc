@@ -1,0 +1,15 @@
+{
+  // Fallback deployment target if patent.paymond.me remains occupied by the
+  // existing ChatGPT custom domain. This creates a NEW hostname and does not
+  // modify the existing record. Deploy only with explicit approval.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "patent-v6",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./apps/web/dist/v6",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [
+    { "pattern": "patent-v6.paymond.me", "custom_domain": true }
+  ]
+}
