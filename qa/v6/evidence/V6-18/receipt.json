@@ -1,0 +1,331 @@
+{
+  "ticket": "V6-18",
+  "title": "统一 AST 草稿编辑",
+  "status": "candidate",
+  "baseCommit": "f0cb9186137efd9abd7c011eb87c16368a21871c",
+  "branch": "codex/v6-18-editor",
+  "worktree": "/private/tmp/patent-v6-18-worktree",
+  "date": "2026-11-05",
+  "contractVersion": "v6.1",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "dependencies": [
+    {
+      "ticket": "V6-16",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-16/receipt.json"
+    },
+    {
+      "ticket": "V6-17",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-17/receipt.json"
+    },
+    {
+      "ticket": "V6-21",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-21/receipt.json"
+    }
+  ],
+  "changedFiles": [
+    "apps/web/src/v6/features/draft/Editor.tsx",
+    "apps/web/src/v6/features/draft/ast-adapter.ts",
+    "qa/v6/evidence/V6-18/01-editor-loaded.png",
+    "qa/v6/evidence/V6-18/02-editor-saved.png",
+    "qa/v6/evidence/V6-18/browser-drive.mjs",
+    "qa/v6/evidence/V6-18/browser-log.json",
+    "qa/v6/evidence/V6-18/browser-mount.html",
+    "qa/v6/evidence/V6-18/build.txt",
+    "qa/v6/evidence/V6-18/receipt.json",
+    "qa/v6/evidence/V6-18/regression.txt",
+    "qa/v6/evidence/V6-18/runner.tap",
+    "qa/v6/evidence/V6-18/scope.txt",
+    "qa/v6/evidence/V6-18/typecheck.txt",
+    "qa/v6/scenarios/V6-18/draft-editor.test.mjs"
+  ],
+  "interface": {
+    "components": [
+      "DraftEditor",
+      "DraftEditorEmptyState",
+      "DraftMergeView"
+    ],
+    "DraftEditorProps": "repository, actor, matterId, targetId; optional onGenerateDraft, onPreview, onExport, bufferStore, confirmationRevisionId and confirmedParagraphIds. Parent supplies only confirmations valid for the named revision. Without preview/export callbacks the component dispatches revision-bound v6:draft-preview and v6:draft-export events.",
+    "session": "DraftEditorSession owns load/refresh, IndexedDB buffer recovery, edits, INVALID_AST locations, VERSION_CONFLICT merge state and save. Default buffer rows reuse LocalRepository's blobs store and are scoped by tenant/user, targetId and baseRevisionId.",
+    "adapterExports": [
+      "draftAstToEditorModel",
+      "editorModelToDraftAst",
+      "editParagraph",
+      "insertParagraph",
+      "deleteParagraph",
+      "editClaim",
+      "validateEditorModel",
+      "validateFigureReferences",
+      "buildSupportTable",
+      "projectDraftRevision",
+      "projectDraftPreview",
+      "projectDraftExport"
+    ],
+    "revisionWrite": "Uses createGenerationRevisionStore.loadHeadRevision/loadRevision/saveEditedRevision. Successful writes use reason=edited and the baseRevisionId CAS. Repeated save after success returns the current saved revision without another event."
+  },
+  "acceptance": [
+    {
+      "id": "V6-18-A01",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-18",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-18/runner.tap",
+      "observed": "Edited a paragraph through DraftEditorSession, saved a new reason=edited head, and verified the preview/export projections carry that revision id and edited AST. Repeated save left the revision.created event count unchanged. The browser harness repeated edit/save and verified both callbacks reference the new head."
+    },
+    {
+      "id": "V6-18-A02",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-18",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-18/runner.tap",
+      "observed": "A competing revision advanced the head. Saving from the old base returned VERSION_CONFLICT, retained the target+baseRevisionId buffer, showed the latest revision beside the local text, and did not change the head. Starting merge uses the latest revision as a new base and preserves the old local buffer for comparison."
+    },
+    {
+      "id": "V6-18-A03",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-18",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-18/runner.tap",
+      "observed": "Refresh restored the same head and invalid local buffer. Repeated save after success added no event. Schema-invalid claim dependency returned INVALID_AST with claim 2's node id and number; invalid figureIds returned INVALID_AST at the containing paragraph. Pure edit/insert/delete preserved their input models and assigned the injected id to the inserted paragraph. Editing a legacy paragraph changed its origin to human; deleting AI content created exactly one auditable edited revision event."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S05-A01",
+      "status": "not_applicable",
+      "reason": "This is the R2 paid-content projection rule across preview, revisions, jobs and search. V6-18 adds the R1 local editor and revision-bound projections; it does not implement a cloud content-projection service or locked revision/job/search DTOs."
+    },
+    {
+      "id": "S05-A02",
+      "status": "not_applicable",
+      "reason": "RiskDTO checks, locked-section risk redaction and the read-only preview annotation surface are outside the editor component and its authorized write set. No locked paragraph text is fetched by this local editor."
+    },
+    {
+      "id": "S05-A03",
+      "status": "covered",
+      "reason": "All five AI paragraphs are first treated as confirmed for the base revision. Editing the second paragraph and saving produces a new revision; the prior revision id no longer validates those confirmations, so all five are pending. Browser capture also observed five pending markers after save.",
+      "command": "npm run test:v6 -- V6-18",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-18/runner.tap; qa/v6/evidence/V6-18/browser-log.json"
+    },
+    {
+      "id": "S05-A04",
+      "status": "covered",
+      "reason": "Stale base save returns VERSION_CONFLICT, retains the local buffer, displays both local/latest text, and leaves the new head unchanged.",
+      "command": "npm run test:v6 -- V6-18",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-18/runner.tap"
+    },
+    {
+      "id": "S05-A05",
+      "status": "not_applicable",
+      "reason": "Restore, restoredFrom, figureStrategy and confirmation/approval non-inheritance require the restore command and are outside V6-18's write set."
+    },
+    {
+      "id": "S05-A06",
+      "status": "not_applicable",
+      "reason": "The adopted_inputs confirmation dialog and adopted_inputs revision command are outside this ticket. The editor detects stale source/config/figure input and refuses save with INPUT_STALE while preserving the buffer; it does not silently rebase stale content."
+    },
+    {
+      "id": "S05-A07",
+      "status": "not_applicable",
+      "reason": "risk_ack recording and the S12 expert-service route are separate confirmation/service flows, outside the AST editor and its write set."
+    },
+    {
+      "id": "S05-A08",
+      "status": "covered",
+      "reason": "A claim 2 dependency on later claim 3 is rejected as INVALID_AST and mapped to claim 2's id/number for UI location.",
+      "command": "npm run test:v6 -- V6-18",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-18/runner.tap"
+    },
+    {
+      "id": "S05-A09",
+      "status": "not_applicable",
+      "reason": "The editor exposes a revision-bound preview projection callback but does not render the separate R1 PreviewDTO page. No payment/unlock UI or paid preview is introduced by this ticket."
+    }
+  ],
+  "runs": [
+    {
+      "name": "V6-18 suite",
+      "command": "npm run test:v6 -- V6-18",
+      "exitCode": 0,
+      "tests": 7,
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-18/runner.tap"
+    },
+    {
+      "name": "workspace regression",
+      "command": "npm test --workspaces --if-present",
+      "exitCode": 0,
+      "checks": 59,
+      "breakdown": {
+        "workerTests": 15,
+        "exportChecks": 44
+      },
+      "evidence": "qa/v6/evidence/V6-18/regression.txt"
+    },
+    {
+      "name": "V6-17 regression",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "tests": 37,
+      "pass": 37,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-18/regression.txt"
+    },
+    {
+      "name": "V6-16 regression",
+      "command": "npm run test:v6 -- V6-16",
+      "exitCode": 0,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-18/regression.txt"
+    },
+    {
+      "name": "V6-15 regression",
+      "command": "npm run test:v6 -- V6-15",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-18/regression.txt"
+    },
+    {
+      "name": "V6-14 regression",
+      "command": "npm run test:v6 -- V6-14",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-18/regression.txt"
+    },
+    {
+      "name": "V6-10 regression",
+      "command": "npm run test:v6 -- V6-10",
+      "exitCode": 0,
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-18/regression.txt"
+    },
+    {
+      "name": "V6-08 regression",
+      "command": "npm run test:v6 -- V6-08",
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-18/regression.txt"
+    },
+    {
+      "name": "web typecheck",
+      "command": "./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-18/typecheck.txt"
+    },
+    {
+      "name": "web build",
+      "command": "npm run build --workspace @patent/web",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-18/build.txt",
+      "observed": "Vite emitted its existing >500 kB chunk-size warning."
+    },
+    {
+      "name": "browser editor flow",
+      "command": "node qa/v6/evidence/V6-18/browser-drive.mjs qa/v6/evidence/V6-18 http://localhost:4187/patent",
+      "exitCode": 0,
+      "steps": 4,
+      "screenshots": 2,
+      "evidence": "qa/v6/evidence/V6-18/browser-log.json"
+    }
+  ],
+  "browserEvidence": {
+    "driver": "qa/v6/evidence/V6-18/browser-drive.mjs",
+    "mount": "qa/v6/evidence/V6-18/browser-mount.html",
+    "log": "qa/v6/evidence/V6-18/browser-log.json",
+    "url": "http://localhost:4187/patent/qa/v6/evidence/V6-18/browser-mount.html",
+    "browser": "headless Google Chrome via CDP",
+    "result": "ok; 4/4 steps; 0 console errors; no external requests",
+    "steps": [
+      "01-editor-loaded: all six sections rendered",
+      "02-editor-saved: edited paragraph saved as a new head; five AI paragraphs pending",
+      "03-preview-export-revision-binding: both projections referenced the saved head and edited text",
+      "04-no-external-network-or-console-errors"
+    ],
+    "screenshots": [
+      "qa/v6/evidence/V6-18/01-editor-loaded.png",
+      "qa/v6/evidence/V6-18/02-editor-saved.png"
+    ],
+    "caveat": "The isolated harness mounted DraftEditor directly with a synthetic LocalRepository over an in-memory backend. It did not alter the app router or shared navigation and does not verify orchestrator registration or the full application shell. No provider was called."
+  },
+  "mount": {
+    "mode": "standalone QA component harness; no V6App/navigation mount",
+    "modifiedAppFiles": [],
+    "mountHashes": [
+      {
+        "path": "apps/web/src/v6/routes/V6App.tsx",
+        "originalSha256": "a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37",
+        "revertedSha256": "a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37",
+        "match": true,
+        "note": "Not edited; current hash equals baseCommit."
+      },
+      {
+        "path": "apps/web/src/v6/routes/navigation.ts",
+        "originalSha256": "aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951",
+        "revertedSha256": "aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951",
+        "match": true,
+        "note": "Not edited; current hash equals baseCommit."
+      }
+    ]
+  },
+  "scope": {
+    "evidence": "qa/v6/evidence/V6-18/scope.txt",
+    "includedFiles": 14,
+    "scopeMatchesChangedFiles": true,
+    "excluded": [
+      "node_modules"
+    ],
+    "unexpectedFiles": []
+  },
+  "runtime": {
+    "node": "v25.8.1",
+    "contractArchitectureNode": "v22",
+    "node22Verified": false,
+    "npm": "11.11.0"
+  },
+  "limitations": [
+    "Status remains candidate pending independent review; no changes were committed or pushed.",
+    "V6-17's revision seam does not expose revision history summaries or node-level diffs, so the editor renders the current head and conflict comparison only.",
+    "restore/adopted_inputs/risk_ack operations and the full S05 PreviewDTO, paid-content locking, and risk annotation screens are outside this ticket's write set.",
+    "The editor blocks known stale source/config/figure inputs and validates figureIds against readFigureLibrary's current figure set. The V6-17 save seam does not atomically bind its CAS to the DraftInputRef/figure-set snapshot, so a narrow concurrent input/figure update between this read and seam commit remains unverified.",
+    "Confirmation records are not written by this editor. Parent-supplied confirmedParagraphIds are honored only when confirmationRevisionId matches the current head; a newly saved revision inherits none.",
+    "The editor component is exported but not registered in V6App/navigation; shared registration is orchestrator-owned. Browser evidence used a direct component harness.",
+    "Node 25.8.1 was available; the architecture specifies Node 22, which was unavailable and remains unverified.",
+    "The successful web build reports Vite's existing chunk-size warning for several minified chunks over 500 kB."
+  ],
+  "decisionsRequested": [
+    {
+      "code": "NEEDS_DECISION",
+      "question": "Should the revision seam accept and atomically compare the caller's base DraftInputRef/figureRevisionId, or should a follow-up add a distinct adopted_inputs flow before stale edits can be saved?",
+      "suggestion": "Keep the editor's current INPUT_STALE refusal and extend the seam in an orchestrator-owned follow-up with an input snapshot precondition. Preserve adopted_inputs as a separate explicit, confirmed operation.",
+      "impact": "The current UI detects stale inputs and prevents known stale saves, but saveEditedRevision itself only CAS-checks baseRevisionId and reads the current DraftInputRef. This leaves a narrow concurrent input/figure race and no adopted_inputs recovery path in V6-18."
+    }
+  ],
+  "review": {
+    "verdict": "pending_re_review",
+    "evidence": null,
+    "note": "Awaiting first independent review."
+  }
+}

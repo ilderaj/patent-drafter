@@ -1,0 +1,96 @@
+{
+  "ok": true,
+  "url": "http://localhost:4187/patent/qa/v6/evidence/V6-18/browser-mount.html",
+  "steps": [
+    {
+      "step": "01-editor-loaded",
+      "initialRevisionId": "77777777-7777-4777-8777-000000000001",
+      "ok": true
+    },
+    {
+      "step": "02-editor-saved",
+      "revisionId": "c109b637-6c75-452f-a8a3-bd21f0c2759e",
+      "pendingAi": 5,
+      "ok": true
+    },
+    {
+      "step": "03-preview-export-revision-binding",
+      "ok": true,
+      "projections": {
+        "preview": {
+          "revisionId": "c109b637-6c75-452f-a8a3-bd21f0c2759e",
+          "text": "浏览器合成编辑内容已保存。"
+        },
+        "exported": {
+          "revisionId": "c109b637-6c75-452f-a8a3-bd21f0c2759e",
+          "text": "浏览器合成编辑内容已保存。"
+        }
+      }
+    },
+    {
+      "step": "04-no-external-network-or-console-errors",
+      "ok": true
+    }
+  ],
+  "screenshots": [
+    "01-editor-loaded.png",
+    "02-editor-saved.png"
+  ],
+  "consoleErrors": [],
+  "network": [
+    "http://localhost:4187/patent/qa/v6/evidence/V6-18/browser-mount.html",
+    "http://localhost:4187/patent/@vite/client",
+    "http://localhost:4187/patent/qa/v6/evidence/V6-18/browser-mount.html?html-proxy&index=0.js",
+    "http://localhost:4187/patent/@react-refresh",
+    "http://localhost:4187/patent/@fs/Users/jared/Personal%20Projects/Patent/node_modules/vite/dist/client/env.mjs",
+    "http://localhost:4187/patent/node_modules/.vite/deps/react.js?v=97337f09",
+    "http://localhost:4187/patent/node_modules/.vite/deps/react-dom_client.js?v=97337f09",
+    "http://localhost:4187/patent/apps/web/src/v6/styles/theme.css",
+    "http://localhost:4187/patent/apps/web/src/v6/routes/v6.css",
+    "http://localhost:4187/patent/apps/web/src/v6/lib/repository.ts",
+    "http://localhost:4187/patent/apps/web/src/v6/features/generation/generation.ts",
+    "http://localhost:4187/patent/apps/web/src/v6/features/draft/Editor.tsx",
+    "http://localhost:4187/patent/node_modules/.vite/deps/chunk-FSXZ4UI4.js?v=97337f09",
+    "http://localhost:4187/patent/node_modules/.vite/deps/chunk-BO4YYYGR.js?v=97337f09",
+    "http://localhost:4187/patent/node_modules/.vite/deps/chunk-JMUECC3G.js?v=97337f09",
+    "http://localhost:4187/patent/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=97337f09",
+    "http://localhost:4187/patent/packages/contracts/src/index.ts",
+    "http://localhost:4187/patent/apps/web/src/v6/features/targets/targets.ts",
+    "http://localhost:4187/patent/apps/web/src/v6/features/sources/drawings.ts",
+    "http://localhost:4187/patent/apps/web/src/v6/features/draft/ast-adapter.ts",
+    "http://localhost:4187/patent/packages/domain/src/v6/revision.ts",
+    "http://localhost:4187/patent/packages/providers/src/index.ts",
+    "http://localhost:4187/patent/apps/web/src/v6/lib/pipeline-adapter.ts",
+    "http://localhost:4187/patent/apps/web/src/v6/features/ai/ai.ts",
+    "http://localhost:4187/patent/packages/contracts/src/primitives.ts",
+    "http://localhost:4187/patent/packages/contracts/src/matter.ts",
+    "http://localhost:4187/patent/packages/contracts/src/draft.ts",
+    "http://localhost:4187/patent/packages/contracts/src/jobs.ts",
+    "http://localhost:4187/patent/packages/contracts/src/delivery.ts",
+    "http://localhost:4187/patent/packages/contracts/src/records.ts",
+    "http://localhost:4187/patent/packages/contracts/src/billing.ts",
+    "http://localhost:4187/patent/packages/contracts/src/privacy.ts",
+    "http://localhost:4187/patent/packages/contracts/src/fixtures.ts",
+    "http://localhost:4187/patent/packages/providers/src/types.ts",
+    "http://localhost:4187/patent/packages/providers/src/llm-provider.ts",
+    "http://localhost:4187/patent/packages/providers/src/deepseek-bridge-provider.ts",
+    "http://localhost:4187/patent/packages/providers/src/mock-provider.ts",
+    "http://localhost:4187/patent/packages/providers/src/codex-local-provider.ts",
+    "http://localhost:4187/patent/packages/pipeline/src/index.ts",
+    "http://localhost:4187/patent/apps/web/src/v6/lib/legacy-import.ts",
+    "http://localhost:4187/patent/apps/web/src/v6/features/sources/parse.ts",
+    "http://localhost:4187/patent/apps/web/src/v6/features/sources/ingest.ts",
+    "http://localhost:4187/patent/node_modules/.vite/deps/zod.js?v=97337f09",
+    "http://localhost:4187/patent/packages/pipeline/src/types.ts",
+    "http://localhost:4187/patent/packages/pipeline/src/stages.ts",
+    "http://localhost:4187/patent/packages/pipeline/src/runner.ts",
+    "http://localhost:4187/patent/packages/pipeline/src/mock.ts",
+    "http://localhost:4187/patent/packages/pipeline/src/schemas.ts",
+    "http://localhost:4187/patent/apps/web/src/shims/empty.ts",
+    "http://localhost:4187/patent/apps/web/src/lib/extract.ts",
+    "http://localhost:4187/patent/packages/parsers/src/guard.ts",
+    "http://localhost:4187/patent/node_modules/.vite/deps/fflate.js?v=97337f09",
+    "http://localhost:4187/favicon.ico"
+  ],
+  "externalRequests": []
+}
