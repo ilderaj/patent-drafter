@@ -1,0 +1,262 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-14
+
+TAP version 13
+# Subtest: V6-14-A01 creates a target with a TargetConfig for each supported route
+ok 1 - V6-14-A01 creates a target with a TargetConfig for each supported route
+  ---
+  duration_ms: 23.357
+  type: 'test'
+  ...
+# Subtest: V6-14-A01 refuses EP and unknown routes with INVALID_INPUT and writes nothing
+ok 2 - V6-14-A01 refuses EP and unknown routes with INVALID_INPUT and writes nothing
+  ---
+  duration_ms: 9.643792
+  type: 'test'
+  ...
+# Subtest: V6-14-A01 a matter is not capped at two targets (S03: professional mode adds targets)
+ok 3 - V6-14-A01 a matter is not capped at two targets (S03: professional mode adds targets)
+  ---
+  duration_ms: 4.316167
+  type: 'test'
+  ...
+# Subtest: V6-14-A02 an asset that is not available is neither offered nor accepted as priority evidence
+ok 4 - V6-14-A02 an asset that is not available is neither offered nor accepted as priority evidence
+  ---
+  duration_ms: 7.48325
+  type: 'test'
+  ...
+# Subtest: V6-14-A02 updating target A bumps only A's configVersion; B's config and version are unchanged
+ok 5 - V6-14-A02 updating target A bumps only A's configVersion; B's config and version are unchanged
+  ---
+  duration_ms: 4.224791
+  type: 'test'
+  ...
+# Subtest: V6-14-A02 switching and reading targets is read-only
+ok 6 - V6-14-A02 switching and reading targets is read-only
+  ---
+  duration_ms: 3.479083
+  type: 'test'
+  ...
+# Subtest: V6-14-A02 a stale baseVersion is VERSION_CONFLICT and writes nothing
+ok 7 - V6-14-A02 a stale baseVersion is VERSION_CONFLICT and writes nothing
+  ---
+  duration_ms: 2.176333
+  type: 'test'
+  ...
+# Subtest: V6-14-A02 update refuses EP without touching either target
+ok 8 - V6-14-A02 update refuses EP without touching either target
+  ---
+  duration_ms: 1.367
+  type: 'test'
+  ...
+# Subtest: another tenant or another actor gets RESOURCE_NOT_FOUND and writes nothing
+ok 9 - another tenant or another actor gets RESOURCE_NOT_FOUND and writes nothing
+  ---
+  duration_ms: 2.507125
+  type: 'test'
+  ...
+# Subtest: an archived matter refuses create and update with INVALID_TRANSITION
+ok 10 - an archived matter refuses create and update with INVALID_TRANSITION
+  ---
+  duration_ms: 1.604041
+  type: 'test'
+  ...
+# Subtest: config is validated against the snapshot: parties, inventor kind, priority date and evidence
+ok 11 - config is validated against the snapshot: parties, inventor kind, priority date and evidence
+  ---
+  duration_ms: 1.743125
+  type: 'test'
+  ...
+# Subtest: a valid priority claim keeps its evidence asset and defaults verification to unverified
+ok 12 - a valid priority claim keeps its evidence asset and defaults verification to unverified
+  ---
+  duration_ms: 0.62625
+  type: 'test'
+  ...
+# Subtest: en-US is refused at write time while translation_en is unavailable
+ok 13 - en-US is refused at write time while translation_en is unavailable
+  ---
+  duration_ms: 0.4985
+  type: 'test'
+  ...
+# Subtest: a matter with no intake snapshot reads as empty and refuses party ids it does not know
+ok 14 - a matter with no intake snapshot reads as empty and refuses party ids it does not know
+  ---
+  duration_ms: 0.690416
+  type: 'test'
+  ...
+# Subtest: A03 same key, identical payload replays the first result with deterministic ids
+ok 15 - A03 same key, identical payload replays the first result with deterministic ids
+  ---
+  duration_ms: 32.075917
+  type: 'test'
+  ...
+# Subtest: A03 same key, different payload is IDEMPOTENCY_CONFLICT and writes nothing
+ok 16 - A03 same key, different payload is IDEMPOTENCY_CONFLICT and writes nothing
+  ---
+  duration_ms: 4.546
+  type: 'test'
+  ...
+# Subtest: A03 a failed commit releases the claim; the same-key retry commits exactly once
+ok 17 - A03 a failed commit releases the claim; the same-key retry commits exactly once
+  ---
+  duration_ms: 4.101292
+  type: 'test'
+  ...
+# Subtest: A03 a failed finalize after a landed commit is recovered by a same-key retry without a second commit
+ok 18 - A03 a failed finalize after a landed commit is recovered by a same-key retry without a second commit
+  ---
+  duration_ms: 4.939125
+  type: 'test'
+  ...
+# Subtest: A03 a live claim makes an identical request wait, then answer busy with no writes
+ok 19 - A03 a live claim makes an identical request wait, then answer busy with no writes
+  ---
+  duration_ms: 108.322125
+  type: 'test'
+  ...
+# Subtest: A03 an expired lease is taken over; the stalled owner cannot commit a duplicate
+ok 20 - A03 an expired lease is taken over; the stalled owner cannot commit a duplicate
+  ---
+  duration_ms: 2.619334
+  type: 'test'
+  ...
+# Subtest: A03 an expired lease with a prepared, landed update is recovered instead of re-committed
+ok 21 - A03 an expired lease with a prepared, landed update is recovered instead of re-committed
+  ---
+  duration_ms: 1.83875
+  type: 'test'
+  ...
+# Subtest: S03 a structure fact plus tested_sample or drawing recommends cn_um and lists cn_invention
+ok 22 - S03 a structure fact plus tested_sample or drawing recommends cn_um and lists cn_invention
+  ---
+  duration_ms: 1.77125
+  type: 'test'
+  ...
+# Subtest: S03-A09 a method fact excludes cn_um and names the triggering rule and fact
+ok 23 - S03-A09 a method fact excludes cn_um and names the triggering rule and fact
+  ---
+  duration_ms: 0.311083
+  type: 'test'
+  ...
+# Subtest: S03 maturity=idea excludes cn_um even with a structure fact
+ok 24 - S03 maturity=idea excludes cn_um even with a structure fact
+  ---
+  duration_ms: 0.08625
+  type: 'test'
+  ...
+# Subtest: S03 no route rule fires without facts: fallback, nothing recommended, no invented reason
+ok 25 - S03 no route rule fires without facts: fallback, nothing recommended, no invented reason
+  ---
+  duration_ms: 0.224709
+  type: 'test'
+  ...
+# Subtest: S03 the user may save a route other than the recommendation
+ok 26 - S03 the user may save a route other than the recommendation
+  ---
+  duration_ms: 17.899
+  type: 'test'
+  ...
+# Subtest: the view's recommendation is built from the stored snapshot facts and maturity
+ok 27 - the view's recommendation is built from the stored snapshot facts and maturity
+  ---
+  duration_ms: 3.019042
+  type: 'test'
+  ...
+# Subtest: S03-A07 every card shows protection, examination, limits and verification; numbers stay hidden when unverified
+ok 28 - S03-A07 every card shows protection, examination, limits and verification; numbers stay hidden when unverified
+  ---
+  duration_ms: 0.177166
+  type: 'test'
+  ...
+# Subtest: S03-A07 numbers appear only for a verified rule entry
+ok 29 - S03-A07 numbers appear only for a verified rule entry
+  ---
+  duration_ms: 0.164958
+  type: 'test'
+  ...
+# Subtest: S03-A08 US and PCT default to zh-CN and carry the exact handoff sentence
+ok 30 - S03-A08 US and PCT default to zh-CN and carry the exact handoff sentence
+  ---
+  duration_ms: 0.111292
+  type: 'test'
+  ...
+# Subtest: S03-A08 en-US is disabled with a visible reason unless translation_en is available
+ok 31 - S03-A08 en-US is disabled with a visible reason unless translation_en is available
+  ---
+  duration_ms: 0.187125
+  type: 'test'
+  ...
+# Subtest: loading, error and empty states render distinctly
+ok 32 - loading, error and empty states render distinctly
+  ---
+  duration_ms: 50.698542
+  type: 'test'
+  ...
+# Subtest: the stale notice keeps the view and offers a re-read
+ok 33 - the stale notice keeps the view and offers a re-read
+  ---
+  duration_ms: 1.617583
+  type: 'test'
+  ...
+# Subtest: the switcher lists both targets with their own versions; the selection shows only its config
+ok 34 - the switcher lists both targets with their own versions; the selection shows only its config
+  ---
+  duration_ms: 11.062542
+  type: 'test'
+  ...
+# Subtest: S03-A07 cards show protection, examination, limits and 未核实 instead of numbers
+ok 35 - S03-A07 cards show protection, examination, limits and 未核实 instead of numbers
+  ---
+  duration_ms: 1.4715
+  type: 'test'
+  ...
+# Subtest: S03-A07 a verified rule entry shows its numbers on that card only
+ok 36 - S03-A07 a verified rule entry shows its numbers on that card only
+  ---
+  duration_ms: 1.62475
+  type: 'test'
+  ...
+# Subtest: S03-A08 US and PCT cards show the exact handoff sentence; en-US is disabled with its reason
+ok 37 - S03-A08 US and PCT cards show the exact handoff sentence; en-US is disabled with its reason
+  ---
+  duration_ms: 0.802458
+  type: 'test'
+  ...
+# Subtest: S03-A09 the method rule and its triggering fact are shown on the trace and the cn_um card
+ok 38 - S03-A09 the method rule and its triggering fact are shown on the trace and the cn_um card
+  ---
+  duration_ms: 0.947125
+  type: 'test'
+  ...
+# Subtest: with no facts the trace says no rule fired instead of inventing one
+ok 39 - with no facts the trace says no rule fired instead of inventing one
+  ---
+  duration_ms: 0.7585
+  type: 'test'
+  ...
+# Subtest: create stays enabled with two targets and is disabled with a visible reason on an archived matter
+ok 40 - create stays enabled with two targets and is disabled with a visible reason on an archived matter
+  ---
+  duration_ms: 2.330417
+  type: 'test'
+  ...
+# Subtest: an action error shows its code, message and field reasons
+ok 41 - an action error shows its code, message and field reasons
+  ---
+  duration_ms: 0.932375
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 345.350333
+
+EXIT_CODE=0
