@@ -28,6 +28,7 @@
 - V6-17 执行者确认五项修复：support 为持久化 facts/chunks 的确定性索引并注入 claims/spec prompt 与 AST；成本/时长整任务限制（未知成本消耗预算）；生成修订使用 canonicalAstHash；状态行失败可从 target/修订行恢复；回执 S04-A07 已更正。证据刷新，浏览器截图未重采（UI 由 5 个测试覆盖），仍为 candidate；第二轮复核中。
 - V6-17 第二轮独立复核 CHANGES_REQUIRED（review-02.md），三项阻断：(1) support 匹配过松，可把不相关/unsupported/unresolved fact 标为 supported，且不校验 sourceId/chunkHash/quote/offset；无 factId 的 source_backed feature 仍标 supported；(2) 成本只在逻辑阶段边界检查，单阶段内多次调用可超额（cap 2 仍完成 7 次）；(3) 时长在最后一次调用后不再检查，resume 重置计时，可累计超限仍成功。astHash、修订恢复、S04-A07 及其他核心行为通过。已派第三轮修复：严格匹配与 ref 校验、按调用即时计费、持久化 deadline 并跨 resume 累计。
 - 编排者接管并修复 B2/B3 的代码：`costCapturingProvider` 改为每次响应即时 `applyInvocationCosts`，移除阶段末批量写回；`resume` 不再重置 `startedAt`，并在 adapter.run 后、阶段完成前再次检查 `deadlineAt`。独立探针：cap 2/成本 1 现在恰好 2 次调用后 `JOB_LIMIT_EXCEEDED`；400ms/调用、1s 上限在第 3 次调用失败；V6-17 仍 28/28、tsc 0。B1（support 严格校验）仍由执行者修复。
+- V6-17 B1 严格校验已落地并经编排者独立探针验证：baseline 的 fact 关联为 supported；缺 chunk UUID、unsupported 状态、篡改 quote/hash 三种情况下目标 fact 均进入 unresolved，AST 不再关联它，且无“supported 但无来源”的 feature。B2/B3 探针同样通过；待执行者补 round-2 回归测试与证据。
 - 集成分支回归全绿：V6-06/08/10/11/12/13/14/15/16 全部 exit 0；根构建再次验证。V6-17 收敛到 9/11，剩余失败为：重试重算了 facts 检查点（`:110`）、首个 job 未到 support 即被新引擎视为中断（`:179`）。
 - V6-21 执行者候选已就绪（34 项 changedFiles，浏览器截图与回执齐全），等待其报告与独立复核。已知契约缺口：LocalRepository 在案件 archived 时拒绝一切写入，S06 的「取消归档」在现有写集内无法实现；执行者请求 NEEDS_DECISION，待复核后由编排者决定是否扩展 repository 写集。
 
