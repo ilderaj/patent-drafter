@@ -88,7 +88,7 @@ export const TAB_CAPABILITIES: Readonly<Record<MatterTab, Capability>> = Object.
 
 /** S01 global navigation, in order. */
 export const GLOBAL_NAV = Object.freeze([
-  { key: "inbox", label: "收件箱", capability: unavailable("待办队列尚未开放。") },
+  { key: "inbox", label: "收件箱", capability: AVAILABLE },
   { key: "matters", label: "案件", capability: AVAILABLE },
   { key: "filings", label: "申请", capability: unavailable("跨案件申请状态需要专业协作功能，本地版暂不提供。") },
   { key: "activity", label: "动态", capability: unavailable("跨案件动态尚未开放；单个案件的记录保存在本机。") },

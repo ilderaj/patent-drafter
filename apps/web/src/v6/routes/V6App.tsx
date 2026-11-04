@@ -16,6 +16,8 @@ import { Intake } from "../features/intake/Intake.tsx";
 import { Figures } from "../features/sources/Figures.tsx";
 import { AiPage } from "../features/ai/Ai.tsx";
 import { TargetsPanel } from "../features/targets/Targets.tsx";
+import { MattersPage as MattersFeaturePage } from "../features/matters/Matters.tsx";
+import { InboxPage } from "../features/inbox/Inbox.tsx";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
 import { openLocalRepository, type LocalRepository } from "../lib/repository.ts";
 import {
@@ -25,12 +27,10 @@ import {
   PAGE_ERROR_MESSAGES,
   TAB_CAPABILITIES,
   createSelfServiceMatter,
-  listMatterView,
   parseV6Path,
   resolveMatterView,
   v6Path,
   type GlobalKey,
-  type MatterListView,
   type MatterTab,
   type MatterView,
   type V6Route,
@@ -120,6 +120,7 @@ function Page({ route, repository }: { route: V6Route; repository: LocalReposito
       return <MatterPage repository={repository} matterId={route.matterId} targetId={route.targetId} tab={route.tab} />;
     case "section":
       if (route.key === "ai") return <AiPage repository={repository} actor={LOCAL_ACTOR} />;
+      if (route.key === "inbox") return <InboxPage repository={repository} actor={LOCAL_ACTOR} />;
       return <SectionPage sectionKey={route.key} />;
     case "not_found":
       return <UnavailablePage />;
@@ -235,59 +236,12 @@ function StartPage({ repository }: { repository: LocalRepository }) {
 }
 
 function MattersPage({ repository }: { repository: LocalRepository }) {
-  const [view, setView] = useState<MatterListView | null>(null);
-  const [attempt, setAttempt] = useState(0);
-  const { busy, error, create } = useSelfServiceCreate(repository);
-  useEffect(() => {
-    let live = true;
-    setView(null);
-    void listMatterView(repository, LOCAL_ACTOR).then((next) => live && setView(next));
-    return () => {
-      live = false;
-    };
-  }, [repository, attempt]);
-
-  if (view === null) return <Loading />;
-  if (view.state === "storage_unavailable") return <StorageUnavailable message={view.message} onRetry={() => setAttempt((n) => n + 1)} />;
-  return (
-    <div className="v6-page">
-      <div className="row-between">
-        <h1 className="v6-title">案件</h1>
-        {view.matters.length > 0 ? (
-          <button type="button" className="btn btn-default btn-sm" disabled={busy} onClick={create}>
-            创建案件
-          </button>
-        ) : null}
-      </div>
-      {error ? <CreateError message={error} onRetry={create} /> : null}
-      {view.matters.length === 0 ? (
-        <div className="card v6-empty" data-testid="matters-empty">
-          <p>还没有案件。</p>
-          <div className="v6-empty-actions">
-            <button type="button" className="btn btn-default" disabled={busy} onClick={create}>
-              创建案件
-            </button>
-            <button type="button" className="btn btn-outline" disabled title="五个问题尚未开放。">
-              回答五个问题
-            </button>
-            <button type="button" className="btn btn-outline" disabled title="示例体验尚未开放；它会使用独立的存储空间。">
-              示例体验
-            </button>
-          </div>
-          <p className="field-hint">「回答五个问题」和「示例体验」尚未开放。</p>
-        </div>
-      ) : (
-        <ul className="v6-list" data-testid="matters-list">
-          {view.matters.map((matter) => (
-            <li key={matter.id} className="project-row">
-              <Link to={v6Path({ kind: "matter", matterId: matter.id, targetId: null, tab: "overview" })}>{matter.title}</Link>
-              <span className="muted">更新于 {formatTime(matter.updatedAt)}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+  const navigate = useNavigate();
+  const openUpload = useCallback(
+    (matterId: string) => navigate(v6Path({ kind: "upload", matterId })),
+    [navigate],
   );
+  return <MattersFeaturePage repository={repository} actor={LOCAL_ACTOR} onCreate={openUpload} onOpenUpload={openUpload} />;
 }
 
 /** Load a matter view for the URL; reloads when the URL's ids change. A retry refreshes in place. */
