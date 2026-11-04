@@ -1,0 +1,402 @@
+{
+  "ticket": "V6-17",
+  "title": "任务进度与结果采纳",
+  "status": "accepted",
+  "baseCommit": "339a857afd96d4356a75b8ad95f78bf6d3c9d724",
+  "branch": "codex/v6-17-generation",
+  "worktree": "/private/tmp/patent-v6-17-worktree",
+  "date": "2026-11-05",
+  "contractVersion": "v6.1",
+  "changedFiles": [
+    "apps/web/src/v6/features/generation/Generation.tsx",
+    "apps/web/src/v6/features/generation/generation.ts",
+    "qa/v6/evidence/V6-17/01-generation-empty.png",
+    "qa/v6/evidence/V6-17/02-generation-running-or-done.png",
+    "qa/v6/evidence/V6-17/03-generation-completed-stub.png",
+    "qa/v6/evidence/V6-17/V6-08.tap",
+    "qa/v6/evidence/V6-17/V6-10.tap",
+    "qa/v6/evidence/V6-17/V6-14.tap",
+    "qa/v6/evidence/V6-17/V6-15.tap",
+    "qa/v6/evidence/V6-17/V6-16.tap",
+    "qa/v6/evidence/V6-17/browser-drive.mjs",
+    "qa/v6/evidence/V6-17/browser-log.json",
+    "qa/v6/evidence/V6-17/build.txt",
+    "qa/v6/evidence/V6-17/receipt.json",
+    "qa/v6/evidence/V6-17/regression.txt",
+    "qa/v6/evidence/V6-17/review-01.md",
+    "qa/v6/evidence/V6-17/review-02.md",
+    "qa/v6/evidence/V6-17/review-03.md",
+    "qa/v6/evidence/V6-17/review-04.md",
+    "qa/v6/evidence/V6-17/review-05.md",
+    "qa/v6/evidence/V6-17/runner.tap",
+    "qa/v6/evidence/V6-17/scope.txt",
+    "qa/v6/evidence/V6-17/typecheck.txt",
+    "qa/v6/scenarios/V6-17/generation-blockers.test.mjs",
+    "qa/v6/scenarios/V6-17/generation-recovery.test.mjs",
+    "qa/v6/scenarios/V6-17/generation-ui.test.mjs",
+    "qa/v6/scenarios/V6-17/generation.test.mjs",
+    "qa/v6/scenarios/V6-17/harness.mjs"
+  ],
+  "interface": {
+    "exports": [
+      "createGenerationEngine",
+      "GenerationEngine",
+      "GenerationEngineOptions",
+      "GenerationJobView",
+      "GenerationStageView",
+      "GenerationResultPreview",
+      "GenerationInvocation",
+      "GenerationOutcome",
+      "AdoptionOutcome",
+      "GenerationLimits",
+      "GenerateStage",
+      "StageState",
+      "SupportFact",
+      "SupportPipelineFact",
+      "SupportIndex",
+      "canonicalAstHash",
+      "GenerationStore",
+      "GenerationStoreTransaction",
+      "IndexedDbGenerationStore",
+      "MemoryGenerationStore",
+      "GenerationPipelineCache",
+      "createGenerationRevisionStore",
+      "GenerationRevisionStore",
+      "GenerationRevisionStoreOptions",
+      "GenerationRevisionView",
+      "GENERATE_STAGES",
+      "GenerationPanel",
+      "GenerationViewPanel",
+      "generationView",
+      "STAGE_LABELS",
+      "STAGE_STATE_LABELS",
+      "recoveryFor"
+    ],
+    "engine": "createGenerationEngine(options) returns list, get, getRevision, listInvocations, start, cancel, retry, resume, discard and adopt. Every action returns GenerationOutcome<T> with a contract-oriented error code and message. A job is candidate-only until adopt; adoption is an explicit action.",
+    "engineOptions": "repository, actor, pipeline (prompts/promptVersion/rulePackVersion), limits (maxInputTokens/maxOutputTokens/maxCostMinor/maxDurationSeconds), execution=provider|stub, provider, profileId/profileVersion, consentId, config, optional storage/now/newId/stageVersion.",
+    "storage": "GenerationStore is one transaction over get/put/delete. IndexedDbGenerationStore reuses LocalRepository's opened backend and blobs store with the owner namespace generation/{tenant}/{user}/; MemoryGenerationStore is the injectable in-memory backend. Rows hold the Job, StageOutput metadata, ModelInvocation records and the durable pipeline-cache entries; keys cannot escape the owner namespace.",
+    "revisionSeamV618": "createGenerationRevisionStore({repository,actor,storage?,now?,newId?}) exposes loadHeadRevision(matterId,targetId) -> GenerationRevisionView|null, loadRevision(matterId,targetId,revisionId), and saveEditedRevision(matterId,targetId,baseRevisionId,ast). saveEditedRevision validates DraftAST, CAS-checks baseRevisionId against the target head, appends reason=edited through the domain saveRevision rules, writes the revision row and revision.created event, and updates the target pointer with matter-version CAS. If the final revision-state row write fails after the commit, the save verifies the target pointer and succeeds; a later load/save reconstructs state from the target head and revision row, so the retry is not rejected. The adoption path uses the same persisted DraftRevision row shape and creates reason=generated. V6-18 can reuse this seam without importing UI or provider code.",
+    "supportStage": "support is deterministic, not a readiness report. buildSupportIndex validates every persisted SourceRef against the live chunk: sourceId, chunk existence, chunkHash === contentHash, page, code-point start/end bounds and quote === text.slice(start,end). Any invalid ref, an empty ref list, or a persisted status other than source_backed/user_confirmed makes the fact unresolved and excludes it from all links. Provider fact ids map to snapshot facts only by exact normalized statement or a strict match (length ratio >= 0.8, whole-statement containment, bigram score >= 0.92); weak/substring matches return null. Claims feature.factId resolves only to a resolved, linkable fact; unresolved ids yield empty links and a non-supported feature status. specification chunkIds map through the resolved support index (including provider aliases); supportParagraphIds come only from matching resolved paragraphs. Provider source_backed features without a resolved fact are partial, never supported with empty links. Unresolved ids are returned in view.support and shown in the UI. The pipeline's audit_support still runs inside the checks/export target.",
+    "limits": "limits are enforced per job. Cost is settled immediately when each provider response returns, before the next authorization; a single multi-call pipeline target cannot exceed the cap between logical stages. Reported costMinor is summed; an unknown-cost call consumes the remaining budget (costState=unknown, usageUnknown=true), so the next call fails JOB_LIMIT_EXCEEDED. A fixed deadlineAt is persisted at job creation; resume reuses it (no clock reset). Elapsed time is checked before every call/stage, after each provider response, after adapter.run and before marking success. A 1 s cap fails on a final-response overrun and cumulatively across interruption/resume.",
+    "astHash": "Generated revisions pass SHA-256 of the canonical AST (canonicalAstHash) to saveRevision as DraftRevision.astHash; job.payloadHash remains the input hash. The edited-revision seam uses the same canonicalAstHash function.",
+    "consent": "Provider execution requires an approved platform profile. Every real provider call passes validateConsentForUse and the PipelineAdapter authorize seam before the provider; a revoked consent fails the next call as CONSENT_REVOKED, and start/resume revalidate before any call. Mid-run material/scope drift marks the result obsolete_result and continues under the job's original consent; it never adds new material to the consent scope and the result cannot be adopted. Stub execution makes no consent and never calls the injected provider; its invocation rows record executionLocation=device:stub and its output is labelled 测试输出 and is not adoptable.",
+    "cancellation": "Queued jobs cancel directly; running jobs become cancelled, increment the page fence, mark the active stage cancelled and close started invocation records. The fence is checked before setStageRunning, before the provider authorization, and before every checkpoint write, so a late provider response after cancel cannot overwrite the draft or the result.",
+    "interrupted": "R1 has no background worker. A different engine instance reading a running/cancel_requested job marks it interrupted, keeps completed stage checkpoints, and exposes 从已保存阶段继续 or 放弃. resume revalidates consent first; completed stages are not recomputed.",
+    "ui": "GenerationPanel is a thin container over the engine; GenerationViewPanel is the presentational seam. It renders empty/loading/error/ready states, five real stage states (待处理/进行中/完成/失败/已取消), completed/total progress, cancel, retry, interrupted resume/discard, candidate preview, explicit adopt, the 「输入已变化，结果未采纳」 banner with a compare entry, error codes and recovery text. No countdown or fake progress is used."
+  },
+  "acceptance": [
+    {
+      "id": "V6-17-A01",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "observed": "A01 builds five real completed stage records with progress 5/5, a schema-valid DraftAST candidate and no target.draftRevisionId before adoption. adopt returns status=adopted, reason=generated, and getRevision returns the viewable AST. The support stage is a deterministic fact→source index, and the AST from a fact fixture carries non-empty feature factIds, paragraph sourceRefs/factIds and supportParagraphIds. Browser steps show the empty panel, start, five completed stages and the labelled stub preview."
+    },
+    {
+      "id": "V6-17-A02",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "observed": "A blocked provider response is cancelled; the late response leaves the job cancelled and the target draftRevisionId null. Cancel after completion returns INVALID_TRANSITION and preserves the result. A stale candidate returns obsolete_result and never updates the draft pointer. Queued cancellation makes zero provider calls."
+    },
+    {
+      "id": "V6-17-A03",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "observed": "A failed job retries as a new job with retryOfJobId set, retains facts/support stage output identity and hashes, and does not duplicate provider work for those completed stages. Repeated adoption replays the same revision with one revision.created event. Refresh recovery marks the job interrupted across a fresh engine, resumes without recomputing saved stages, and refuses resume after consent revocation before any provider call. Retry with a different consent/provider configuration is refused with CONSENT_REQUIRED."
+    }
+  ],
+  "reviewFixes": [
+    {
+      "blocker": "B1",
+      "status": "fixed",
+      "change": "support is a deterministic fact→source index built from persisted SourceSnapshot facts and live chunks, and it maps the facts stage's provider fact ids back to snapshot facts by statement similarity. The facts stage output feeds claims/specification prompts with the confirmed fact/ref index. buildDraftAst maps feature.factId through the support index into DraftAST feature.factIds and paragraph sourceRefs/factIds, maps specification chunkIds (including provider aliases) to snapshot refs, and fills supportParagraphIds from matching claim/spec paragraphs. Provider features without a factId stay empty; unresolved ids are exposed in view.support and the UI. audit_support still runs under checks.",
+      "test": "V6-17 B1: support derives traceable facts and the AST carries factIds/sourceRefs; changing persisted facts changes the support output and job input hash"
+    },
+    {
+      "blocker": "B2",
+      "status": "fixed",
+      "change": "Whole-job elapsed time is checked before every provider authorization and stage; exceeding it fails JOB_LIMIT_EXCEEDED before the next call. Cost uses reported invocation cost metadata when available; an unknown-cost call consumes the remaining budget, so the next call fails JOB_LIMIT_EXCEEDED and usageUnknown stays true. maxCostMinor=1 cannot complete the pipeline.",
+      "test": "V6-17 B2: maxCostMinor is enforced; maxCostMinor=1 stops after one call; unknown-cost call consumes remaining budget; maxDurationSeconds is enforced across the whole job"
+    },
+    {
+      "blocker": "B3",
+      "status": "fixed",
+      "change": "canonicalAstHash computes SHA-256 of the canonical DraftAST. Generated adoption passes it to saveRevision as DraftRevision.astHash; job.payloadHash remains the input hash. The edited seam uses the same function.",
+      "test": "V6-17 B3: generated DraftRevision.astHash equals an independently recomputed canonical AST digest and differs from job.payloadHash"
+    },
+    {
+      "blocker": "B4",
+      "status": "fixed",
+      "change": "revisionState reconstructs from the target head and revision row when the stored revision-state row is missing or names a stale head. saveEditedRevision writes the revision row before commit; if the final state-row write fails after the target/event commit lands, it verifies the target pointer and returns success, and the next save reconstructs state instead of returning VERSION_CONFLICT.",
+      "test": "V6-17 B4: injected final state write failure returns success, head loads the new revision, and the next save with that head succeeds"
+    },
+    {
+      "blocker": "B5",
+      "status": "fixed",
+      "change": "The S04-A07 observation now states that facts and support complete and the logical claims stage fails because the injected invalid output is draft_claims; audit_support is not reached.",
+      "test": "receipt S04-A07 observation corrected to match generation.test.mjs"
+    }
+  ],
+  "round2Fixes": [
+    {
+      "blocker": "B1 support provenance",
+      "status": "fixed",
+      "change": "bestFactMatch now requires exact normalized equality or a strict match (length ratio >= 0.8, whole-statement containment, bigram >= 0.92) and only considers persisted facts with status source_backed/user_confirmed. Every SourceRef is validated against the live chunk (sourceId, chunk existence, chunkHash === contentHash, page, code-point start/end bounds, quote === text.slice(start,end)); any invalid ref or empty ref list makes the fact unresolved and excludes it from links. supportFactForPipelineId rejects unresolved/unsupported facts. AST feature status is supported only when a resolved fact exists and the provider status allows it; provider source_backed with no resolved fact is partial, and unresolved facts leave features/paragraphs empty with no dangling refs.",
+      "tests": [
+        "probe: short fact with substring overlap does not map a multi-component provider fact",
+        "probe: absent chunk UUID makes the fact unresolved and never links it",
+        "probe: persisted unsupported fact is never linked or marked supported",
+        "probe: provider source_backed feature with no factId is partial, not supported",
+        "probe: altered sourceId/hash/quote/offsets invalidate the ref"
+      ]
+    },
+    {
+      "blocker": "B2 per-call cost",
+      "status": "fixed",
+      "change": "costCapturingProvider settles each invocation's cost immediately when its response returns (known or unknown, costState known/unknown), so the next authorization sees every completed call even inside one multi-call pipeline target. costLimitExceeded sums settled costs and treats a settled unknown-cost call as consuming the remaining budget.",
+      "tests": [
+        "probe: maxCostMinor=2 with unit costs stops after the second call inside the multi-call claims target"
+      ]
+    },
+    {
+      "blocker": "B3 durable duration",
+      "status": "fixed",
+      "change": "a fixed deadlineAt is persisted at job creation; resume reuses startedAt/deadlineAt instead of resetting the clock. Elapsed time is checked before each call/stage, after every provider response, after adapter.run, and before marking success.",
+      "tests": [
+        "probe: 2 s advance during the final provider response with a 1 s cap fails JOB_LIMIT_EXCEEDED",
+        "probe: interrupted job resumed after 0.7 s + 0.7 s fails cumulatively against a 1 s cap"
+      ]
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S04-A01",
+      "status": "not_applicable",
+      "reason": "ProviderProfile completeness, the null-region disabled authorization control and RELEASE_GATE_CLOSED are V6-15 concerns. The generation engine only constructs provider execution with an approved platform profile and requires a consent; it does not render the profile authorization control. No null-region profile generation test is claimed here."
+    },
+    {
+      "id": "S04-A02",
+      "status": "not_applicable",
+      "reason": "Adding a fourth file and requiring a new Consent is the V6-15 manifest/consent seam. This engine calls validateConsentForUse at start/resume and before calls, and treats scope drift as obsolete_result, but the ticket's required acceptance set does not include a new-file consent test here."
+    },
+    {
+      "id": "S04-A03",
+      "status": "not_applicable",
+      "reason": "R1 has no quota accounting or provider fallback. The engine never switches providers; retry with a different consent/profile configuration is refused with CONSENT_REQUIRED. QUOTA_EXCEEDED is only surfaced as recovery copy, not exercised against a quota service."
+    },
+    {
+      "id": "S04-A04",
+      "status": "not_applicable",
+      "reason": "This is R2 job/lease persistence. R1's page-refresh interruption and resume semantics are covered by S04-A09; no R2 worker or 60-second lease exists here."
+    },
+    {
+      "id": "S04-A05",
+      "status": "not_applicable",
+      "reason": "No R2 worker, lease owner or fencing token is modeled. R1 uses an in-page fence to reject late responses and cancel completions, which is not the R2 fencing contract."
+    },
+    {
+      "id": "S04-A06",
+      "status": "covered",
+      "reason": "A source/fact change during generation produces disposition=obsolete_result; adoption returns obsolete_result and leaves the current target.draftRevisionId unchanged, with a compare entry in the UI.",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "observed": "generation-recovery.test.mjs blocks detect_conflicts, commits sourceVersion 2, releases the provider, and observes succeeded + obsolete_result; adopt returns obsolete_result and the draft pointer stays null."
+    },
+    {
+      "id": "S04-A07",
+      "status": "covered",
+      "reason": "Schema-invalid provider output fails after one provider call with PROVIDER_SCHEMA_INVALID; earlier completed stage outputs and hashes are retained and the failed stage is recorded.",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "observed": "The injected invalid output is for the pipeline stage draft_claims, which runs inside the logical claims stage. facts and support complete; the logical claims stage fails with PROVIDER_SCHEMA_INVALID; audit_support is not reached because checks never runs. The provider call count for draft_claims is exactly one."
+    },
+    {
+      "id": "S04-A08",
+      "status": "covered",
+      "reason": "Revoking the consent between provider calls fails the next call with CONSENT_REVOKED before the provider is invoked; the UI explains that already-sent calls cannot be recalled.",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "observed": "After the first provider call starts, revokeConsent is committed; the job fails with CONSENT_REVOKED and the second logical provider stage is never called. A separate interrupted-resume test revokes consent and resume fails before any provider call."
+    },
+    {
+      "id": "S04-A09",
+      "status": "covered",
+      "reason": "R1 refresh interruption persists across a fresh engine instance as interrupted, offers resume/discard, keeps saved stages, and revalidates consent before the first resumed provider call.",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "observed": "A fresh engine sharing the GenerationStore reports interrupted with two completed stages, resumes with the same facts/support call counts, and completes. The revoked variant fails resume with CONSENT_REVOKED and no new provider call."
+    },
+    {
+      "id": "S04-A10",
+      "status": "covered",
+      "reason": "Invocation records contain contract metadata and a 64-character request hash only; prompt, body, content, API-key, secret and credential fields are absent. Stub rows record local execution and null consent.",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "observed": "listInvocations returns rows with no forbidden field names; every requestHash is 64 hex characters; stub execution records executionLocation=device:stub with consentId=null and zero injected-provider calls."
+    }
+  ],
+  "runs": [
+    {
+      "name": "V6-17 suite",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "tests": 37,
+      "pass": 37,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-17/runner.tap"
+    },
+    {
+      "name": "workspace regression",
+      "command": "npm test --workspaces --if-present",
+      "exitCode": 0,
+      "tests": 59,
+      "observed": "15 worker tests and 44 export checks passed; the vibescanner workspaces reported no failing tests.",
+      "evidence": "qa/v6/evidence/V6-17/regression.txt"
+    },
+    {
+      "name": "V6-16 regression",
+      "command": "npm run test:v6 -- V6-16",
+      "exitCode": 0,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-17/V6-16.tap"
+    },
+    {
+      "name": "V6-15 regression",
+      "command": "npm run test:v6 -- V6-15",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-17/V6-15.tap"
+    },
+    {
+      "name": "V6-14 regression",
+      "command": "npm run test:v6 -- V6-14",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-17/V6-14.tap"
+    },
+    {
+      "name": "V6-10 regression",
+      "command": "npm run test:v6 -- V6-10",
+      "exitCode": 0,
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-17/V6-10.tap"
+    },
+    {
+      "name": "V6-08 regression",
+      "command": "npm run test:v6 -- V6-08",
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-17/V6-08.tap"
+    },
+    {
+      "name": "web typecheck",
+      "command": "./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-17/typecheck.txt"
+    },
+    {
+      "name": "web build (final tree, mount reverted)",
+      "command": "npm run build --workspace @patent/web",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-17/build.txt"
+    }
+  ],
+  "browserEvidence": {
+    "driver": "qa/v6/evidence/V6-17/browser-drive.mjs",
+    "log": "qa/v6/evidence/V6-17/browser-log.json",
+    "url": "http://localhost:4187/patent/v6/demo-generation",
+    "browser": "headless Chromium driven over CDP with a throwaway profile",
+    "result": "ok: true; 4/4 steps; no console errors; 0 external network requests",
+    "steps": [
+      "01-generation-empty",
+      "02-generation-running-or-done",
+      "03-generation-completed-stub",
+      "04-no-external-network"
+    ],
+    "screenshots": [
+      "qa/v6/evidence/V6-17/01-generation-empty.png",
+      "qa/v6/evidence/V6-17/02-generation-running-or-done.png",
+      "qa/v6/evidence/V6-17/03-generation-completed-stub.png"
+    ],
+    "observed": "The synthetic stub panel showed the empty state, then all five stages completed with progress 5/5, checkpoint hashes, the 测试输出 label, two claims and all specification sections with readable Chinese headings. No adopt action was offered for stub output. All requests were to localhost; the external request list was empty.",
+    "caveat": "Captured against a temporary synthetic stub-mode demo mount. The mount files were restored byte-identically and the temporary demo file was removed. After capture, the engine gained a 0 ms job-start deferral, the deterministic support index/AST traceability, whole-job limits, canonical astHash and revision-state recovery. The completed stub UI path is unchanged and is covered by the final 5 UI tests plus 28 total scenarios, but the exact final bytes were not re-captured in the browser."
+  },
+  "mount": {
+    "reason": "The generation panel is unreachable until the orchestrator-owned route/navigation registration is updated; a temporary demo page was mounted for browser screenshots only.",
+    "files": [
+      {
+        "path": "apps/web/src/v6/routes/V6App.tsx",
+        "originalSha256": "8b7292a799c951cbd25f9311e523557cbe56209e2d47732f74a71750d2e20be5",
+        "revertedSha256": "8b7292a799c951cbd25f9311e523557cbe56209e2d47732f74a71750d2e20be5",
+        "match": true
+      },
+      {
+        "path": "apps/web/src/v6/routes/navigation.ts",
+        "originalSha256": "ccbc78d67d51e8980bf1f513edb0e1a5ce0f75f890cb99980669380f8177d7e3",
+        "revertedSha256": "ccbc78d67d51e8980bf1f513edb0e1a5ce0f75f890cb99980669380f8177d7e3",
+        "match": true
+      }
+    ],
+    "temporaryFileRemoved": "apps/web/src/v6/features/generation/GenerationDemo.tsx",
+    "patchedSha256": "not recorded; the temporary mount was removed and the original files restored"
+  },
+  "limitations": [
+    "No real provider, model, network, credential or customer material was used. Engine tests use the counting mock provider; browser evidence uses stub execution with fixed fixture output.",
+    "R1 only. There is no R2 queue, worker lease, fencing token, server-side retry, quota accounting or cross-device persistence. S04-A03/A04/A05 are marked not_applicable rather than claimed.",
+    "The five logical stages map onto the accepted 18-stage pipeline as facts→extract_invention_facts, support→deterministic fact/source index (no provider call), claims→draft_claims, specification→draft_abstract, checks→export (which runs audit_support, audit_consistency and audit_formal_rules). Upstream pipeline dependencies can run inside a later logical stage; the durable pipeline cache reuses completed fingerprints across jobs, and retry tests assert facts/support output and hash identity, but a logical stage's raw provider-call count can exceed one when it computes a dependency. support injects the confirmed fact/ref index into the claims and specification prompts and keeps audit_support under checks.",
+    "Mid-run material/scope drift is recorded as obsolete_result and the already-started job continues under its original consent; no new material is added to the consent scope and adoption is refused. Whether this policy should instead hard-fail with CONSENT_REQUIRED is recorded as a decision request.",
+    "The C11 durable checkpoint row schema and retention/ownership policy are not defined by the contracts. This feature uses owner-namespaced rows in LocalRepository's blobs store and a durable PipelineStageCache; orchestrator confirmation is requested.",
+    "The revision seam persists DraftRevision rows feature-locally and updates the Target pointer with matter-version CAS and a revision.created event. A crash after the feature row write but before the matter commit leaves an orphan revision row that is not pointed at by the target; adoption recovery uses the target pointer plus the deterministic event id. If the final state-row write is lost, the next load/save reconstructs a target state containing the head revision; older history in the stale state row is not merged back.",
+    "An unknown-cost provider call consumes the whole remaining cost budget, so a provider that never reports cost can make only one call under any maxCostMinor. Providers that report costMinor metadata (the synthetic counting provider does) can use the full budget across calls.",
+    "Browser evidence was captured with a temporary synthetic stub-mode demo mount; the mount was restored byte-identically and the demo file removed. The capture also predates the round-1/round-2 support, cost and duration changes; a 0 ms job-start deferral was added after capture for deterministic queued-cancel testing; the final UI path is covered by 5 final UI tests but was not re-captured in the browser.",
+    "Evidence commands ran on Node 25.8.1. The architecture note specifies Node 22; Node 22 was not available and is unverified.",
+    "The web build passed with Vite's existing warning that some minified chunks exceed 500 kB.",
+    "Support fact matching normalizes NFKC, lowercases and removes whitespace only; punctuation and numeric operators are preserved so 1.5mm and 15mm never match. Paraphrases without exact or near-exact statement overlap remain intentionally unmapped (false negatives accepted over false provenance)."
+  ],
+  "decisionsRequested": [
+    {
+      "code": "NEEDS_DECISION",
+      "question": "What durable IndexedDB object-store schema, ownership key and retention/cleanup policy should C11 generation jobs and stage checkpoints use?",
+      "suggestion": "Confirm the feature-local shape used here: owner-namespaced generation/{tenant}/{user}/ rows for Job, StageOutput, ModelInvocation, revision and pipeline-cache entries in the existing blobs store, with no cross-owner scan. If a separate object store is required, assign it to the orchestrator-owned schema ticket.",
+      "impact": "V6-18 and later generation/editor work need a stable durable revision and checkpoint seam. The current shape works for R1 but is not contract-defined."
+    },
+    {
+      "code": "NEEDS_DECISION",
+      "question": "When authorized material or scope changes while a job is already running, should the job complete with obsolete_result (current behavior) or fail the next call with CONSENT_REQUIRED?",
+      "suggestion": "Keep the current behavior for S04-A06: continue under the original consent, mark obsolete_result, and never add new material or allow adoption. Confirm before R2 integration.",
+      "impact": "This is a consent-boundary policy. The current implementation satisfies S04-A06 but does not re-authorize new material or silently widen scope."
+    }
+  ],
+  "scope": {
+    "porcelainEntries": 29,
+    "excluded": [
+      "node_modules"
+    ],
+    "changedFilesCount": 28,
+    "scopeMatchesChangedFiles": true,
+    "includedFiles": 28
+  },
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-17/review-05.md",
+    "note": "Rounds 1-4 closed support provenance, cost/duration limits, astHash, revision recovery and numeric normalization; round 4's only blocker was a stale test count, corrected to 37/37 and re-verified. Final: 37/37, tsc/build 0, regressions green."
+  }
+}
