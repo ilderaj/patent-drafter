@@ -1,0 +1,411 @@
+{
+  "ticket": "V6-23",
+  "title": "四类检查与依据",
+  "status": "candidate",
+  "baseCommit": "73a70df393a1c4f9b299bce84b0259a2776eacff",
+  "branch": "codex/v6-23-checks",
+  "worktree": "/private/tmp/patent-v6-23-worktree",
+  "date": "2026-11-05",
+  "contractVersion": "v6.1",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "dependencies": [
+    {
+      "ticket": "V6-05",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-05/receipt.json"
+    },
+    {
+      "ticket": "V6-12",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-12/receipt.json"
+    },
+    {
+      "ticket": "V6-17",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-17/receipt.json"
+    },
+    {
+      "ticket": "V6-18",
+      "status": "candidate",
+      "reviewStatus": "pending_re_review",
+      "baseCommit": "73a70df393a1c4f9b299bce84b0259a2776eacff",
+      "note": "candidate at 73a70df, to be revalidated after V6-18 acceptance",
+      "evidence": "qa/v6/evidence/V6-18/receipt.json"
+    }
+  ],
+  "changedFiles": [
+    "apps/web/src/v6/features/checks/Checks.tsx",
+    "packages/domain/src/v6/checks.ts",
+    "qa/v6/evidence/V6-23/01-checks-ready.png",
+    "qa/v6/evidence/V6-23/02-checks-rerunning.png",
+    "qa/v6/evidence/V6-23/03-checks-error-retains-previous.png",
+    "qa/v6/evidence/V6-23/04-checks-stale.png",
+    "qa/v6/evidence/V6-23/browser-drive.mjs",
+    "qa/v6/evidence/V6-23/browser-log.json",
+    "qa/v6/evidence/V6-23/browser-mount.html",
+    "qa/v6/evidence/V6-23/build.txt",
+    "qa/v6/evidence/V6-23/receipt.json",
+    "qa/v6/evidence/V6-23/regression-v6-08.tap",
+    "qa/v6/evidence/V6-23/regression-v6-10.tap",
+    "qa/v6/evidence/V6-23/regression-v6-12.tap",
+    "qa/v6/evidence/V6-23/regression-v6-14.tap",
+    "qa/v6/evidence/V6-23/regression-v6-15.tap",
+    "qa/v6/evidence/V6-23/regression-v6-16.tap",
+    "qa/v6/evidence/V6-23/regression-v6-17.tap",
+    "qa/v6/evidence/V6-23/regression-v6-18.tap",
+    "qa/v6/evidence/V6-23/regression-workspace.tap",
+    "qa/v6/evidence/V6-23/regression.txt",
+    "qa/v6/evidence/V6-23/review-01.md",
+    "qa/v6/evidence/V6-23/review-02.md",
+    "qa/v6/evidence/V6-23/runner.tap",
+    "qa/v6/evidence/V6-23/scope.txt",
+    "qa/v6/evidence/V6-23/typecheck.txt",
+    "qa/v6/scenarios/V6-23/checks.test.mjs"
+  ],
+  "interface": {
+    "domainModule": "packages/domain/src/v6/checks.ts",
+    "exports": [
+      "CheckRegistry",
+      "CHECK_REGISTRY",
+      "runChecks",
+      "isCurrentCheckRun",
+      "verificationLabel",
+      "adaptCnRulePack",
+      "adaptCnRulePacks",
+      "CheckInput",
+      "CheckRule",
+      "CheckRulePack",
+      "CheckRunResult",
+      "CheckFinding",
+      "CheckFindingDetails"
+    ],
+    "run": "runChecks(input, rulePack, createdAt) returns a contract-shaped CheckRun, display findings with basis/verification/location/action details, and declared product-policy rule ids grouped by prepare/approve/export. Inputs, time, and the rule pack are explicit; the function reads no clock, storage, network, model, or global ID source.",
+    "rulePackAdapter": "adaptCnRulePack adapts one rules-cn JSON pack. adaptCnRulePacks combines dated JSON files, overlays later rows by ruleId, and binds every row to the active version. Non-engineering rules are forced to category unverified at run time under G-RULES closed, even if source metadata says verified.",
+    "uiComponent": "apps/web/src/v6/features/checks/Checks.tsx exports ChecksPanel. It accepts input, rulePack, currentSnapshot, activeRulePackVersion, optional initialResult/loading/loadError/runner, a required onRiskAck callback bound to snapshot+checkRunId+riskId, and an optional finding-action callback (otherwise emits v6:checks-action). It renders empty/loading/error/ready/stale states and all four groups.",
+    "contractBoundary": "CheckRun.findings remain the frozen V6-05 Finding/RiskDTO shape for evaluateGate. CheckFinding adds provenance and action display fields alongside the contract run; those fields are not injected into the strict CheckRun schema.",
+    "appRegistration": "The panel is not registered in V6App/navigation because those shared files are outside this ticket's write set. Browser evidence mounts the feature directly in an isolated synthetic HTML harness."
+  },
+  "acceptance": [
+    {
+      "id": "V6-23-A01",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/runner.tap",
+      "observed": "Each emitted finding includes a cause locator, basis quote or URL, verification label, suggested action, and at least one action kind. The suite exercises AST invalidity, dependency cycles, unsupported and external facts in claim features, figure and asset defects, empty sections, open conflicts, disclosure, support status, priority, route/language mismatch and stale input. CheckRun parses against the frozen contract schema."
+    },
+    {
+      "id": "V6-23-A02",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/runner.tap",
+      "observed": "Checked-in 2026 CN rule metadata and combined 2023/2026 pack adaptation stay unverified under G-RULES closed. A matched official rule marked unverified and a deliberately forged verified official rule both produce unverified findings; evaluateGate(export) allows them. Repeated confirmation uses V6-05 confirm and is idempotent."
+    },
+    {
+      "id": "V6-23-A03",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/runner.tap",
+      "observed": "Deep-equal repeated runs with the same input/pack/time leave the AST and figure revision unchanged. A real V6-12 bind appends a new FigureSetRevision; the old run becomes stale and evaluateGate returns CHECK_REQUIRED. Snapshot and active rule-pack version changes mark the UI stale and remove acknowledgement actions."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S07-A01",
+      "status": "covered",
+      "reason": "Matched legal rules from the adapted CN rule pack are unverified under G-RULES closed. Both an unverified rule and a synthetic official rule falsely marked verified stay nonblocking in evaluateGate.",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/runner.tap"
+    },
+    {
+      "id": "S07-A02",
+      "status": "covered",
+      "reason": "A schema-readable legacy FigureSetRevision with two entries numbered 1 produces figure.duplicate_number; evaluateGate(export) refuses with DUPLICATE_FIGURE_NUMBER bound to that finding.",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/runner.tap"
+    },
+    {
+      "id": "S07-A03",
+      "status": "covered",
+      "reason": "The scenario binds a real initial figure revision and then appends a second real revision through V6-12 bindFigures. The old check no longer matches the six-field snapshot; the gate requires CHECK_REQUIRED, and the UI removes actions and offers 重新检查.",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/runner.tap; qa/v6/evidence/V6-23/browser-log.json"
+    },
+    {
+      "id": "S07-A04",
+      "status": "covered",
+      "reason": "A V6-05 risk_ack is bound to the first checkRunId. A rerun produces the risk open under a new run id; the earlier acknowledgement does not satisfy the new gate.",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/runner.tap"
+    },
+    {
+      "id": "S07-A05",
+      "status": "covered",
+      "reason": "The UI exposes no mark-resolved action. A present blocker still blocks when a forged current finding says resolved; after the underlying duplicate is removed, a new run no longer contains it.",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/runner.tap"
+    },
+    {
+      "id": "S07-A06",
+      "status": "not_applicable",
+      "reason": "The check page's 未检索 label is covered, but S07-A06 also requires the export manifest to show the same search state. Export and manifest modules are outside this ticket's write set, so that second observable is not claimed.",
+      "evidence": "qa/v6/evidence/V6-23/runner.tap; qa/v6/evidence/V6-23/browser-log.json"
+    },
+    {
+      "id": "S07-A07",
+      "status": "covered",
+      "reason": "Changing activeRulePackVersion makes the prior result stale in the domain and UI, and the UI offers recheck with acknowledgement unavailable.",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/runner.tap; qa/v6/evidence/V6-23/browser-log.json"
+    },
+    {
+      "id": "S07-A08",
+      "status": "not_applicable",
+      "reason": "The required observable is the preview page's failure copy and retry. The V6-23 check panel does render a coded failure with retry and never claims no problems (covered by the V6-23 suite and browser run), but Preview/V6App integration is outside the authorized write set; no preview route was changed or claimed.",
+      "evidence": "qa/v6/evidence/V6-23/runner.tap; qa/v6/evidence/V6-23/browser-log.json"
+    }
+  ],
+  "runs": [
+    {
+      "name": "V6-23",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23",
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-23/runner.tap"
+    },
+    {
+      "name": "V6-18 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-18",
+      "exitCode": 0,
+      "tests": 7,
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-23/regression-v6-18.tap"
+    },
+    {
+      "name": "V6-17 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-17",
+      "exitCode": 0,
+      "tests": 37,
+      "pass": 37,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-23/regression-v6-17.tap"
+    },
+    {
+      "name": "V6-16 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-16",
+      "exitCode": 0,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-23/regression-v6-16.tap"
+    },
+    {
+      "name": "V6-15 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-15",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-23/regression-v6-15.tap"
+    },
+    {
+      "name": "V6-14 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-14",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-23/regression-v6-14.tap"
+    },
+    {
+      "name": "V6-12 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-12",
+      "exitCode": 0,
+      "tests": 42,
+      "pass": 42,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-23/regression-v6-12.tap"
+    },
+    {
+      "name": "V6-10 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-10",
+      "exitCode": 0,
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-23/regression-v6-10.tap"
+    },
+    {
+      "name": "V6-08 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-08",
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-23/regression-v6-08.tap"
+    },
+    {
+      "name": "workspace regression",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree test --workspaces --if-present",
+      "exitCode": 0,
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skipped": 0,
+      "checks": 44,
+      "evidence": "qa/v6/evidence/V6-23/regression-workspace.tap"
+    },
+    {
+      "name": "workspace + web typecheck",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run typecheck; /private/tmp/patent-v6-23-worktree/node_modules/.bin/tsc -p /private/tmp/patent-v6-23-worktree/apps/web/tsconfig.json --noEmit",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/typecheck.txt"
+    },
+    {
+      "name": "web production build",
+      "command": "npm --prefix /private/tmp/patent-v6-23-worktree run build --workspace @patent/web",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-23/build.txt"
+    },
+    {
+      "name": "browser panel",
+      "command": "node qa/v6/evidence/V6-23/browser-drive.mjs qa/v6/evidence/V6-23 http://127.0.0.1:4177",
+      "exitCode": 0,
+      "steps": 7,
+      "screenshots": 4,
+      "evidence": "qa/v6/evidence/V6-23/browser-log.json"
+    }
+  ],
+  "browserEvidence": {
+    "driver": "qa/v6/evidence/V6-23/browser-drive.mjs",
+    "mount": "qa/v6/evidence/V6-23/browser-mount.html",
+    "log": "qa/v6/evidence/V6-23/browser-log.json",
+    "url": "http://127.0.0.1:4177/qa/v6/evidence/V6-23/browser-mount.html",
+    "browser": "headless Google Chrome via CDP",
+    "result": "7/7 steps passed; 0 console errors; 0 external requests",
+    "steps": [
+      "Ready panel has four groups and counts including zero",
+      "Risk acknowledgement callback called once; acknowledged action is not repeated",
+      "Rerun retains prior findings and duplicate click starts no second run",
+      "Failed rerun retains previous findings and displays its error code",
+      "Snapshot change marks result stale, removes acknowledgement and offers recheck",
+      "Rule-pack version change marks result stale and removes acknowledgement",
+      "No external requests or browser console errors"
+    ],
+    "screenshots": [
+      "qa/v6/evidence/V6-23/01-checks-ready.png",
+      "qa/v6/evidence/V6-23/02-checks-rerunning.png",
+      "qa/v6/evidence/V6-23/03-checks-error-retains-previous.png",
+      "qa/v6/evidence/V6-23/04-checks-stale.png"
+    ]
+  },
+  "scope": {
+    "evidence": "qa/v6/evidence/V6-23/scope.txt",
+    "includedFiles": 27,
+    "scopeMatchesChangedFiles": true,
+    "excluded": [
+      "node_modules"
+    ],
+    "unexpectedFiles": []
+  },
+  "mount": {
+    "mode": "standalone synthetic QA HTML; no app route mount",
+    "modifiedAppFiles": [],
+    "mountHashes": [
+      {
+        "path": "apps/web/src/v6/routes/V6App.tsx",
+        "originalSha256": "a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37",
+        "revertedSha256": "a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37",
+        "match": true,
+        "note": "Not edited; hash matches baseCommit."
+      },
+      {
+        "path": "apps/web/src/v6/routes/navigation.ts",
+        "originalSha256": "aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951",
+        "revertedSha256": "aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951",
+        "match": true,
+        "note": "Not edited; hash matches baseCommit."
+      },
+      {
+        "path": "apps/web/src/v6/routes/v6.css",
+        "originalSha256": "90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7",
+        "revertedSha256": "90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7",
+        "match": true,
+        "note": "Not edited; hash matches baseCommit."
+      }
+    ]
+  },
+  "rules": {
+    "sourceRows": 28,
+    "historicalRows": {
+      "legalOrMixed": 27,
+      "explicitProduct": 1
+    },
+    "repeatedIdsAcrossDatedPacks": [
+      "AI-INV-001",
+      "AI-INV-002"
+    ],
+    "mergedUniqueRuleIds": 26,
+    "verificationPolicy": "G-RULES closed: every matched legal/unknown rule is unverified, regardless of imported verification metadata; it cannot become a legal blocker.",
+    "searchState": "not_searched"
+  },
+  "runtime": {
+    "node": "v25.8.1",
+    "architectureTarget": "Node 22",
+    "node22Verified": false,
+    "npm": "11.11.0",
+    "operatingSystem": "Darwin"
+  },
+  "limitations": [
+    "Status remains candidate pending independent review. No commit or push was made.",
+    "V6-18 is candidate at 73a70df with reviewStatus pending_re_review; revalidate this dependency after V6-18 acceptance.",
+    "The app route/navigation is orchestrator-owned and outside this ticket's write set; ChecksPanel is exported and was browser-tested through the standalone synthetic harness, not the complete app shell.",
+    "R1 check runs are in-page only; this ticket does not add durable CheckRun persistence or a check API endpoint. The host must supply current AST/input/figure asset state and the enabled rule pack.",
+    "Risk acknowledgement is exposed through the required onRiskAck callback. The host must connect that callback to the V6-05 confirmation ledger; the standalone browser callback is synthetic.",
+    "The CN rule sources have incomplete line-by-line official verification. G-RULES remains closed; all matched non-engineering/legal rules are unverified and never legal blockers. AI-INV-002 is mixed legal/product text and remains unverified in the 2026 overlay.",
+    "No real prior-art search was run; the UI reports 未检索. No provider, real customer material, external service, or network source was used.",
+    "Node 25.8.1 was available; Node 22 is the architecture target and was unavailable for this run.",
+    "The successful build has the repository's existing Vite chunk-size warning (>500 kB). Generated apps/web/dist output was removed after capture."
+  ],
+  "decisionsRequested": [],
+  "review": {
+    "verdict": "pending_re_review",
+    "evidence": "qa/v6/evidence/V6-23/review-02.md",
+    "note": "Round-1 stale policy and dependency-status blockers fixed; round-2 confirms B1 but V6-18 remains unaccepted and blocks V6-23 acceptance; awaiting V6-18 acceptance and revalidation."
+  },
+  "reviewFixes": [
+    {
+      "id": "B1",
+      "status": "fixed",
+      "change": "runChecks now evaluates and derives policy actions only from effective rules for the active pack version, deduplicated by rule id with active-version precedence. Stale policy rows cannot contribute an action.",
+      "test": "a stale policy version cannot add an action the active rule does not declare"
+    },
+    {
+      "id": "B2",
+      "status": "fixed",
+      "change": "The receipt records V6-18 as candidate at 73a70df, reviewStatus pending_re_review, and states it is to be revalidated after V6-18 acceptance.",
+      "test": "receipt dependency record and regression.txt review note"
+    }
+  ],
+  "limitationReview": "V6-18 remains candidate at 73a70df with pending_re_review; per round-2 review, V6-23 is not acceptance-ready until V6-18 acceptance evidence is available and the dependency is revalidated."
+}

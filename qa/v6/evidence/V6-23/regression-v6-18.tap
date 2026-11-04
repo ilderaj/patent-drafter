@@ -1,0 +1,56 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-18
+
+TAP version 13
+# Subtest: V6-18 A01: edited DraftRevision is the preview and export projection source
+ok 1 - V6-18 A01: edited DraftRevision is the preview and export projection source
+  ---
+  duration_ms: 23.318209
+  type: 'test'
+  ...
+# Subtest: deleting AI content creates one auditable edited revision
+ok 2 - deleting AI content creates one auditable edited revision
+  ---
+  duration_ms: 2.813875
+  type: 'test'
+  ...
+# Subtest: V6-18 A02 and S05-A04: stale save preserves local buffer and exposes both revisions
+ok 3 - V6-18 A02 and S05-A04: stale save preserves local buffer and exposes both revisions
+  ---
+  duration_ms: 7.675167
+  type: 'test'
+  ...
+# Subtest: V6-18 A03 and S05-A08: reload restores invalid local input and reports its claim node
+ok 4 - V6-18 A03 and S05-A08: reload restores invalid local input and reports its claim node
+  ---
+  duration_ms: 4.346667
+  type: 'test'
+  ...
+# Subtest: S05 empty state offers generation and manual writing; manual draft persists and saves
+ok 5 - S05 empty state offers generation and manual writing; manual draft persists and saves
+  ---
+  duration_ms: 1.799875
+  type: 'test'
+  ...
+# Subtest: S05 figure references must resolve in the current target figure set
+ok 6 - S05 figure references must resolve in the current target figure set
+  ---
+  duration_ms: 1.749708
+  type: 'test'
+  ...
+# Subtest: stale input refuses the edit seam so saving cannot silently adopt new inputs
+ok 7 - stale input refuses the edit seam so saving cannot silently adopt new inputs
+  ---
+  duration_ms: 2.053083
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 225.739416
