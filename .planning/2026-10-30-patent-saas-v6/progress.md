@@ -10,6 +10,7 @@
 - V6-19 候选就绪：5/5、web tsc 0、V6-18/17/16/15/14/10/08 与 workspace 通过、浏览器 4/4 无外部请求；回执 15 项 changedFiles 与 scope 一致，S05-A03 covered。已派第一轮独立复核，重点验证 locator 不可定位/不误高亮、确认与撤销的 actor/snapshot 绑定、新版失效与幂等。
 - V6-18 三项阻断修复完成：V6-17 seam 增加可选 expected input/figureRevision，不匹配返回 INPUT_STALE 且不写修订/事件；编号缺口定位到缺失编号/claims；截图按 loaded/saved 顺序重采。9/9、V6-17/16/15/14/10/08 回归、tsc/build/browser 5/5 通过；回执 15 项 scope 一致，已派第二轮独立复核。
 - V6-23 候选就绪：11/11、web tsc 0、V6-18/17/16/15/14/12/10/08/05 与 workspace 通过、浏览器 7/7 无外部请求；回执 25 项 changedFiles 与 scope 一致，S07-A01–A05/A07 covered、A06/A08 not_applicable。已派第一轮独立复核，重点验证四类语义、未核实法律规则不得成为 blocker、规则包去重与 G-RULES 关闭、失败不得当作通过。
+- V6-19 第一轮独立复核 CHANGES_REQUIRED（review-01.md）：(1) locator 未校验 source.matterId/asset 且只比对存储 hash，篡改文本或来源版本变化仍可高亮；(2) 确认/撤销只写 ledger，未按 C03 增加 matter.version；(3) 无 risk 定位、默认 focus 只是滚动/描边、没有真实键盘焦点；(4) 浏览器运行写入了共享 node_modules/.vite。已授权窄改 repository（原子 ledger+事件+matter.version）与 vite cacheDir，并派修复：校验来源归属与实时文本哈希、stale 不暴露正文、真实 focus、隔离缓存重跑证据。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
