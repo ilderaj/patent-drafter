@@ -15,6 +15,8 @@
 - V6-23 第一轮独立复核 CHANGES_REQUIRED（review-01.md）：(1) 同 ID 的过期 policy 规则仍可把 action 加入 blockingPolicyRuleIds，即使 finding 评估跳过了它；(2) 回执/依赖说明把 V6-18 当作 accepted，而实际是 candidate/pending_re_review。已派修复：blockingPolicy 只取实际评估的 active 版本、按 ID/version 去重；回执如实记录 V6-18 依赖状态。
 - V6-18 第二轮独立复核 CHANGES_REQUIRED（review-02.md）：(1) 保存 await 期间的编辑会被静默覆盖并删除 buffer（数据丢失）；(2) scope.txt 漏 typecheck.txt，与回执 15 项不一致。已派修复：保存捕获快照与 revision token，成功时若模型已变则保留编辑与 buffer、更新 base 至新 head、不清空且标记 dirty；保存中禁用编辑；补确定性交错测试。同时重采 typecheck/scope 对齐回执。
 - V6-23 过期 policy 阻断已修复并通过 12/12：blockingPolicyRuleIds 只取实际评估的 active 规则、按 ID/version 去重；回执已如实记录 V6-18 为 candidate at 73a70df。已派第二轮独立复核。
+- V6-23 第二轮复核确认 stale-policy 已修复（12/12），但因 V6-18 仍是 candidate/pending、执行协议要求依赖先 accepted，暂不能接受；等 V6-18 通过后只需轻量复核依赖状态。
+- V6-18 保存竞态修复完成：保存捕获快照/令牌，await 期间的新编辑保留在模型与 buffer、dirty 保持、base 更新至新 head，另加保存中禁编辑；10/10、tsc 0、回归通过，已派第三轮复核。V6-20 四项阻断修复完成：局部 locked 引文脱敏、撤销后重试创建新 live 确认、完整 DraftInputRef stale、S05-A01 降级；9/9、V6-05 26/26 保持，已派第二轮复核。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
