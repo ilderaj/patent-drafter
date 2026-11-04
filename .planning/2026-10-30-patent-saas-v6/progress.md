@@ -10,6 +10,8 @@
 - V6-16 第一轮独立复核 CHANGES_REQUIRED（review-01.md）：(1) 缓存元数据未绑定当前 provider/model，伪造合法哈希条目会被直接采用，stub 模式返回未调用过的 model，缓存命中仍报 cached:false；(2) 损坏缓存条目无法删除/替换，`putIfAbsent` 使毒化键永久保留并反复触发 provider 调用。其余探针（失效、授权、阻塞修复请求、并发、输入不变）通过。已派修复：按阶段类型校验元数据、命中置 cached:true、stub 的 model 为 null、缓存 seam 增加 delete 并在读坏条目时隔离重写。复核另记 Node 25 vs 架构注记 Node 22 的运行环境限制。
 - V6-16 修复完成并经编排者复跑 14/14：元数据按阶段类型/执行模式/provider/model/prompt/rule-pack 绑定，缓存命中（含上游检查点）报 cached:true，损坏条目先 delete 再重算、二次污染报 INTERNAL_ERROR；毒化探针第二次运行为 0 provider 调用。已派第二轮独立复核。
 - 发现本机代理 `127.0.0.1:7897`：经代理 `wrangler whoami` 成功，账号具备 workers/workers_routes/zone 等权限，Cloudflare API 可达。`wrangler deploy --dry-run` 配置通过（assets-only，11 个文件，无绑定）。部署不再是网络阻塞，但按发布门禁仍未执行。
+- DNS 核查（DoH，只读）：`patent.paymond.me` 目前是 CNAME 到 `custom-domains.chatgpt.site`，HTTPS 返回 403，说明该主机名已被另一个 ChatGPT 自定义站点占用。直接创建 Worker custom domain 会与现有 DNS 记录冲突；替换记录会中断现有站点，属于对外且不易回滚的变更，部署前需要用户确认是接管该主机名还是改用其他子域。本轮不修改 DNS。
+- V6-17 执行者因工具输出把真实 UUID 脱敏显示为 `{{ACCOUNT_…}}` 而反复 Edit 同一处被中止；已确认 harness 中四个 ID 均为合法 UUID，并指示其不要基于脱敏值编辑、从中断处继续补 UI、测试与证据。现存 generation.ts 与单个 A01 测试尚未完成（limits 未接好导致失败）。
 - V6-21 执行者候选已就绪（34 项 changedFiles，浏览器截图与回执齐全），等待其报告与独立复核。已知契约缺口：LocalRepository 在案件 archived 时拒绝一切写入，S06 的「取消归档」在现有写集内无法实现；执行者请求 NEEDS_DECISION，待复核后由编排者决定是否扩展 repository 写集。
 
 ## 会话：2026-11-02
