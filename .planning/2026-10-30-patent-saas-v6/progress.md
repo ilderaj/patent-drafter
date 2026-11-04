@@ -6,6 +6,8 @@
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
 - 部署准备（独立分支 `codex/v6-deploy`，提交 `c523bba`）：Vite base/outDir 支持 `V6_WEB_BASE`/`V6_WEB_OUTDIR`，router basename 改由 `BASE_URL` 推导（默认仍为 `/patent`，不改变现有行为）；新增 `build:v6-root` 根路径构建、根路径 `_headers`/`_redirects`（`/ → /v6 302`）与独立 `wrangler.patent-v6.jsonc`（worker `patent-v6`，路由 `patent.paymond.me`，纯静态 assets，无模型代理）。根构建 exit 0，headless Chrome 在 `http://localhost:4174/v6` 加载 V6 入口成功、无控制台错误。未部署，未触碰旧 `patent-drafter` worker。
 - wrangler 尚未安装（本机无 CLI；已在临时目录尝试安装，等待网络）。本机存在既有 wrangler 凭据配置（未读取内容）。
+- 找到本机可用的 Wrangler 4.90.0（另一项目的 node_modules），`wrangler deploy --config wrangler.patent-v6.jsonc --dry-run` 通过：assets-only Worker 读取 11 个文件、无绑定；配置改为 `custom_domain: true` 的 `patent.paymond.me`。`wrangler whoami` 因本机无法连接 `dash.cloudflare.com`（连接超时）未完成并报未登录；`curl` 到 npm registry 与 Cloudflare API 均超时（禁用沙箱后相同），当前环境无外网。部署将在 R1 验收后重试网络；若仍不可用，需要可联网环境或有效凭据。
+- V6-16 第一轮独立复核 CHANGES_REQUIRED（review-01.md）：(1) 缓存元数据未绑定当前 provider/model，伪造合法哈希条目会被直接采用，stub 模式返回未调用过的 model，缓存命中仍报 cached:false；(2) 损坏缓存条目无法删除/替换，`putIfAbsent` 使毒化键永久保留并反复触发 provider 调用。其余探针（失效、授权、阻塞修复请求、并发、输入不变）通过。已派修复：按阶段类型校验元数据、命中置 cached:true、stub 的 model 为 null、缓存 seam 增加 delete 并在读坏条目时隔离重写。复核另记 Node 25 vs 架构注记 Node 22 的运行环境限制。
 
 ## 会话：2026-11-02
 
