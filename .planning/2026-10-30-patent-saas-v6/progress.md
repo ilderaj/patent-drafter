@@ -18,6 +18,8 @@
 - V6-21 修复后 29/29、web tsc 0；回执已更新（A04 covered、A05 partial），但 runner.tap/scope/浏览器证据仍是修复前版本，已要求执行者刷新并如实标注浏览器证据时点。
 - V6-21 四项阻断已修复并刷新证据：inbox 消费共享 nextAction、跳过 deletion_pending、parse job 按自身终态解决、新增 review feedback 测试并把 A05 标 partial；changedFiles 41 与 scope 一致，浏览器证据明确标注早于 B1-B4。已派第二轮独立复核。
 - V6-17 收敛到 10/11；唯一失败为重试未复用已完成 facts 检查点（生成测试 `:110` 期望 1 次实际 2 次），已提示检查重试时上下文/缓存 scope 的复用，并要求补断言。
+- V6-21 第二轮独立复核 ACCEPT（review-02.md），无阻断；收件箱投影、deletion_pending、parse 终态、review feedback 与 unarchive 均经独立探针确认。回执置 accepted，42 项 changedFiles 与 scope 一致（review-02 已计入），提交 `fb7af75` 并合并入集成分支；集成分支 V6-21 29/29、V6-06 25/25，已推送。
+- V6-17 已补 `Generation.tsx` 与完整场景，当前 19/19、web tsc 0，浏览器截图与回归证据正在采集；回执尚未生成。
 - 集成分支回归全绿：V6-06/08/10/11/12/13/14/15/16 全部 exit 0；根构建再次验证。V6-17 收敛到 9/11，剩余失败为：重试重算了 facts 检查点（`:110`）、首个 job 未到 support 即被新引擎视为中断（`:179`）。
 - V6-21 执行者候选已就绪（34 项 changedFiles，浏览器截图与回执齐全），等待其报告与独立复核。已知契约缺口：LocalRepository 在案件 archived 时拒绝一切写入，S06 的「取消归档」在现有写集内无法实现；执行者请求 NEEDS_DECISION，待复核后由编排者决定是否扩展 repository 写集。
 
