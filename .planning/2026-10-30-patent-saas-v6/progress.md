@@ -22,6 +22,7 @@
 - V6-19 修复完成：locator 校验 source.matterId/asset 并重算实时 chunk 文本哈希，stale 不暴露正文；确认/撤销通过 repository 原子写 ledger+事件并递增 matter.version；risk/claim/source 使用 tabIndex=-1 与真实 focus；浏览器证据用 VITE_CACHE_DIR 隔离。11/11、tsc 0、scope 20 项一致，已派第二轮复核。
 - V6-18 第四轮/计数复核 ACCEPT（review-04）：10/10 与 TAP/回执一致，暂停保存竞态探针全部通过。回执置 accepted，提交 `85ec601` 并合并入集成分支（merge `e9c14f9`）。
 - V6-23 已把集成分支（含 accepted V6-18）合入其工作树，12/12、tsc 0；回执 dependencyStatus 更新为 V6-18 accepted，已请第二轮复核者仅复核依赖并给出最终结论。
+- V6-20 第二轮复核确认四项修复全部通过（9/9、V6-05 26/26），唯一阻断是 V6-18 依赖尚未 accepted；现已把含 accepted V6-18 的集成分支合入 V6-20 工作树，9/9、tsc 0，回执 dependencyStatus 更新，已请复核者仅复验依赖并给出最终结论。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
