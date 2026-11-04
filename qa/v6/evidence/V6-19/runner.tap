@@ -1,0 +1,80 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-19
+
+TAP version 13
+# Subtest: V6-19-A01: a confirmed AI paragraph traces through its source to the confirmer
+ok 1 - V6-19-A01: a confirmed AI paragraph traces through its source to the confirmer
+  ---
+  duration_ms: 16.761708
+  type: 'test'
+  ...
+# Subtest: V6-19-A02: invalid source locators stay visible and a saved revision drops old confirmations
+ok 2 - V6-19-A02: invalid source locators stay visible and a saved revision drops old confirmations
+  ---
+  duration_ms: 7.414292
+  type: 'test'
+  ...
+# Subtest: V6-19-A03: refresh and retry preserve confirmations and revocations without duplicate records
+ok 3 - V6-19-A03: refresh and retry preserve confirmations and revocations without duplicate records
+  ---
+  duration_ms: 5.836542
+  type: 'test'
+  ...
+# Subtest: unresolvable SourceRefs show 不可定位 and keep their original quote
+ok 4 - unresolvable SourceRefs show 不可定位 and keep their original quote
+  ---
+  duration_ms: 5.190708
+  type: 'test'
+  ...
+# Subtest: V6-19 integrity: foreign source ownership is unlocatable
+ok 5 - V6-19 integrity: foreign source ownership is unlocatable
+  ---
+  duration_ms: 0.923458
+  type: 'test'
+  ...
+# Subtest: V6-19 integrity: a foreign asset reference on the same matter is unlocatable
+ok 6 - V6-19 integrity: a foreign asset reference on the same matter is unlocatable
+  ---
+  duration_ms: 1.015167
+  type: 'test'
+  ...
+# Subtest: V6-19 integrity: altered chunk text with the old hash is unlocatable
+ok 7 - V6-19 integrity: altered chunk text with the old hash is unlocatable
+  ---
+  duration_ms: 1.965459
+  type: 'test'
+  ...
+# Subtest: V6-19 integrity: a source-version bump makes the old revision locator stale
+ok 8 - V6-19 integrity: a source-version bump makes the old revision locator stale
+  ---
+  duration_ms: 1.048417
+  type: 'test'
+  ...
+# Subtest: V6-19 C03: confirm and revoke bump matter.version and append one event each
+ok 9 - V6-19 C03: confirm and revoke bump matter.version and append one event each
+  ---
+  duration_ms: 10.21575
+  type: 'test'
+  ...
+# Subtest: V6-19 C03: a version conflict or write fault rolls back every confirmation write
+ok 10 - V6-19 C03: a version conflict or write fault rolls back every confirmation write
+  ---
+  duration_ms: 2.332
+  type: 'test'
+  ...
+# Subtest: S05 UI states: loading, empty, error and retry are explicit
+ok 11 - S05 UI states: loading, empty, error and retry are explicit
+  ---
+  duration_ms: 1.082208
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 262.94175

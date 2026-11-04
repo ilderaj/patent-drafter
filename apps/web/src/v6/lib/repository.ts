@@ -315,6 +315,18 @@ export interface CommitOptions {
   requestId: string;
 }
 
+export interface ConfirmationLedgerBlob {
+  matterId: string;
+  confirmations: readonly unknown[];
+  revocations: readonly unknown[];
+}
+
+export interface ConfirmationLedgerWriteResult {
+  matter: MatterRecord;
+  version: number;
+  eventId: string;
+}
+
 export interface MatterRead {
   data: MatterAggregate;
   version: number;
@@ -685,6 +697,98 @@ export class LocalRepository {
     }
   }
 
+  /**
+   * Append one confirmation ledger state and its activity event while holding
+   * the same matter-version compare-and-swap used by other writes (C03).
+   * Confirmation records are feature-owned, so this narrow seam stores their
+   * scoped blob without changing the general MatterWrite contract.
+   */
+  async writeConfirmationLedger(
+    actor: Actor,
+    matterId: string,
+    expectedVersion: number,
+    ledger: ConfirmationLedgerBlob,
+    event: ActivityRecord,
+    updatedAt: string,
+  ): Promise<RepositoryResult<ConfirmationLedgerWriteResult>> {
+    const problem = checkActor(actor) ?? checkKey(matterId);
+    if (problem) return fail(problem);
+    if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1) {
+      return fail({ code: "INVALID_INPUT", message: "expectedVersion must be a persisted matter version" });
+    }
+    if (ledger?.matterId !== matterId || !Array.isArray(ledger.confirmations) || !Array.isArray(ledger.revocations)) {
+      return fail({ code: "INVALID_INPUT", message: "confirmation ledger must belong to the requested matter" });
+    }
+    if (typeof updatedAt !== "string" || updatedAt.length === 0 || event?.occurredAt !== updatedAt) {
+      return fail({ code: "INVALID_INPUT", message: "event time and updatedAt must match" });
+    }
+    if ((event.action !== "confirmation.created" && event.action !== "confirmation.revoked")
+      || event.matterId !== matterId || event.tenantId !== actor.tenantId || event.actorId !== actor.userId
+      || event.actorKind !== "user" || event.targetId === null || event.snapshot === null
+      || event.snapshot.matterId !== matterId || event.snapshot.targetId !== event.targetId
+      || event.metadata.count !== 1) {
+      return fail({ code: "INVALID_INPUT", message: "confirmation event does not match the actor, matter and snapshot" });
+    }
+    const activityProblem = checkActivity(event);
+    if (activityProblem) return fail(activityProblem);
+
+    try {
+      return await this.backend.transaction("readwrite", async (tx) => {
+        const aggregate = asAggregate(await tx.get(STORES.matters, matterId));
+        if (aggregate === null || !ownsMatter(aggregate.matter, actor)) {
+          throw new Refusal("RESOURCE_NOT_FOUND", `matter ${matterId} not found`);
+        }
+        if (aggregate.matter.version !== expectedVersion) {
+          throw new Refusal(
+            "VERSION_CONFLICT",
+            `matter ${matterId} is at version ${aggregate.matter.version}, not ${expectedVersion}`,
+            aggregate.matter.version,
+          );
+        }
+        if (aggregate.matter.status !== "active") {
+          throw new Refusal("INVALID_TRANSITION", `matter ${matterId} is ${aggregate.matter.status} and cannot be written`);
+        }
+        const target = aggregate.targets.find((item) => item.id === event.targetId && item.matterId === matterId);
+        if (!target) {
+          throw new Refusal("RESOURCE_NOT_FOUND", `target ${event.targetId} not found`);
+        }
+        const eventSnapshot = event.snapshot;
+        if (eventSnapshot === null
+          || eventSnapshot.sourceVersion !== aggregate.matter.sourceVersion
+          || eventSnapshot.targetConfigVersion !== target.configVersion
+          || eventSnapshot.draftRevisionId !== target.draftRevisionId
+          || eventSnapshot.figureRevisionId !== target.figureRevisionId) {
+          throw new Refusal("INVALID_TRANSITION", `confirmation event snapshot is not current for matter ${matterId}`);
+        }
+        if ((await tx.get(STORES.events, event.id)) !== undefined) {
+          throw new Refusal("INVALID_INPUT", `event ${event.id} is already recorded`);
+        }
+
+        const nextMatter: MatterRecord = {
+          ...aggregate.matter,
+          version: expectedVersion + 1,
+          updatedAt,
+        };
+        await tx.put(STORES.matters, matterId, {
+          matter: nextMatter,
+          targets: structuredClone(aggregate.targets),
+          assets: structuredClone(aggregate.assets),
+        } satisfies StoredAggregate);
+        await tx.put(STORES.events, event.id, structuredClone(event));
+        await tx.put(STORES.blobs, confirmationLedgerKey(actor, matterId), {
+          kind: "draft-review.confirmations",
+          tenantId: actor.tenantId,
+          actorId: actor.userId,
+          matterId,
+          ledger: structuredClone(ledger),
+        });
+        return result({ matter: structuredClone(nextMatter), version: nextMatter.version, eventId: event.id });
+      });
+    } catch (error) {
+      return fail(toRepositoryError(error));
+    }
+  }
+
   /** Detach from the backend. A closed backend refuses further work. */
   close(): void {
     this.backend.close();
@@ -947,6 +1051,10 @@ function cloneAggregate(aggregate: StoredAggregate): StoredAggregate {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function confirmationLedgerKey(actor: Actor, matterId: string): string {
+  return `draft-review/confirmations/${encodeURIComponent(actor.tenantId)}/${encodeURIComponent(actor.userId)}/${encodeURIComponent(matterId)}`;
 }
 
 function isText(value: unknown): value is string {
