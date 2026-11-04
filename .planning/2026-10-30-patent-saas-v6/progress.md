@@ -1,5 +1,12 @@
 # 进度日志
 
+## 会话：2026-11-05
+
+- 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
+- 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
+- 部署准备（独立分支 `codex/v6-deploy`，提交 `c523bba`）：Vite base/outDir 支持 `V6_WEB_BASE`/`V6_WEB_OUTDIR`，router basename 改由 `BASE_URL` 推导（默认仍为 `/patent`，不改变现有行为）；新增 `build:v6-root` 根路径构建、根路径 `_headers`/`_redirects`（`/ → /v6 302`）与独立 `wrangler.patent-v6.jsonc`（worker `patent-v6`，路由 `patent.paymond.me`，纯静态 assets，无模型代理）。根构建 exit 0，headless Chrome 在 `http://localhost:4174/v6` 加载 V6 入口成功、无控制台错误。未部署，未触碰旧 `patent-drafter` worker。
+- wrangler 尚未安装（本机无 CLI；已在临时目录尝试安装，等待网络）。本机存在既有 wrangler 凭据配置（未读取内容）。
+
 ## 会话：2026-11-02
 
 - V6-13 第三轮独立复核 NOT_ACCEPT，唯一阻断 B4：无变更（no-op）保存跳过幂等记录，导致同键不同载荷被执行、相同重放不可重放。第三轮修复完成：无变更保存也写幂等记录（同一 readwrite 事务内检查并写入 requestHash、sourceVersion、基线快照、`unchanged: true`），幂等查找移到案件状态门禁之前；非阻断项同修（归档后重放成功、冲突面板「保留我的修改，基于第 N 版保存」、退役材料不再出现在选择器）。新增测试 25/26/27/28/39，修复前 5 项红；V6-13 39/39、V6-11 53/53、V6-10 36/36、tsc/build exit 0、red-before-fix 22 守卫、浏览器 12/12 步 0 console 错误；scope 35 项与 changedFiles 一致；临时挂载已按字节还原。已派第四轮独立复核，含并发同键「无变更 vs 写版本」对抗探针。
