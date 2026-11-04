@@ -1,0 +1,260 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-15
+
+TAP version 13
+# Subtest: V6-15 concurrency: grant same key with different payloads gets one winner and one conflict
+ok 1 - V6-15 concurrency: grant same key with different payloads gets one winner and one conflict
+  ---
+  duration_ms: 29.7395
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: identical concurrent grants both succeed with one creation and equal results
+ok 2 - V6-15 concurrency: identical concurrent grants both succeed with one creation and equal results
+  ---
+  duration_ms: 4.220083
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: revoke same key with different consentIds gets one winner and one conflict
+ok 3 - V6-15 concurrency: revoke same key with different consentIds gets one winner and one conflict
+  ---
+  duration_ms: 5.8885
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: identical concurrent revokes both succeed with one event and consistent answers
+ok 4 - V6-15 concurrency: identical concurrent revokes both succeed with one event and consistent answers
+  ---
+  duration_ms: 6.494958
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: a grant whose finalize fails after commit replays the original response
+ok 5 - V6-15 concurrency: a grant whose finalize fails after commit replays the original response
+  ---
+  duration_ms: 2.360833
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: a revoke whose finalize fails after commit replays the original response
+ok 6 - V6-15 concurrency: a revoke whose finalize fails after commit replays the original response
+  ---
+  duration_ms: 2.289166
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: cleanup cannot delete a consent row whose granted event survived
+ok 7 - V6-15 concurrency: cleanup cannot delete a consent row whose granted event survived
+  ---
+  duration_ms: 2.00825
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: the losing claim performs no business write at all
+ok 8 - V6-15 concurrency: the losing claim performs no business write at all
+  ---
+  duration_ms: 1.287792
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: a live claim makes an identical request wait, then report busy, then replay
+ok 9 - V6-15 concurrency: a live claim makes an identical request wait, then report busy, then replay
+  ---
+  duration_ms: 502.970417
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: an expired owner's cleanup cannot delete the new claim owner's consent row
+ok 10 - V6-15 concurrency: an expired owner's cleanup cannot delete the new claim owner's consent row
+  ---
+  duration_ms: 8.217792
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: a same-key retry after a failed commit re-executes instead of conflicting on the invisible orphan row
+ok 11 - V6-15 concurrency: a same-key retry after a failed commit re-executes instead of conflicting on the invisible orphan row
+  ---
+  duration_ms: 4.368833
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: capabilities never claim local, byok or platform outbound availability in R1
+ok 12 - V6-15 engine: capabilities never claim local, byok or platform outbound availability in R1
+  ---
+  duration_ms: 22.531291
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: a manifest lists exactly the current source files, counts and target revisions
+ok 13 - V6-15 engine: a manifest lists exactly the current source files, counts and target revisions
+  ---
+  duration_ms: 1.957459
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: unknown page counts and missing facts stay visible without inventing data
+ok 14 - V6-15 engine: unknown page counts and missing facts stay visible without inventing data
+  ---
+  duration_ms: 4.215208
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: an empty workspace is the no-matters view, not a fake matter
+ok 15 - V6-15 engine: an empty workspace is the no-matters view, not a fake matter
+  ---
+  duration_ms: 0.547125
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: unknown processor fields make consent impossible and report the fields
+ok 16 - V6-15 engine: unknown processor fields make consent impossible and report the fields
+  ---
+  duration_ms: 2.297791
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: a grant saves the profile facts, scope, one allowlisted event and can be validated
+ok 17 - V6-15 engine: a grant saves the profile facts, scope, one allowlisted event and can be validated
+  ---
+  duration_ms: 4.84675
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: a stale manifest hash or a mismatched scope is refused without writing
+ok 18 - V6-15 engine: a stale manifest hash or a mismatched scope is refused without writing
+  ---
+  duration_ms: 2.953542
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: adding a file makes the old consent stale and unusable (S04-A02)
+ok 19 - V6-15 engine: adding a file makes the old consent stale and unusable (S04-A02)
+  ---
+  duration_ms: 6.061625
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: a purpose change requires a separate consent
+ok 20 - V6-15 engine: a purpose change requires a separate consent
+  ---
+  duration_ms: 5.171084
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: changed processor, region, retention, training or terms invalidates the old consent
+ok 21 - V6-15 engine: changed processor, region, retention, training or terms invalidates the old consent
+  ---
+  duration_ms: 3.464208
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: an expired consent stays historical and cannot authorize
+ok 22 - V6-15 engine: an expired consent stays historical and cannot authorize
+  ---
+  duration_ms: 1.995958
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: target-scoped consent does not cover another target or the whole matter
+ok 23 - V6-15 engine: target-scoped consent does not cover another target or the whole matter
+  ---
+  duration_ms: 2.134666
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: revocation is append-only, blocks use, and a second revocation adds no event
+ok 24 - V6-15 engine: revocation is append-only, blocks use, and a second revocation adds no event
+  ---
+  duration_ms: 3.498125
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: request keys replay the original response and conflict on different content
+ok 25 - V6-15 engine: request keys replay the original response and conflict on different content
+  ---
+  duration_ms: 2.626791
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: an archived matter replays a completed key but refuses new work
+ok 26 - V6-15 engine: an archived matter replays a completed key but refuses new work
+  ---
+  duration_ms: 1.693042
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: another actor or tenant cannot read, grant, validate or revoke
+ok 27 - V6-15 engine: another actor or tenant cannot read, grant, validate or revoke
+  ---
+  duration_ms: 1.916417
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: the real invocation gate closes before storage or network
+ok 28 - V6-15 engine: the real invocation gate closes before storage or network
+  ---
+  duration_ms: 0.535208
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: S04-A01 an incomplete profile still cannot start a real call
+ok 29 - V6-15 engine: S04-A01 an incomplete profile still cannot start a real call
+  ---
+  duration_ms: 1.037625
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: the invocation view model projects contract metadata only
+ok 30 - V6-15 engine: the invocation view model projects contract metadata only
+  ---
+  duration_ms: 0.919917
+  type: 'test'
+  ...
+# Subtest: V6-15 UI loading: the first render is busy and shows no invented rows
+ok 31 - V6-15 UI loading: the first render is busy and shows no invented rows
+  ---
+  duration_ms: 42.204084
+  type: 'test'
+  ...
+# Subtest: V6-15 UI mounting: the container renders its page shell and the loading panel
+ok 32 - V6-15 UI mounting: the container renders its page shell and the loading panel
+  ---
+  duration_ms: 3.822167
+  type: 'test'
+  ...
+# Subtest: V6-15 UI error: a failed load shows its code and a retry, never an empty page
+ok 33 - V6-15 UI error: a failed load shows its code and a retry, never an empty page
+  ---
+  duration_ms: 0.368584
+  type: 'test'
+  ...
+# Subtest: V6-15 UI empty: no matter shows the empty reason, honest capabilities and disabled grants
+ok 34 - V6-15 UI empty: no matter shows the empty reason, honest capabilities and disabled grants
+  ---
+  duration_ms: 2.6565
+  type: 'test'
+  ...
+# Subtest: V6-15 UI ready: the manifest, profile facts, unknown fields and release gate are explicit
+ok 35 - V6-15 UI ready: the manifest, profile facts, unknown fields and release gate are explicit
+  ---
+  duration_ms: 11.489875
+  type: 'test'
+  ...
+# Subtest: V6-15 UI purpose: a purpose the profile does not allow disables confirmation
+ok 36 - V6-15 UI purpose: a purpose the profile does not allow disables confirmation
+  ---
+  duration_ms: 1.484042
+  type: 'test'
+  ...
+# Subtest: V6-15 UI granted: the consent row shows its scope and offers revocation
+ok 37 - V6-15 UI granted: the consent row shows its scope and offers revocation
+  ---
+  duration_ms: 4.451833
+  type: 'test'
+  ...
+# Subtest: V6-15 UI stale: a new file marks the active consent and warns before re-confirmation
+ok 38 - V6-15 UI stale: a new file marks the active consent and warns before re-confirmation
+  ---
+  duration_ms: 2.436834
+  type: 'test'
+  ...
+# Subtest: V6-15 UI revoked and archived: history remains, but new authorization is disabled
+ok 39 - V6-15 UI revoked and archived: history remains, but new authorization is disabled
+  ---
+  duration_ms: 3.895666
+  type: 'test'
+  ...
+# Subtest: V6-15 UI invocation table: metadata only, with no prompt, content or key
+ok 40 - V6-15 UI invocation table: metadata only, with no prompt, content or key
+  ---
+  duration_ms: 1.225583
+  type: 'test'
+  ...
+# Subtest: V6-15 UI actions: errors and confirmations are shown without losing the manifest
+ok 41 - V6-15 UI actions: errors and confirmations are shown without losing the manifest
+  ---
+  duration_ms: 0.805959
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 739.261584
