@@ -25,6 +25,7 @@
 - V6-17 第一轮独立复核 CHANGES_REQUIRED（review-01.md），五项阻断：(1) support 实为 readiness 报告，AST 的 factIds/sourceRefs/supportParagraphIds 为空，且 currentInput 丢弃已持久化 facts；(2) maxCostMinor 与整任务 maxDurationSeconds 未真正限制调用；(3) 生成修订的 astHash 误用输入哈希；(4) saveEditedRevision 在 target 提交后的状态行写失败会使 head 与状态不一致、后续保存 VERSION_CONFLICT；(5) 回执 S04-A07 描述失败阶段错误。其余取消/重试/恢复/consent/幂等探针通过。已派修复，要求 support 成为真实的依据索引并贯通 AST、限额按整任务与保守成本执行、astHash 取 AST 摘要、修订 seam 可恢复、回执更正。
 - V6-17 修复代码已落地：新增 SupportIndex（facts/chunks→factId/sourceRefs/chunkId、pipeline fact 模糊匹配、未解析清单），AST 构建器接入来源；整任务时长与保守成本上限返回 JOB_LIMIT_EXCEEDED；新增 canonicalAstHash；saveEditedRevision 增加状态恢复。当前 21/21 通过（修复前用例），新增阻断回归测试仍在补。
 - V6-17 五项阻断均补了针对性测试（support/AST 来源、facts 变化、成本与时长上限、astHash、状态写失败恢复），28/28、web tsc 0、V6-10/14/15/16 回归全绿；回执与 scope 已刷新（24 项一致），已派第二轮独立复核。
+- V6-17 执行者确认五项修复：support 为持久化 facts/chunks 的确定性索引并注入 claims/spec prompt 与 AST；成本/时长整任务限制（未知成本消耗预算）；生成修订使用 canonicalAstHash；状态行失败可从 target/修订行恢复；回执 S04-A07 已更正。证据刷新，浏览器截图未重采（UI 由 5 个测试覆盖），仍为 candidate；第二轮复核中。
 - 集成分支回归全绿：V6-06/08/10/11/12/13/14/15/16 全部 exit 0；根构建再次验证。V6-17 收敛到 9/11，剩余失败为：重试重算了 facts 检查点（`:110`）、首个 job 未到 support 即被新引擎视为中断（`:179`）。
 - V6-21 执行者候选已就绪（34 项 changedFiles，浏览器截图与回执齐全），等待其报告与独立复核。已知契约缺口：LocalRepository 在案件 archived 时拒绝一切写入，S06 的「取消归档」在现有写集内无法实现；执行者请求 NEEDS_DECISION，待复核后由编排者决定是否扩展 repository 写集。
 
