@@ -20,7 +20,7 @@ dist/patent/assets/pdf.min-C5rkUzaZ.js            531.78 kB │ gzip: 160.74 kB
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 2.30s
+✓ built in 3.02s
 
 command=npm run build --workspace @patent/web
 exitCode=0

@@ -38,6 +38,8 @@ V6-11 已提交 953e05d。V6-12 经三轮独立复核（第三轮 accept）后�
 - [x] V6-14 路线与多目标配置：独立复核 ACCEPT（review-01.md，无阻断）。编排者修正：取消每案目标数上限（S03 专业模式可继续添加目标）；优先权证据只接受 `available` 状态的材料。41/41、回归 45/41/42/53/36、tsc/build 0、红灯 5 项、浏览器 8/8 步 0 console 错误、28 项 scope 一致；提交 `7fc5d9a`，`--no-ff` 合并回 PR 分支后在 `overview` 标签永久挂载，保存目标后外壳原地刷新（`onSettled` → 非破坏性 `retry`），并移除 `v6.css` 中 `.v6-targets .chip { color: inherit }`。PR 分支 14 套件 413/413、浏览器 8/8 步 0 console 错误。复核 finding 1（重试复用请求键）与 2（提交循环内重查材料状态）须在服务端/真实适配器票前处理
 - [x] V6-16 版本化 pipeline adapter：两轮独立复核后 accept（review-02.md，无阻断）。第 1 轮阻断为缓存元数据未绑定当前 provider/model、stub 伪造 model、命中仍报 cached:false，以及损坏缓存无法驱逐导致反复 provider 调用；修复为按阶段类型/执行模式校验元数据、命中置 cached:true、缓存 seam 增加 delete 并隔离重写坏条目、二次污染报 INTERNAL_ERROR。14/14 场景；回归 V6-10 36、V6-14 41、V6-15 41、tsc/build 0。提交 `e1017af`，已合并入集成分支。两项 NEEDS_DECISION：C11 检查点存储 schema/所有权/保留策略、每阶段 consent scope 的规范表示；Node 22 未验证
 - [x] V6-21 案件列表与待办：两轮独立复核后 accept（review-02.md）。第 1 轮四项阻断：收件箱未消费共享 nextAction、deletion_pending 使整个列表/收件箱读取失败、成功 parse job 永不关闭、S06-A04/A05 覆盖过度；修复为共享投影、跳过 pending、按 parse 终态解决、补 review feedback 测试并把 A05 标 partial。29/29、V6-06 25/25、tsc/build 0、41→42 项 scope 一致。提交 `fb7af75`，合并入集成分支；集成分支 V6-21 29/29、V6-06 25/25。已知契约缺口：无 `matter.unarchived` 事件，取消归档不写事件（已记为 limitation）；nextAction 暂放 features/matters，待 domain 所有者迁移
+- [x] V6-17 任务进度与结果采纳：四轮独立复核后 accept（review-05.md）。阻断依次为：support 实为 readiness 且 AST 无来源、成本/时长未真正限制、astHash 误用输入哈希、修订状态写失败不可恢复、support 假关联、数值归一化 1.5=15；修复为真实 SupportIndex 贯通 AST、按调用即时计费与跨 resume deadline、canonicalAstHash、状态重建、严格 ref 校验与保留数字标点。37/37、V6-10/14/15/16 回归全绿，tsc/build 0。提交 `7d4eae0`，合并入集成分支
+- [ ] V6-18 统一 AST 草稿编辑：执行中（写集 `features/draft/Editor.tsx`、`ast-adapter.ts`）
 - [ ] 按依赖图继续完成 Foundation/R1
 - **状态：** in_progress
 
