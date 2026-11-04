@@ -253,7 +253,15 @@ function mapIssue(ast: DraftAST, path: readonly (string | number)[], reason: str
     claimNumber: null,
     sectionKind: null,
   };
-  if (path[0] === "claims" && typeof path[1] === "number") {
+  if (path[0] === "claims" && path.length === 1) {
+    const missing = reason.match(/claim numbers must be contiguous from 1; missing (\d+)/u);
+    if (missing) {
+      const claimNumber = Number(missing[1]);
+      issue.claimNumber = claimNumber;
+      const nearest = ast.claims[claimNumber - 1] ?? ast.claims.at(-1) ?? null;
+      issue.nodeId = nearest?.id ?? null;
+    }
+  } else if (path[0] === "claims" && typeof path[1] === "number") {
     const claim = ast.claims[path[1]];
     if (claim) {
       issue.claimNumber = claim.number;

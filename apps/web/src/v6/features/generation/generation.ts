@@ -418,6 +418,11 @@ export class MemoryGenerationStore implements GenerationStore {
  * V6-18 reuse seam for reading the head DraftRevision and appending an edited one.
  * It keeps contract validation, input refs, parent ids and CAS writes behind one small interface.
  */
+export interface ExpectedDraftInput {
+  input: DraftInputRef;
+  figureRevisionId: string;
+}
+
 export interface GenerationRevisionStore {
   loadHeadRevision(matterId: string, targetId: string): Promise<GenerationOutcome<GenerationRevisionView | null>>;
   loadRevision(matterId: string, targetId: string, revisionId: string): Promise<GenerationOutcome<GenerationRevisionView>>;
@@ -426,6 +431,7 @@ export interface GenerationRevisionStore {
     targetId: string,
     baseRevisionId: string | null,
     ast: DraftAST,
+    expected?: ExpectedDraftInput,
   ): Promise<GenerationOutcome<RevisionRecord<DraftAST>>>;
 }
 
@@ -582,6 +588,7 @@ export function createGenerationRevisionStore(options: GenerationRevisionStoreOp
     targetId: string,
     baseRevisionId: string | null,
     ast: DraftAST,
+    expected?: ExpectedDraftInput,
   ): Promise<GenerationOutcome<RevisionRecord<DraftAST>>> {
     try {
       const parsed = draftAstSchema.safeParse(ast);
@@ -590,6 +597,16 @@ export function createGenerationRevisionStore(options: GenerationRevisionStoreOp
       if (!loaded.ok) return loaded;
       if (loaded.data.aggregate.matter.status !== "active" || loaded.data.target.status !== "active") {
         return fail("INVALID_TRANSITION", "已归档的案件或目标不能保存修订。");
+      }
+      if (expected && (
+        expected.input.matterId !== matterId
+        || expected.input.targetId !== targetId
+        || expected.input.sourceVersion !== loaded.data.input.sourceVersion
+        || expected.input.targetConfigVersion !== loaded.data.input.targetConfigVersion
+        || expected.input.figureRevisionId !== expected.figureRevisionId
+        || expected.figureRevisionId !== loaded.data.input.figureRevisionId
+      )) {
+        return fail("INPUT_STALE", "草稿基础输入或图集版本已变化，请刷新并核对后再保存。");
       }
       if (loaded.data.target.draftRevisionId !== baseRevisionId) {
         return fail("VERSION_CONFLICT", "基础修订已变化，请重新读取并合并编辑内容。");
@@ -646,7 +663,26 @@ export function createGenerationRevisionStore(options: GenerationRevisionStoreOp
           blobs: [],
         },
       }, { requestId: eventId });
-      if (!committed.ok) return fail(committed.error.code, committed.error.message);
+      if (!committed.ok) {
+        if (expected) {
+          try {
+            await storage.transaction((tx) => tx.delete(revisionRowKey(matterId, targetId, saved.revision.id)));
+          } catch {
+            return fail("STORAGE_UNAVAILABLE", "输入已变化；未发布修订，但临时修订记录未能清理。");
+          }
+          if (committed.error.code === "VERSION_CONFLICT") {
+            const latest = await current(matterId, targetId);
+            if (latest.ok && (
+              expected.input.sourceVersion !== latest.data.input.sourceVersion
+              || expected.input.targetConfigVersion !== latest.data.input.targetConfigVersion
+              || expected.figureRevisionId !== latest.data.input.figureRevisionId
+            )) {
+              return fail("INPUT_STALE", "草稿基础输入或图集版本已变化，请刷新并核对后再保存。");
+            }
+          }
+        }
+        return fail(committed.error.code, committed.error.message);
+      }
       try {
         await storage.transaction((tx) => tx.put(stateRowKey(matterId, targetId), {
           kind: "generation.revisions",

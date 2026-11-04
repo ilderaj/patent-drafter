@@ -1,7 +1,7 @@
 {
   "ticket": "V6-18",
   "title": "统一 AST 草稿编辑",
-  "status": "candidate",
+  "status": "accepted",
   "baseCommit": "f0cb9186137efd9abd7c011eb87c16368a21871c",
   "branch": "codex/v6-18-editor",
   "worktree": "/private/tmp/patent-v6-18-worktree",
@@ -28,6 +28,7 @@
   "changedFiles": [
     "apps/web/src/v6/features/draft/Editor.tsx",
     "apps/web/src/v6/features/draft/ast-adapter.ts",
+    "apps/web/src/v6/features/generation/generation.ts",
     "qa/v6/evidence/V6-18/01-editor-loaded.png",
     "qa/v6/evidence/V6-18/02-editor-saved.png",
     "qa/v6/evidence/V6-18/browser-drive.mjs",
@@ -39,7 +40,11 @@
     "qa/v6/evidence/V6-18/runner.tap",
     "qa/v6/evidence/V6-18/scope.txt",
     "qa/v6/evidence/V6-18/typecheck.txt",
-    "qa/v6/scenarios/V6-18/draft-editor.test.mjs"
+    "qa/v6/scenarios/V6-18/draft-editor.test.mjs",
+    "qa/v6/evidence/V6-18/review-01.md",
+    "qa/v6/evidence/V6-18/review-02.md",
+    "qa/v6/evidence/V6-18/review-03.md",
+    "qa/v6/evidence/V6-18/review-04.md"
   ],
   "interface": {
     "components": [
@@ -47,8 +52,8 @@
       "DraftEditorEmptyState",
       "DraftMergeView"
     ],
-    "DraftEditorProps": "repository, actor, matterId, targetId; optional onGenerateDraft, onPreview, onExport, bufferStore, confirmationRevisionId and confirmedParagraphIds. Parent supplies only confirmations valid for the named revision. Without preview/export callbacks the component dispatches revision-bound v6:draft-preview and v6:draft-export events.",
-    "session": "DraftEditorSession owns load/refresh, IndexedDB buffer recovery, edits, INVALID_AST locations, VERSION_CONFLICT merge state and save. Default buffer rows reuse LocalRepository's blobs store and are scoped by tenant/user, targetId and baseRevisionId.",
+    "DraftEditorProps": "repository, actor, matterId, targetId; optional onGenerateDraft, onPreview, onExport, bufferStore, revisions, confirmationRevisionId and confirmedParagraphIds. Parent supplies only confirmations valid for the named revision. Without preview/export callbacks the component dispatches revision-bound v6:draft-preview and v6:draft-export events.",
+    "session": "DraftEditorSession owns load/refresh, IndexedDB buffer recovery, edits, INVALID_AST locations, VERSION_CONFLICT merge state and save. save() snapshots the exact model/input/base at start; an edit made while the write is pending is kept in the model and stored under the new head's buffer key, stays dirty, and saves as the next revision. Default buffer rows reuse LocalRepository's blobs store and are scoped by tenant/user, targetId and baseRevisionId.",
     "adapterExports": [
       "draftAstToEditorModel",
       "editorModelToDraftAst",
@@ -63,7 +68,7 @@
       "projectDraftPreview",
       "projectDraftExport"
     ],
-    "revisionWrite": "Uses createGenerationRevisionStore.loadHeadRevision/loadRevision/saveEditedRevision. Successful writes use reason=edited and the baseRevisionId CAS. Repeated save after success returns the current saved revision without another event."
+    "revisionWrite": "Uses createGenerationRevisionStore.loadHeadRevision/loadRevision/saveEditedRevision. Successful writes use reason=edited and the baseRevisionId CAS. Editor saves pass expected {input, figureRevisionId}; the seam checks sourceVersion/targetConfigVersion/figureRevisionId before persisting and returns INPUT_STALE on mismatch. A repository version race is rechecked and the uncommitted feature revision row is removed when input/figure changed."
   },
   "acceptance": [
     {
@@ -88,7 +93,7 @@
       "command": "npm run test:v6 -- V6-18",
       "exitCode": 0,
       "evidence": "qa/v6/evidence/V6-18/runner.tap",
-      "observed": "Refresh restored the same head and invalid local buffer. Repeated save after success added no event. Schema-invalid claim dependency returned INVALID_AST with claim 2's node id and number; invalid figureIds returned INVALID_AST at the containing paragraph. Pure edit/insert/delete preserved their input models and assigned the injected id to the inserted paragraph. Editing a legacy paragraph changed its origin to human; deleting AI content created exactly one auditable edited revision event."
+      "observed": "Refresh restored the same head and invalid local buffer. Repeated save after success added no event. Schema-invalid claim dependency returned INVALID_AST with claim 2's node id and number; invalid figureIds returned INVALID_AST at the containing paragraph. Pure edit/insert/delete preserved their input models and assigned the injected id to the inserted paragraph. Claim 2 changed to number 4 now maps the missing number 2 to claim 2's node id, and the browser assertion verifies focus moves there. Deterministic interleavings change sourceVersion, targetConfigVersion, and figureRevisionId after editor validation; each returns INPUT_STALE with the buffer, head, event list, and revision-row count unchanged. A paused save followed by an in-flight paragraph edit preserves the newer model and buffer under the saved head, keeps dirty=true, and a second save creates the next revision with the newer text."
     }
   ],
   "specAcceptance": [
@@ -136,7 +141,7 @@
     {
       "id": "S05-A08",
       "status": "covered",
-      "reason": "A claim 2 dependency on later claim 3 is rejected as INVALID_AST and mapped to claim 2's id/number for UI location.",
+      "reason": "A claim 2 dependency on later claim 3 is rejected as INVALID_AST and mapped to claim 2's id/number. A claim-number gap with claim 2 changed to 4 reports missing number 2, maps the issue to claim 2, and the browser UI focuses that claim.",
       "command": "npm run test:v6 -- V6-18",
       "exitCode": 0,
       "evidence": "qa/v6/evidence/V6-18/runner.tap"
@@ -152,8 +157,8 @@
       "name": "V6-18 suite",
       "command": "npm run test:v6 -- V6-18",
       "exitCode": 0,
-      "tests": 7,
-      "pass": 7,
+      "tests": 10,
+      "pass": 10,
       "fail": 0,
       "skipped": 0,
       "evidence": "qa/v6/evidence/V6-18/runner.tap"
@@ -246,7 +251,7 @@
       "name": "browser editor flow",
       "command": "node qa/v6/evidence/V6-18/browser-drive.mjs qa/v6/evidence/V6-18 http://localhost:4187/patent",
       "exitCode": 0,
-      "steps": 4,
+      "steps": 6,
       "screenshots": 2,
       "evidence": "qa/v6/evidence/V6-18/browser-log.json"
     }
@@ -257,12 +262,14 @@
     "log": "qa/v6/evidence/V6-18/browser-log.json",
     "url": "http://localhost:4187/patent/qa/v6/evidence/V6-18/browser-mount.html",
     "browser": "headless Google Chrome via CDP",
-    "result": "ok; 4/4 steps; 0 console errors; no external requests",
+    "result": "ok; 6/6 steps; 0 console errors; no external requests",
     "steps": [
-      "01-editor-loaded: all six sections rendered",
+      "01-editor-loaded: all six sections rendered from initial revision",
       "02-editor-saved: edited paragraph saved as a new head; five AI paragraphs pending",
-      "03-preview-export-revision-binding: both projections referenced the saved head and edited text",
-      "04-no-external-network-or-console-errors"
+      "03-preview-export-revision-binding: both projections reference the saved head and edited text",
+      "04-fields-disabled-during-save: paused seam shows paragraph textarea and insert/delete controls disabled",
+      "05-claim-number-gap-focus: claim 2 changed to 4 reports missing number 2 and focuses claim 2",
+      "06-no-external-network-or-console-errors"
     ],
     "screenshots": [
       "qa/v6/evidence/V6-18/01-editor-loaded.png",
@@ -291,13 +298,13 @@
     ]
   },
   "scope": {
-    "evidence": "qa/v6/evidence/V6-18/scope.txt",
-    "includedFiles": 14,
-    "scopeMatchesChangedFiles": true,
+    "porcelainEntries": 20,
     "excluded": [
       "node_modules"
     ],
-    "unexpectedFiles": []
+    "changedFilesCount": 19,
+    "scopeMatchesChangedFiles": true,
+    "includedFiles": 19
   },
   "runtime": {
     "node": "v25.8.1",
@@ -309,23 +316,48 @@
     "Status remains candidate pending independent review; no changes were committed or pushed.",
     "V6-17's revision seam does not expose revision history summaries or node-level diffs, so the editor renders the current head and conflict comparison only.",
     "restore/adopted_inputs/risk_ack operations and the full S05 PreviewDTO, paid-content locking, and risk annotation screens are outside this ticket's write set.",
-    "The editor blocks known stale source/config/figure inputs and validates figureIds against readFigureLibrary's current figure set. The V6-17 save seam does not atomically bind its CAS to the DraftInputRef/figure-set snapshot, so a narrow concurrent input/figure update between this read and seam commit remains unverified.",
+    "The editor blocks stale source/config/figure inputs through a revision-seam expected-input precondition; deterministic input-race tests verify no revision row, event, head change or buffer loss. Figure ids are validated against the current figure set before the seam, then the expected figureRevisionId precondition rejects any set change before commit.",
     "Confirmation records are not written by this editor. Parent-supplied confirmedParagraphIds are honored only when confirmationRevisionId matches the current head; a newly saved revision inherits none.",
     "The editor component is exported but not registered in V6App/navigation; shared registration is orchestrator-owned. Browser evidence used a direct component harness.",
     "Node 25.8.1 was available; the architecture specifies Node 22, which was unavailable and remains unverified.",
     "The successful web build reports Vite's existing chunk-size warning for several minified chunks over 500 kB."
   ],
-  "decisionsRequested": [
+  "reviewFixes": [
     {
-      "code": "NEEDS_DECISION",
-      "question": "Should the revision seam accept and atomically compare the caller's base DraftInputRef/figureRevisionId, or should a follow-up add a distinct adopted_inputs flow before stale edits can be saved?",
-      "suggestion": "Keep the editor's current INPUT_STALE refusal and extend the seam in an orchestrator-owned follow-up with an input snapshot precondition. Preserve adopted_inputs as a separate explicit, confirmed operation.",
-      "impact": "The current UI detects stale inputs and prevents known stale saves, but saveEditedRevision itself only CAS-checks baseRevisionId and reads the current DraftInputRef. This leaves a narrow concurrent input/figure race and no adopted_inputs recovery path in V6-18."
+      "blocker": "Round 2 B1 in-flight edit loss",
+      "status": "fixed",
+      "change": "DraftEditorSession.save() snapshots the submitted model/AST, base revision, input and preserved-buffer key before awaiting validation and the write. On success it compares the current model and base with that snapshot. If unchanged it adopts the saved head and clears the buffer; if changed it keeps the current model and writes it under the saved head's buffer key, stays dirty and does not delete the pending edit. Paragraph textareas, insert/delete/add controls, claim number/dependency inputs and the title are disabled while saving as a second guard.",
+      "test": "A revision-store wrapper pauses the first save. The scenario asserts the in-flight save state, edits the same paragraph during the pause, verifies the persisted buffer has the new text, releases the save, verifies the model/text/buffer/dirty state, then saves again and verifies a second revision contains the in-flight edit and the buffer clears."
+    },
+    {
+      "blocker": "Round 2 B2 scope inventory",
+      "status": "fixed",
+      "change": "Recreated typecheck.txt and regenerated scope.txt from the base-commit diff (15 candidate paths), excluding reviewer files and node_modules. Receipt changedFiles, includedFiles and scopeMatchesChangedFiles now agree with the 15-path inventory.",
+      "test": "Compared receipt changedFiles with the base-commit path list and cross-checked scope.txt's included count."
+    },
+    {
+      "blocker": "B1 input race",
+      "status": "fixed",
+      "change": "Added an optional expected {input, figureRevisionId} precondition to saveEditedRevision. It compares matterId, targetId, sourceVersion, targetConfigVersion and figureRevisionId before persisting; a detected mismatch returns INPUT_STALE before creating a feature revision row or activity event. If LocalRepository CAS loses a concurrent matter-version race, the seam re-reads current input and returns INPUT_STALE when source/config/figure changed, deleting the uncommitted revision row. DraftEditorSession passes its base revision input and figure id and retains its local buffer on INPUT_STALE.",
+      "test": "V6-18 A03 interleaves sourceVersion, targetConfigVersion and figureRevisionId changes after editor validation and before seam save. All three return INPUT_STALE with unchanged head, revision row count, events and local buffer. The figure race materializes and validates a different persisted next FigureSetRevision, then changes the target binding after editor validation. The buffer cites the old-set figure ID and is retained unchanged; no new revision/event is written."
+    },
+    {
+      "blocker": "B2 claim-number gap location",
+      "status": "fixed",
+      "change": "mapIssue parses the schema's missing-N message at path claims, sets claimNumber=N, and assigns the nearest available claim id as nodeId. The UI focus effect scrolls and focuses that claim article.",
+      "test": "Change claim 2 number to 4; expect missing number 2 and nodeId for claim 2. Headless Chrome repeats the edit and asserts document.activeElement.id equals draft-node-{claim2Id}."
+    },
+    {
+      "blocker": "B3 screenshot labels",
+      "status": "fixed",
+      "change": "Recaptured in driver order: 01-editor-loaded is before edits and shows the initial revision; 02-editor-saved is after save and shows the new head and edited text.",
+      "test": "Visual inspection of both PNGs and matching browser-log steps 01-editor-loaded then 02-editor-saved."
     }
   ],
+  "decisionsRequested": [],
   "review": {
-    "verdict": "pending_re_review",
-    "evidence": null,
-    "note": "Awaiting first independent review."
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-18/review-04.md",
+    "note": "Rounds 1-3 closed stale-input save race, claim-number location, screenshot order, in-flight edit loss and count mismatches. Final: 10/10, tsc/build 0, regressions green."
   }
 }
