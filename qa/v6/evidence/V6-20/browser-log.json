@@ -1,0 +1,100 @@
+{
+  "ok": true,
+  "url": "http://127.0.0.1:4188/patent/qa/v6/evidence/V6-20/browser-mount.html",
+  "steps": [
+    {
+      "step": "01-preview-risk-redacted-and-located",
+      "ok": true
+    },
+    {
+      "step": "02-local-full-preview-and-paragraph-highlight",
+      "ok": true
+    },
+    {
+      "step": "03-full-read-confirmed",
+      "ok": true
+    },
+    {
+      "step": "04-same-matter-navigation",
+      "ok": true
+    },
+    {
+      "step": "05-stale-input-banner-callbacks",
+      "ok": true,
+      "actions": [
+        {
+          "action": "regenerate",
+          "matterId": "33333333-3333-4333-8333-333333333333",
+          "targetId": "44444444-4444-4444-8444-444444444444"
+        },
+        {
+          "action": "adopt",
+          "matterId": "33333333-3333-4333-8333-333333333333",
+          "targetId": "44444444-4444-4444-8444-444444444444"
+        }
+      ]
+    },
+    {
+      "step": "06-no-external-requests-or-console-errors",
+      "ok": true
+    }
+  ],
+  "screenshots": [
+    "01-preview-risk-redacted.png",
+    "02-local-full-preview.png",
+    "03-full-read-confirmed.png",
+    "04-stale-input-actions.png"
+  ],
+  "consoleErrors": [],
+  "network": [
+    "http://127.0.0.1:4188/patent/qa/v6/evidence/V6-20/browser-mount.html",
+    "http://127.0.0.1:4188/patent/@vite/client",
+    "http://127.0.0.1:4188/patent/qa/v6/evidence/V6-20/browser-mount.html?html-proxy&index=0.js",
+    "http://127.0.0.1:4188/patent/@react-refresh",
+    "http://127.0.0.1:4188/patent/node_modules/.vite/deps/react.js?v=a0a0f0a2",
+    "http://127.0.0.1:4188/patent/node_modules/.vite/deps/react-dom_client.js?v=4745b797",
+    "http://127.0.0.1:4188/patent/apps/web/src/v6/styles/theme.css",
+    "http://127.0.0.1:4188/patent/apps/web/src/v6/routes/v6.css",
+    "http://127.0.0.1:4188/patent/apps/web/src/v6/lib/repository.ts",
+    "http://127.0.0.1:4188/patent/apps/web/src/v6/features/generation/generation.ts",
+    "http://127.0.0.1:4188/patent/apps/web/src/v6/features/preview/Preview.tsx",
+    "http://127.0.0.1:4188/patent/node_modules/.vite/deps/chunk-ETMAEK6N.js?v=c0bca7b4",
+    "http://127.0.0.1:4188/patent/node_modules/.vite/deps/chunk-BO4YYYGR.js?v=c0bca7b4",
+    "http://127.0.0.1:4188/patent/packages/contracts/src/index.ts",
+    "http://127.0.0.1:4188/patent/packages/domain/src/v6/revision.ts",
+    "http://127.0.0.1:4188/patent/packages/providers/src/index.ts",
+    "http://127.0.0.1:4188/patent/apps/web/src/v6/lib/pipeline-adapter.ts",
+    "http://127.0.0.1:4188/patent/apps/web/src/v6/features/ai/ai.ts",
+    "http://127.0.0.1:4188/patent/apps/web/src/v6/features/targets/targets.ts",
+    "http://127.0.0.1:4188/patent/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=a0a0f0a2",
+    "http://127.0.0.1:4188/patent/apps/web/src/v6/features/preview/preview.ts",
+    "http://127.0.0.1:4188/patent/apps/web/src/v6/routes/navigation.ts",
+    "http://127.0.0.1:4188/patent/packages/contracts/src/primitives.ts",
+    "http://127.0.0.1:4188/patent/packages/contracts/src/matter.ts",
+    "http://127.0.0.1:4188/patent/packages/contracts/src/draft.ts",
+    "http://127.0.0.1:4188/patent/packages/contracts/src/jobs.ts",
+    "http://127.0.0.1:4188/patent/packages/contracts/src/delivery.ts",
+    "http://127.0.0.1:4188/patent/packages/contracts/src/records.ts",
+    "http://127.0.0.1:4188/patent/packages/contracts/src/billing.ts",
+    "http://127.0.0.1:4188/patent/packages/contracts/src/privacy.ts",
+    "http://127.0.0.1:4188/patent/packages/contracts/src/fixtures.ts",
+    "http://127.0.0.1:4188/patent/node_modules/.vite/deps/chunk-R7WA2DXL.js?v=c0bca7b4",
+    "http://127.0.0.1:4188/patent/@fs/Users/jared/Personal%20Projects/Patent/node_modules/vite/dist/client/env.mjs",
+    "http://127.0.0.1:4188/patent/packages/pipeline/src/index.ts",
+    "http://127.0.0.1:4188/patent/packages/providers/src/types.ts",
+    "http://127.0.0.1:4188/patent/packages/providers/src/llm-provider.ts",
+    "http://127.0.0.1:4188/patent/packages/providers/src/deepseek-bridge-provider.ts",
+    "http://127.0.0.1:4188/patent/packages/providers/src/mock-provider.ts",
+    "http://127.0.0.1:4188/patent/packages/providers/src/codex-local-provider.ts",
+    "http://127.0.0.1:4188/patent/packages/domain/src/v6/confirmation.ts",
+    "http://127.0.0.1:4188/patent/node_modules/.vite/deps/zod.js?v=9fb7ae43",
+    "http://127.0.0.1:4188/patent/packages/pipeline/src/types.ts",
+    "http://127.0.0.1:4188/patent/packages/pipeline/src/stages.ts",
+    "http://127.0.0.1:4188/patent/packages/pipeline/src/runner.ts",
+    "http://127.0.0.1:4188/patent/packages/pipeline/src/mock.ts",
+    "http://127.0.0.1:4188/patent/packages/pipeline/src/schemas.ts",
+    "http://127.0.0.1:4188/patent/apps/web/src/shims/empty.ts",
+    "http://127.0.0.1:4188/favicon.ico"
+  ],
+  "externalRequests": []
+}
