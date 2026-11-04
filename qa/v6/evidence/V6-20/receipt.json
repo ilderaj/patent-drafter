@@ -1,0 +1,340 @@
+{
+  "ticket": "V6-20",
+  "title": "自助预览与通读",
+  "status": "candidate",
+  "baseCommit": "73a70df393a1c4f9b299bce84b0259a2776eacff",
+  "branch": "codex/v6-20-preview",
+  "worktree": "/private/tmp/patent-v6-20-worktree",
+  "contractVersion": "v6.1",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "dependencies": [
+    {
+      "ticket": "V6-17",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-17/receipt.json"
+    },
+    {
+      "ticket": "V6-18",
+      "status": "candidate",
+      "evidence": "qa/v6/evidence/V6-18/receipt.json"
+    },
+    {
+      "ticket": "V6-05",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-05/receipt.json",
+      "change": "Coordinator-authorized narrow fix to confirm: duplicate matching excludes revoked rows, so a full_read retried after revocation creates one new live row while a live duplicate stays idempotent. V6-05 remains 26/26."
+    },
+    {
+      "ticket": "V6-06",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-06/receipt.json"
+    },
+    {
+      "ticket": "V6-12",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-12/receipt.json"
+    }
+  ],
+  "interface": {
+    "component": "apps/web/src/v6/features/preview/Preview.tsx#Preview",
+    "props": [
+      "repository",
+      "actor",
+      "matterId",
+      "targetId",
+      "access",
+      "risks",
+      "onModifyMaterials",
+      "onOpenDraft",
+      "onGenerateDraft",
+      "onRegenerate",
+      "onAdoptInputs"
+    ],
+    "projection": "apps/web/src/v6/features/preview/preview.ts#buildPreviewProjection",
+    "localReader": "apps/web/src/v6/features/preview/preview.ts#loadLocalPreview",
+    "confirmation": "apps/web/src/v6/features/preview/preview.ts#confirmLocalFullRead",
+    "confirmationModel": "V6-05 confirm over an actor-scoped append-only ledger. A successful first full_read atomically writes the ledger, confirmation.created activity event, and matter version update through LocalRepository's StorageBackend transaction. A live repeat returns the existing row without another event or version increment; a repeat after revocation creates a new live row, while the preview only reports a confirmation present in currentConfirmations.",
+    "projectionBehavior": "PreviewDTO is schema-validated and contains claims, sanitized technicalField/background, locked section kinds, sanitized RiskDTOs and inputStale. inputStale compares sourceVersion, targetConfigVersion and figureRevisionId with the current DraftInputRef. FullDraftDTO is present only for full or local_unmetered access. Locked section paragraph bodies and paragraph sourceRefs are excluded from preview DTO/UI."
+  },
+  "changedFiles": [
+    "apps/web/src/v6/features/preview/Preview.tsx",
+    "apps/web/src/v6/features/preview/preview.ts",
+    "packages/domain/src/v6/confirmation.ts",
+    "qa/v6/evidence/V6-20/01-preview-risk-redacted.png",
+    "qa/v6/evidence/V6-20/02-local-full-preview.png",
+    "qa/v6/evidence/V6-20/03-full-read-confirmed.png",
+    "qa/v6/evidence/V6-20/04-stale-input-actions.png",
+    "qa/v6/evidence/V6-20/browser-drive.mjs",
+    "qa/v6/evidence/V6-20/browser-log.json",
+    "qa/v6/evidence/V6-20/browser-mount.html",
+    "qa/v6/evidence/V6-20/build-check.mjs",
+    "qa/v6/evidence/V6-20/build.txt",
+    "qa/v6/evidence/V6-20/mount-hashes.txt",
+    "qa/v6/evidence/V6-20/receipt.json",
+    "qa/v6/evidence/V6-20/regression-run.mjs",
+    "qa/v6/evidence/V6-20/regression.txt",
+    "qa/v6/evidence/V6-20/runner.tap",
+    "qa/v6/evidence/V6-20/scope.txt",
+    "qa/v6/evidence/V6-20/typecheck.txt",
+    "qa/v6/scenarios/V6-20/preview.test.mjs"
+  ],
+  "acceptance": [
+    {
+      "id": "V6-20-A01",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-20",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-20/runner.tap",
+      "observed": "A current local_unmetered revision produced a schema-valid full_read with identity=local_self_reported. The test verified a matching confirmation.created event and matter version increment."
+    },
+    {
+      "id": "V6-20-A02",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-20",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-20/runner.tap",
+      "observed": "Preview-only access returned no FullDraftDTO and no locked paragraph body or locked SourceRef quote in PreviewDTO/UI; partial locked excerpts in both risk title and explanation were replaced while an unlocked risk kept its text. V6-05 refused full_read with ACTION_FORBIDDEN. Changes to sourceVersion, targetConfigVersion or figureRevisionId each set inputStale; a changed source version additionally refused confirmation with STALE_BINDING and wrote no ledger row."
+    },
+    {
+      "id": "V6-20-A03",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-20",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-20/runner.tap",
+      "observed": "Reload returned only a live confirmation. Retrying a live full_read returned created=false with no duplicate event/version; after revocation, retry created a new id that was the sole current confirmation, and the preview hid the revoked row."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S05-A01",
+      "status": "not_applicable",
+      "reason": "S05-A01 is the R2 cloud content-usage gate across preview, revisions, diff, job result and search. V6-20 is an R1 local preview component and adds no cloud endpoint, revision/diff/job/search projection, or entitlement check. The local PreviewDTO projection does satisfy the preview-only shape for claims/technical-field/background, locked section IDs and no locked body/sourceRefs; that local projection is exercised here, but it is not evidence for the R2 GWT."
+    },
+    {
+      "id": "S05-A02",
+      "status": "covered",
+      "reason": "A locked embodiments risk keeps its category, rule, section locator and useful generic explanation. Meaningful excerpts from locked paragraph text are replaced field-by-field with section-level copy; tests cover partial title/explanation quotes, a locked paragraph SourceRef quote, and unchanged unlocked risk text. Browser evidence locates and highlights the locked section."
+    },
+    {
+      "id": "S05-A03",
+      "status": "not_applicable",
+      "reason": "AI paragraph confirmation reset after professional editing is an editor/save-revision behavior. This module is read-only; V6-18 covers that behavior."
+    },
+    {
+      "id": "S05-A04",
+      "status": "not_applicable",
+      "reason": "Competing revision save and merge behavior belongs to the V6-18 editor revision seam, not this read-only preview."
+    },
+    {
+      "id": "S05-A05",
+      "status": "not_applicable",
+      "reason": "Restore, restoredFrom, figureStrategy and confirmation non-inheritance require the restore command, outside the V6-20 write set."
+    },
+    {
+      "id": "S05-A06",
+      "status": "not_applicable",
+      "reason": "This ticket displays source-version staleness and invokes the regenerate/adopt callbacks; it does not implement adopted_inputs creation or its confirmation dialog."
+    },
+    {
+      "id": "S05-A07",
+      "status": "not_applicable",
+      "reason": "Risk acknowledgement and expert-service routing are separate risk_ack/service flows. V6-20 displays risks and does not create acknowledgements or service orders."
+    },
+    {
+      "id": "S05-A08",
+      "status": "not_applicable",
+      "reason": "Invalid AST validation occurs on professional save. The preview is read-only and cannot save AST changes; V6-18 covers the claim dependency validation."
+    },
+    {
+      "id": "S05-A09",
+      "status": "covered",
+      "reason": "local_unmetered renders all six sections, the required local no-fee label, a full-read confirmation control, and no pay/unlock controls. Covered by scenario assertions and browser screenshots."
+    }
+  ],
+  "runs": [
+    {
+      "name": "V6-20",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-20",
+      "exitCode": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-20/runner.tap"
+    },
+    {
+      "name": "workspace typecheck",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run typecheck",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-20/typecheck.txt"
+    },
+    {
+      "name": "direct web typecheck",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree/apps/web run typecheck",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-20/typecheck.txt"
+    },
+    {
+      "name": "V6-18 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-18",
+      "exitCode": 0,
+      "tests": 7,
+      "pass": 7,
+      "evidence": "qa/v6/evidence/V6-20/regression.txt"
+    },
+    {
+      "name": "V6-17 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-17",
+      "exitCode": 0,
+      "tests": 37,
+      "pass": 37,
+      "evidence": "qa/v6/evidence/V6-20/regression.txt"
+    },
+    {
+      "name": "V6-16 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-16",
+      "exitCode": 0,
+      "tests": 14,
+      "pass": 14,
+      "evidence": "qa/v6/evidence/V6-20/regression.txt"
+    },
+    {
+      "name": "V6-15 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-15",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "evidence": "qa/v6/evidence/V6-20/regression.txt"
+    },
+    {
+      "name": "V6-14 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-14",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "evidence": "qa/v6/evidence/V6-20/regression.txt"
+    },
+    {
+      "name": "V6-10 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-10",
+      "exitCode": 0,
+      "tests": 36,
+      "pass": 36,
+      "evidence": "qa/v6/evidence/V6-20/regression.txt"
+    },
+    {
+      "name": "V6-08 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-08",
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "evidence": "qa/v6/evidence/V6-20/regression.txt"
+    },
+    {
+      "name": "V6-05 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree run test:v6 -- V6-05",
+      "exitCode": 0,
+      "tests": 26,
+      "pass": 26,
+      "evidence": "qa/v6/evidence/V6-20/regression.txt"
+    },
+    {
+      "name": "workspace tests",
+      "command": "npm --prefix /private/tmp/patent-v6-20-worktree test --workspaces --if-present",
+      "exitCode": 0,
+      "checks": 59,
+      "breakdown": {
+        "workerTests": 15,
+        "exportChecks": 44
+      },
+      "evidence": "qa/v6/evidence/V6-20/regression.txt"
+    },
+    {
+      "name": "production Vite build",
+      "command": "node /private/tmp/patent-v6-20-worktree/qa/v6/evidence/V6-20/build-check.mjs",
+      "exitCode": 0,
+      "observed": "2199 modules transformed; 4 chunks and 4 assets emitted in memory. No build output files were written.",
+      "evidence": "qa/v6/evidence/V6-20/build.txt"
+    },
+    {
+      "name": "browser preview flow",
+      "command": "node /private/tmp/patent-v6-20-worktree/qa/v6/evidence/V6-20/browser-drive.mjs",
+      "exitCode": 0,
+      "steps": 6,
+      "screenshots": 4,
+      "externalRequests": 0,
+      "consoleErrors": 0,
+      "evidence": "qa/v6/evidence/V6-20/browser-log.json"
+    }
+  ],
+  "browserEvidence": {
+    "driver": "qa/v6/evidence/V6-20/browser-drive.mjs",
+    "mount": "qa/v6/evidence/V6-20/browser-mount.html",
+    "url": "http://127.0.0.1:4188/patent/qa/v6/evidence/V6-20/browser-mount.html",
+    "browser": "headless Google Chrome via CDP",
+    "result": "ok; six steps; partial locked-quote check; no external requests; no console errors",
+    "screenshots": [
+      "qa/v6/evidence/V6-20/01-preview-risk-redacted.png",
+      "qa/v6/evidence/V6-20/02-local-full-preview.png",
+      "qa/v6/evidence/V6-20/03-full-read-confirmed.png",
+      "qa/v6/evidence/V6-20/04-stale-input-actions.png"
+    ]
+  },
+  "scope": {
+    "evidence": "qa/v6/evidence/V6-20/scope.txt",
+    "includedFiles": 20,
+    "scopeMatchesChangedFiles": true,
+    "excluded": [
+      "node_modules",
+      "qa/v6/evidence/V6-20/review-01.md"
+    ],
+    "authorizedOutsideTicketWriteSet": [
+      "packages/domain/src/v6/confirmation.ts"
+    ],
+    "notes": [
+      "confirmation.ts carries the coordinator-authorized narrow V6-05 B2 fix; V6-05 remains accepted and 26/26.",
+      "review-01.md is the independent reviewer artifact and is excluded from the candidate write set."
+    ],
+    "unexpectedFiles": []
+  },
+  "mountHashes": {
+    "evidence": "qa/v6/evidence/V6-20/mount-hashes.txt",
+    "modifiedAppFiles": [],
+    "allOriginalHashesMatch": true
+  },
+  "runtime": {
+    "node": "v25.8.1",
+    "contractArchitectureNode": "v22",
+    "node22Verified": false,
+    "npm": "11.11.0"
+  },
+  "limitations": [
+    "Node 22 was unavailable. Tests, typecheck, Vite build and browser harness ran on Node 25.8.1 / npm 11.11.0.",
+    "The full project package build script's post-build copy steps were not run. The production Vite build was executed in memory to keep generated artifacts out of the strict write set.",
+    "Preview is exported but not registered in V6App/navigation because those shared route files are outside this ticket's write set. The browser harness mounted the component directly; the full application route flow remains unverified.",
+    "access=preview was exercised through the contract projection and synthetic local fixture. No R2 server endpoints for revisions, diffs, job results, or search were changed or verified.",
+    "The risk list is supplied through the Preview interface; V6-20 does not implement a check-run/risk producer.",
+    "Repository and V6-05 confirmation behavior was exercised with the real LocalRepository over its StorageBackend contract and an in-memory test backend. Browser evidence also used a synthetic in-memory backend; native browser IndexedDB persistence was not separately exercised.",
+    "No real provider, customer material, external network request, payment, or deployment was used."
+  ],
+  "decisions": [
+    {
+      "id": "PREVIEW-DTO-BOUNDARY",
+      "decision": "Keep PreviewDTO as a strict redacted projection; deliver complete content in a separately validated FullDraftDTO only when access is full or local_unmetered."
+    },
+    {
+      "id": "LOCAL-FULL-READ-TRANSACTION",
+      "decision": "Apply V6-05 confirm to the persisted actor-scoped ledger and atomically append confirmation.created plus matter version through the LocalRepository backend transaction."
+    },
+    {
+      "id": "PREVIEW-ROUTE-REGISTRATION",
+      "decision": "Export Preview and generate S03/same-target draft links using v6Path. Shared app route registration remains orchestrator-owned."
+    }
+  ],
+  "decisionsRequested": [],
+  "review": {
+    "verdict": "pending_re_review",
+    "evidence": "qa/v6/evidence/V6-20/review-01.md",
+    "note": "Round 1 CHANGES_REQUIRED findings B1-B4 were addressed; awaiting follow-up acceptance review."
+  }
+}

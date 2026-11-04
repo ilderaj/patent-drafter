@@ -214,7 +214,7 @@ export function confirm(
     ]);
   }
 
-  const duplicate = ledger.confirmations.find((item) => sameConfirmation(item, command));
+  const duplicate = ledger.confirmations.find((item) => !isRevoked(ledger, item.id) && sameConfirmation(item, command));
   if (duplicate) {
     return { ok: true, state: ledger, confirmation: duplicate, created: false };
   }
