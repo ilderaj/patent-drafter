@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { register } from "tsx/esm/api";
+import { bindFigures, createEmptyFigureSet, figureSetHash, readFigureLibrary } from "../../../../apps/web/src/v6/features/sources/drawings.ts";
 
 register();
 
@@ -37,6 +38,9 @@ const SOURCE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1";
 const CHUNK_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1";
 const JOB_ID = "cccccccc-cccc-4ccc-8ccc-ccccccccccc1";
 const T0 = "2026-11-05T12:00:00.000Z";
+const FIGURE_SET_INITIAL = "77777777-7777-4777-8777-777777777771";
+const FIGURE_SET_NEXT = "77777777-7777-4777-8777-777777777772";
+const RACE_FIGURE_ID = "88888888-8888-4888-8888-888888888889";
 
 class MemoryBackend {
   constructor() {
@@ -169,7 +173,13 @@ function idFactory() {
   return () => `dddddddd-dddd-4ddd-8ddd-${String(++count).padStart(12, "0")}`;
 }
 
-async function fixture({ withDraft = true } = {}) {
+function deferred() {
+  let resolve;
+  const promise = new Promise((done) => { resolve = done; });
+  return { promise, resolve };
+}
+
+async function fixture({ withDraft = true, withFigureSet = false, initialAst = null, configVersion = 1, sourceVersion = 1 } = {}) {
   const backend = new MemoryBackend();
   const repository = repositoryModule.openLocalRepository(backend);
   const matter = {
@@ -178,7 +188,7 @@ async function fixture({ withDraft = true } = {}) {
     version: 1,
     title: "合成测试案件",
     status: "active",
-    sourceVersion: 1,
+    sourceVersion,
     createdBy: ACTOR.userId,
     createdAt: T0,
     updatedAt: T0,
@@ -187,9 +197,9 @@ async function fixture({ withDraft = true } = {}) {
     id: TARGET_ID,
     matterId: MATTER_ID,
     status: "active",
-    configVersion: 1,
+    configVersion,
     draftRevisionId: null,
-    figureRevisionId: FIGURE_ID,
+    figureRevisionId: withFigureSet ? FIGURE_SET_INITIAL : FIGURE_ID,
   };
   const committed = await repository.commit(ACTOR, {
     contractVersion: repositoryModule.CONTRACT_VERSION,
@@ -197,9 +207,23 @@ async function fixture({ withDraft = true } = {}) {
     payload: { matter, targets: [target], assets: [], events: [], blobs: [] },
   }, { requestId: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee1" });
   assert.equal(committed.ok, true, committed.ok ? "" : JSON.stringify(committed.error));
+  if (withFigureSet) {
+    const emptySet = await createEmptyFigureSet(repository, ACTOR, MATTER_ID, TARGET_ID, { now: () => Date.parse(T0) });
+    assert.equal(emptySet.ok, true, emptySet.ok ? "" : JSON.stringify(emptySet.error));
+    const bound = await bindFigures(repository, ACTOR, MATTER_ID, {
+      targetId: TARGET_ID,
+      baseFigureRevisionId: FIGURE_SET_INITIAL,
+      entries: [{ figureId: FIGURE_ID, number: 1, title: "图1", drawingId: null, numerals: [] }],
+    }, { now: () => Date.parse(T0) });
+    assert.equal(bound.ok, true, bound.ok ? "" : JSON.stringify(bound.error));
+  }
+  const committedMatter = await repository.loadMatter(ACTOR, MATTER_ID);
+  assert.equal(committedMatter.ok, true);
+  const actualTarget = committedMatter.data.data.targets.find((item) => item.id === TARGET_ID);
+  const currentFigureRevisionId = actualTarget.figureRevisionId;
   const fact = makeFact();
   await backend.transaction("readwrite", (tx) => tx.put(repositoryModule.STORES.blobs,
-    `intake/snapshot/${MATTER_ID}/1`, { kind: "intake.snapshot", snapshot: makeSnapshot(fact) }));
+    `intake/snapshot/${MATTER_ID}/${sourceVersion}`, { kind: "intake.snapshot", snapshot: { ...makeSnapshot(fact), version: sourceVersion } }));
   let id = 0;
   const revisions = generationModule.createGenerationRevisionStore({
     repository,
@@ -207,21 +231,22 @@ async function fixture({ withDraft = true } = {}) {
     now: () => new Date(T0),
     newId: () => `ffffffff-ffff-4fff-8fff-${String(++id).padStart(12, "0")}`,
   });
-  const ast = makeAst();
+  const ast = initialAst ?? makeAst();
   assert.equal(contracts.draftAstSchema.safeParse(ast).success, true);
   let initialRevision = null;
   if (withDraft) {
-    const saved = await revisions.saveEditedRevision(MATTER_ID, TARGET_ID, null, ast);
+    const input = { matterId: MATTER_ID, targetId: TARGET_ID, sourceVersion, targetConfigVersion: configVersion, figureRevisionId: currentFigureRevisionId };
+    const saved = await revisions.saveEditedRevision(MATTER_ID, TARGET_ID, null, ast, withFigureSet ? { input, figureRevisionId: currentFigureRevisionId } : undefined);
     assert.equal(saved.ok, true, saved.ok ? "" : JSON.stringify(saved.error));
     initialRevision = saved.data;
   }
   const buffers = new editor.IndexedDbDraftBufferStore(backend, ACTOR);
-  const makeSession = (newId = idFactory()) => new editor.DraftEditorSession({
+  const makeSession = (newId = idFactory(), revisionStore = revisions) => new editor.DraftEditorSession({
     repository,
     actor: ACTOR,
     matterId: MATTER_ID,
     targetId: TARGET_ID,
-    revisions,
+    revisions: revisionStore,
     bufferStore: buffers,
     newId,
     now: () => T0,
@@ -282,6 +307,69 @@ test("V6-18 A01: edited DraftRevision is the preview and export projection sourc
   assert.equal(repeated.id, saved.id);
   assert.equal(afterRepeat.length, beforeRepeat.length);
   assert.equal(afterRepeat.filter((event) => event.resourceId === saved.id).length, 1);
+});
+
+test("in-flight edits remain in the model and buffer and save on the next revision", async () => {
+  const current = await fixture();
+  const entered = deferred();
+  const release = deferred();
+  const realStore = current.revisions;
+  let pauseFirstWrite = true;
+  const pausedStore = {
+    loadHeadRevision: (...args) => realStore.loadHeadRevision(...args),
+    loadRevision: (...args) => realStore.loadRevision(...args),
+    saveEditedRevision: async (...args) => {
+      if (pauseFirstWrite) {
+        pauseFirstWrite = false;
+        entered.resolve();
+        await release.promise;
+      }
+      return realStore.saveEditedRevision(...args);
+    },
+  };
+  const session = current.makeSession(undefined, pausedStore);
+  await session.load();
+  const originalUpdateParagraph = session.updateParagraph.bind(session);
+  let reachedGuardedField = false;
+  session.updateParagraph = async (...args) => {
+    if (session.getSnapshot().saving) reachedGuardedField = true;
+    return originalUpdateParagraph(...args);
+  };
+  await session.updateParagraph({ claimId: CLAIM_1 }, 0, "保存开始前的文本");
+
+  const pendingSave = session.save();
+  await entered.promise;
+  assert.equal(session.getSnapshot().saving, true);
+  await session.updateParagraph({ claimId: CLAIM_1 }, 0, "保存进行期间的新文本");
+  assert.equal(reachedGuardedField, true, "interleaving probe edited during the in-flight save");
+  let buffered = await current.buffers.loadActive(MATTER_ID, TARGET_ID);
+  assert.equal(buffered.baseRevisionId, current.initialRevision.id);
+  assert.equal(buffered.model.claims[0].paragraphs[0].text, "保存进行期间的新文本");
+
+  release.resolve();
+  const firstRevision = await pendingSave;
+  assert.ok(firstRevision);
+  assert.equal(firstRevision.ast.claims[0].paragraphs[0].text, "保存开始前的文本");
+  let state = session.getSnapshot();
+  assert.equal(state.baseRevisionId, firstRevision.id);
+  assert.equal(state.model.claims[0].paragraphs[0].text, "保存进行期间的新文本");
+  assert.equal(state.dirty, true);
+  assert.equal(state.saving, false);
+  buffered = await current.buffers.loadActive(MATTER_ID, TARGET_ID);
+  assert.equal(buffered.baseRevisionId, firstRevision.id);
+  assert.equal(buffered.model.claims[0].paragraphs[0].text, "保存进行期间的新文本");
+  assert.equal((await current.revisions.loadHeadRevision(MATTER_ID, TARGET_ID)).data.revision.id, firstRevision.id);
+
+  const secondRevision = await session.save();
+  assert.ok(secondRevision);
+  assert.notEqual(secondRevision.id, firstRevision.id);
+  assert.equal(secondRevision.parentId, firstRevision.id);
+  assert.equal(secondRevision.ast.claims[0].paragraphs[0].text, "保存进行期间的新文本");
+  state = session.getSnapshot();
+  assert.equal(state.dirty, false);
+  assert.equal(state.model.claims[0].paragraphs[0].text, "保存进行期间的新文本");
+  assert.equal((await current.revisions.loadHeadRevision(MATTER_ID, TARGET_ID)).data.revision.id, secondRevision.id);
+  assert.equal(await current.buffers.loadActive(MATTER_ID, TARGET_ID), null);
 });
 
 test("deleting AI content creates one auditable edited revision", async () => {
@@ -408,6 +496,19 @@ test("V6-18 A03 and S05-A08: reload restores invalid local input and reports its
   assert.equal(pendingAfterNewRevision.length, 5);
 });
 
+test("claim numbering gap maps to the missing number and nearest claim focus target", async () => {
+  const current = await fixture();
+  const session = current.makeSession();
+  await session.load();
+  await session.updateClaimField(CLAIM_2, { number: 4 });
+  assert.equal(await session.save(), null);
+  const issue = session.getSnapshot().error.issues.find((item) => item.path === "claims");
+  assert.ok(issue);
+  assert.equal(issue.claimNumber, 2);
+  assert.equal(issue.nodeId, CLAIM_2);
+  assert.match(issue.reason, /missing 2/);
+});
+
 test("S05 empty state offers generation and manual writing; manual draft persists and saves", async () => {
   const markup = renderToStaticMarkup(createElement(editor.DraftEditorEmptyState, {
     matterId: MATTER_ID,
@@ -444,6 +545,97 @@ test("S05 figure references must resolve in the current target figure set", asyn
   assert.equal(state.error.code, "INVALID_AST");
   assert.ok(state.error.issues.some((issue) => issue.nodeId === PARAGRAPH_IDS[0] && issue.path.endsWith("figureIds")));
   assert.equal((await current.revisions.loadHeadRevision(MATTER_ID, TARGET_ID)).data.revision.id, current.initialRevision.id);
+});
+
+test("input snapshot precondition rejects source, config, and figure races before revision or event writes", async () => {
+  const cases = ["source", "config", "figure"];
+  for (const [index, changedInput] of cases.entries()) {
+    const current = await fixture({ withFigureSet: true });
+    if (changedInput === "figure") {
+      await current.backend.transaction("readwrite", async (tx) => {
+        const entries = [{ figureId: RACE_FIGURE_ID, number: 1, title: "图1B", drawingId: null, numerals: [] }];
+        await tx.put(repositoryModule.STORES.blobs, `figures/${TARGET_ID}/${FIGURE_SET_NEXT}`, {
+          kind: "figures.set",
+          tenantId: ACTOR.tenantId,
+          matterId: MATTER_ID,
+          revision: {
+            id: FIGURE_SET_NEXT,
+            matterId: MATTER_ID,
+            targetId: TARGET_ID,
+            parentId: FIGURE_SET_INITIAL,
+            entries,
+            hash: await figureSetHash(entries),
+            createdAt: T0,
+          },
+        });
+      });
+    }
+    const baseId = current.initialRevision.id;
+    const revisionStore = current.revisions;
+    const interleavedStore = {
+      loadHeadRevision: (...args) => revisionStore.loadHeadRevision(...args),
+      loadRevision: (...args) => revisionStore.loadRevision(...args),
+      saveEditedRevision: async (matterId, targetId, baseRevisionId, ast, expected) => {
+        const loaded = await current.repository.loadMatter(ACTOR, matterId);
+        assert.equal(loaded.ok, true);
+        const aggregate = loaded.data.data;
+        const target = aggregate.targets.find((item) => item.id === targetId);
+        const matter = {
+          ...aggregate.matter,
+          sourceVersion: changedInput === "source" ? aggregate.matter.sourceVersion + 1 : aggregate.matter.sourceVersion,
+          version: aggregate.matter.version + 1,
+          updatedAt: T0,
+        };
+        const targets = aggregate.targets.map((item) => item.id !== targetId ? item : {
+          ...item,
+          configVersion: changedInput === "config" ? item.configVersion + 1 : item.configVersion,
+          figureRevisionId: changedInput === "figure" ? FIGURE_SET_NEXT : item.figureRevisionId,
+        });
+        assert.ok(target);
+        const moved = await current.repository.commit(ACTOR, {
+          contractVersion: repositoryModule.CONTRACT_VERSION,
+          expectedVersion: aggregate.matter.version,
+          payload: { matter, targets, assets: aggregate.assets, events: [], blobs: [] },
+        }, { requestId: `eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee${index + 3}` });
+        assert.equal(moved.ok, true, moved.ok ? "" : JSON.stringify(moved.error));
+        return revisionStore.saveEditedRevision(matterId, targetId, baseRevisionId, ast, expected);
+      },
+    };
+    const session = current.makeSession(undefined, interleavedStore);
+    await session.load();
+    await session.updateParagraph({ claimId: CLAIM_1 }, 0, `缓冲编辑 ${changedInput}`);
+    if (changedInput === "figure") {
+      const figureRead = await readFigureLibrary(current.repository, ACTOR, MATTER_ID);
+      assert.equal(figureRead.ok, true);
+      const currentFigureId = figureRead.data.current.get(TARGET_ID).entries[0].figureId;
+      const beforeSetChange = structuredClone(session.getSnapshot().model);
+      beforeSetChange.claims[0].paragraphs[0].figureIds = [currentFigureId];
+      await session.updateModel(beforeSetChange);
+    }
+    const beforeEvents = await eventsFor(current);
+    const beforeRevisionRows = await current.backend.transaction("readonly", async (tx) =>
+      (await tx.getAll(repositoryModule.STORES.blobs)).filter((row) => row?.kind === "generation.revision").length,
+    );
+
+    assert.equal(await session.save(), null);
+    assert.equal(session.getSnapshot().error.code, "INPUT_STALE");
+    assert.equal(session.getSnapshot().inputStale, true);
+    assert.equal(session.getSnapshot().model.claims[0].paragraphs[0].text, `缓冲编辑 ${changedInput}`);
+    assert.equal((await current.buffers.loadActive(MATTER_ID, TARGET_ID)).model.claims[0].paragraphs[0].text, `缓冲编辑 ${changedInput}`);
+    if (changedInput === "figure") {
+      const currentFigures = await readFigureLibrary(current.repository, ACTOR, MATTER_ID);
+      assert.equal(currentFigures.ok, true);
+      assert.equal(currentFigures.data.current.get(TARGET_ID).id, FIGURE_SET_NEXT);
+      assert.deepEqual(currentFigures.data.current.get(TARGET_ID).entries.map((entry) => entry.figureId), [RACE_FIGURE_ID]);
+      assert.deepEqual(session.getSnapshot().model.claims[0].paragraphs[0].figureIds, [FIGURE_ID]);
+    }
+    assert.equal((await current.revisions.loadHeadRevision(MATTER_ID, TARGET_ID)).data.revision.id, baseId);
+    assert.equal((await eventsFor(current)).length, beforeEvents.length);
+    const afterRevisionRows = await current.backend.transaction("readonly", async (tx) =>
+      (await tx.getAll(repositoryModule.STORES.blobs)).filter((row) => row?.kind === "generation.revision").length,
+    );
+    assert.equal(afterRevisionRows, beforeRevisionRows);
+  }
 });
 
 test("stale input refuses the edit seam so saving cannot silently adopt new inputs", async () => {
