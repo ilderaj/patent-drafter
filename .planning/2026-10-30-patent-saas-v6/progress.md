@@ -32,6 +32,7 @@
 - V6-19 第二轮复核 CHANGES_REQUIRED（review-02.md），唯一阻断：保存 r2 后撤销 r1 的历史确认失败，因为 `confirmation.revoked` 事件携带旧 SnapshotRef 被 repository 的「必须当前」校验拒绝；§4 允许历史撤销。已派修复：created 仍要求当前快照，revoked 允许与确认行匹配的历史快照并原子递增版本；UI 显示撤销错误；补历史撤销测试。
 - V6-22 已从 V6-19 候选提交 `5888545` 建独立工作树 `/private/tmp/patent-v6-22-worktree` 并启动执行者（八标签工作台、目标聚合、追加式活动、失效批准），写集仅 features/workbench 与本票场景/证据。
 - V6-24 已从集成 tip 建工作树并合入 V6-19 候选与 accepted V6-23，启动执行者（内部批准、门禁原因、角色限制、图集变化失效、可撤销记录），写集仅 features/delivery/Approval.tsx 与本票场景/证据；最终接受需 V6-19 先 accepted。
+- V6-19 历史撤销修复完成：`confirmation.revoked` 可对旧 SnapshotRef 的确认行撤销（校验 resourceId/actor/ledger），created 仍要求当前；UI 显示撤销错误。14/14、V6-05 26/26、tsc/build/browser 6/6 通过，回执 22 项 changedFiles 一致；已派第三轮复核。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
