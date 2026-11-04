@@ -20,6 +20,7 @@
 - V6-17 收敛到 10/11；唯一失败为重试未复用已完成 facts 检查点（生成测试 `:110` 期望 1 次实际 2 次），已提示检查重试时上下文/缓存 scope 的复用，并要求补断言。
 - V6-21 第二轮独立复核 ACCEPT（review-02.md），无阻断；收件箱投影、deletion_pending、parse 终态、review feedback 与 unarchive 均经独立探针确认。回执置 accepted，42 项 changedFiles 与 scope 一致（review-02 已计入），提交 `fb7af75` 并合并入集成分支；集成分支 V6-21 29/29、V6-06 25/25，已推送。
 - V6-17 已补 `Generation.tsx` 与完整场景，当前 19/19、web tsc 0，浏览器截图与回归证据正在采集；回执尚未生成。
+- V6-17 候选就绪：21/21（含排队取消、完成后取消、改变 consent 的重试拒绝）、web tsc 0、build 0、V6-08/10/14/15/16 回归全绿；浏览器 4/4 无外部请求，临时挂载已按字节还原。回执 candidate，22 项 changedFiles 与 scope 一致，S04-A06–A10 covered、A01–A05 not_applicable，两项 NEEDS_DECISION（C11 检查点存储 schema、运行中材料变化的 consent 策略）。已派第一轮独立复核，并要求重点审查五阶段到 18 阶段管线的映射（尤其 support→assess_readiness 是否真正产出依据映射）。
 - 集成分支回归全绿：V6-06/08/10/11/12/13/14/15/16 全部 exit 0；根构建再次验证。V6-17 收敛到 9/11，剩余失败为：重试重算了 facts 检查点（`:110`）、首个 job 未到 support 即被新引擎视为中断（`:179`）。
 - V6-21 执行者候选已就绪（34 项 changedFiles，浏览器截图与回执齐全），等待其报告与独立复核。已知契约缺口：LocalRepository 在案件 archived 时拒绝一切写入，S06 的「取消归档」在现有写集内无法实现；执行者请求 NEEDS_DECISION，待复核后由编排者决定是否扩展 repository 写集。
 
