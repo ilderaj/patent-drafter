@@ -7,6 +7,7 @@
 - V6-18 第一轮独立复核 CHANGES_REQUIRED（review-01.md）：(1) 保存竞态可把旧 AST 绑定到新 source/config/figure 输入；(2) 权利要求编号缺口无定位（path 只有 claims）；(3) 两张浏览器截图内容与文件名相反。已授权 V6-17 seam 增加可选 expected input/figureRevision 前置校验（不匹配返回 INPUT_STALE、不写修订/事件），要求编辑器传递基修订输入；同时修编号定位映射与截图顺序，补确定性交错测试。
 - V6-20 与 V6-23 执行者先后因工具输出把真实 UUID 脱敏显示为 `{{ACCOUNT_…}}`/`22222…` 而反复 Edit 同一处被中止；已确认两处 fixture 已是合法 UUID，并指示不得基于脱敏值编辑、从中断处继续。当前 V6-20 1/6、V6-23 1/11（均为未完成态）；两个 agent 已恢复。
 - V6-20 候选就绪：6/6、web tsc 0、V6-05/08/10/14/15/16/17/18 回归与 workspace 通过、浏览器 6 步无外部请求；回执 19 项 changedFiles 与 scope 一致，S05-A01/A02/A09 covered，A05-A08 not_applicable。已派第一轮独立复核，重点验证 locked 正文/sourceRefs 不从 DTO/UI 泄漏、full_read 只能对完整当前稿原子写入且幂等。
+- V6-19 候选就绪：5/5、web tsc 0、V6-18/17/16/15/14/10/08 与 workspace 通过、浏览器 4/4 无外部请求；回执 15 项 changedFiles 与 scope 一致，S05-A03 covered。已派第一轮独立复核，重点验证 locator 不可定位/不误高亮、确认与撤销的 actor/snapshot 绑定、新版失效与幂等。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
