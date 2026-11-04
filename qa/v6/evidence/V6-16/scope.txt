@@ -1,0 +1,14 @@
+?? apps/web/src/v6/lib/pipeline-adapter.ts
+?? node_modules
+?? qa/v6/evidence/V6-16/build.txt
+?? qa/v6/evidence/V6-16/receipt.json
+?? qa/v6/evidence/V6-16/regression.txt
+?? qa/v6/evidence/V6-16/review-01.md
+?? qa/v6/evidence/V6-16/review-02.md
+?? qa/v6/evidence/V6-16/runner.tap
+?? qa/v6/evidence/V6-16/scope.txt
+?? qa/v6/evidence/V6-16/typecheck.txt
+?? qa/v6/evidence/V6-16/v6-10.tap
+?? qa/v6/evidence/V6-16/v6-14.tap
+?? qa/v6/evidence/V6-16/v6-15.tap
+?? qa/v6/scenarios/V6-16/pipeline-adapter.test.mjs
