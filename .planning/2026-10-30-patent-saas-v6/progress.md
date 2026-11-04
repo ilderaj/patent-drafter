@@ -27,6 +27,7 @@
 - V6-23 复核只剩回执字段不一致（runs V6-18 仍 7/7、regression.txt 旧候选说明）；已更新为 10/10 与 accepted 依赖说明，请复核者做最终复验。
 - V6-23 最终复核 ACCEPT（review-06）：依赖 V6-18 accepted、10/10、regression 233 与逐套件总和一致、V6-23 12/12。回执 status accepted（31 项 changedFiles），提交 `aa876df` 并合并入集成分支（`14820c5`）。
 - V6-19 第二轮复核尚未产出 review-02；当前 11/11、tsc 0，等待复核结论后启动 V6-22/24。
+- 集成分支在合入 V6-18/V6-20/V6-23 后重新构建与回归：`build:v6-root` exit 0；V6-05/18/20/23 全部 exit 0。V6-19 复核者被误停后已恢复，继续完成探针与 review-02。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
