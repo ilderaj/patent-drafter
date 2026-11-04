@@ -8,6 +8,9 @@
 - wrangler 尚未安装（本机无 CLI；已在临时目录尝试安装，等待网络）。本机存在既有 wrangler 凭据配置（未读取内容）。
 - 找到本机可用的 Wrangler 4.90.0（另一项目的 node_modules），`wrangler deploy --config wrangler.patent-v6.jsonc --dry-run` 通过：assets-only Worker 读取 11 个文件、无绑定；配置改为 `custom_domain: true` 的 `patent.paymond.me`。`wrangler whoami` 因本机无法连接 `dash.cloudflare.com`（连接超时）未完成并报未登录；`curl` 到 npm registry 与 Cloudflare API 均超时（禁用沙箱后相同），当前环境无外网。部署将在 R1 验收后重试网络；若仍不可用，需要可联网环境或有效凭据。
 - V6-16 第一轮独立复核 CHANGES_REQUIRED（review-01.md）：(1) 缓存元数据未绑定当前 provider/model，伪造合法哈希条目会被直接采用，stub 模式返回未调用过的 model，缓存命中仍报 cached:false；(2) 损坏缓存条目无法删除/替换，`putIfAbsent` 使毒化键永久保留并反复触发 provider 调用。其余探针（失效、授权、阻塞修复请求、并发、输入不变）通过。已派修复：按阶段类型校验元数据、命中置 cached:true、stub 的 model 为 null、缓存 seam 增加 delete 并在读坏条目时隔离重写。复核另记 Node 25 vs 架构注记 Node 22 的运行环境限制。
+- V6-16 修复完成并经编排者复跑 14/14：元数据按阶段类型/执行模式/provider/model/prompt/rule-pack 绑定，缓存命中（含上游检查点）报 cached:true，损坏条目先 delete 再重算、二次污染报 INTERNAL_ERROR；毒化探针第二次运行为 0 provider 调用。已派第二轮独立复核。
+- 发现本机代理 `127.0.0.1:7897`：经代理 `wrangler whoami` 成功，账号具备 workers/workers_routes/zone 等权限，Cloudflare API 可达。`wrangler deploy --dry-run` 配置通过（assets-only，11 个文件，无绑定）。部署不再是网络阻塞，但按发布门禁仍未执行。
+- V6-21 执行者候选已就绪（34 项 changedFiles，浏览器截图与回执齐全），等待其报告与独立复核。已知契约缺口：LocalRepository 在案件 archived 时拒绝一切写入，S06 的「取消归档」在现有写集内无法实现；执行者请求 NEEDS_DECISION，待复核后由编排者决定是否扩展 repository 写集。
 
 ## 会话：2026-11-02
 
