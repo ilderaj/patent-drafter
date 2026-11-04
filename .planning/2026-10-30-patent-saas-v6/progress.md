@@ -31,6 +31,7 @@
 - V6-17 B1 严格校验已落地并经编排者独立探针验证：baseline 的 fact 关联为 supported；缺 chunk UUID、unsupported 状态、篡改 quote/hash 三种情况下目标 fact 均进入 unresolved，AST 不再关联它，且无“supported 但无来源”的 feature。B2/B3 探针同样通过；待执行者补 round-2 回归测试与证据。
 - V6-17 round-2 回归测试已补齐（短事实不误配、缺 chunk、unsupported、无 factId、篡改 ref、cap 2 两次调用、最终调用超时、resume 累计超时），36/36 通过；web tsc 0、V6-10/14/15/16 回归全绿。等待证据与回执刷新后派第三轮复核。
 - V6-17 证据与回执已刷新（25 项 scope 一致），review 状态改为 review-02 待第三轮；已派第三轮独立复核，并要求执行者冻结文件不再编辑。
+- V6-17 第三轮独立复核 CHANGES_REQUIRED（review-03.md），唯一阻断：`normalizedText` 去掉所有标点/符号，`1.5mm` 可被归一成 `15mm` 并错误标为 supported。其余 round-2 探针（support 无效链接、成本、时长、恢复、核心回归）全部通过。编排者已将归一化改为 NFKC + 小写 + 仅去空白（保留数字标点/运算符），36/36 与 tsc 0 保持；已要求执行者补 `1.5` vs `15` 回归并刷新证据，再派第四轮。
 - 集成分支回归全绿：V6-06/08/10/11/12/13/14/15/16 全部 exit 0；根构建再次验证。V6-17 收敛到 9/11，剩余失败为：重试重算了 facts 检查点（`:110`）、首个 job 未到 support 即被新引擎视为中断（`:179`）。
 - V6-21 执行者候选已就绪（34 项 changedFiles，浏览器截图与回执齐全），等待其报告与独立复核。已知契约缺口：LocalRepository 在案件 archived 时拒绝一切写入，S06 的「取消归档」在现有写集内无法实现；执行者请求 NEEDS_DECISION，待复核后由编排者决定是否扩展 repository 写集。
 
