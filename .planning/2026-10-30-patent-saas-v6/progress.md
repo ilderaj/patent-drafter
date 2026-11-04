@@ -18,6 +18,8 @@
 - V6-23 第二轮复核确认 stale-policy 已修复（12/12），但因 V6-18 仍是 candidate/pending、执行协议要求依赖先 accepted，暂不能接受；等 V6-18 通过后只需轻量复核依赖状态。
 - V6-18 保存竞态修复完成：保存捕获快照/令牌，await 期间的新编辑保留在模型与 buffer、dirty 保持、base 更新至新 head，另加保存中禁编辑；10/10、tsc 0、回归通过，已派第三轮复核。V6-20 四项阻断修复完成：局部 locked 引文脱敏、撤销后重试创建新 live 确认、完整 DraftInputRef stale、S05-A01 降级；9/9、V6-05 26/26 保持，已派第二轮复核。
 - V6-20 修复细化：risk 字段与 locked 段落按归一化重叠（8 字符/短文本高重叠）保守替换为章节级说明；V6-05 confirm 的重复匹配忽略已撤销行，撤销后重试生成新 live 确认并刷新预览；stale 比较完整 DraftInputRef；S05-A01 降级。V6-05 回执关于「重复确认一律幂等」的表述需后续补记该协调变更。
+- V6-18 第三轮复核只剩计数不一致（复核者运行 11/11、TAP/回执 10/10）；当前树实际 10 个测试、TAP 已重采为 10/10，已请复核者确认计数并给出最终结论。
+- V6-19 修复完成：locator 校验 source.matterId/asset 并重算实时 chunk 文本哈希，stale 不暴露正文；确认/撤销通过 repository 原子写 ledger+事件并递增 matter.version；risk/claim/source 使用 tabIndex=-1 与真实 focus；浏览器证据用 VITE_CACHE_DIR 隔离。11/11、tsc 0、scope 20 项一致，已派第二轮复核。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
