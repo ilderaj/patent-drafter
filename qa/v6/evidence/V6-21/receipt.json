@@ -336,5 +336,13 @@
     "verdict": "accept",
     "evidence": "qa/v6/evidence/V6-21/review-02.md",
     "note": "Round 1 blocked on inbox/list divergence, deletion_pending aborts, unresolved successful parse jobs, and overstated S06-A04/A05. All fixed and independently reproduced; round 2 accepted 29/29, V6-06 25/25, tsc 0, with probes for shared nextAction, pending isolation, parse terminal resolution, review feedback lifecycle and unarchive safety. Browser evidence predates B1-B4 and is labeled as such."
+  },
+  "mount": {
+    "permanent": true,
+    "files": [
+      "apps/web/src/v6/routes/V6App.tsx",
+      "apps/web/src/v6/routes/navigation.ts"
+    ],
+    "note": "Orchestrator registration: matters route renders the V6-21 MattersPage with upload navigation; inbox section renders InboxPage and its nav capability is AVAILABLE. Root build passed and headless Chrome loaded /v6/matters and /v6/inbox with no console errors."
   }
 }
