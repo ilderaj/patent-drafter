@@ -402,6 +402,61 @@ export class LocalRepository {
     }
   }
 
+  /**
+   * The explicit archived-to-active transition (S06-A08). This is intentionally
+   * separate from `commit`: ordinary writes to archived matters remain refused.
+   * The activity whitelist has no unarchive action, so this writes only the
+   * aggregate and emits no event or blob.
+   */
+  async unarchiveMatter(
+    actor: Actor,
+    command: { matterId: string; expectedVersion: number; updatedAt: string },
+  ): Promise<RepositoryResult<{ matter: MatterRecord; version: number }>> {
+    const problem = checkActor(actor) ?? checkKey(command?.matterId);
+    if (problem) return fail(problem);
+    if (!Number.isSafeInteger(command.expectedVersion) || command.expectedVersion < 0) {
+      return fail({ code: "INVALID_INPUT", message: "expectedVersion must be a non-negative integer" });
+    }
+    if (typeof command.updatedAt !== "string" || command.updatedAt.length === 0) {
+      return fail({ code: "INVALID_INPUT", message: "updatedAt must be a non-empty timestamp" });
+    }
+    try {
+      return await this.backend.transaction("readwrite", async (tx) => {
+        const aggregate = asAggregate(await tx.get(STORES.matters, command.matterId));
+        if (aggregate === null || !ownsMatter(aggregate.matter, actor)) {
+          throw new Refusal("RESOURCE_NOT_FOUND", `matter ${command.matterId} not found`);
+        }
+        if (aggregate.matter.version !== command.expectedVersion) {
+          throw new Refusal(
+            "VERSION_CONFLICT",
+            `matter ${command.matterId} is at version ${aggregate.matter.version}, not ${command.expectedVersion}`,
+            aggregate.matter.version,
+          );
+        }
+        if (aggregate.matter.status !== "archived") {
+          throw new Refusal(
+            "INVALID_TRANSITION",
+            `matter ${command.matterId} is ${aggregate.matter.status}; only archived matters can be unarchived`,
+          );
+        }
+        const matter: MatterRecord = {
+          ...aggregate.matter,
+          status: "active",
+          version: command.expectedVersion + 1,
+          updatedAt: command.updatedAt,
+        };
+        await tx.put(STORES.matters, command.matterId, {
+          matter,
+          targets: structuredClone(aggregate.targets),
+          assets: structuredClone(aggregate.assets),
+        } satisfies StoredAggregate);
+        return result({ matter: structuredClone(matter), version: matter.version });
+      });
+    } catch (error) {
+      return fail(toRepositoryError(error));
+    }
+  }
+
   /** The actor's matters, newest first; empty on a fresh local database. */
   async listMatters(actor: Actor): Promise<RepositoryResult<MatterList>> {
     const problem = checkActor(actor);
