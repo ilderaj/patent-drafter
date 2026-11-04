@@ -13,12 +13,15 @@ import { Unlock } from "./screens/Unlock";
 
 // V6-08: the /v6 slice loads on demand. Set VITE_V6_ENABLED=false to build without it.
 const V6_ENABLED = import.meta.env.VITE_V6_ENABLED !== "false";
+// The build base decides the router basename: /patent/ under the legacy worker,
+// / for the standalone patent.paymond.me deployment.
+const BASENAME = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
 const V6App = lazy(() => import("./v6/routes/V6App.tsx"));
 
 export default function App() {
   return (
     <StoreProvider>
-      <BrowserRouter basename="/patent">
+      <BrowserRouter basename={BASENAME}>
         <Routes>
           <Route element={<AppShell />}>
             <Route path="/" element={<Home />} />
