@@ -7,11 +7,9 @@
   "compatibility_date": "2026-08-01",
   "assets": {
     "directory": "./apps/web/dist/v6",
-    "binding": "ASSETS",
     "not_found_handling": "single-page-application"
   },
   "routes": [
-    { "pattern": "patent.paymond.me", "zone_name": "paymond.me" },
-    { "pattern": "patent.paymond.me/*", "zone_name": "paymond.me" }
+    { "pattern": "patent.paymond.me", "custom_domain": true }
   ]
 }
