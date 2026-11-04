@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build && cp dist/patent/index.html dist/index.html && cp dist/patent/_headers dist/_headers",
+    "build:v6-root": "tsc --noEmit && V6_WEB_BASE=/ V6_WEB_OUTDIR=dist/v6 vite build && cp v6-deploy/_headers dist/v6/_headers && cp v6-deploy/_redirects dist/v6/_redirects",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

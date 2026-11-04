@@ -3,7 +3,9 @@ import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
 
 export default defineConfig({
-  base: "/patent/",
+  // The legacy worker serves the app under /patent/. The standalone
+  // patent.paymond.me worker builds the same app at the domain root.
+  base: process.env.V6_WEB_BASE ?? "/patent/",
   plugins: [react()],
   resolve: {
     alias: {
@@ -54,6 +56,6 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "dist/patent",
+    outDir: process.env.V6_WEB_OUTDIR ?? "dist/patent",
   },
 });

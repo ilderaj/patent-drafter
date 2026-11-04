@@ -1,0 +1,17 @@
+{
+  // Standalone R1 web app for patent.paymond.me. This is a separate Worker from
+  // the legacy patent-drafter worker; it serves only the V6 static build and
+  // contains no model proxy, no secrets and no stored customer material.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "patent-v6",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./apps/web/dist/v6",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [
+    { "pattern": "patent.paymond.me", "zone_name": "paymond.me" },
+    { "pattern": "patent.paymond.me/*", "zone_name": "paymond.me" }
+  ]
+}
