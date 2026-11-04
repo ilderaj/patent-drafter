@@ -14,6 +14,9 @@ qa/v6/evidence/V6-20/mount-hashes.txt
 qa/v6/evidence/V6-20/receipt.json
 qa/v6/evidence/V6-20/regression-run.mjs
 qa/v6/evidence/V6-20/regression.txt
+qa/v6/evidence/V6-20/review-01.md
+qa/v6/evidence/V6-20/review-02.md
+qa/v6/evidence/V6-20/review-03.md
 qa/v6/evidence/V6-20/runner.tap
 qa/v6/evidence/V6-20/scope.txt
 qa/v6/evidence/V6-20/typecheck.txt

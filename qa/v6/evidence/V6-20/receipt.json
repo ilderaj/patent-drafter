@@ -1,7 +1,7 @@
 {
   "ticket": "V6-20",
   "title": "自助预览与通读",
-  "status": "candidate",
+  "status": "accepted",
   "baseCommit": "73a70df393a1c4f9b299bce84b0259a2776eacff",
   "branch": "codex/v6-20-preview",
   "worktree": "/private/tmp/patent-v6-20-worktree",
@@ -15,8 +15,10 @@
     },
     {
       "ticket": "V6-18",
-      "status": "candidate",
-      "evidence": "qa/v6/evidence/V6-18/receipt.json"
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-18/receipt.json",
+      "reviewEvidence": "qa/v6/evidence/V6-18/review-04.md",
+      "mergeCommit": "e9c14f9"
     },
     {
       "ticket": "V6-05",
@@ -73,6 +75,9 @@
     "qa/v6/evidence/V6-20/receipt.json",
     "qa/v6/evidence/V6-20/regression-run.mjs",
     "qa/v6/evidence/V6-20/regression.txt",
+    "qa/v6/evidence/V6-20/review-01.md",
+    "qa/v6/evidence/V6-20/review-02.md",
+    "qa/v6/evidence/V6-20/review-03.md",
     "qa/v6/evidence/V6-20/runner.tap",
     "qa/v6/evidence/V6-20/scope.txt",
     "qa/v6/evidence/V6-20/typecheck.txt",
@@ -281,21 +286,13 @@
     ]
   },
   "scope": {
-    "evidence": "qa/v6/evidence/V6-20/scope.txt",
-    "includedFiles": 20,
-    "scopeMatchesChangedFiles": true,
+    "porcelainEntries": 23,
     "excluded": [
-      "node_modules",
-      "qa/v6/evidence/V6-20/review-01.md"
+      "node_modules"
     ],
-    "authorizedOutsideTicketWriteSet": [
-      "packages/domain/src/v6/confirmation.ts"
-    ],
-    "notes": [
-      "confirmation.ts carries the coordinator-authorized narrow V6-05 B2 fix; V6-05 remains accepted and 26/26.",
-      "review-01.md is the independent reviewer artifact and is excluded from the candidate write set."
-    ],
-    "unexpectedFiles": []
+    "changedFilesCount": 23,
+    "scopeMatchesChangedFiles": true,
+    "includedFiles": 23
   },
   "mountHashes": {
     "evidence": "qa/v6/evidence/V6-20/mount-hashes.txt",
@@ -333,8 +330,9 @@
   ],
   "decisionsRequested": [],
   "review": {
-    "verdict": "pending_re_review",
-    "evidence": "qa/v6/evidence/V6-20/review-01.md",
-    "note": "Round 1 CHANGES_REQUIRED findings B1-B4 were addressed; awaiting follow-up acceptance review."
-  }
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-20/review-03.md",
+    "note": "Round 1 fixed locked risk excerpt leaks, revoked full-read replay, full DraftInputRef staleness and S05-A01 mapping; round 2 revalidated the V6-18 dependency. Final: 9/9, V6-05 26/26, tsc/build 0."
+  },
+  "dependencyStatus": "V6-18 accepted at integration merge e9c14f9; V6-20 tests 9/9 on the merged tree."
 }
