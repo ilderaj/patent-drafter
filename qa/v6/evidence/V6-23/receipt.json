@@ -1,7 +1,7 @@
 {
   "ticket": "V6-23",
   "title": "四类检查与依据",
-  "status": "candidate",
+  "status": "accepted",
   "baseCommit": "73a70df393a1c4f9b299bce84b0259a2776eacff",
   "branch": "codex/v6-23-checks",
   "worktree": "/private/tmp/patent-v6-23-worktree",
@@ -26,10 +26,10 @@
     },
     {
       "ticket": "V6-18",
-      "status": "candidate",
-      "reviewStatus": "pending_re_review",
-      "baseCommit": "73a70df393a1c4f9b299bce84b0259a2776eacff",
-      "note": "candidate at 73a70df, to be revalidated after V6-18 acceptance",
+      "status": "accepted",
+      "reviewStatus": "accept",
+      "reviewEvidence": "qa/v6/evidence/V6-18/review-04.md",
+      "mergeCommit": "e9c14f9",
       "evidence": "qa/v6/evidence/V6-18/receipt.json"
     }
   ],
@@ -57,6 +57,10 @@
     "qa/v6/evidence/V6-23/regression.txt",
     "qa/v6/evidence/V6-23/review-01.md",
     "qa/v6/evidence/V6-23/review-02.md",
+    "qa/v6/evidence/V6-23/review-03.md",
+    "qa/v6/evidence/V6-23/review-04.md",
+    "qa/v6/evidence/V6-23/review-05.md",
+    "qa/v6/evidence/V6-23/review-06.md",
     "qa/v6/evidence/V6-23/runner.tap",
     "qa/v6/evidence/V6-23/scope.txt",
     "qa/v6/evidence/V6-23/typecheck.txt",
@@ -188,8 +192,8 @@
       "name": "V6-18 regression",
       "command": "npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-18",
       "exitCode": 0,
-      "tests": 7,
-      "pass": 7,
+      "tests": 10,
+      "pass": 10,
       "fail": 0,
       "skipped": 0,
       "evidence": "qa/v6/evidence/V6-23/regression-v6-18.tap"
@@ -320,13 +324,13 @@
     ]
   },
   "scope": {
-    "evidence": "qa/v6/evidence/V6-23/scope.txt",
-    "includedFiles": 27,
-    "scopeMatchesChangedFiles": true,
+    "porcelainEntries": 31,
     "excluded": [
       "node_modules"
     ],
-    "unexpectedFiles": []
+    "changedFilesCount": 31,
+    "scopeMatchesChangedFiles": true,
+    "includedFiles": 31
   },
   "mount": {
     "mode": "standalone synthetic QA HTML; no app route mount",
@@ -389,9 +393,9 @@
   ],
   "decisionsRequested": [],
   "review": {
-    "verdict": "pending_re_review",
-    "evidence": "qa/v6/evidence/V6-23/review-02.md",
-    "note": "Round-1 stale policy and dependency-status blockers fixed; round-2 confirms B1 but V6-18 remains unaccepted and blocks V6-23 acceptance; awaiting V6-18 acceptance and revalidation."
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-23/review-06.md",
+    "note": "Round 1 stale-policy blocking and dependency wording fixed; dependency V6-18 accepted and merged; all counts reconciled. Final: 12/12, tsc/build 0, regressions 233/233."
   },
   "reviewFixes": [
     {
@@ -403,9 +407,10 @@
     {
       "id": "B2",
       "status": "fixed",
-      "change": "The receipt records V6-18 as candidate at 73a70df, reviewStatus pending_re_review, and states it is to be revalidated after V6-18 acceptance.",
-      "test": "receipt dependency record and regression.txt review note"
+      "change": "The dependency record now records V6-18 as accepted at review-04 / merge e9c14f9; the stale candidate note was removed and the V6-18 regression tap was refreshed to 10/10.",
+      "test": "receipt dependency record and refreshed regression-v6-18.tap"
     }
   ],
-  "limitationReview": "V6-18 remains candidate at 73a70df with pending_re_review; per round-2 review, V6-23 is not acceptance-ready until V6-18 acceptance evidence is available and the dependency is revalidated."
+  "limitationReview": "V6-18 is accepted (review-04, merge e9c14f9) and merged into this branch; V6-23 was revalidated at 12/12 after the merge.",
+  "dependencyStatus": "V6-18 accepted at integration merge e9c14f9; V6-23 tests 12/12 on the merged tree."
 }

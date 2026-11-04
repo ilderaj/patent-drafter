@@ -1,5 +1,4 @@
 apps/web/src/v6/features/checks/Checks.tsx
-node_modules
 packages/domain/src/v6/checks.ts
 qa/v6/evidence/V6-23/01-checks-ready.png
 qa/v6/evidence/V6-23/02-checks-rerunning.png
@@ -22,6 +21,10 @@ qa/v6/evidence/V6-23/regression-workspace.tap
 qa/v6/evidence/V6-23/regression.txt
 qa/v6/evidence/V6-23/review-01.md
 qa/v6/evidence/V6-23/review-02.md
+qa/v6/evidence/V6-23/review-03.md
+qa/v6/evidence/V6-23/review-04.md
+qa/v6/evidence/V6-23/review-05.md
+qa/v6/evidence/V6-23/review-06.md
 qa/v6/evidence/V6-23/runner.tap
 qa/v6/evidence/V6-23/scope.txt
 qa/v6/evidence/V6-23/typecheck.txt

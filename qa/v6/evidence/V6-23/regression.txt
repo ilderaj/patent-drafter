@@ -8,10 +8,10 @@ Acceptance suite
 - Command: npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23
 - Exit: 0; 12 tests passed, 0 failed, 0 skipped. Full output: runner.tap.
 - B1 regression: an old `old-v1` product policy with `action=export` and the same ID as an active `active-v2` policy with `action=prepare` yields `blockingPolicyRuleIds.export=[]` and `prepare=[id]`. evaluateGate(export) allows; evaluateGate(prepare) refuses.
-- B2 receipt: V6-18 is candidate at 73a70df with reviewStatus pending_re_review; revalidate this dependency after V6-18 acceptance.
+- B2 receipt: V6-18 is accepted (review-04, merge e9c14f9); this dependency was revalidated on the merged tree.
 
 Regression suites
-- V6-18: exit 0; 7/7 passed. Output: regression-v6-18.tap.
+- V6-18: exit 0; 10/10 passed. Output: regression-v6-18.tap.
 - V6-17: exit 0; 37/37 passed. Output: regression-v6-17.tap.
 - V6-16: exit 0; 14/14 passed. Output: regression-v6-16.tap.
 - V6-15: exit 0; 41/41 passed. Output: regression-v6-15.tap.
@@ -34,4 +34,4 @@ Browser harness
 - Captures: 01-checks-ready.png, 02-checks-rerunning.png, 03-checks-error-retains-previous.png, 04-checks-stale.png. Driver and log are in this directory.
 - The standalone harness uses synthetic data and no V6App/navigation mount, provider, network service, or customer material.
 
-Regression volume: 230 V6 tests plus 59 configured workspace checks, all passing. No real patent search was run; the UI says “未检索”. No real provider was called.
+Regression volume: 233 V6 tests plus 59 configured workspace checks, all passing. No real patent search was run; the UI says “未检索”. No real provider was called.
