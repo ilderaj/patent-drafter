@@ -15,6 +15,8 @@
 - 部署脚手架已合入集成分支并验证：`build:v6-root` exit 0，headless Chrome 在根路径 `/v6` 加载入口成功；创建案件后直达 `/v6/matters/<id>/overview` 并刷新，外壳、标签与本地案件数据均恢复，无控制台错误。发布运行手册（构建/部署/冒烟/回滚/DNS 决策）提交 `d2a1206`。
 - V6-17 第二轮诊断：新增的 `generation.test.mjs` 在 `register()` 之前静态导入 generation.ts，导致 tsx 未接管 `@patent/pipeline` 的 `.js` 解析，文件级 ERR_MODULE_NOT_FOUND；已指示改为动态导入。当前套件仅 1 个测试且失败。
 - V6-21 复核四项阻断修复进行中：当前 29 个测试 28 通过、1 失败；inbox 已改为消费共享 nextAction，deletion_pending 与 parse job 处理及回执映射仍在收尾。
+- V6-21 修复后 29/29、web tsc 0；回执已更新（A04 covered、A05 partial），但 runner.tap/scope/浏览器证据仍是修复前版本，已要求执行者刷新并如实标注浏览器证据时点。
+- 集成分支回归全绿：V6-06/08/10/11/12/13/14/15/16 全部 exit 0；根构建再次验证。V6-17 收敛到 9/11，剩余失败为：重试重算了 facts 检查点（`:110`）、首个 job 未到 support 即被新引擎视为中断（`:179`）。
 - V6-21 执行者候选已就绪（34 项 changedFiles，浏览器截图与回执齐全），等待其报告与独立复核。已知契约缺口：LocalRepository 在案件 archived 时拒绝一切写入，S06 的「取消归档」在现有写集内无法实现；执行者请求 NEEDS_DECISION，待复核后由编排者决定是否扩展 repository 写集。
 
 ## 会话：2026-11-02
