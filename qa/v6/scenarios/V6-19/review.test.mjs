@@ -302,11 +302,19 @@ test("V6-19 C03: confirm and revoke bump matter.version and append one event eac
   assert.equal(events.data.items.filter((event) => event.action === "confirmation.created").length, 1);
   assert.equal(events.data.items.filter((event) => event.action === "confirmation.revoked").length, 1);
 
+  // V6-20 coordination: a revoked confirmation no longer blocks a new live
+  // confirmation for the same snapshot; the retry creates one new row, and a
+  // second retry is idempotent against that live row.
   const repeated = await session.confirmParagraph(PARAGRAPH_ID);
   assert.equal(repeated.ok, true);
-  assert.equal(repeated.created, false);
+  assert.equal(repeated.created, true, "a retry after revocation creates a new live confirmation");
   const afterRepeat = await current.repository.loadMatter(ACTOR, MATTER_ID);
-  assert.equal(afterRepeat.data.data.matter.version, startVersion + 2, "idempotent retry does not bump version");
+  assert.equal(afterRepeat.data.data.matter.version, startVersion + 3, "the new live confirmation bumps the version once");
+  const again = await session.confirmParagraph(PARAGRAPH_ID);
+  assert.equal(again.ok, true);
+  assert.equal(again.created, false, "a live duplicate remains idempotent");
+  const afterAgain = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  assert.equal(afterAgain.data.data.matter.version, startVersion + 3, "idempotent live retry does not bump version");
 });
 
 test("V6-19 C03: a version conflict or write fault rolls back every confirmation write", async () => {
