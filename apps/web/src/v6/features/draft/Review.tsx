@@ -157,101 +157,114 @@ export class DraftReviewSession {
     const aiParagraphIds = paragraphs
       .filter((item) => item.origin === "ai" || item.origin === "mixed")
       .map((item) => item.id);
-    const expectedVersion = await currentMatterVersion(this.repository, this.actor, this.matterId);
-    if (expectedVersion === null) return actionFailure("RESOURCE_NOT_FOUND", "案件不可用。");
+    const versionRead = await currentMatterVersion(this.repository, this.actor, this.matterId);
+    if (!versionRead.ok) return versionReadFailure(versionRead);
+    const expectedVersion = versionRead.version;
 
-    const outcome = await this.repository.backend.transaction("readonly", async (tx) => {
-      const current = await currentSnapshotInTransaction(tx, this.actor, this.matterId, this.targetId);
-      if (!current || !isCurrent(snapshot, current) || current.draftRevisionId !== revision.id) {
-        return actionFailure("STALE_BINDING", "修订或输入已变化；请刷新后再确认。");
+    try {
+      const outcome = await this.repository.backend.transaction("readonly", async (tx) => {
+        const current = await currentSnapshotInTransaction(tx, this.actor, this.matterId, this.targetId);
+        if (!current || !isCurrent(snapshot, current) || current.draftRevisionId !== revision.id) {
+          return actionFailure("STALE_BINDING", "修订或输入已变化；请刷新后再确认。");
+        }
+        const ledger = await readLedger(tx, this.actor, this.matterId);
+        const result = confirm(ledger, {
+          kind: "ai_paragraph",
+          snapshot,
+          actorId: this.actor.userId,
+          identity: "local_self_reported",
+          paragraphId,
+          aiParagraphIds,
+        }, { newId: this.newId, now: this.now });
+        if (!result.ok) return actionFailure(result.error.code, result.error.message);
+        return {
+          ok: true as const,
+          created: result.created,
+          confirmation: result.confirmation,
+          ledger: result.state,
+        } satisfies ConfirmTransactionSuccess | DraftReviewAction;
+      }) as ConfirmTransactionSuccess | DraftReviewAction;
+      if (!outcome.ok) {
+        await this.refresh();
+        return outcome;
       }
-      const ledger = await readLedger(tx, this.actor, this.matterId);
-      const result = confirm(ledger, {
-        kind: "ai_paragraph",
-        snapshot,
-        actorId: this.actor.userId,
-        identity: "local_self_reported",
-        paragraphId,
-        aiParagraphIds,
-      }, { newId: this.newId, now: this.now });
-      if (!result.ok) return actionFailure(result.error.code, result.error.message);
-      return {
-        ok: true as const,
-        created: result.created,
-        confirmation: result.confirmation,
-        ledger: result.state,
-      } satisfies ConfirmTransactionSuccess | DraftReviewAction;
-    }) as ConfirmTransactionSuccess | DraftReviewAction;
-    if (!outcome.ok) {
-      await this.refresh();
-      return outcome;
+      if (!("ledger" in outcome)) {
+        await this.refresh();
+        return outcome;
+      }
+      if (outcome.created) {
+        const event = confirmationEvent(
+          this.actor, snapshot, "confirmation.created", outcome.confirmation.createdAt,
+          this.newId("confirmation-event"), outcome.confirmation.id,
+        );
+        const written = await this.repository.writeConfirmationLedger(
+          this.actor,
+          this.matterId,
+          expectedVersion,
+          outcome.ledger,
+          event,
+          event.occurredAt,
+        );
+        await this.refresh();
+        if (!written.ok) return actionFailure(written.error.code, written.error.message);
+      } else {
+        await this.refresh();
+      }
+      return { ok: true, created: outcome.created, confirmation: outcome.confirmation };
+    } catch {
+      return actionFailure("STORAGE_UNAVAILABLE", "确认记录读取或保存失败，请重试。");
     }
-    if (!("ledger" in outcome)) {
-      await this.refresh();
-      return outcome;
-    }
-    if (outcome.created) {
-      const event = confirmationEvent(
-        this.actor, snapshot, "confirmation.created", outcome.confirmation.createdAt,
-        this.newId("confirmation-event"), outcome.confirmation.id,
-      );
-      const written = await this.repository.writeConfirmationLedger(
-        this.actor,
-        this.matterId,
-        expectedVersion,
-        outcome.ledger,
-        event,
-        event.occurredAt,
-      );
-      await this.refresh();
-      if (!written.ok) return actionFailure(written.error.code, written.error.message);
-    } else {
-      await this.refresh();
-    }
-    return { ok: true, created: outcome.created, confirmation: outcome.confirmation };
   }
 
   async revokeParagraphConfirmation(confirmationId: string, reason: string): Promise<DraftReviewAction> {
     if (reason.trim().length === 0) return actionFailure("INVALID_INPUT", "撤销原因不能为空。");
-    const expectedVersion = await currentMatterVersion(this.repository, this.actor, this.matterId);
-    if (expectedVersion === null) return actionFailure("RESOURCE_NOT_FOUND", "案件不可用。");
-    const transition = await this.repository.backend.transaction("readonly", async (tx) => {
-      const ledger = await readLedger(tx, this.actor, this.matterId);
-      const confirmation = ledger.confirmations.find((item) => item.id === confirmationId);
-      if (!confirmation) return actionFailure("RESOURCE_NOT_FOUND", "确认记录不可用。");
-      if (confirmation.actorId !== this.actor.userId) {
-        return actionFailure("ACTION_FORBIDDEN", "只能撤销由当前本地用户记录的确认。");
+    try {
+      const versionRead = await currentMatterVersion(this.repository, this.actor, this.matterId);
+      if (!versionRead.ok) return versionReadFailure(versionRead);
+      const expectedVersion = versionRead.version;
+      const transition = await this.repository.backend.transaction("readonly", async (tx) => {
+        const ledger = await readLedger(tx, this.actor, this.matterId);
+        const confirmation = ledger.confirmations.find((item) => item.id === confirmationId);
+        if (!confirmation) return actionFailure("RESOURCE_NOT_FOUND", "确认记录不可用。");
+        if (confirmation.actorId !== this.actor.userId) {
+          return actionFailure("ACTION_FORBIDDEN", "只能撤销由当前本地用户记录的确认。");
+        }
+        const result = revokeConfirmation(ledger, {
+          confirmationId,
+          actorId: this.actor.userId,
+          reason: reason.trim(),
+        }, { newId: this.newId, now: this.now });
+        if (!result.ok) return actionFailure(result.error.code, result.error.message);
+        return { ok: true as const, ledger: result.state, revocation: result.revocation, confirmation };
+      }) as RevokeTransactionSuccess | DraftReviewAction;
+      if (!transition.ok) {
+        await this.refresh();
+        return transition;
       }
-      const result = revokeConfirmation(ledger, {
-        confirmationId,
-        actorId: this.actor.userId,
-        reason: reason.trim(),
-      }, { newId: this.newId, now: this.now });
-      if (!result.ok) return actionFailure(result.error.code, result.error.message);
-      return { ok: true as const, ledger: result.state, revocation: result.revocation, confirmation };
-    }) as RevokeTransactionSuccess | DraftReviewAction;
-    if (!transition.ok) {
+      if (!("ledger" in transition)) {
+        await this.refresh();
+        return transition;
+      }
+      const event = confirmationEvent(this.actor, transition.confirmation.snapshot,
+        "confirmation.revoked", transition.revocation.createdAt,
+        this.newId("confirmation-revoke-event"), transition.confirmation.id);
+      const written = await this.repository.writeConfirmationLedger(
+        this.actor,
+        this.matterId,
+        expectedVersion,
+        transition.ledger,
+        event,
+        transition.revocation.createdAt,
+      );
       await this.refresh();
-      return transition;
+      if (!written.ok) return actionFailure(written.error.code, written.error.message);
+      return { ok: true, revocation: transition.revocation };
+    } catch {
+      // A rejected IndexedDB read/write must not escape an event handler. The
+      // read-only ledger transaction and the write seam both abort without
+      // side effects, so report a retryable action failure.
+      return actionFailure("STORAGE_UNAVAILABLE", "撤销记录读取或保存失败，请重试。");
     }
-    if (!("ledger" in transition)) {
-      await this.refresh();
-      return transition;
-    }
-    const event = confirmationEvent(this.actor, transition.confirmation.snapshot,
-      "confirmation.revoked", transition.revocation.createdAt,
-      this.newId("confirmation-revoke-event"), transition.confirmation.id);
-    const written = await this.repository.writeConfirmationLedger(
-      this.actor,
-      this.matterId,
-      expectedVersion,
-      transition.ledger,
-      event,
-      transition.revocation.createdAt,
-    );
-    await this.refresh();
-    if (!written.ok) return actionFailure(written.error.code, written.error.message);
-    return { ok: true, revocation: transition.revocation };
   }
 
   private async readState(): Promise<void> {
@@ -458,7 +471,18 @@ export function DraftReviewPanelView(props: DraftReviewPanelViewProps) {
   const [selectedLocatorKey, setSelectedLocatorKey] = useState<string | null>(null);
   const [unlocatedNode, setUnlocatedNode] = useState<{ id: string; text: string } | null>(null);
   const [revokeReasons, setRevokeReasons] = useState<Record<string, string>>({});
+  const [revokeError, setRevokeError] = useState<{ code: string; message: string } | null>(null);
   const state = props.state;
+
+  const revoke = async (confirmationId: string) => {
+    setRevokeError(null);
+    try {
+      const result = await props.onRevoke(confirmationId, revokeReasons[confirmationId] ?? "");
+      if (isActionFailure(result)) setRevokeError(result.error);
+    } catch {
+      setRevokeError({ code: "STORAGE_UNAVAILABLE", message: "撤销操作失败，请重试。" });
+    }
+  };
 
   useEffect(() => {
     if (!selectedLocatorKey || typeof document === "undefined") return;
@@ -572,6 +596,9 @@ export function DraftReviewPanelView(props: DraftReviewPanelViewProps) {
 
     <section className="stack-3" data-testid="draft-review-confirmations">
       <h3 className="card-title">AI/混合段落确认</h3>
+      {revokeError ? <div className="notice" role="alert" data-testid="draft-review-revoke-error" data-code={revokeError.code}>
+        <strong>未能撤销确认</strong><p>{revokeError.message}（{revokeError.code}）</p>
+      </div> : null}
       {aiParagraphs.length === 0 ? <p className="muted">此修订没有需要逐段确认的 AI/混合段落。</p> : aiParagraphs.map((paragraph) => {
         const records = state.ledger.confirmations.filter((item) => item.kind === "ai_paragraph" && item.paragraphId === paragraph.id);
         const live = records.find((item) => current.has(item.id) && isConfirmationCurrent(state.ledger, item, currentSnapshot));
@@ -602,7 +629,7 @@ export function DraftReviewPanelView(props: DraftReviewPanelViewProps) {
             currentSnapshot={currentSnapshot}
             reasons={revokeReasons}
             onReason={(id, value) => setRevokeReasons((values) => ({ ...values, [id]: value }))}
-            onRevoke={(id) => void props.onRevoke(id, revokeReasons[id] ?? "")}
+            onRevoke={(id) => void revoke(id)}
           /> : null}
         </article>;
       })}
@@ -775,9 +802,23 @@ function ledgerKey(actor: Actor, matterId: string): string {
   return `draft-review/confirmations/${encodeURIComponent(actor.tenantId)}/${encodeURIComponent(actor.userId)}/${encodeURIComponent(matterId)}`;
 }
 
-async function currentMatterVersion(repository: LocalRepository, actor: Actor, matterId: string): Promise<number | null> {
+type MatterVersionRead =
+  | { ok: true; version: number }
+  | { ok: false; code: string; message: string };
+
+async function currentMatterVersion(repository: LocalRepository, actor: Actor, matterId: string): Promise<MatterVersionRead> {
   const loaded = await repository.loadMatter(actor, matterId);
-  return loaded.ok ? loaded.data.data.matter.version : null;
+  if (!loaded.ok) return { ok: false, code: loaded.error.code, message: loaded.error.message };
+  return { ok: true, version: loaded.data.data.matter.version };
+}
+
+function versionReadFailure(read: Extract<MatterVersionRead, { ok: false }>): DraftReviewAction {
+  // Only a real missing/unauthorized matter is not-found; every other
+  // repository/storage failure is retryable and must not masquerade as 404.
+  if (read.code === "RESOURCE_NOT_FOUND") {
+    return actionFailure("RESOURCE_NOT_FOUND", "案件不可用。");
+  }
+  return actionFailure("STORAGE_UNAVAILABLE", "无法读取案件版本，请重试。");
 }
 
 function confirmationEvent(
@@ -843,6 +884,11 @@ async function readOwnedAggregate(
 
 function actionFailure(code: string, message: string): DraftReviewAction {
   return { ok: false, error: { code, message } };
+}
+
+function isActionFailure(value: unknown): value is { ok: false; error: { code: string; message: string } } {
+  return isRecord(value) && value.ok === false && isRecord(value.error)
+    && typeof value.error.code === "string" && typeof value.error.message === "string";
 }
 
 function errorMessage(error: unknown, fallback: string): string {

@@ -31,6 +31,15 @@
 - R1 发布记录生成器已用集成树验证：当前 21/26 accepted，仅缺 V6-19/22/24/25/26；生成器会逐票读取回执、复核证据与 baseCommit，并在缺票时明确输出「未就绪」。
 - V6-19 第二轮复核 CHANGES_REQUIRED（review-02.md），唯一阻断：保存 r2 后撤销 r1 的历史确认失败，因为 `confirmation.revoked` 事件携带旧 SnapshotRef 被 repository 的「必须当前」校验拒绝；§4 允许历史撤销。已派修复：created 仍要求当前快照，revoked 允许与确认行匹配的历史快照并原子递增版本；UI 显示撤销错误；补历史撤销测试。
 - V6-22 已从 V6-19 候选提交 `5888545` 建独立工作树 `/private/tmp/patent-v6-22-worktree` 并启动执行者（八标签工作台、目标聚合、追加式活动、失效批准），写集仅 features/workbench 与本票场景/证据。
+- V6-24 已从集成 tip 建工作树并合入 V6-19 候选与 accepted V6-23，启动执行者（内部批准、门禁原因、角色限制、图集变化失效、可撤销记录），写集仅 features/delivery/Approval.tsx 与本票场景/证据；最终接受需 V6-19 先 accepted。
+- V6-19 历史撤销修复完成：`confirmation.revoked` 可对旧 SnapshotRef 的确认行撤销（校验 resourceId/actor/ledger），created 仍要求当前；UI 显示撤销错误。14/14、V6-05 26/26、tsc/build/browser 6/6 通过，回执 22 项 changedFiles 一致；已派第三轮复核。
+- V6-19 第三轮复核 CHANGES_REQUIRED（review-03.md），唯一阻断：撤销时直接读取 ledger 的只读事务没有 try/catch，存储拒绝会变成未处理 rejection 而非 UI 错误。已派修复：捕获事务 rejection 并返回规范化失败（STORAGE_UNAVAILABLE），UI helper 也 catch；补注入拒绝事务的测试。
+- V6-19 错误处理修复完成：撤销全流程（matter 读、ledger 读、版本写）try/catch，存储拒绝归一为 STORAGE_UNAVAILABLE；UI helper 捕获 rejected onRevoke 并显示 alert；注入第二次只读事务拒绝的测试验证无未处理 rejection、版本/事件/撤销不变。15/15、tsc 0、回执 24 项一致；已派第四轮复核。
+- V6-19 第四轮复核 CHANGES_REQUIRED（review-04.md），唯一阻断：初始 matter 版本读取被存储拒绝时返回 RESOURCE_NOT_FOUND 而非 STORAGE_UNAVAILABLE。已派修复：只有实际 not-found 结果映射 RESOURCE_NOT_FOUND，原始 rejection/throw 一律 STORAGE_UNAVAILABLE；补首次读取拒绝测试。
+- V6-19 错误码修复完成：currentMatterVersion/confirmParagraph 保留 repository 错误，仅 RESOURCE_NOT_FOUND 映射 not-found，其余失败 STORAGE_UNAVAILABLE；首次读取拒绝测试通过。16/16、回执 25 项一致，已派第五轮复核。
+- V6-19 第五轮复核 ACCEPT（review-05）：两条存储拒绝路径均返回 STORAGE_UNAVAILABLE、无未处理 rejection、无持久副作用，rejected callback 显示错误。回执 accepted（26 项），提交 `e6ae4c9` 并合并入集成分支（`4094031`）。
+- V6-22 当前 13/13、V6-24 当前 5/5（证据仍在生成），两个执行者继续。
+- V6-22/V6-24 执行者遭遇临时 502 网关错误并中断，已从当前工作树恢复。V6-22 的两个非零回归定位为分支缺少 V6-20/23（基线早于其合并），已要求合入集成分支后重跑；V6-24 在补强确认集合变化失效（APPROVAL_REQUIRED），继续生成证据。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。

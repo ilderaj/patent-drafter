@@ -162,11 +162,53 @@ async function main() {
     await screenshot("04-confirmation-revoked");
     log.steps.push({ step: "04-confirmation-and-revocation", identity: "local_self_reported", actorId: fixture.actorId, ok: true });
 
+    const foreignId = await evaluate("window.__v619.injectForeignConfirmation()");
+    assert(typeof foreignId === "string", "foreign confirmation injected for UI error path", foreignId);
+    await click("draft-review-refresh");
+    await waitFor(`document.querySelector('[data-testid="draft-review-revoke-reason-${foreignId}"]')`, "foreign confirmation record appears");
+    await evaluate(`(() => {
+      const input = document.querySelector('[data-testid="draft-review-revoke-reason-${foreignId}"]');
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(input, '浏览器合成撤销失败原因');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    })()`);
+    await waitFor(`document.querySelector('[data-testid="draft-review-revoke-${foreignId}"]')?.disabled === false`, "foreign revoke action enabled");
+    await click(`draft-review-revoke-${foreignId}`);
+    await waitFor(`document.querySelector('[data-testid="draft-review-revoke-error"]')?.textContent.includes('只能撤销')`, "revoke failure surfaced in the panel");
+    const revokeError = await evaluate(`({ code: document.querySelector('[data-testid="draft-review-revoke-error"]')?.dataset.code ?? null, text: document.querySelector('[data-testid="draft-review-revoke-error"]')?.textContent ?? '' })`);
+    assert(revokeError.code === "ACTION_FORBIDDEN", "revoke failure keeps its error code", revokeError);
+    await screenshot("05-revoke-error");
+    log.steps.push({ step: "05-revoke-error-surface", errorCode: revokeError.code, ok: true });
+
+    const rejectedId = await evaluate("window.__v619.mountRejectingCallbackPanel()");
+    assert(typeof rejectedId === "string", "rejecting-callback panel mounted", rejectedId);
+    const expanded = await evaluate(`(() => {
+      const button = document.querySelector('#rejecting-review-root [data-testid="draft-review-paragraph-${fixture.paragraphId}"] button[aria-expanded="false"]');
+      if (!button) return false;
+      button.click();
+      return true;
+    })()`);
+    assert(expanded, "rejecting-callback confirmation can be expanded");
+    await waitFor(`document.querySelector('#rejecting-review-root [data-testid="draft-review-revoke-reason-${rejectedId}"]')`, "rejecting-callback revoke control appears");
+    await evaluate(`(() => {
+      const input = document.querySelector('#rejecting-review-root [data-testid="draft-review-revoke-reason-${rejectedId}"]');
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(input, '浏览器合成拒绝回调原因');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    })()`);
+    await waitFor(`document.querySelector('#rejecting-review-root [data-testid="draft-review-revoke-${rejectedId}"]')?.disabled === false`, "rejecting-callback revoke action enabled");
+    await evaluate(`document.querySelector('#rejecting-review-root [data-testid="draft-review-revoke-${rejectedId}"]').click()`);
+    await waitFor(`document.querySelector('#rejecting-review-root [data-testid="draft-review-revoke-error"]')?.textContent.includes('撤销操作失败')`, "rejected callback renders the alert");
+    const rejectedError = await evaluate(`({ code: document.querySelector('#rejecting-review-root [data-testid="draft-review-revoke-error"]')?.dataset.code ?? null, text: document.querySelector('#rejecting-review-root [data-testid="draft-review-revoke-error"]')?.textContent ?? '' })`);
+    assert(rejectedError.code === "STORAGE_UNAVAILABLE", "rejected callback error is normalized", rejectedError);
+    await screenshot("06-rejected-callback-error");
+    log.steps.push({ step: "06-rejected-callback-error", errorCode: rejectedError.code, ok: true });
+
     const localOrigin = new URL(base).origin;
     const externalRequests = log.network.filter((url) => isExternalRequest(url, localOrigin));
     assert(externalRequests.length === 0, "no external requests", externalRequests);
     assert(log.consoleErrors.length === 0, "no browser console errors", log.consoleErrors);
-    log.steps.push({ step: "05-no-external-network-or-console-errors", ok: true });
+    log.steps.push({ step: "07-no-external-network-or-console-errors", ok: true });
   } finally {
     ws?.close();
     chrome.kill("SIGTERM");
