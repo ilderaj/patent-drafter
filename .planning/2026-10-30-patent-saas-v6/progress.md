@@ -103,6 +103,8 @@
 
 - V6-47a 第三轮修复完成并获独立复核 ACCEPT（review-03.md）：staging 配置已移除，baseCommit 校正为 f5082b6，scope/changedFiles 为 15 项（含 review-03）；regression 明确 V6-09 在最终集成重跑为 not_run、接受证据为 review-02 21/21；A02 输出 missingTickets/missingGates，gate 表补齐 owner/evidence/validity。V6-47a 5/5、26/26 闭包一致，回执 accepted，待提交。部署仍需 patent.paymond.me 主机名决策与单独授权。
 
+- 已用 Cloudflare CLI 部署独立 Worker `patent-v6`（assets-only、免费计划、无模型代理、未触碰 `patent-drafter`）：备用主机名 `https://patent-v6.paymond.me`，版本 `fdbf2d2c-7c9e-4899-a456-50b1a8ea3ef7`，提交 `71630ce`。入口冒烟 0 控制台错误；工作台自动化创建本地案件并打开草稿/检查/审阅/交付/申请/设置页，0 控制台错误；文档正文未上传、未调用真实模型。`patent.paymond.me` 仍为现有 ChatGPT 自定义域名，切换会替换 DNS 并使原站点离线，未执行；替代地址与回滚说明见 `qa/v6/evidence/release/deploy/2026-11-05/README.md`。
+
 ## 会话：2026-11-02
 
 - V6-13 第三轮独立复核 NOT_ACCEPT，唯一阻断 B4：无变更（no-op）保存跳过幂等记录，导致同键不同载荷被执行、相同重放不可重放。第三轮修复完成：无变更保存也写幂等记录（同一 readwrite 事务内检查并写入 requestHash、sourceVersion、基线快照、`unchanged: true`），幂等查找移到案件状态门禁之前；非阻断项同修（归档后重放成功、冲突面板「保留我的修改，基于第 N 版保存」、退役材料不再出现在选择器）。新增测试 25/26/27/28/39，修复前 5 项红；V6-13 39/39、V6-11 53/53、V6-10 36/36、tsc/build exit 0、red-before-fix 22 守卫、浏览器 12/12 步 0 console 错误；scope 35 项与 changedFiles 一致；临时挂载已按字节还原。已派第四轮独立复核，含并发同键「无变更 vs 写版本」对抗探针。

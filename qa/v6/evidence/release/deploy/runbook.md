@@ -1,6 +1,6 @@
 # patent.paymond.me deployment runbook (R1 static Worker)
 
-Status: prepared, not executed. Deploy only after every precondition below is true.
+Status: executed on the fallback hostname `patent-v6.paymond.me` on 2026-11-05; `patent.paymond.me` was not switched. See `qa/v6/evidence/release/deploy/2026-11-05/README.md`.
 
 ## Preconditions
 

@@ -50,6 +50,8 @@ V6-11 已提交 953e05d。V6-12 经三轮独立复核（第三轮 accept）后�
 - **状态：** in_progress
 
 ### 阶段 3：云端与发布切片
+- [x] 部署独立 Worker `patent-v6` 到备用主机名 `patent-v6.paymond.me`（2026-11-05，版本 `fdbf2d2c`，免费计划；证据见 `qa/v6/evidence/release/deploy/2026-11-05/`）
+- [ ] 将 `patent.paymond.me` 指向 Worker：现为 ChatGPT 自定义域名 CNAME，切换会替换现有记录并使原站点离线，需明确确认
 - [ ] 进入 R2 前先完成 V6-48，再做其消费者
 - [ ] 按 R1–R4 profile 汇总证据
 - **状态：** pending
