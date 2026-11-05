@@ -1,0 +1,19 @@
+V6-25 mount verification
+
+No shared route, navigation or stylesheet file was edited or temporarily mounted.
+The Done page was browser-tested through the standalone synthetic harness
+qa/v6/evidence/V6-25/browser-mount.html; V6App.tsx, navigation.ts and v6.css
+remain byte-identical to baseCommit 83c0485.
+
+path	originalSha256	currentSha256	match
+apps/web/src/v6/routes/V6App.tsx	a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37	a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37	true
+apps/web/src/v6/routes/navigation.ts	aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951	aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951	true
+apps/web/src/v6/routes/v6.css	90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7	90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7	true
+
+The three original hashes are the same values recorded by V6-23/V6-24 mount evidence.
+git status shows only the two new delivery files and qa/v6/{scenarios,evidence}/V6-25.
+Generated apps/web/dist was removed after the build evidence was captured.
+
+Implementation hashes at evidence time:
+apps/web/src/v6/features/delivery/export-adapter.ts	6526a9da1fd49e16539ce051bd2a060d645769a90a0d0d119dd3efbaa33eab01
+apps/web/src/v6/features/delivery/Done.tsx	ef1265d230c7858c2379ac6f290c35be48161f8b0c0ee225c019866495d4adca

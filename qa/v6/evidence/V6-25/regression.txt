@@ -1,0 +1,13 @@
+V6-24 exitCode=0 # tests 6 # pass 6 # fail 0 # skipped 0 
+V6-23 exitCode=0 # tests 12 # pass 12 # fail 0 # skipped 0 
+V6-20 exitCode=0 # tests 9 # pass 9 # fail 0 # skipped 0 
+V6-19 exitCode=0 # tests 16 # pass 16 # fail 0 # skipped 0 
+V6-18 exitCode=0 # tests 10 # pass 10 # fail 0 # skipped 0 
+V6-17 exitCode=0 # tests 37 # pass 37 # fail 0 # skipped 0 
+V6-16 exitCode=0 # tests 14 # pass 14 # fail 0 # skipped 0 
+V6-15 exitCode=0 # tests 41 # pass 41 # fail 0 # skipped 0 
+V6-14 exitCode=0 # tests 41 # pass 41 # fail 0 # skipped 0 
+V6-12 exitCode=0 # tests 42 # pass 42 # fail 0 # skipped 0 
+V6-10 exitCode=0 # tests 36 # pass 36 # fail 0 # skipped 0 
+V6-08 exitCode=0 # tests 12 # pass 12 # fail 0 # skipped 0 
+V6-05 exitCode=0 # tests 26 # pass 26 # fail 0 # skipped 0 
