@@ -10,6 +10,8 @@ import { Figures } from "../sources/Figures.tsx";
 import { Parse } from "../sources/Parse.tsx";
 import { Upload } from "../sources/Upload.tsx";
 import { TargetsPanel } from "../targets/Targets.tsx";
+import { ChecksWorkspace, DeliveryWorkspace } from "../delivery/Workspace.tsx";
+import type { CheckRulePack } from "@patent/domain";
 import { ActivityFeed } from "./ActivityFeed.tsx";
 import {
   loadWorkbenchOverview,
@@ -42,6 +44,9 @@ export interface ProfessionalWorkbenchProps {
   activeRulePackVersion?: string | null;
   /** Optional V6-17 engine configuration supplied by the owning application. */
   generation?: Omit<GenerationEngineOptions, "repository" | "actor">;
+  /** Host-loaded V6-23 rule pack; omitted in tests/synthetic mounts. */
+  rulePack?: CheckRulePack;
+  rulePackVersion?: string;
 }
 
 type LoadState =
@@ -138,9 +143,9 @@ export function ProfessionalWorkbench(props: ProfessionalWorkbenchProps) {
         : props.tab === "sources" ? <MaterialsPanel {...props} onSettled={onSettled} onOpenFacts={() => navigate(v6Path({ kind: "matter", matterId: overview.matterId, targetId: props.targetId, tab: "facts" }))} />
           : props.tab === "facts" ? <Intake repository={props.repository} actor={props.actor} matterId={overview.matterId} />
             : props.tab === "draft" ? <DraftPanel {...props} overview={overview} />
-              : props.tab === "check" ? <ChecksPanel overview={overview} />
+              : props.tab === "check" ? <ChecksWorkspace repository={props.repository} actor={props.actor} matterId={overview.matterId} targetId={selectedTarget?.id ?? null} rulePack={props.rulePack} rulePackVersion={props.rulePackVersion} />
                 : props.tab === "review" ? <ReviewPanel repository={props.repository} actor={props.actor} matterId={overview.matterId} target={selectedTarget} />
-                  : props.tab === "deliver" ? <DeliveryPanel target={selectedTarget} />
+                  : props.tab === "deliver" ? <DeliveryWorkspace repository={props.repository} actor={props.actor} matterId={overview.matterId} targetId={selectedTarget?.id ?? null} rulePack={props.rulePack} rulePackVersion={props.rulePackVersion} onSettled={onSettled} />
                     : <ApplicationPanel />}
   </main>;
 }
@@ -245,18 +250,6 @@ function DraftPanel(props: ProfessionalWorkbenchProps & { overview: WorkbenchOve
   </div>;
 }
 
-function ChecksPanel({ overview }: { overview: WorkbenchOverview }) {
-  if (overview.targets.length === 0) return <section className="card" data-testid="workbench-checks-empty"><h2 className="card-title">检查</h2><p className="muted">没有目标，也没有检查记录。</p></section>;
-  return <section className="card stack-3" data-testid="workbench-checks">
-    <h2 className="card-title">检查状态</h2>
-    <p className="muted">检查运行面板尚未接入。这里仅展示本机持久记录派生的状态；没有当前检查时不会显示“无风险”。</p>
-    <ul className="v6-list">{overview.targets.map((target) => <li className="v6-entry" key={target.id} data-testid={`workbench-check-${target.id}`} data-state={target.check.state}>
-      <strong>{target.id}</strong> · {checkLabel(target.check.state)}
-      {target.check.runId ? <div className="field-hint">检查 {target.check.runId} · 规则包 {target.check.rulePackVersion ?? "未记录"}</div> : null}
-    </li>)}</ul>
-  </section>;
-}
-
 function ReviewPanel({ repository, actor, matterId, target }: {
   repository: LocalRepository;
   actor: Actor;
@@ -265,17 +258,6 @@ function ReviewPanel({ repository, actor, matterId, target }: {
 }) {
   if (!target) return <TargetRequired />;
   return <DraftReviewPanel repository={repository} actor={actor} matterId={matterId} targetId={target.id} />;
-}
-
-function DeliveryPanel({ target }: { target: WorkbenchTargetSummary | null }) {
-  return <section className="card stack-3" data-testid="workbench-delivery">
-    <h2 className="card-title">交付准备</h2>
-    {!target ? <p className="muted">选择目标后查看它的准备状态。</p> : <>
-      <p>目标 {target.id} · 检查：{checkLabel(target.check.state)} · 确认：{target.confirmations.confirmed}/{target.confirmations.required}</p>
-      <p>内部批准：{approvalLabel(target.approval)}</p>
-      <div className="notice">导出面板尚未接入。本页面不表示文件已提交或取得官方回执。</div>
-    </>}
-  </section>;
 }
 
 function ApplicationPanel() {
