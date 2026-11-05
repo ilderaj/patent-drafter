@@ -1,0 +1,86 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-23
+
+TAP version 13
+# Subtest: V6-23-A01: each finding carries an actionable cause locator and auditable basis
+ok 1 - V6-23-A01: each finding carries an actionable cause locator and auditable basis
+  ---
+  duration_ms: 25.854917
+  type: 'test'
+  ...
+# Subtest: V6-23-A02 and S07-A01: a matched legal rule from the closed CN pack stays unverified and never blocks
+ok 2 - V6-23-A02 and S07-A01: a matched legal rule from the closed CN pack stays unverified and never blocks
+  ---
+  duration_ms: 4.031583
+  type: 'test'
+  ...
+# Subtest: S07-A02: duplicate figure numbers block export with DUPLICATE_FIGURE_NUMBER
+ok 3 - S07-A02: duplicate figure numbers block export with DUPLICATE_FIGURE_NUMBER
+  ---
+  duration_ms: 3.745375
+  type: 'test'
+  ...
+# Subtest: V6-23-A03 and S07-A03/A07: repeated runs are pure; snapshot and pack changes expire results
+ok 4 - V6-23-A03 and S07-A03/A07: repeated runs are pure; snapshot and pack changes expire results
+  ---
+  duration_ms: 14.230333
+  type: 'test'
+  ...
+# Subtest: S07-A04: risk acknowledgements are tied to one check run and reopen after rerun
+ok 5 - S07-A04: risk acknowledgements are tied to one check run and reopen after rerun
+  ---
+  duration_ms: 0.772916
+  type: 'test'
+  ...
+# Subtest: S07-A05: a present blocker cannot be manually resolved; only a clean rerun removes it
+ok 6 - S07-A05: a present blocker cannot be manually resolved; only a clean rerun removes it
+  ---
+  duration_ms: 4.418958
+  type: 'test'
+  ...
+# Subtest: S07-A06: the check panel states that prior-art search was not performed
+ok 7 - S07-A06: the check panel states that prior-art search was not performed
+  ---
+  duration_ms: 1.088542
+  type: 'test'
+  ...
+# Subtest: S07-A08: a failed run shows an error and retry, never an empty-problems claim
+ok 8 - S07-A08: a failed run shows an error and retry, never an empty-problems claim
+  ---
+  duration_ms: 0.809708
+  type: 'test'
+  ...
+# Subtest: check panel renders loading and empty states without claiming a clean result
+ok 9 - check panel renders loading and empty states without claiming a clean result
+  ---
+  duration_ms: 1.083584
+  type: 'test'
+  ...
+# Subtest: product policy rules are labelled and block only their declared action
+ok 10 - product policy rules are labelled and block only their declared action
+  ---
+  duration_ms: 0.314625
+  type: 'test'
+  ...
+# Subtest: a stale policy version cannot add an action the active rule does not declare
+ok 11 - a stale policy version cannot add an action the active rule does not declare
+  ---
+  duration_ms: 0.229667
+  type: 'test'
+  ...
+# Subtest: missing bytes, damaged drawings, placeholders and figure binding mismatch each have distinct causes
+ok 12 - missing bytes, damaged drawings, placeholders and figure binding mismatch each have distinct causes
+  ---
+  duration_ms: 3.041833
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 230.039959

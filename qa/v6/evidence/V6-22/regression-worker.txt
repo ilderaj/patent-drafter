@@ -1,0 +1,67 @@
+
+> test
+> node --test test/*.test.mjs
+
+✔ healthz reports cloud mode (42.202125ms)
+{"rid":"187e620f","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+✔ login rejects wrong password with 401 (3.928958ms)
+{"rid":"cf37cb13","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"92f9d753","method":"GET","path":"/patent/api/status","status":200,"ms":0}
+✔ login accepts correct password and issues a usable token (5.266291ms)
+{"rid":"58913c8c","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"da64afb2","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"db212418","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"ec61ce16","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"d057465a","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"cf94af3e","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"f70e721b","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"c3405211","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"f00f38ee","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"9b340818","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"63cf6a05","method":"POST","path":"/patent/api/login","status":429,"ms":0}
+{"rid":"e558bed8","method":"POST","path":"/patent/api/login","status":429,"ms":0}
+{"rid":"12e6701c","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+{"rid":"d32c4cc0","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+✔ login is rate-limited per IP after 10 attempts (3.693458ms)
+✔ status rejects missing/invalid token with 401 (0.258542ms)
+{"rid":"e5df6cbb","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"8ead43f4","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+{"rid":"f5f38398","method":"POST","path":"/patent/api/providers/deepseek/chat","status":401,"ms":0}
+✔ expired token is rejected (1.089667ms)
+✔ chat without session returns 401 and never reaches upstream (0.374125ms)
+{"rid":"dcad378c","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"aff88100","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"d21ac2c5","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ preview gate: first send gets 428 + requiredConfirm, confirmed send reaches upstream (2.431292ms)
+{"rid":"10498e22","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"4f7a69e7","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+✔ wrong preview hash still gets 428 (0.821791ms)
+{"rid":"86d9bda8","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"62e38e1d","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ preview gate disabled: single send reaches upstream without a confirm hash (1.456167ms)
+{"rid":"11fa2270","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"65a0d297","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ streaming request passes the SSE stream straight through (1.539625ms)
+{"rid":"34473d91","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"650320b1","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"2d86b6a4","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"2029bf1e","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"fbd0905a","method":"POST","path":"/patent/api/providers/deepseek/chat","status":429,"ms":0}
+✔ daily chat rate limit returns 429 after the configured cap (1.350291ms)
+{"rid":"4e27986e","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"404c04f5","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"b999dd21","method":"POST","path":"/patent/api/providers/deepseek/chat","status":502,"ms":0}
+✔ upstream failure surfaces only the status, never the body (1.172042ms)
+{"rid":"0432e64a","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"68e4c966","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"023cc30f","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ API key is sent only as an upstream Bearer header (1.128708ms)
+✔ non-API paths fall through to static assets (0.109917ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 330.494334
