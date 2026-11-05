@@ -427,5 +427,6 @@
       "suggestion": "Add an explicit confirmation attempt/idempotency identity or revise the V6-05 duplicate rule while preserving append-only history; until then the panel requires a new revision before reconfirming.",
       "impact": "The accepted V6-05 API returns the already revoked row on the same command and cannot append a new live confirmation for that same snapshot."
     }
-  ]
+  ],
+  "amendment": "2026-11-05: V6-20 coordinated a V6-05 change so a revoked confirmation no longer blocks a new live confirmation. The V6-19 C03 scenario was amended after acceptance to expect a new live row on retry after revocation (version +1) and idempotency only for the live duplicate; 16/16 on the integration tree. See V6-20 receipt."
 }
