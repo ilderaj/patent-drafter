@@ -1,0 +1,276 @@
+{
+  "ticket": "V6-47a",
+  "profile": "R1",
+  "generatedAt": "2026-11-05T08:30:32.133Z",
+  "scope": "Foundation (V6-01–07) + R1 V6-08–26; no cloud tickets",
+  "tickets": [
+    {
+      "ticket": "V6-01",
+      "status": "accepted",
+      "review": null,
+      "verdict": "accept",
+      "baseCommit": "dc4b00882608354c266805a2fb2f4974f1a75401",
+      "receipt": "qa/v6/baseline/receipt.json"
+    },
+    {
+      "ticket": "V6-02",
+      "status": "accepted",
+      "review": [
+        "qa/v6/evidence/V6-02/runner.tap",
+        "qa/v6/evidence/V6-02/negative-checks.txt",
+        "qa/v6/baseline/tracked-diff.patch",
+        "qa/v6/baseline/untracked-sha256.txt"
+      ],
+      "verdict": "accept",
+      "baseCommit": "dc4b00882608354c266805a2fb2f4974f1a75401",
+      "receipt": "qa/v6/evidence/V6-02/receipt.json"
+    },
+    {
+      "ticket": "V6-03",
+      "status": "accepted",
+      "review": [
+        "qa/v6/evidence/V6-03/runner.tap",
+        "qa/v6/evidence/V6-03/negative-checks.txt",
+        "qa/v6/evidence/V6-03/typecheck.txt",
+        "qa/v6/evidence/V6-03/regression.txt",
+        "qa/v6/evidence/V6-03/preservation.txt"
+      ],
+      "verdict": "accept",
+      "baseCommit": "dc4b00882608354c266805a2fb2f4974f1a75401",
+      "receipt": "qa/v6/evidence/V6-03/receipt.json"
+    },
+    {
+      "ticket": "V6-04",
+      "status": "accepted",
+      "review": [
+        "qa/v6/evidence/V6-04/runner.tap",
+        "qa/v6/evidence/V6-04/typecheck.txt",
+        "qa/v6/evidence/V6-04/regression.txt",
+        "qa/v6/evidence/V6-04/scope.txt"
+      ],
+      "verdict": "accept",
+      "baseCommit": "ac7c6b4e0c46326488fd26a998244bc67f921bcd",
+      "receipt": "qa/v6/evidence/V6-04/receipt.json"
+    },
+    {
+      "ticket": "V6-05",
+      "status": "accepted",
+      "review": null,
+      "verdict": "accept",
+      "baseCommit": "3daef2b5f3370787773245a2a3769295b5656f1b",
+      "receipt": "qa/v6/evidence/V6-05/receipt.json"
+    },
+    {
+      "ticket": "V6-06",
+      "status": "accepted",
+      "review": null,
+      "verdict": "accept",
+      "baseCommit": "47641f525c79f08d4a4009c5dfa2d928e106bbf1",
+      "receipt": "qa/v6/evidence/V6-06/receipt.json"
+    },
+    {
+      "ticket": "V6-07",
+      "status": "accepted",
+      "review": null,
+      "verdict": "accept",
+      "baseCommit": "813fe90a5ca298c29b1a3e84a44dbdb8b3798c3f",
+      "receipt": "qa/v6/evidence/V6-07/receipt.json"
+    },
+    {
+      "ticket": "V6-08",
+      "status": "accepted",
+      "review": null,
+      "verdict": "accept",
+      "baseCommit": "813fe90a5ca298c29b1a3e84a44dbdb8b3798c3f",
+      "receipt": "qa/v6/evidence/V6-08/receipt.json"
+    },
+    {
+      "ticket": "V6-09",
+      "status": "accepted",
+      "review": [
+        "qa/v6/evidence/V6-09/review-01.md",
+        "qa/v6/evidence/V6-09/review-02.md"
+      ],
+      "verdict": "accept",
+      "baseCommit": "5f44c05e5e06cde68586460909e24f5edcc606b0",
+      "receipt": "qa/v6/evidence/V6-09/receipt.json"
+    },
+    {
+      "ticket": "V6-10",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-10/review-05.md",
+      "verdict": "accept",
+      "baseCommit": "cfabceed050930cd1c1d4df517b4f8b844577c70",
+      "receipt": "qa/v6/evidence/V6-10/receipt.json"
+    },
+    {
+      "ticket": "V6-11",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-11/review-02.md",
+      "verdict": "accept",
+      "baseCommit": "f89236a12b85f262c7058f0fc9dca6438983a829",
+      "receipt": "qa/v6/evidence/V6-11/receipt.json"
+    },
+    {
+      "ticket": "V6-12",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-12/review-03.md",
+      "verdict": "accept",
+      "baseCommit": "953e05dc6f8026bfa85f1f2d7a2cb6d6ba9aaf47",
+      "receipt": "qa/v6/evidence/V6-12/receipt.json"
+    },
+    {
+      "ticket": "V6-13",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-13/review-05.md",
+      "verdict": "accept",
+      "baseCommit": "953e05d",
+      "receipt": "qa/v6/evidence/V6-13/receipt.json"
+    },
+    {
+      "ticket": "V6-14",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-14/review-01.md",
+      "verdict": "accept",
+      "baseCommit": "5225360",
+      "receipt": "qa/v6/evidence/V6-14/receipt.json"
+    },
+    {
+      "ticket": "V6-15",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-15/review-01.md",
+      "verdict": "accept",
+      "baseCommit": "593ba33",
+      "receipt": "qa/v6/evidence/V6-15/receipt.json"
+    },
+    {
+      "ticket": "V6-16",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-16/review-02.md",
+      "verdict": "accept",
+      "baseCommit": "ea3e70bea4a6a566fa095890c4dc927eb88ca4e6",
+      "receipt": "qa/v6/evidence/V6-16/receipt.json"
+    },
+    {
+      "ticket": "V6-17",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-17/review-05.md",
+      "verdict": "accept",
+      "baseCommit": "339a857afd96d4356a75b8ad95f78bf6d3c9d724",
+      "receipt": "qa/v6/evidence/V6-17/receipt.json"
+    },
+    {
+      "ticket": "V6-18",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-18/review-04.md",
+      "verdict": "accept",
+      "baseCommit": "f0cb9186137efd9abd7c011eb87c16368a21871c",
+      "receipt": "qa/v6/evidence/V6-18/receipt.json"
+    },
+    {
+      "ticket": "V6-19",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-19/review-05.md",
+      "verdict": "accept",
+      "baseCommit": "73a70df393a1c4f9b299bce84b0259a2776eacff",
+      "receipt": "qa/v6/evidence/V6-19/receipt.json"
+    },
+    {
+      "ticket": "V6-20",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-20/review-03.md",
+      "verdict": "accept",
+      "baseCommit": "73a70df393a1c4f9b299bce84b0259a2776eacff",
+      "receipt": "qa/v6/evidence/V6-20/receipt.json"
+    },
+    {
+      "ticket": "V6-21",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-21/review-02.md",
+      "verdict": "accept",
+      "baseCommit": "ea3e70bea4a6a566fa095890c4dc927eb88ca4e6",
+      "receipt": "qa/v6/evidence/V6-21/receipt.json"
+    },
+    {
+      "ticket": "V6-22",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-22/review-02.md",
+      "verdict": "accept",
+      "baseCommit": "58885452d0aa70f1467071ea31138004f827710f",
+      "receipt": "qa/v6/evidence/V6-22/receipt.json"
+    },
+    {
+      "ticket": "V6-23",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-23/review-06.md",
+      "verdict": "accept",
+      "baseCommit": "73a70df393a1c4f9b299bce84b0259a2776eacff",
+      "receipt": "qa/v6/evidence/V6-23/receipt.json"
+    },
+    {
+      "ticket": "V6-24",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-24/review-02.md",
+      "verdict": "accept",
+      "baseCommit": "5b02ebf",
+      "receipt": "qa/v6/evidence/V6-24/receipt.json"
+    },
+    {
+      "ticket": "V6-25",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-25/review-04.md",
+      "verdict": "accept",
+      "baseCommit": "83c0485d5e49446d758fbded29278429875954e4",
+      "receipt": "qa/v6/evidence/V6-25/receipt.json"
+    },
+    {
+      "ticket": "V6-26",
+      "status": "accepted",
+      "review": "qa/v6/evidence/V6-26/review-02.md",
+      "verdict": "accept",
+      "baseCommit": "beea688ee14ebf2dbcbb584c1d9baf9e66ce3641",
+      "receipt": "qa/v6/evidence/V6-26/receipt.json"
+    }
+  ],
+  "gates": {
+    "G-RELEASE": {
+      "status": "satisfied_for_r1_candidate",
+      "owners": [
+        "orchestrator",
+        "product owner (deployment goal 2026-11-05)"
+      ],
+      "evidence": [
+        "all 26 R1 receipts accepted with independent review evidence",
+        "qa/v6/evidence/release/deploy/runbook.md (build, smoke, rollback)",
+        "V6-26 recovery/backup tests 14/14 and V6-25 export manifest/hash tests 20/20",
+        "integrated root build and V6-02–26 suites (V6-09 browser subtests require a live dev server; its accepted evidence is review-02)"
+      ],
+      "note": "G-RELEASE covers the R1 local preparation package. No payment, real model call or submission is enabled."
+    },
+    "G-MODEL": {
+      "status": "closed",
+      "note": "No real model/provider call is made in R1; stub/mock only. Enabling real models requires G-MODEL evidence."
+    },
+    "G-XML": {
+      "status": "closed",
+      "note": "XML export returns FORMAT_UNAVAILABLE."
+    },
+    "G-RULES": {
+      "status": "closed",
+      "note": "Legal rule rows remain unverified; they never become legal blockers (V6-23)."
+    }
+  },
+  "recovery": {
+    "backupRestore": "V6-26 14/14: AES-GCM/PBKDF2 package, wrong passphrase/tamper refusal, no half case, ID remap, legacy_unverified.",
+    "exportRecovery": "V6-25 20/20: manifest hashes, missing bytes, seven-day per-generation cache expiry, stale rows purged.",
+    "rollback": "Worker rollback prepared in qa/v6/evidence/release/deploy/runbook.md; not executed because deployment has not run."
+  },
+  "unverified": [
+    "Node 22 (all runs used Node 25.8.1)",
+    "V6-09 browser lifecycle subtests need a live dev server in the final local rerun; accepted evidence remains review-02 21/21",
+    "No real provider, payment, cloud storage, or official submission was exercised",
+    "Deployment to patent.paymond.me is pending hostname authorization and was not part of acceptance"
+  ],
+  "missingTickets": [],
+  "conclusion": "candidate_ready"
+}

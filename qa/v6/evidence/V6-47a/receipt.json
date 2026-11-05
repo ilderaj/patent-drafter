@@ -1,0 +1,66 @@
+{
+  "ticket": "V6-47a",
+  "status": "candidate",
+  "review": {
+    "verdict": "pending_re_review",
+    "evidence": null,
+    "note": "Awaiting independent review."
+  },
+  "baseCommit": "64f0907",
+  "contractVersion": "v6.1",
+  "changedFiles": [
+    "docs/implementation/patent-saas-v6/release/R1.md",
+    "qa/v6/evidence/V6-47a/build.txt",
+    "qa/v6/evidence/V6-47a/receipt.json",
+    "qa/v6/evidence/V6-47a/runner.tap",
+    "qa/v6/evidence/V6-47a/scope.txt",
+    "qa/v6/evidence/V6-47a/typecheck.txt",
+    "qa/v6/evidence/release/r1/profile.json",
+    "qa/v6/scenarios/V6-47a/release.test.mjs"
+  ],
+  "acceptance": [
+    {
+      "id": "V6-47a-A01",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-47a",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-47a/runner.tap",
+      "observed": "The profile lists all 26 R1 tickets with accepted receipts; conclusion is candidate_ready; R1.md exists and names G-RELEASE; no cloud ticket is present."
+    },
+    {
+      "id": "V6-47a-A02",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-47a",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-47a/runner.tap",
+      "observed": "A synthetic degraded dependency set (one candidate) evaluates to not_ready with the missing ticket listed; it never becomes candidate_ready."
+    },
+    {
+      "id": "V6-47a-A03",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-47a",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-47a/runner.tap",
+      "observed": "Re-evaluating the same profile yields the same conclusion and missing list; no duplicate record is written."
+    }
+  ],
+  "gates": {
+    "G-RELEASE": "satisfied_for_r1_candidate (all 26 receipts/reviews, runbook, recovery and export tests)",
+    "G-MODEL": "closed",
+    "G-XML": "closed",
+    "G-RULES": "closed"
+  },
+  "limitations": [
+    "This ticket prepares release evidence only; it does not deploy, submit, charge or send real material.",
+    "Deployment to patent.paymond.me requires a hostname decision because the name is currently occupied by an existing ChatGPT custom domain, plus separate authorization.",
+    "Node 22 remains unverified; all checks ran on Node 25.8.1.",
+    "V6-09's browser lifecycle subtests require a live dev server during local reruns; the accepted V6-09 evidence remains review-02 with 21/21.",
+    "No real provider, payment, cloud storage, official submission or production recovery drill was exercised."
+  ],
+  "decisionsRequested": [
+    {
+      "decision": "Whether to take over patent.paymond.me (replace its existing ChatGPT custom-domain CNAME) or deploy the Worker on a new subdomain such as patent-v6.paymond.me.",
+      "impact": "Production hostname and DNS change; existing site availability."
+    }
+  ]
+}
