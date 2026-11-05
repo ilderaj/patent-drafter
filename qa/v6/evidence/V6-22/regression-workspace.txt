@@ -1,0 +1,180 @@
+npm error Lifecycle script `test` failed with error:
+npm error workspace @patent/web
+npm error location /private/tmp/patent-v6-22-worktree/apps/web
+npm error Missing script: "test"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run --workspace=@patent/web
+
+
+> test
+> node --test test/*.test.mjs
+
+✔ healthz reports cloud mode (35.649042ms)
+{"rid":"06f736e3","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+✔ login rejects wrong password with 401 (6.475875ms)
+{"rid":"75d7fd8b","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"1b43fdd4","method":"GET","path":"/patent/api/status","status":200,"ms":0}
+✔ login accepts correct password and issues a usable token (6.677708ms)
+{"rid":"69b14051","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"211ddb67","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"20f926a2","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"71f79eac","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"94908ad5","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"639a1bbd","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"d4290450","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"7c3e51b2","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"5576c9c5","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"f22e4253","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"c2802e86","method":"POST","path":"/patent/api/login","status":429,"ms":0}
+{"rid":"a1445149","method":"POST","path":"/patent/api/login","status":429,"ms":0}
+{"rid":"ce8febbe","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+{"rid":"87cc9788","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+✔ login is rate-limited per IP after 10 attempts (4.612583ms)
+✔ status rejects missing/invalid token with 401 (0.251417ms)
+{"rid":"d02daa55","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"d4c753b1","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+{"rid":"7e4d543a","method":"POST","path":"/patent/api/providers/deepseek/chat","status":401,"ms":0}
+✔ expired token is rejected (0.584792ms)
+✔ chat without session returns 401 and never reaches upstream (0.327792ms)
+{"rid":"e8b7c38d","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"6f6aa01e","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"d6f27c23","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ preview gate: first send gets 428 + requiredConfirm, confirmed send reaches upstream (2.202959ms)
+{"rid":"518cab06","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"7c9c7ec3","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+✔ wrong preview hash still gets 428 (0.817708ms)
+{"rid":"1a416216","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"774f1604","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ preview gate disabled: single send reaches upstream without a confirm hash (1.235417ms)
+{"rid":"9173279c","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"d4b381d1","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ streaming request passes the SSE stream straight through (1.747041ms)
+{"rid":"9c49ec8d","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"fe32caca","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"0be739ee","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"5b9a95a2","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"75ff97b5","method":"POST","path":"/patent/api/providers/deepseek/chat","status":429,"ms":0}
+✔ daily chat rate limit returns 429 after the configured cap (1.352625ms)
+{"rid":"b663bada","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"0f059b04","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"c2939f14","method":"POST","path":"/patent/api/providers/deepseek/chat","status":502,"ms":0}
+✔ upstream failure surfaces only the status, never the body (1.038709ms)
+{"rid":"8e3042fa","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"51f22d8b","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"32953a5e","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ API key is sent only as an upstream Bearer header (0.971208ms)
+✔ non-API paths fall through to static assets (0.1065ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 212.892
+npm error Lifecycle script `test` failed with error:
+npm error workspace @patent/audit@0.0.1
+npm error location /private/tmp/patent-v6-22-worktree/packages/audit
+npm error Missing script: "test"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run --workspace=@patent/audit@0.0.1
+
+npm error Lifecycle script `test` failed with error:
+npm error workspace @patent/contracts@0.0.1
+npm error location /private/tmp/patent-v6-22-worktree/packages/contracts
+npm error Missing script: "test"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run --workspace=@patent/contracts@0.0.1
+
+npm error Lifecycle script `test` failed with error:
+npm error workspace @patent/domain@0.0.1
+npm error location /private/tmp/patent-v6-22-worktree/packages/domain
+npm error Missing script: "test"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run --workspace=@patent/domain@0.0.1
+
+
+> @patent/export@0.0.1 test
+> node tests/export-builders.test.mjs
+
+  [PASS] docx starts with zip magic PK
+  [PASS] docx contains [Content_Types].xml / _rels/.rels / word/document.xml
+  [PASS] document.xml contains claim 1 text
+  [PASS] document.xml escapes XML entities (& -> &amp;)
+  [PASS] document.xml escapes angle brackets
+  [PASS] docx has no plain <w:body> nesting issue
+  [PASS] docx builder handles empty paragraph
+  [PASS] figures pdf starts with %PDF
+  [PASS] figures pdf page count equals figure count
+  [PASS] brief figure without raster gets placeholder page
+  [PASS] no-figures pdf has single 无附图 page
+  [PASS] review pdf starts with %PDF
+  [PASS] review pdf has at least 1 page
+  [PASS] report spec carries support matrix rows
+  [PASS] report spec carries audit checks
+  [PASS] report spec carries AI label + rule pack version
+  [PASS] report spec carries exported time
+  [PASS] figureSvg is self-contained svg with title
+  [PASS] patentpack is JSON envelope v1
+  [PASS] patentpack uses PBKDF2-SHA256-AESGCM-200000
+  [PASS] patentpack has salt+iv base64
+  [PASS] patentpack envelope is ASCII-only (no plaintext CJK)
+  [PASS] patentpack file contains no plaintext claim text
+  [PASS] patentpack decrypts with same passphrase
+  [PASS] patentpack rejects wrong passphrase
+  [PASS] patentpack requires non-empty passphrase
+  [PASS] selection subset produces exactly selected files in UI order
+  [PASS] unselected 合集 not produced
+  [PASS] unselected report not produced
+  [PASS] unselected patentpack not produced
+  [PASS] all-selected produces 7 files in UI order
+  [PASS] version note lists real exported file names
+  [PASS] patentpack assembly without passphrase throws
+  [PASS] empty selection produces zero files
+  [PASS] patentpack payload snapshot matches project data
+  [PASS] zip preserves entry names and bytes
+  [PASS] note derives claim count
+  [PASS] note derives spec sections
+  [PASS] note derives abstract char count
+  [PASS] note derives figure range
+  [PASS] note derives report stats
+  [PASS] empty project notes fall back to generic copy
+  [PASS] sanitizeFileName handles slashes/spaces
+  [PASS] sanitizeFileName empty fallback
+
+结果: 44 通过 / 0 失败
+npm error Lifecycle script `test` failed with error:
+npm error workspace @patent/parsers@0.0.1
+npm error location /private/tmp/patent-v6-22-worktree/packages/parsers
+npm error Missing script: "test"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run --workspace=@patent/parsers@0.0.1
+
+npm error Lifecycle script `test` failed with error:
+npm error workspace @patent/pipeline@0.1.0
+npm error location /private/tmp/patent-v6-22-worktree/packages/pipeline
+npm error Missing script: "test"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run --workspace=@patent/pipeline@0.1.0
+
+npm error Lifecycle script `test` failed with error:
+npm error workspace @patent/providers@0.0.1
+npm error location /private/tmp/patent-v6-22-worktree/packages/providers
+npm error Missing script: "test"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run --workspace=@patent/providers@0.0.1
+
+npm error Lifecycle script `test` failed with error:
+npm error workspace @patent/shared@0.0.1
+npm error location /private/tmp/patent-v6-22-worktree/packages/shared
+npm error Missing script: "test"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run --workspace=@patent/shared@0.0.1
