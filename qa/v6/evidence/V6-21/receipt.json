@@ -1,0 +1,348 @@
+{
+  "ticket": "V6-21",
+  "title": "案件列表与待办",
+  "status": "accepted",
+  "baseCommit": "ea3e70bea4a6a566fa095890c4dc927eb88ca4e6",
+  "branch": "codex/v6-21-matters",
+  "worktree": "/private/tmp/patent-v6-21-worktree",
+  "contractVersion": "v6.1",
+  "changedFiles": [
+    "apps/web/src/v6/lib/repository.ts",
+    "apps/web/src/v6/features/inbox/Inbox.tsx",
+    "apps/web/src/v6/features/inbox/inbox.ts",
+    "apps/web/src/v6/features/matters/Matters.tsx",
+    "apps/web/src/v6/features/matters/actions.ts",
+    "apps/web/src/v6/features/matters/matters.ts",
+    "qa/v6/evidence/V6-21/01-matters-empty.png",
+    "qa/v6/evidence/V6-21/02-create-case-upload.png",
+    "qa/v6/evidence/V6-21/03-created-case-list.png",
+    "qa/v6/evidence/V6-21/04-archive-unarchive.png",
+    "qa/v6/evidence/V6-21/04-inbox-empty.png",
+    "qa/v6/evidence/V6-21/05-inbox-empty.png",
+    "qa/v6/evidence/V6-21/05-no-external-network.png",
+    "qa/v6/evidence/V6-21/06-no-external-network.png",
+    "qa/v6/evidence/V6-21/browser-drive.mjs",
+    "qa/v6/evidence/V6-21/browser-log.json",
+    "qa/v6/evidence/V6-21/browser-run.txt",
+    "qa/v6/evidence/V6-21/build-mounted.txt",
+    "qa/v6/evidence/V6-21/build.txt",
+    "qa/v6/evidence/V6-21/mount-restore.txt",
+    "qa/v6/evidence/V6-21/receipt.json",
+    "qa/v6/evidence/V6-21/regression-V6-06.txt",
+    "qa/v6/evidence/V6-21/regression-V6-08.txt",
+    "qa/v6/evidence/V6-21/regression-V6-10.txt",
+    "qa/v6/evidence/V6-21/regression-V6-14.txt",
+    "qa/v6/evidence/V6-21/regression-V6-15.txt",
+    "qa/v6/evidence/V6-21/regression-export.txt",
+    "qa/v6/evidence/V6-21/regression-worker.txt",
+    "qa/v6/evidence/V6-21/regression.txt",
+    "qa/v6/evidence/V6-21/review-01.md",
+    "qa/v6/evidence/V6-21/review-02.md",
+    "qa/v6/evidence/V6-21/runner.tap",
+    "qa/v6/evidence/V6-21/scope.txt",
+    "qa/v6/evidence/V6-21/typecheck.txt",
+    "qa/v6/scenarios/V6-21/actions.test.mjs",
+    "qa/v6/scenarios/V6-21/harness.mjs",
+    "qa/v6/scenarios/V6-21/inbox.test.mjs",
+    "qa/v6/scenarios/V6-21/matter-list.test.mjs",
+    "qa/v6/scenarios/V6-21/matter-operations.test.mjs",
+    "qa/v6/scenarios/V6-21/matters-extra.test.mjs",
+    "qa/v6/scenarios/V6-21/matters-ui.test.mjs",
+    "qa/v6/scenarios/V6-21/recovery.test.mjs"
+  ],
+  "scope": {
+    "file": "qa/v6/evidence/V6-21/scope.txt",
+    "includedFiles": 42,
+    "excludedFromChangedFiles": [
+      "node_modules (provided symlink to shared install; untracked in this isolated worktree)",
+      ".claude/launch.json (absent)"
+    ],
+    "onlyAllowedWriteDirectories": true,
+    "routeMountFilesRestored": true
+  },
+  "runs": [
+    {
+      "name": "V6-21 acceptance",
+      "command": "npm run test:v6 -- V6-21",
+      "exitCode": 0,
+      "tests": 29,
+      "pass": 29,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-21/runner.tap"
+    },
+    {
+      "name": "web typecheck",
+      "command": "npm --prefix /private/tmp/patent-v6-21-worktree/apps/web run typecheck",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-21/typecheck.txt"
+    },
+    {
+      "name": "worker workspace regression",
+      "command": "npm run test -w apps/worker",
+      "exitCode": 0,
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-21/regression-worker.txt"
+    },
+    {
+      "name": "export workspace regression",
+      "command": "npm run test -w packages/export",
+      "exitCode": 0,
+      "tests": 44,
+      "pass": 44,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-21/regression-export.txt"
+    },
+    {
+      "name": "V6-06 repository regression",
+      "command": "npm run test:v6 -- V6-06",
+      "exitCode": 0,
+      "tests": 25,
+      "pass": 25,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-21/regression-V6-06.txt"
+    },
+    {
+      "name": "V6-14 regression",
+      "command": "npm run test:v6 -- V6-14",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-21/regression-V6-14.txt"
+    },
+    {
+      "name": "V6-15 regression",
+      "command": "npm run test:v6 -- V6-15",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-21/regression-V6-15.txt"
+    },
+    {
+      "name": "V6-10 regression",
+      "command": "npm run test:v6 -- V6-10",
+      "exitCode": 0,
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-21/regression-V6-10.txt"
+    },
+    {
+      "name": "V6-08 regression",
+      "command": "npm run test:v6 -- V6-08",
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-21/regression-V6-08.txt"
+    },
+    {
+      "name": "build (temporary mount applied)",
+      "command": "npm run build",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-21/build-mounted.txt"
+    },
+    {
+      "name": "browser evidence (temporary mount)",
+      "command": "node qa/v6/evidence/V6-21/browser-drive.mjs qa/v6/evidence/V6-21 http://127.0.0.1:5174/patent",
+      "exitCode": 0,
+      "steps": 6,
+      "passed": 6,
+      "consoleErrors": 0,
+      "nonLocalRequests": 0,
+      "requests": 15,
+      "evidence": "qa/v6/evidence/V6-21/browser-run.txt"
+    },
+    {
+      "name": "final build after mount restore",
+      "command": "npm run build",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-21/build.txt"
+    }
+  ],
+  "mountRestore": {
+    "V6App.tsx": {
+      "originalSha256": "8b7292a799c951cbd25f9311e523557cbe56209e2d47732f74a71750d2e20be5",
+      "mountedSha256": "3c90c4adcaf0a754349a0a68ca829a578120f766dc6c5816ed9720c638c9d55f",
+      "revertedSha256": "8b7292a799c951cbd25f9311e523557cbe56209e2d47732f74a71750d2e20be5",
+      "match": true
+    },
+    "navigation.ts": {
+      "originalSha256": "ccbc78d67d51e8980bf1f513edb0e1a5ce0f75f890cb99980669380f8177d7e3",
+      "mountedSha256": "aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951",
+      "revertedSha256": "ccbc78d67d51e8980bf1f513edb0e1a5ce0f75f890cb99980669380f8177d7e3",
+      "match": true
+    },
+    "evidence": "qa/v6/evidence/V6-21/mount-restore.txt"
+  },
+  "acceptance": [
+    {
+      "id": "V6-21-A01",
+      "status": "covered",
+      "tests": [
+        24,
+        27
+      ],
+      "reason": "An open conflict is exposed as a derived inbox item. Marking read stores a per-user cursor but leaves the item open; resolving the underlying conflict changes the same item to resolved."
+    },
+    {
+      "id": "V6-21-A02",
+      "status": "covered",
+      "tests": [
+        3,
+        4,
+        11,
+        27,
+        29
+      ],
+      "reason": "Repeated read does not resolve an open conflict. The priority test verifies a conflict outranks stale input; read does not change the business condition."
+    },
+    {
+      "id": "V6-21-A03",
+      "status": "covered",
+      "tests": [
+        7,
+        18,
+        22,
+        28
+      ],
+      "reason": "Reads derive again from repository state; matter commits enforce expectedVersion and concurrent stale writes yield one winner, one VERSION_CONFLICT and one event. UI state tests cover loading, error and retained list content."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S06-A01",
+      "status": "covered",
+      "tests": [
+        2,
+        26
+      ],
+      "reason": "Empty matters and inbox show creation/upload entry and 暂无待办 with no sample tasks; browser confirms the empty matter list and empty inbox."
+    },
+    {
+      "id": "S06-A02",
+      "status": "covered",
+      "tests": [
+        1,
+        3
+      ],
+      "reason": "The complete priority table is tested. An open conflict plus stale draft resolves to resolve_conflict."
+    },
+    {
+      "id": "S06-A03",
+      "status": "not_applicable",
+      "reason": "Approval invalidation across target A/B after revoking one AI confirmation requires approval/revocation commands not present in the allowed LocalRepository-backed sources; this ticket derives confirmation state only."
+    },
+    {
+      "id": "S06-A04",
+      "status": "covered",
+      "tests": [
+        4,
+        7,
+        11,
+        27,
+        29
+      ],
+      "reason": "Both a conflict and synthetic review are exercised: reading each leaves it open, and the review becomes resolved only after its persisted feedback moves from open to accepted."
+    },
+    {
+      "id": "S06-A05",
+      "status": "partial",
+      "tests": [
+        5,
+        9,
+        29
+      ],
+      "reason": "Verified: inaccessible matters are absent from the inbox and direct inbox-item access returns RESOURCE_NOT_FOUND. Not verified / not implemented in V6-21: activity list concealment and direct activity 404 are owned by the activity surface (V6-22)."
+    },
+    {
+      "id": "S06-A06",
+      "status": "not_applicable",
+      "reason": "The local feature set has parse jobs but no generated job adoption/model invocation records in this ticket's enabled UI path; no model calls were made. Job/activity provider-model rendering is not claimed."
+    },
+    {
+      "id": "S06-A07",
+      "status": "covered",
+      "tests": [
+        6
+      ],
+      "reason": "Only deadline rows with status confirmed appear. Suggested rows are filtered out; confirmed rows use dueOn/timeZone to derive dueAt."
+    },
+    {
+      "id": "S06-A08",
+      "status": "covered",
+      "tests": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "reason": "Archived matters remain read-only through commit (INVALID_TRANSITION); the explicit repository unarchive transition validates access/version/status, bumps version once with only status/version/updatedAt changed, preserves targets/assets, emits no events/blobs, and permits a subsequent commit. Browser round trip confirms unarchive re-enables rename/archive controls."
+    }
+  ],
+  "limitations": [
+    "S06 defines no `matter.unarchived` Activity.action and the frozen activity whitelist was not changed. Following the coordinator's authorization, the dedicated repository unarchive transition emits no event or blob. The contract owner should decide whether to add this activity action in a future contract change.",
+    "S06 names nextAction in packages/domain. The strict write set excludes that package, so the pure exported function is under apps/web/src/v6/features/matters/actions.ts; both the list target rows and inbox target items consume the same projected result.",
+    "The local feature set does not persist all future domain resource types through a unified established schema. V6-21 now verifies the synthetic review/feedback and parser-shaped parse-job record shapes, but production review, check, service, and export producers remain outside this candidate.",
+    "S06-A06 job.succeeded/job.adopted activity with provider/model and generated-content privacy are not browser-tested; no model/provider calls were made.",
+    "Browser test evidence used a temporary V6App/navigation mount. Both files were restored and hashes match their originals. Permanent shared registration remains orchestrator-owned."
+  ],
+  "decisionsRequested": [
+    {
+      "code": "NEEDS_DECISION",
+      "question": "Can nextAction remain under features/matters for this ticket, with later relocation/re-export from packages/domain?",
+      "recommendation": "Yes for this ticket; keep one pure implementation and move only when the shared package owner approves a write-set expansion.",
+      "impact": "packages/domain/src/v6 nextAction export is out of scope."
+    },
+    {
+      "code": "NEEDS_DECISION",
+      "question": "What stable, authorized persisted record schema and producer interfaces should represent review, check, deadline, job, and service inbox resources in R1?",
+      "recommendation": "Freeze a versioned resource envelope/key pattern and ownership rules before broadening the inbox to additional producers; never accept free-standing manually authored InboxItem rows.",
+      "impact": "Determines full derivation and browser acceptance for S06-A03/A06 and reviews/services beyond current local records."
+    }
+  ],
+  "browserEvidence": {
+    "driver": "qa/v6/evidence/V6-21/browser-drive.mjs",
+    "log": "qa/v6/evidence/V6-21/browser-log.json",
+    "summary": "6/6 steps passed, zero console errors, zero non-local requests; created and listed a matter, archived it, unarchived it, verified edit/archive controls returned, and confirmed inbox empty copy.",
+    "screenshots": [
+      "qa/v6/evidence/V6-21/01-matters-empty.png",
+      "qa/v6/evidence/V6-21/02-create-case-upload.png",
+      "qa/v6/evidence/V6-21/03-created-case-list.png",
+      "qa/v6/evidence/V6-21/04-archive-unarchive.png",
+      "qa/v6/evidence/V6-21/04-inbox-empty.png",
+      "qa/v6/evidence/V6-21/05-inbox-empty.png",
+      "qa/v6/evidence/V6-21/05-no-external-network.png",
+      "qa/v6/evidence/V6-21/06-no-external-network.png"
+    ],
+    "browser": "Headless Google Chrome, throwaway profile removed after run",
+    "server": "Vite preview on 127.0.0.1:5174",
+    "fixtures": "Empty matter created with real LocalRepository; no customer files, external requests, or model calls.",
+    "predatesReviewFixes": true,
+    "reviewFixCoverage": "The retained 6/6 screenshot/log run predates the B1-B4 fixes. B1 shared nextAction, B2 deletion_pending isolation, B3 parse-job resolution, and B4 synthetic review feedback are covered by V6-21 scenarios 8-11; the browser evidence still covers empty list, create/list, archive/unarchive, empty inbox, and no external network.",
+    "scenarioCoverage": [
+      8,
+      9,
+      10,
+      11
+    ]
+  },
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-21/review-02.md",
+    "note": "Round 1 blocked on inbox/list divergence, deletion_pending aborts, unresolved successful parse jobs, and overstated S06-A04/A05. All fixed and independently reproduced; round 2 accepted 29/29, V6-06 25/25, tsc 0, with probes for shared nextAction, pending isolation, parse terminal resolution, review feedback lifecycle and unarchive safety. Browser evidence predates B1-B4 and is labeled as such."
+  },
+  "mount": {
+    "permanent": true,
+    "files": [
+      "apps/web/src/v6/routes/V6App.tsx",
+      "apps/web/src/v6/routes/navigation.ts"
+    ],
+    "note": "Orchestrator registration: matters route renders the V6-21 MattersPage with upload navigation; inbox section renders InboxPage and its nav capability is AVAILABLE. Root build passed and headless Chrome loaded /v6/matters and /v6/inbox with no console errors."
+  }
+}

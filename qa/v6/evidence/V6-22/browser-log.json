@@ -1,0 +1,127 @@
+{
+  "steps": [
+    {
+      "name": "self-service-same-matter-overview",
+      "pass": true,
+      "matterId": "33333333-3333-4333-8333-333333333351"
+    },
+    {
+      "name": "tab-sources-same-matter",
+      "pass": true
+    },
+    {
+      "name": "tab-facts-same-matter",
+      "pass": true
+    },
+    {
+      "name": "tab-draft-same-matter",
+      "pass": true
+    },
+    {
+      "name": "tab-check-same-matter",
+      "pass": true
+    },
+    {
+      "name": "tab-review-same-matter",
+      "pass": true
+    },
+    {
+      "name": "tab-deliver-same-matter",
+      "pass": true
+    },
+    {
+      "name": "tab-filing-same-matter",
+      "pass": true
+    },
+    {
+      "name": "missing-matter-error-state",
+      "pass": true
+    }
+  ],
+  "consoleErrors": [],
+  "requests": [
+    "http://127.0.0.1:4186/patent/qa/v6/evidence/V6-22/browser-mount.html",
+    "http://127.0.0.1:4186/patent/@vite/client",
+    "http://127.0.0.1:4186/patent/qa/v6/evidence/V6-22/browser-mount.tsx",
+    "http://127.0.0.1:4186/patent/@react-refresh",
+    "http://127.0.0.1:4186/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-22-vite-cache/deps/react_jsx-dev-runtime.js?v=65e6f855",
+    "http://127.0.0.1:4186/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-22-vite-cache/deps/react-dom_client.js?v=65e6f855",
+    "http://127.0.0.1:4186/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-22-vite-cache/deps/react-router-dom.js?v=65e6f855",
+    "http://127.0.0.1:4186/patent/apps/web/src/styles.css",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/styles/theme.css",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/routes/v6.css",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/lib/repository.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/routes/navigation.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/workbench/Workbench.tsx",
+    "http://127.0.0.1:4186/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-22-vite-cache/deps/chunk-6ZNS7KUZ.js?v=65e6f855",
+    "http://127.0.0.1:4186/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-22-vite-cache/deps/chunk-WOOG5QLI.js?v=65e6f855",
+    "http://127.0.0.1:4186/patent/@fs/Users/jared/Personal%20Projects/Patent/node_modules/vite/dist/client/env.mjs",
+    "http://127.0.0.1:4186/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-22-vite-cache/deps/react.js?v=65e6f855",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/intake/Intake.tsx",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/draft/Editor.tsx",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/draft/Review.tsx",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/generation/Generation.tsx",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/sources/Figures.tsx",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/sources/Parse.tsx",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/sources/Upload.tsx",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/targets/Targets.tsx",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/workbench/ActivityFeed.tsx",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/workbench/workbench.ts",
+    "http://127.0.0.1:4186/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-22-vite-cache/deps/chunk-CD6HDBVX.js?v=65e6f855",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/sources/drawings.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/sources/ingest.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/intake/intake.ts",
+    "http://127.0.0.1:4186/patent/packages/contracts/src/index.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/generation/generation.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/targets/targets.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/draft/ast-adapter.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/sources/parse.ts",
+    "http://127.0.0.1:4186/patent/packages/domain/src/v6/confirmation.ts",
+    "http://127.0.0.1:4186/patent/packages/domain/src/v6/revision.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/matters/matters.ts",
+    "http://127.0.0.1:4186/patent/packages/contracts/src/matter.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/lib/legacy-import.ts",
+    "http://127.0.0.1:4186/patent/packages/contracts/src/primitives.ts",
+    "http://127.0.0.1:4186/patent/packages/contracts/src/draft.ts",
+    "http://127.0.0.1:4186/patent/packages/contracts/src/jobs.ts",
+    "http://127.0.0.1:4186/patent/packages/contracts/src/delivery.ts",
+    "http://127.0.0.1:4186/patent/packages/contracts/src/records.ts",
+    "http://127.0.0.1:4186/patent/packages/contracts/src/billing.ts",
+    "http://127.0.0.1:4186/patent/packages/contracts/src/privacy.ts",
+    "http://127.0.0.1:4186/patent/packages/contracts/src/fixtures.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/matters/actions.ts",
+    "http://127.0.0.1:4186/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-22-vite-cache/deps/zod.js?v=65e6f855",
+    "http://127.0.0.1:4186/patent/packages/providers/src/index.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/lib/pipeline-adapter.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/v6/features/ai/ai.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/lib/extract.ts",
+    "http://127.0.0.1:4186/patent/packages/parsers/src/guard.ts",
+    "http://127.0.0.1:4186/patent/packages/pipeline/src/index.ts",
+    "http://127.0.0.1:4186/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-22-vite-cache/deps/fflate.js?v=65e6f855",
+    "http://127.0.0.1:4186/patent/packages/providers/src/types.ts",
+    "http://127.0.0.1:4186/patent/packages/providers/src/llm-provider.ts",
+    "http://127.0.0.1:4186/patent/packages/providers/src/deepseek-bridge-provider.ts",
+    "http://127.0.0.1:4186/patent/packages/providers/src/mock-provider.ts",
+    "http://127.0.0.1:4186/patent/packages/providers/src/codex-local-provider.ts",
+    "http://127.0.0.1:4186/patent/packages/pipeline/src/types.ts",
+    "http://127.0.0.1:4186/patent/packages/pipeline/src/stages.ts",
+    "http://127.0.0.1:4186/patent/packages/pipeline/src/runner.ts",
+    "http://127.0.0.1:4186/patent/packages/pipeline/src/mock.ts",
+    "http://127.0.0.1:4186/patent/packages/pipeline/src/schemas.ts",
+    "http://127.0.0.1:4186/patent/apps/web/src/shims/empty.ts",
+    "http://127.0.0.1:4186/favicon.ico"
+  ],
+  "screenshots": [
+    "qa/v6/evidence/V6-22/01-workbench-overview.png",
+    "qa/v6/evidence/V6-22/02-tab-sources.png",
+    "qa/v6/evidence/V6-22/03-tab-facts.png",
+    "qa/v6/evidence/V6-22/04-tab-draft.png",
+    "qa/v6/evidence/V6-22/05-tab-check.png",
+    "qa/v6/evidence/V6-22/06-tab-review.png",
+    "qa/v6/evidence/V6-22/07-tab-deliver.png",
+    "qa/v6/evidence/V6-22/08-tab-filing.png",
+    "qa/v6/evidence/V6-22/09-workbench-error.png"
+  ],
+  "externalRequests": 0,
+  "result": "passed"
+}

@@ -1,0 +1,186 @@
+worktree: /private/tmp/patent-v6-15-worktree
+fixed ai.ts sha256:   b1a5ae3d6bbe5b0ed06ac6fbb532faba8264fd31b09f53d57a6ecb332e5732a4
+pre-fix ai.ts sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c
+pre-fix in place sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c
+
+--- running the concurrency suite against the pre-fix source ---
+
+TAP version 13
+# Subtest: V6-15 concurrency: grant same key with different payloads gets one winner and one conflict
+ok 1 - V6-15 concurrency: grant same key with different payloads gets one winner and one conflict
+  ---
+  duration_ms: 22.568167
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: identical concurrent grants both succeed with one creation and equal results
+not ok 2 - V6-15 concurrency: identical concurrent grants both succeed with one creation and equal results
+  ---
+  duration_ms: 3.413375
+  type: 'test'
+  location: '/private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:200:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'completed'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'completed'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:229:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-15 concurrency: revoke same key with different consentIds gets one winner and one conflict
+not ok 3 - V6-15 concurrency: revoke same key with different consentIds gets one winner and one conflict
+  ---
+  duration_ms: 4.646667
+  type: 'test'
+  location: '/private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:236:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    a different consentId under the held key: expected IDEMPOTENCY_CONFLICT, got success
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    expectError (file:///private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:39:10)
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:257:3)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-15 concurrency: identical concurrent revokes both succeed with one event and consistent answers
+ok 4 - V6-15 concurrency: identical concurrent revokes both succeed with one event and consistent answers
+  ---
+  duration_ms: 3.708916
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: a grant whose finalize fails after commit replays the original response
+not ok 5 - V6-15 concurrency: a grant whose finalize fails after commit replays the original response
+  ---
+  duration_ms: 1.322959
+  type: 'test'
+  location: '/private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:335:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    the failed finalize is not reported as durable success: expected STORAGE_UNAVAILABLE, got success
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    expectError (file:///private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:39:10)
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:350:3)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-15 concurrency: a revoke whose finalize fails after commit replays the original response
+not ok 6 - V6-15 concurrency: a revoke whose finalize fails after commit replays the original response
+  ---
+  duration_ms: 1.571875
+  type: 'test'
+  location: '/private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:378:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    the failed revoke finalize is not reported as success: expected STORAGE_UNAVAILABLE, got success
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    expectError (file:///private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:39:10)
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:401:3)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-15 concurrency: cleanup cannot delete a consent row whose granted event survived
+not ok 7 - V6-15 concurrency: cleanup cannot delete a consent row whose granted event survived
+  ---
+  duration_ms: 1.946875
+  type: 'test'
+  location: '/private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:429:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    the failing attempt's cleanup kept the winner's row
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:451:10)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+# Subtest: V6-15 concurrency: the losing claim performs no business write at all
+ok 8 - V6-15 concurrency: the losing claim performs no business write at all
+  ---
+  duration_ms: 1.356667
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: a live claim makes an identical request wait, then report busy, then replay
+not ok 9 - V6-15 concurrency: a live claim makes an identical request wait, then report busy, then replay
+  ---
+  duration_ms: 1.613417
+  type: 'test'
+  location: '/private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:518:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    the waiter: expected STORAGE_UNAVAILABLE, got success
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    expectError (file:///private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:39:10)
+    TestContext.<anonymous> (file:///private/tmp/patent-v6-15-worktree/qa/v6/scenarios/V6-15/ai-consent-concurrency.test.mjs:534:17)
+    async Test.run (node:internal/test_runner/test:1208:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 3
+# fail 6
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 188.875834
+
+pre-fix run: 9 tests, 3 pass, 6 fail
+FAIL (expected red): V6-15 concurrency: identical concurrent grants both succeed with one creation and equal results
+FAIL (expected red): V6-15 concurrency: revoke same key with different consentIds gets one winner and one conflict
+FAIL (expected red): V6-15 concurrency: a grant whose finalize fails after commit replays the original response
+FAIL (expected red): V6-15 concurrency: a revoke whose finalize fails after commit replays the original response
+FAIL (expected red): V6-15 concurrency: cleanup cannot delete a consent row whose granted event survived
+FAIL (expected red): V6-15 concurrency: a live claim makes an identical request wait, then report busy, then replay
+
+All 6 required guards were red against the pre-fix source.
+
+restored ai.ts sha256: b1a5ae3d6bbe5b0ed06ac6fbb532faba8264fd31b09f53d57a6ecb332e5732a4
+restored source matches the fixed bytes: MATCH
+restored source differs from the pre-fix fixture: yes

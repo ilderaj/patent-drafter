@@ -1,0 +1,104 @@
+{
+  "ok": true,
+  "steps": [
+    {
+      "step": "ready snapshot, check, figures, and gate reasons render",
+      "ok": true
+    },
+    {
+      "step": "valid approval is persisted and export gate recomputes",
+      "approvalCount": 1,
+      "approvalEvents": 1,
+      "ok": true
+    },
+    {
+      "step": "repeat create reuses the same record without a duplicate event",
+      "approvalCount": 1,
+      "approvalEvents": 1,
+      "ok": true
+    },
+    {
+      "step": "figure rebind marks the approval stale and reports STALE_BINDING",
+      "ok": true
+    },
+    {
+      "step": "revocation is append-only and visible",
+      "approvalCount": 1,
+      "revocationCount": 1,
+      "ok": true
+    },
+    {
+      "step": "no external network or browser console errors",
+      "ok": true
+    }
+  ],
+  "consoleErrors": [],
+  "network": [
+    "http://127.0.0.1:4181/qa/v6/evidence/V6-24/browser-mount.html",
+    "http://127.0.0.1:4181/@vite/client",
+    "http://127.0.0.1:4181/qa/v6/evidence/V6-24/browser-mount.html?html-proxy&index=0.js",
+    "http://127.0.0.1:4181/@react-refresh",
+    "http://127.0.0.1:4181/apps/web/src/styles.css",
+    "http://127.0.0.1:4181/apps/web/src/v6/styles/theme.css",
+    "http://127.0.0.1:4181/apps/web/src/v6/routes/v6.css",
+    "http://127.0.0.1:4181/qa/v6/evidence/V6-24/vite-cache/deps/react.js?v=533db266",
+    "http://127.0.0.1:4181/qa/v6/evidence/V6-24/vite-cache/deps/react-dom_client.js?v=78308c92",
+    "http://127.0.0.1:4181/packages/contracts/src/draft.ts",
+    "http://127.0.0.1:4181/packages/domain/src/v6/checks.ts",
+    "http://127.0.0.1:4181/apps/web/src/v6/features/delivery/Approval.tsx",
+    "http://127.0.0.1:4181/apps/web/src/v6/features/generation/generation.ts",
+    "http://127.0.0.1:4181/apps/web/src/v6/features/sources/drawings.ts",
+    "http://127.0.0.1:4181/apps/web/src/v6/lib/repository.ts",
+    "http://127.0.0.1:4181/qa/v6/scenarios/V6-12/fixtures/drawing-valid.png?import&url",
+    "http://127.0.0.1:4181/@fs/Users/jared/Personal%20Projects/Patent/node_modules/vite/dist/client/env.mjs",
+    "http://127.0.0.1:4181/qa/v6/evidence/V6-24/vite-cache/deps/zod.js?v=1fc184ca",
+    "http://127.0.0.1:4181/packages/contracts/src/primitives.ts",
+    "http://127.0.0.1:4181/packages/contracts/src/matter.ts",
+    "http://127.0.0.1:4181/qa/v6/evidence/V6-24/vite-cache/deps/react_jsx-dev-runtime.js?v=533db266",
+    "http://127.0.0.1:4181/packages/contracts/src/index.ts",
+    "http://127.0.0.1:4181/packages/domain/src/v6/confirmation.ts",
+    "http://127.0.0.1:4181/packages/domain/src/v6/gate.ts",
+    "http://127.0.0.1:4181/packages/domain/src/v6/revision.ts",
+    "http://127.0.0.1:4181/apps/web/src/v6/lib/legacy-import.ts",
+    "http://127.0.0.1:4181/apps/web/src/v6/features/sources/parse.ts",
+    "http://127.0.0.1:4181/apps/web/src/v6/features/sources/ingest.ts",
+    "http://127.0.0.1:4181/qa/v6/evidence/V6-24/vite-cache/deps/chunk-3M4ZOAM3.js?v=894f3ccb",
+    "http://127.0.0.1:4181/qa/v6/evidence/V6-24/vite-cache/deps/chunk-BO4YYYGR.js?v=894f3ccb",
+    "http://127.0.0.1:4181/packages/providers/src/index.ts",
+    "http://127.0.0.1:4181/apps/web/src/v6/lib/pipeline-adapter.ts",
+    "http://127.0.0.1:4181/apps/web/src/v6/features/ai/ai.ts",
+    "http://127.0.0.1:4181/apps/web/src/v6/features/targets/targets.ts",
+    "http://127.0.0.1:4181/packages/contracts/src/jobs.ts",
+    "http://127.0.0.1:4181/packages/contracts/src/delivery.ts",
+    "http://127.0.0.1:4181/packages/contracts/src/records.ts",
+    "http://127.0.0.1:4181/packages/contracts/src/billing.ts",
+    "http://127.0.0.1:4181/packages/contracts/src/privacy.ts",
+    "http://127.0.0.1:4181/packages/contracts/src/fixtures.ts",
+    "http://127.0.0.1:4181/apps/web/src/lib/extract.ts",
+    "http://127.0.0.1:4181/packages/parsers/src/guard.ts",
+    "http://127.0.0.1:4181/qa/v6/evidence/V6-24/vite-cache/deps/chunk-PVSJSP4D.js?v=894f3ccb",
+    "http://127.0.0.1:4181/packages/providers/src/types.ts",
+    "http://127.0.0.1:4181/packages/providers/src/llm-provider.ts",
+    "http://127.0.0.1:4181/packages/providers/src/deepseek-bridge-provider.ts",
+    "http://127.0.0.1:4181/packages/providers/src/mock-provider.ts",
+    "http://127.0.0.1:4181/packages/providers/src/codex-local-provider.ts",
+    "http://127.0.0.1:4181/packages/pipeline/src/index.ts",
+    "http://127.0.0.1:4181/qa/v6/evidence/V6-24/vite-cache/deps/fflate.js?v=e0c8abb9",
+    "http://127.0.0.1:4181/packages/pipeline/src/types.ts",
+    "http://127.0.0.1:4181/packages/pipeline/src/stages.ts",
+    "http://127.0.0.1:4181/packages/pipeline/src/runner.ts",
+    "http://127.0.0.1:4181/packages/pipeline/src/mock.ts",
+    "http://127.0.0.1:4181/packages/pipeline/src/schemas.ts",
+    "http://127.0.0.1:4181/apps/web/src/shims/empty.ts",
+    "http://127.0.0.1:4181/qa/v6/scenarios/V6-12/fixtures/drawing-valid.png",
+    "http://127.0.0.1:4181/favicon.ico"
+  ],
+  "screenshots": [
+    "01-approval-ready.png",
+    "02-approval-created.png",
+    "03-approval-stale-figure-set.png",
+    "04-approval-revoked.png"
+  ],
+  "url": "http://127.0.0.1:4181/qa/v6/evidence/V6-24/browser-mount.html",
+  "externalRequests": []
+}

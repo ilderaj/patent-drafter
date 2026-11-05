@@ -1,0 +1,243 @@
+{
+  "ticket": "V6-10",
+  "status": "accepted",
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-10/review-05.md",
+    "note": "Independent round-5 review: VERDICT ACCEPT, no blockers. Rounds 1-4 returned CHANGES_REQUIRED (review-01..04.md); every blocker was fixed and re-verified. Round-5 non-blocking notes (Default-extension main-part over-refusal, /Encrypt false positives, embedded OLE macros not inspected, U+0387 wording, round-4 fixtures not stored in the repo, browser flow not rerun) are recorded in review-05.md. Round-4 fix record follows. Round 4 B1 fixed at the root: the OPC metadata scanner no longer finds names with a regex. Each tag name and attribute name is read as a broad token up to whitespace, '/', '>' or '=', the whole qualified name is validated against XML 1.0 fifth-edition NameStartChar/NameChar (including U+00B7, U+0300-036F, U+203F-2040, U+200C/200D and the supplementary plane), and the local name after the colon is classified. A name or attribute the scanner cannot read is refused (INVALID_INPUT), so it fails closed instead of skipping. The reviewer's middle-dot, U+0387, ZWNJ and emoji prefix fixtures on Relationship, Override and Default are all refused; ordinary.docx is still accepted. Round 4 B2 fixed: contract section 10 assigns no encryption code, so an encrypted PDF is UNSUPPORTED_MEDIA (the DOCX encryption code). Any raw /Encrypt PDF name token, including #xx-escaped spellings, in the trailer, an xref-stream dictionary or anywhere else, is refused. Three new scenarios: 18 prefix variants rejected with matter version 1, zero assets and zero blobs plus legitimate unusual prefixes accepted; a genuine pypdf-encrypted PDF and two synthetic /Encrypt PDFs refused while a normal text PDF is saved; an encrypted PDF on a fresh matter leaves version 1, zero assets and zero blobs. All 36 scenarios, typechecks, regression, build and 7 browser steps pass. Status remains candidate pending independent round-5 review."
+  },
+  "baseCommit": "cfabceed050930cd1c1d4df517b4f8b844577c70",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "changedFilesNote": "Delta against baseCommit in the isolated worktree. The implementation, scenarios and evidence are inside the ticket write set. apps/web/src/v6/routes/V6App.tsx, navigation.ts and v6.css are orchestrator-written shared registration: marking the sources tab available, mounting Upload in the sources tab and on the upload route, routing 「没有现成文档」 to the facts placeholder, and adding the upload layout styles. .planning/2026-10-30-patent-saas-v6/progress.md and task_plan.md are orchestrator-written planning records; they are included because they are modified against baseCommit. The untracked node_modules symlink is the local dependency mount and is not staged; the untracked .claude/launch.json is local orchestrator tool configuration and is not staged.",
+  "changedFiles": [
+    ".planning/2026-10-30-patent-saas-v6/progress.md",
+    ".planning/2026-10-30-patent-saas-v6/task_plan.md",
+    "apps/web/src/v6/features/sources/ingest.ts",
+    "apps/web/src/v6/features/sources/Upload.tsx",
+    "apps/web/src/v6/routes/V6App.tsx",
+    "apps/web/src/v6/routes/navigation.ts",
+    "apps/web/src/v6/routes/v6.css",
+    "qa/v6/scenarios/V6-10/ingest.test.mjs",
+    "qa/v6/scenarios/V6-10/upload.test.mjs",
+    "qa/v6/scenarios/V6-10/fixtures/normal-text.pdf",
+    "qa/v6/scenarios/V6-10/fixtures/encrypted.pdf",
+    "qa/v6/evidence/V6-10/receipt.json",
+    "qa/v6/evidence/V6-10/runner.tap",
+    "qa/v6/evidence/V6-10/typecheck.txt",
+    "qa/v6/evidence/V6-10/regression.txt",
+    "qa/v6/evidence/V6-10/build.txt",
+    "qa/v6/evidence/V6-10/scope.txt",
+    "qa/v6/evidence/V6-10/browser-drive.mjs",
+    "qa/v6/evidence/V6-10/browser-log.json",
+    "qa/v6/evidence/V6-10/01-create-matter.png",
+    "qa/v6/evidence/V6-10/02-select-docx.png",
+    "qa/v6/evidence/V6-10/03-refresh-dedupe.png",
+    "qa/v6/evidence/V6-10/04-fake-docx.png",
+    "qa/v6/evidence/V6-10/05-bad-txt.png",
+    "qa/v6/evidence/V6-10/06-answer-without-documents.png",
+    "qa/v6/evidence/V6-10/07-matter-sources-tab.png",
+    "qa/v6/evidence/V6-10/review-01.md",
+    "qa/v6/evidence/V6-10/review-02.md",
+    "qa/v6/evidence/V6-10/review-03.md",
+    "qa/v6/evidence/V6-10/review-04.md",
+    "qa/v6/evidence/V6-10/review-05.md"
+  ],
+  "interface": {
+    "modules": [
+      "apps/web/src/v6/features/sources/ingest.ts",
+      "apps/web/src/v6/features/sources/Upload.tsx"
+    ],
+    "exports": [
+      "DOCUMENT_MAX_BYTES",
+      "IMAGE_MAX_BYTES",
+      "IMAGE_MAX_PIXELS",
+      "DOCX_MAX_INFLATED_BYTES",
+      "DOCX_MAX_ENTRIES",
+      "DOCX_MAX_RATIO",
+      "MAX_CONCURRENT_UPLOADS",
+      "COMMIT_ATTEMPTS",
+      "DocumentKind",
+      "ImageKind",
+      "AcceptedKind",
+      "IngestErrorCode",
+      "Classification",
+      "ClassifyInput",
+      "KIND_MIME",
+      "isImageKind",
+      "isDocumentKind",
+      "limitForKind",
+      "classifyFile",
+      "extensionOf",
+      "inflateRaw",
+      "crc32",
+      "IngestFile",
+      "IngestStage",
+      "IngestProgress",
+      "IngestFailureCode",
+      "IngestOutcome",
+      "IngestOptions",
+      "ingestFiles",
+      "UploadRow",
+      "UploadView",
+      "STAGE_LABELS",
+      "INGEST_ERROR_MESSAGES",
+      "describeUploadRows",
+      "rowFromProgress",
+      "UploadItem",
+      "UploadState",
+      "UploadAction",
+      "initialUploadState",
+      "UPLOAD_ACCEPT",
+      "uploadReducer",
+      "pendingForSave",
+      "rowsFromItems",
+      "UploadProps",
+      "newFileId",
+      "Upload",
+      "UploadPanelProps",
+      "UploadPanel"
+    ],
+    "classify": "classifyFile({bytes,name,declaredType}) is pure and synchronous and answers {ok:true,kind,mime,bytes,dimensions?} or {ok:false,code,message}. The bytes decide: PDF (`%PDF-` within the first 1024 bytes), PNG/JPEG signatures, a ZIP local/EOCD signature for DOCX, and strict UTF-8 (no NUL) for .txt/.md. The extension must be one of the kind's extensions and a declared MIME other than a neutral `application/octet-stream`/`binary/octet-stream` must match the kind, otherwise MIME_MISMATCH. Limits: PDF/DOCX/TXT/MD 50 MiB (FILE_TOO_LARGE), PNG/JPEG 8 MiB (IMAGE_TOO_LARGE) and 16 MP, checked from the header before any decode. PDF also needs a %%EOF trailer (INVALID_INPUT), and any raw /Encrypt name token (PDF name syntax, #xx escapes decoded) refuses the file as encrypted with UNSUPPORTED_MEDIA, before any storage. PNG/JPEG reuses V6-07's validateDrawing for full structural validation. An empty file or an unreadable archive is INVALID_INPUT; a type outside the whitelist is UNSUPPORTED_MEDIA.",
+    "docx": "A DOCX is treated as an untrusted ZIP: the central directory is walked with ZIP64, multi-disk and encrypted entries refused (UNSUPPORTED_MEDIA); entry names containing NUL, absolute paths (POSIX `/`, drive-letter `C:`, backslash/UNC), `..` traversal, duplicate names and Unix symlink entries (version-made-by host 3 and S_IFLNK mode in the external attributes) are refused. Every entry is deflated with an in-file RFC 1951 inflater whose output buffer grows geometrically under a hard 200 MiB total cap (a real 16 MiB zeros stream inflates in ~27 ms; exact-size growth was quadratic and took tens of seconds). The first buffer is sized from the declared entry size (bounded to 8 KiB) and the result is copied down to its exact length, so a retained 13-byte part cannot pin a 64 KiB backing store; only [Content_Types].xml and `.rels` parts are retained after the CRC walk. The declared size/CRC must match the real output. The archive is FILE_TOO_LARGE above 10,000 entries, above 200 MiB inflated, above ratio 100, or when a declared size exceeds 200 MiB. Macro markers (vbaProject/macroEnabled/template.macro), remote relationships and EncryptedPackage/EncryptionInfo are refused; an OLE/CFB compound file declared .docx is refused as encrypted (UNSUPPORTED_MEDIA with the encryption copy) rather than as a generic mismatch. Every part whose name ends in `.rels` is decoded as XML the way a conforming consumer does: UTF-8 unless a BOM selects UTF-16LE/BE, fatal on invalid byte sequences, any U+0000 refused, and any `<!DOCTYPE` refused (an internal entity such as `&ext;` must not authorise an External mode). Elements are matched by Unicode-safe local name after stripping any namespace prefix (`<é:Relationship>` and its decomposed `e` + U+0301 spelling both count), case-sensitively for `Relationship`; attributes use case-insensitive local-name matching, and values may use single or double quotes, arbitrary whitespace and entity encoding, with values XML-decoded twice. A relationship is refused when TargetMode decodes to external, or Target decodes to a URL scheme (`^[a-z][a-z0-9+.-]*:`), starts with `//` or a backslash UNC (`\\\\host`), or contains a `..` path segment; this catches `TargetMode='External'`, `TargetMode=\"&amp;#69;xternal\"`, `Target=\"https&amp;#58;//…\"`, `file:`, `//host/` and UTF-16/namespace-prefixed/DOCTYPE variants in root and child relationship parts. [Content_Types].xml, _rels/.rels and word/document.xml are required and the main part must carry the WordprocessingML document content type. Round-3 metadata gate: [Content_Types].xml uses the same strict decoder as relationships. Comments, CDATA and processing instructions are removed before scanning Unicode local element names. Default/Override ContentType attributes are entity-decoded twice and any macroEnabled, vbaProject, vbaData, activeX or ms-word document/template macro marker is refused. Exactly one Override for the case-insensitive PartName /word/document.xml must have exactly the non-macro document content type. Decoy parts cannot supply that declaration. Relationship Type values containing vbaProject or ending in /wordVbaData are refused after decoding. The compression ratio limit is aggregate across the archive. Round-4 name gate: [Content_Types].xml and every .rels part are tokenised in order; each tag name and attribute name is taken up to whitespace, '/', '>' or '=', validated as an XML 1.0 QName (NameStartChar/NameChar, including U+00B7, combining marks U+0300-036F, U+203F-2040, joiners and supplementary characters), and classified by the local name after the colon. Prefixes such as `a·:`, `á:` or `a‌:` therefore no longer hide Relationship, Override or Default. Any unreadable name, malformed attribute, unterminated tag, comment, CDATA or PI is refused as INVALID_INPUT.",
+    "ingest": "ingestFiles(repository, actor, matterId, files, {onProgress, signal, fileIds, now, newId}) validates and stores each file as one `source` asset of the matter and returns one IngestOutcome per input, in input order: saved | duplicate | rejected(code,message) | cancelled | failed(code,message). Files are read in 256 KiB slices, so progress is real received bytes, the abort signal is checked before each slice, and at most three files are in flight. Bytes are hashed with sha256Hex; metadata and bytes are written in one repository.commit with expectedVersion, so a failure leaves neither an asset row nor a blob. Commits are serialized per repository instance; VERSION_CONFLICT is retried up to 4 times and the duplicate check reruns before each attempt. A file whose sha256 (and byteLength) already exists as an available source asset of the same matter is reported duplicate and writes nothing. A matter that is not active refuses with INVALID_TRANSITION; another tenant/actor fails with RESOURCE_NOT_FOUND from the repository. No activity event is written because the contract's activity whitelist has no asset action (see decisionsRequested).",
+    "viewModel": "rowFromProgress(progress,outcome) and describeUploadRows(rows) are pure: stage selected|uploading|verifying|saved|rejected, fraction from real bytes (0..1, 1 otherwise), a fixed Chinese label, one user-facing error message from INGEST_ERROR_MESSAGES, canRemove false for saved rows and saved derived only from a saved/duplicate outcome. rowFromProgress never invents 已保存 for a failed or cancelled file.",
+    "ui": "Upload(props: {repository: LocalRepository; actor: Actor; matterId: string; onAnswerWithoutDocuments: () => void}) renders UploadPanel and owns only a reducer: picker plus drop zone (accept .pdf,.docx,.txt,.md,.png,.jpg,.jpeg), one row per file identity (name/size/lastModified and fileId), remove for files that were not stored, a save button that ingests only untried/failed/cancelled files, a cancel that aborts the in-flight batch, real per-row progress bars, the error notice, and 「没有现成文档，直接回答问题」 which only calls onAnswerWithoutDocuments and writes nothing. UploadPanel is the pure markup for those states so they can be rendered headlessly."
+  },
+  "acceptance": [
+    {
+      "id": "V6-10-A01",
+      "command": "npm run test:v6 -- V6-10; node qa/v6/evidence/V6-10/browser-drive.mjs qa/v6/evidence/V6-10 http://127.0.0.1:5174",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-10/runner.tap",
+        "qa/v6/evidence/V6-10/browser-log.json",
+        "qa/v6/evidence/V6-10/02-select-docx.png",
+        "qa/v6/evidence/V6-10/03-refresh-dedupe.png",
+        "qa/v6/evidence/V6-10/07-matter-sources-tab.png"
+      ],
+      "observed": "36/36 tests pass, 0 skipped. Browser run 7/7 steps, exit 0, no console errors: a newly created matter opens the empty upload area, picking a synthetic DOCX and saving shows 已保存 with exactly one blob, and after a real page refresh the same file reads as 已保存 with no second blob (dedupe against the persisted asset). The same holds on the matter's 材料 tab. The A01 scenario saves a synthetic DOCX, asserts the committed asset (purpose source, state available, originalName, mime, sha256, byteLength, matterId, serviceOrderId null) and matter sourceVersion 1 (no Source is fabricated), then opens a new LocalRepository over the same stored backend and reads the blob back byte-identical with the same sha256. No activity event is invented. A second scenario saves one file of every whitelisted format (PDF, DOCX, TXT, MD, PNG, JPEG) and reads back the stored MIME per file."
+    },
+    {
+      "id": "V6-10-A02",
+      "command": "npm run test:v6 -- V6-10; node qa/v6/evidence/V6-10/browser-drive.mjs qa/v6/evidence/V6-10 http://127.0.0.1:5174",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-10/runner.tap",
+        "qa/v6/evidence/V6-10/browser-log.json",
+        "qa/v6/evidence/V6-10/04-fake-docx.png",
+        "qa/v6/evidence/V6-10/05-bad-txt.png"
+      ],
+      "observed": "Browser steps 04-05: a renamed PNG picked as .docx is 未接受 with the mismatch message and stores no blob; a non-UTF-8 .txt is refused the same way; the blob count stays 1 throughout. Scenario coverage: A 15-file hostile batch is rejected with the expected contract codes and no commit: >50 MiB document FILE_TOO_LARGE, >8 MiB and >16 MP images IMAGE_TOO_LARGE, renamed PNG / renamed ZIP-as-PDF / renamed text MIME_MISMATCH, macro / remote-relationship / traversal / encrypted DOCX UNSUPPORTED_MEDIA, compression-bomb DOCX FILE_TOO_LARGE, non-DOCX ZIP UNSUPPORTED_MEDIA, non-UTF-8 text and broken PDF INVALID_INPUT, unknown .exe UNSUPPORTED_MEDIA. Matter version stays 1 with zero assets, zero blobs and sourceVersion 1; picking the same hostile files again produces identical codes and still nothing stored. A DOCX with 10,001 entries and one declaring more than 200 MiB are both FILE_TOO_LARGE with nothing committed. Dedicated tests also refuse the remote-relationship bypasses: single-quoted External with odd whitespace, entity-encoded `&amp;#69;xternal`, entity-encoded scheme `https&amp;#58;//`, entity-encoded quotes (`TargetMode=&quot;External&quot;`), uppercase and prefixed TargetMode names, `file:` and `//host/`, a remote target in a child `word/_rels/document.xml.rels`, a UTF-16LE and a UTF-16BE `.rels` with BOM and `encoding=\"UTF-16\"`, a Unicode namespace prefix (`<é:Relationship>`, including its decomposed `e` + U+0301 spelling), and a DOCTYPE entity (`TargetMode=\"&ext;\"`); traversal (`../word/document.xml`) and backslash UNC (`\\\\host\\share`) targets are refused, an invalid UTF-8 `.rels` is INVALID_INPUT, and a normal internal relative relationship — in UTF-16LE and UTF-16BE — is still accepted. NUL entry names, drive-letter paths and Unix symlink entries are UNSUPPORTED_MEDIA; an OLE/CFB compound file declared .docx is UNSUPPORTED_MEDIA with the encryption message. The inflater regression test builds real zlib streams of 1, 4 and 16 MiB and asserts a 16 MiB inflate under 3 s and a 16 MiB / 4 MiB time ratio below 8x (best of three on this machine: ~2 ms, ~7 ms and ~27 ms, ratio ~4x), so the former quadratic ensureCapacity growth cannot return. The memory regression accepts a 2,003-entry DOCX whose 2,000 extra deflated members inflate to ~10–14 bytes each, asserts arrayBuffers growth stays under 64 MiB around classifyFile (measured -0.4 MiB in a standalone probe) and under 8 MiB for a normal DOCX; the 10,000-entry repro that grew ~783 MiB before the fix now measures ~-1.8 MiB in a standalone probe, so retaining a 64 KiB view per part cannot return. Repeated picks of valid bytes create one asset (the second is duplicate), including two identical picks inside one parallel batch. The S02-A01 batch saves a 49 MiB PDF byte-identically while a 51 MiB PDF in the same call is FILE_TOO_LARGE with the 50 MiB limit in its message and does not disturb the saved file. The UI scenarios render the failure states and show 已保存 only for a committed asset. Round 3: 12 content-type fixtures (character-reference macro markers, comment/CDATA/PI-only declarations, decoy parts, duplicate main Overrides, DOCTYPE and UTF-16 macro metadata) are rejected UNSUPPORTED_MEDIA through ingestFiles, leaving matter version 1, zero assets and zero blobs. Normal UTF-8/UTF-16LE/UTF-16BE content types, Unicode-prefixed Overrides and entity-encoded case-insensitive main part names pass. Invalid UTF-8 and NUL metadata are INVALID_INPUT. Three literal/encoded VBA relationship Types with benign filenames are refused; relationship text in comments/CDATA/PIs is ignored. Round 4: 18 XML-prefix variants (U+00B7 middle dot, U+0387, combining U+0301, ZWNJ U+200C, U+2040 and an emoji prefix) on Relationship (remote target), Override and Default (macro content types) are rejected UNSUPPORTED_MEDIA through ingestFiles with matter version 1, zero assets and zero blobs; the reviewer's eight review-04 DOCX fixtures were also re-run through classifyFile and all are refused while ordinary.docx is accepted. A legitimate `a·:Override` main-part declaration, an `a·:Relationship` internal relationship and a combining-mark prefix are accepted. Unclassifiable names (control character in a name, `a::Override`, `a:b:c`) are refused. A genuine password-protected PDF (qa/v6/scenarios/V6-10/fixtures/encrypted.pdf, pypdf: is_encrypted true, opens only with its user password) and two synthetic PDFs with `/Encrypt 4 0 R` and the escaped `/Encr#79pt` are refused with the encryption message; in one batch the encrypted PDF is rejected and a normal text PDF (fixtures/normal-text.pdf, extracted text verified) is saved, ending at version 2 with one asset and one blob. The /Encrypt scan of a 50 MiB PDF classifies in ~89 ms in a standalone probe."
+    },
+    {
+      "id": "V6-10-A03",
+      "command": "npm run test:v6 -- V6-10; node qa/v6/evidence/V6-10/browser-drive.mjs qa/v6/evidence/V6-10 http://127.0.0.1:5174",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-10/runner.tap",
+        "qa/v6/evidence/V6-10/browser-log.json",
+        "qa/v6/evidence/V6-10/03-refresh-dedupe.png",
+        "qa/v6/evidence/V6-10/06-answer-without-documents.png"
+      ],
+      "observed": "Browser step 03 saves, performs a real Page.reload, then saves the same file again: 已保存 is shown from the persisted record and the IndexedDB blob count does not grow. Step 06 clicks 「没有现成文档，直接回答问题」: no blob is written and the facts placeholder is shown until the S03 flow lands. Scenario coverage: Retrying a successful pick reports duplicate at the same asset id and leaves one asset at one version, with no second blob. With a put fault injected for the blob store, a DOCX fails as STORAGE_UNAVAILABLE while a fresh repository over the same backend still reports version 1, zero assets and zero blobs; clearing the fault and retrying saves exactly one asset whose bytes read back byte-identically. A partly failed batch keeps its success (duplicate on re-pick) and retries only the failed file, ending at two assets and version 3 with every stored hash matching. A foreign actor fails RESOURCE_NOT_FOUND and an archived matter INVALID_TRANSITION, each writing nothing. A pre-aborted upload stores nothing and a later retry saves once. Mid-batch cancellation is covered by V6-10-A03 cancelling mid-batch after the first slice stores nothing: two slow instrumented Blobs start reading, the signal aborts after the first slice, both outcomes are cancelled, no verifying or saved progress is emitted, and the matter stays at version 1 with zero assets and zero blobs. readBlob checks the signal before every 256 KiB slice, so no further slice starts after the abort. The upload UI renders a cancelled row as removable and never as 已保存. Round 4: an encrypted PDF ingested into a fresh matter is rejected and leaves matter version 1 with zero assets and zero blobs."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S02-A01",
+      "status": "covered",
+      "reason": "One batch with a 49 MiB PDF and a 51 MiB PDF: the first is saved and byte-identical on read-back, the second is FILE_TOO_LARGE with the 50 MiB limit named and does not disturb the first (V6-10-S02-A01 scenario)."
+    },
+    {
+      "id": "S02-A02",
+      "status": "partial",
+      "reason": "A 17 MP PNG is refused as IMAGE_TOO_LARGE from its header with no downscaled copy and no bytes stored. The S02 wording attaches it as a figure (AddDrawing); that command, the Drawing entity and figure-set work belong to a later ticket, so this ticket covers the rejection on the upload path only."
+    },
+    {
+      "id": "S02-A03",
+      "status": "covered",
+      "reason": "A real ZIP renamed .pdf is MIME_MISMATCH in the hostile batch; no asset, blob or Source is written (sourceVersion stays 1). CommitSource is intentionally not part of this ticket, so there is nothing to create a Source record."
+    },
+    {
+      "id": "S02-A04",
+      "status": "not_applicable",
+      "reason": "Scanned-PDF partial parsing, ocrNeeded and OCR_UNAVAILABLE belong to the parse/source ticket; this ticket stops at storing the original bytes and never parses text."
+    },
+    {
+      "id": "S02-A05",
+      "status": "not_applicable",
+      "reason": "R1 parse interruption checkpoints and the interrupted job state belong to the parsing job ticket; no parse job exists here."
+    },
+    {
+      "id": "S02-A06",
+      "status": "not_applicable",
+      "reason": "R2 job polling by jobId belongs to the cloud parse ticket; this is a local-only repository write."
+    },
+    {
+      "id": "S02-A07",
+      "status": "not_applicable",
+      "reason": "Source retirement and fact source markers belong to the sources/claims tickets; no Source or SourceRef exists here."
+    },
+    {
+      "id": "S02-A08",
+      "status": "not_applicable",
+      "reason": "FigureSetRevision invalidation and shared-library figure changes belong to the figures ticket; this ticket creates no Drawing or FigureSetRevision."
+    },
+    {
+      "id": "S02-A09",
+      "status": "not_applicable",
+      "reason": "missing_bytes marking and MISSING_BYTES export refusal belong to the export/source page tickets; this ticket neither exports nor reconciles missing objects."
+    },
+    {
+      "id": "S02-A10",
+      "status": "not_applicable",
+      "reason": "Downloading a stored original under ACL is the sources ticket's download action; no download surface exists in this ticket."
+    }
+  ],
+  "limitations": [
+    "Browser evidence covers create → upload → save → refresh → dedupe, the rejected-file states and the no-document action in a real page (7 steps, exit 0). Drag-and-drop itself is not exercised: the driver sets the file input through CDP, and the drop handler was verified only by scenario rendering.",
+    "No activity event is written when an asset is created. The contract's activity whitelist has no asset action and `source.committed` is reserved for the later CommitSource command; the repository commit therefore carries an empty events array.",
+    "Repository-level refresh is simulated by opening a new LocalRepository over the same in-memory backend, and browser step 03 additionally performs a real Page.reload against IndexedDB and re-picks the same DOCX: the persisted asset is recognised and the blob count does not grow (real IndexedDB dedupe). What remains unproven is browser quota exhaustion, private-mode storage failure and eviction; the storage failure is an injected put fault in the blob store, which reaches the same atomic commit path.",
+    "The DOCX 200 MiB cap is enforced both on declared sizes and on real inflation output; the ratio and declared-size lies are covered by tests, but an archive that really inflates to 200 MiB was not built because of memory and time cost.",
+    "The inline inflater is a small RFC 1951 decoder written for this module. It is exercised by all DOCX fixtures (real deflate streams), but it has not been fuzzed against arbitrary deflate streams.",
+    "Duplicate detection compares sha256 plus byteLength among available source assets of the same matter. A renamed copy of identical bytes is reported duplicate and not stored again; the UI therefore shows no second asset for it.",
+    "Limits are enforced only for files that reach this module. The picker accept attribute hides other types, but a drop can still deliver them and they are refused by content.",
+    "The upload area uses existing classes plus a small layout block added by the orchestrator to apps/web/src/v6/routes/v6.css; the component itself ships no stylesheet.",
+    "The 3-file concurrency limit is proven with instrumented Blobs measuring in-flight slice reads. It is a module limit, not a browser network scheduler check.",
+    "「没有现成文档，直接回答问题」 cannot enter S03 yet because the question flow arrives with V6-13/14; it navigates to the facts tab, which states that the section is not open yet, and writes nothing. The receipt records this as a registration limitation, not a claim that S03 exists.",
+    "Upload.tsx ships an accept string that lists extensions and three MIME types for convenience; the tests assert that prefix, and content-based validation is the authority in all cases.",
+    "The PDF page-count limit is deferred to the parsing ticket: this module checks the header and %%EOF trailer but does not count pages, so a structurally valid PDF with an excessive page count is stored here and must be refused by the parser.",
+    "After a refresh the upload UI has no material list; it only recognises a re-picked file as already stored. A01's refresh is therefore proven at repository level (a new repository reads the asset and bytes back) and in the browser by reload dedupe, not by rendering a list of stored materials.",
+    "Stored blob bytes are kept as Uint8Array (the V6-06 repository representation), although S02 describes the stored original as a Blob; the UI and read-back use Uint8Array in this ticket.",
+    "A relationship value is XML-decoded twice, trimmed and stripped of surrounding quotes before the scheme/TargetMode check. Schemes hidden behind a third encoding layer, percent-encoded traversal (`%2e%2e`), or schemes broken up by embedded whitespace or control characters are not normalized and are not claimed; a consumer that applies further normalization is out of scope.",
+    "A relationship Target containing a `..` segment is refused even when it resolves inside the package, because the target is judged before any extractor resolves it relative to its part. A legitimate package that references a sibling directory (for example `../customXml/item1.xml` from `word/_rels/document.xml.rels`) is therefore refused; this is the conservative side of the S02 rule.",
+    "Any `<!DOCTYPE` in a `.rels` or [Content_Types].xml part is refused even when it declares no entity. OPC metadata parts do not need a DTD, so this is a deliberate conservative refusal, not an unhandled case.",
+    "The memory regression measures process.memoryUsage().arrayBuffers immediately around the pure classifier in the test process. That metric tracks live ArrayBuffer backing stores and can move by several MiB or go negative when garbage collection runs; it bounds this module's retention, not browser-tab RSS or the peak memory of a hostile import.",
+    "The metadata scanner tokenises tag and attribute names and validates them as XML 1.0 QNames, then classifies by local name; it checks decoded attributes, not the full XML/OPC schema or namespace identity (a prefix bound to any namespace counts). It is not a general XML validator: well-formedness beyond names, attributes and tag termination (element nesting, end-tag matching) is not checked, and unusual but valid markup it cannot tokenise is refused rather than accepted. U+0387 is not an XML NameChar but the reviewer's ElementTree accepted it; this scanner refuses that file either way. Duplicate main Overrides and all activeX content types are conservatively refused. No arbitrary-XML fuzzing or Microsoft Word execution has been performed. The macro and prefix bypass cases are covered at classifier/repository level, not by the browser driver.",
+    "PDF encryption is detected by scanning raw bytes for an /Encrypt name token (including #xx escapes), not by parsing the trailer or xref streams. This fails closed: a PDF that merely contains the name /Encrypt in a comment, string or uncompressed content stream is also refused (false positive). An /Encrypt key inside a compressed object stream cannot appear there, because the PDF specification keeps the encryption dictionary reference in the trailer or the xref-stream dictionary, which are never compressed; a malformed PDF that hides it elsewhere is not claimed.",
+    "The encrypted-PDF fixture is the reviewer's pypdf-generated file from review-04 (one page, user password review-password, empty password refused); no Acrobat- or AES-256-encrypted PDF from another producer was tested. The UI still shows the generic per-code reason from INGEST_ERROR_MESSAGES rather than the classifier's specific message (review-04 N1, not changed)."
+  ],
+  "decisionsRequested": [
+    {
+      "decision": "The contract §10 names FILE_TOO_LARGE, IMAGE_TOO_LARGE, MIME_MISMATCH and UNSUPPORTED_MEDIA for the S02 upload rules, but names no code for an unreadable DOCX archive, a PDF without its trailer, non-UTF-8 text or an encrypted document. This candidate maps them to INVALID_INPUT (archive/PDF/UTF-8) and UNSUPPORTED_MEDIA (encryption). Confirm or assign dedicated codes.",
+      "impact": "S02 error copy and any future R2 API mapping."
+    },
+    {
+      "decision": "Asset creation writes no activity event because the §10 activity whitelist has no asset action; `source.committed` is left to CommitSource. Confirm that asset staging is intentionally unlogged in R1.",
+      "impact": "Activity trail and the later sources/commit ticket."
+    },
+    {
+      "decision": "Re-picking bytes already stored as an available source asset of the same matter returns duplicate and writes nothing, even under a different display name. Confirm that hash-level dedupe is the intended policy (versus storing each pick as a distinct asset).",
+      "impact": "Matter asset counts and any later delete/purge accounting."
+    },
+    {
+      "decision": "An image over 8 MiB is IMAGE_TOO_LARGE, but any file over 50 MiB is refused as FILE_TOO_LARGE before it is read, so a >50 MiB PNG carries FILE_TOO_LARGE even though its bytes are an image. Confirm which code should win for that corner.",
+      "impact": "Error copy shown for very large images."
+    },
+    {
+      "decision": "A declared MIME of application/octet-stream or binary/octet-stream is treated as no claim rather than a mismatch, because browsers report it for files they do not recognise; the sniffed content decides. Confirm this tolerance.",
+      "impact": "Drag-and-drop and downloaded-file uploads from some browsers."
+    }
+  ]
+}

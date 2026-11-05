@@ -1,0 +1,105 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-22
+
+TAP version 13
+# Subtest: V6-22-A01: self-service opens the same matter without copying it
+ok 1 - V6-22-A01: self-service opens the same matter without copying it
+  ---
+  duration_ms: 2.487209
+  type: 'test'
+  ...
+# Subtest: S06 overview: target language is projected and rendered for each target
+ok 2 - S06 overview: target language is projected and rendered for each target
+  ---
+  duration_ms: 17.762458
+  type: 'test'
+  ...
+# Subtest: V6-22-A02 and S06-A03: revoking target A confirmation invalidates only A approval
+ok 3 - V6-22-A02 and S06-A03: revoking target A confirmation invalidates only A approval
+  ---
+  duration_ms: 8.234916
+  type: 'test'
+  ...
+# Subtest: approval validity is recomputed after revision, figure, check, and rule changes
+    # Subtest: revision change
+    ok 1 - revision change
+      ---
+      duration_ms: 3.996042
+      type: 'test'
+      ...
+    # Subtest: figure change
+    ok 2 - figure change
+      ---
+      duration_ms: 1.889084
+      type: 'test'
+      ...
+    # Subtest: newer check run
+    ok 3 - newer check run
+      ---
+      duration_ms: 1.763375
+      type: 'test'
+      ...
+    # Subtest: rule-pack change
+    ok 4 - rule-pack change
+      ---
+      duration_ms: 1.583
+      type: 'test'
+      ...
+    1..4
+ok 4 - approval validity is recomputed after revision, figure, check, and rule changes
+  ---
+  duration_ms: 9.614083
+  type: 'test'
+  ...
+# Subtest: S06-A02: open conflict has priority over stale input
+ok 5 - S06-A02: open conflict has priority over stale input
+  ---
+  duration_ms: 0.910584
+  type: 'test'
+  ...
+# Subtest: S06-A05: inaccessible matters and their activity stay absent
+ok 6 - S06-A05: inaccessible matters and their activity stay absent
+  ---
+  duration_ms: 0.77725
+  type: 'test'
+  ...
+# Subtest: S06-A06: model activity shows job metadata and excludes prompt/body metadata
+ok 7 - S06-A06: model activity shows job metadata and excludes prompt/body metadata
+  ---
+  duration_ms: 7.916
+  type: 'test'
+  ...
+# Subtest: V6-22-A02: activity derives outcomes; a failed job stays failed and a retry has its own job id
+ok 8 - V6-22-A02: activity derives outcomes; a failed job stays failed and a retry has its own job id
+  ---
+  duration_ms: 2.159917
+  type: 'test'
+  ...
+# Subtest: S06 UI states: activity loading, empty, error and stale are explicit
+ok 9 - S06 UI states: activity loading, empty, error and stale are explicit
+  ---
+  duration_ms: 1.983209
+  type: 'test'
+  ...
+# Subtest: V6-22-A03: refresh/retry keeps one confirmation and one event
+ok 10 - V6-22-A03: refresh/retry keeps one confirmation and one event
+  ---
+  duration_ms: 2.437208
+  type: 'test'
+  ...
+# Subtest: S06-A08: archived matter refuses a draft save
+ok 11 - S06-A08: archived matter refuses a draft save
+  ---
+  duration_ms: 0.759
+  type: 'test'
+  ...
+1..11
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 351.146375

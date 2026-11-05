@@ -1,0 +1,70 @@
+{
+  "ok": true,
+  "steps": [
+    {
+      "name": "01-matters-empty",
+      "ok": true,
+      "detail": {
+        "empty": true,
+        "create": true,
+        "upload": true,
+        "sample": false
+      }
+    },
+    {
+      "name": "02-create-case-upload",
+      "ok": true,
+      "detail": {
+        "matterId": "afe7dfea-bb0b-48fc-827b-fdbab3ed24f5",
+        "path": "/patent/v6/matters/afe7dfea-bb0b-48fc-827b-fdbab3ed24f5/upload",
+        "title": true,
+        "matter": true
+      }
+    },
+    {
+      "name": "03-created-case-list",
+      "ok": true,
+      "detail": {
+        "rows": 1,
+        "title": "未命名案件",
+        "id": "matter-row-afe7dfea-bb0b-48fc-827b-fdbab3ed24f5"
+      }
+    },
+    {
+      "name": "04-archive-unarchive",
+      "ok": true,
+      "detail": {
+        "title": "未命名案件",
+        "buttons": [
+          "重命名",
+          "归档"
+        ]
+      }
+    },
+    {
+      "name": "05-inbox-empty",
+      "ok": true,
+      "detail": {
+        "text": "暂无待办",
+        "sample": false,
+        "requests": [
+          "http://127.0.0.1:5174/patent/assets/index-DdwQeOia.css",
+          "http://127.0.0.1:5174/patent/assets/index-D7CAddRR.js",
+          "http://127.0.0.1:5174/patent/assets/V6App-BKpE1eve.css",
+          "http://127.0.0.1:5174/patent/assets/V6App-Yku0dn6W.js"
+        ]
+      }
+    },
+    {
+      "name": "06-no-external-network",
+      "ok": true,
+      "detail": {
+        "requests": 15,
+        "nonLocal": []
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "nonLocalRequests": [],
+  "requests": 15
+}

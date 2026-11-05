@@ -1,0 +1,330 @@
+{
+  "ticket": "V6-11",
+  "status": "accepted",
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-11/review-02.md",
+    "note": "Independent second review (review-02.md) found no blockers and accepted. Non-blocking items are listed in review-02.md section 4: a bounded fail-closed renewal-vs-pagehide race, no auto re-read after lease expiry, SPA unmount cancels rather than resumes, an external reader can leave an expired raw job row unpersisted, marker consumed after one pass, default leaseMs only, a >= assertion in browser step 12, receipt timing wording, and a missing S02-A06 not_applicable row that this acceptance adds."
+  },
+  "baseCommit": "f89236a12b85f262c7058f0fc9dca6438983a829",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "changedFilesNote": "Delta against baseCommit in the isolated worktree: git status --porcelain --untracked-files=all (scope.txt) minus node_modules and .claude/launch.json. Executor edits in this round are limited to apps/web/src/v6/features/sources/parse.ts, apps/web/src/v6/features/sources/Parse.tsx, qa/v6/scenarios/V6-11/parse-engine.test.mjs, qa/v6/scenarios/V6-11/parse-ui.test.mjs, and qa/v6/evidence/V6-11/. The other entries are not executor edits: V6App.tsx and Upload.tsx are orchestrator registration (V6App mounts <Parse refreshToken={parseKey} .../> below Upload, with no key, and Upload calls an optional onSettled after its save batch; Parse re-reads without remounting and keeps its running job); .planning/2026-10-30-patent-saas-v6/task_plan.md and progress.md are orchestrator planning files; review-01.md is the independent reviewer's evidence. .claude/launch.json (preview server config added by the orchestrator) and node_modules (untracked symlink) are excluded from scope.txt. No shared file (navigation.ts, v6.css, ingest.ts) is changed.",
+  "changedFiles": [
+    ".planning/2026-10-30-patent-saas-v6/progress.md",
+    ".planning/2026-10-30-patent-saas-v6/task_plan.md",
+    "apps/web/src/v6/features/sources/Parse.tsx",
+    "apps/web/src/v6/features/sources/Upload.tsx",
+    "apps/web/src/v6/features/sources/parse.ts",
+    "apps/web/src/v6/routes/V6App.tsx",
+    "qa/v6/evidence/V6-11/01-create-matter.png",
+    "qa/v6/evidence/V6-11/02-upload-text-appears-without-reload.png",
+    "qa/v6/evidence/V6-11/03-upload-pdf-appears-without-reload.png",
+    "qa/v6/evidence/V6-11/04-parse-both-to-parsed.png",
+    "qa/v6/evidence/V6-11/05-reload-keeps-parsed.png",
+    "qa/v6/evidence/V6-11/06-scanned-pdf-partial.png",
+    "qa/v6/evidence/V6-11/07-legacy-doc-refused-at-upload.png",
+    "qa/v6/evidence/V6-11/08-failed-parse-then-retry-new-job.png",
+    "qa/v6/evidence/V6-11/09-interrupt-by-reload-then-resume.png",
+    "qa/v6/evidence/V6-11/09a-running-before-reload.png",
+    "qa/v6/evidence/V6-11/09b-interrupted-after-reload.png",
+    "qa/v6/evidence/V6-11/10-interrupt-by-reload-then-abandon.png",
+    "qa/v6/evidence/V6-11/10a-running-before-reload.png",
+    "qa/v6/evidence/V6-11/10b-interrupted-after-reload.png",
+    "qa/v6/evidence/V6-11/11-upload-during-parse-keeps-progress.png",
+    "qa/v6/evidence/V6-11/12-duplicated-tab-does-not-interrupt.png",
+    "qa/v6/evidence/V6-11/12a-duplicated-tab-both-running.png",
+    "qa/v6/evidence/V6-11/12b-duplicated-tab-original-completed.png",
+    "qa/v6/evidence/V6-11/browser-drive.mjs",
+    "qa/v6/evidence/V6-11/browser-log.json",
+    "qa/v6/evidence/V6-11/build.txt",
+    "qa/v6/evidence/V6-11/receipt.json",
+    "qa/v6/evidence/V6-11/regression.txt",
+    "qa/v6/evidence/V6-11/review-01.md",
+    "qa/v6/evidence/V6-11/review-02.md",
+    "qa/v6/evidence/V6-11/runner.tap",
+    "qa/v6/evidence/V6-11/scope.txt",
+    "qa/v6/evidence/V6-11/typecheck.txt",
+    "qa/v6/scenarios/V6-11/fixtures/generate.mjs",
+    "qa/v6/scenarios/V6-11/fixtures/legacy-doc.doc",
+    "qa/v6/scenarios/V6-11/fixtures/plain-docx.docx",
+    "qa/v6/scenarios/V6-11/fixtures/plain-text.txt",
+    "qa/v6/scenarios/V6-11/fixtures/scan-no-text-layer.pdf",
+    "qa/v6/scenarios/V6-11/fixtures/scanned-page-note.txt",
+    "qa/v6/scenarios/V6-11/fixtures/text-two-pages.pdf",
+    "qa/v6/scenarios/V6-11/fixtures/verify-fixtures.mjs",
+    "qa/v6/scenarios/V6-11/harness.mjs",
+    "qa/v6/scenarios/V6-11/parse-engine.test.mjs",
+    "qa/v6/scenarios/V6-11/parse-ui.test.mjs"
+  ],
+  "interface": {
+    "modules": [
+      "apps/web/src/v6/features/sources/parse.ts",
+      "apps/web/src/v6/features/sources/Parse.tsx"
+    ],
+    "exports": [
+      "ParseStage",
+      "PARSE_STAGES",
+      "STAGE_LABELS",
+      "STAGE_NOTES",
+      "PARSER_VERSION",
+      "STAGE_VERSION",
+      "LOCAL_PROVIDER",
+      "DOCUMENT_MAX_PAGES",
+      "OCR_PROVIDER_AVAILABLE",
+      "LEASE_MS",
+      "PageExitEvidence",
+      "ParseErrorCode",
+      "PARSE_ERROR_MESSAGES",
+      "JobState",
+      "JobDisposition",
+      "ParseJob",
+      "VerifiedPayload",
+      "ExtractedPage",
+      "ExtractedPayload",
+      "OcrPayload",
+      "ChunkedPayload",
+      "CheckpointPayload",
+      "ParseCheckpoint",
+      "ParseJobEnvelope",
+      "ParseChunk",
+      "ChunkSet",
+      "ParseSourceRecord",
+      "SourceParseState",
+      "ParseRow",
+      "ParseView",
+      "ParseProgressEvent",
+      "PdfPageText",
+      "ParseDeps",
+      "ParseOutcome",
+      "ParseActionOutcome",
+      "derivedId",
+      "sourceIdFor",
+      "chunkIdFor",
+      "chunkSetKey",
+      "MatterSourceSnapshot",
+      "readMatterSources",
+      "readParseState",
+      "effectiveStatus",
+      "savedStagesOf",
+      "nextStageAfter",
+      "parseSource",
+      "resumeParse",
+      "retryParse",
+      "markInterrupted",
+      "orphanInterruptAllowed",
+      "abandonParse",
+      "cancelParse",
+      "loadPdfPagesDefault",
+      "normalizeText",
+      "splitParagraphs",
+      "locateQuote",
+      "readChunkSet",
+      "readChunkSets",
+      "ParseListInput",
+      "buildParseRows",
+      "describeParseError",
+      "describeParseRows",
+      "ParseProps",
+      "parseStatusLabel",
+      "stageCounter",
+      "runningRow",
+      "chunkSummary",
+      "Parse",
+      "ParsePanelProps",
+      "ParsePanel",
+      "tabSessionId",
+      "pageInstanceId",
+      "writePageExitMarker",
+      "readPageExitMarker",
+      "clearPageExitMarker",
+      "PARSE_SESSION_STORAGE_KEY",
+      "PARSE_EXIT_STORAGE_KEY",
+      "LoadAllOptions",
+      "loadAll"
+    ],
+    "stages": "Only the five real stages: upload, verify, extract_text, ocr_check, chunk. upload is the V6-10 ingest that already happened; the parse job runs verify..chunk and saves one checkpoint per stage.",
+    "actions": "parseSource (new job from verify; refuses a concurrent start for the same source in this realm while a job runs, and refuses a persisted running job whose lease is still live, returning INVALID_INPUT with no write), resumeParse (new job continuing after the last saved checkpoint of an interrupted job, carrying its checkpoints), retryParse (new job linked by previousJobId, no checkpoints), markInterrupted (accepts {sessionId, now, newId, orphanedJobId, pageExit, leaseMs}; a live-lease orphan is marked only when the exit marker names the same session and the exact ownerPageId recorded on the job and the job was not renewed after that exit; a same-session but different page instance, a missing marker, a foreign session or a job with no owner is refused with INVALID_INPUT; an already-interrupted job is an idempotent ok), abandonParse, cancelParse. orphanInterruptAllowed is the pure decision exposed for the matrix tests. Every action takes ParseDeps {now, newId, sessionId, pageId, signal, onProgress, loadPdfPages, extractText, parserVersion, leaseMs, maxChunkChars, scheduleLeaseRenewal}. scheduleLeaseRenewal(renew, intervalMs) => cleanup is injectable so tests drive renewal with a fake clock; the default uses setInterval.",
+    "persistence": "Matter-version-checked repository.commit for every job transition (one §10 ActivityRecord per started/succeeded/failed/cancelled; interrupted/abandon and lease renewals commit with no event because §10 has no matching action). Job, source, checkpoint and chunk-set rows are stored in the existing blobs store under parse/source/{sourceId}, parse/job/{jobId}, parse/checkpoint/{jobId}/{stage}, parse/chunks/{sourceId}/{parserVersion}. Job and source rows (and a checkpoint, when one is saved with a renewal) are written in one readwrite transaction that first re-checks the stored job version.",
+    "reuse": "DOCX, TXT and MD text comes from apps/web/src/lib/extract.ts extractFileText. Hostile-input checks use packages/parsers/src/guard.ts guardInput. File classification uses V6-10 ingest.ts classifyFile. PDF pages are read with the same pdfjs-dist legacy build and options as extract.ts, but per page, because extractFileText flattens pages and stops at 100 pages.",
+    "ui": "Parse(props: {repository; actor; matterId; refreshToken?; onAddDocuments?}) and the pure ParsePanel. The orchestrator mounts Parse in V6App.tsx below Upload, on the upload page and on the matter sources tab, and bumps refreshToken after each upload batch. A refreshToken change re-reads the repository through loadAll with a generation guard and keeps the running job, its AbortController and its live stage. Two identities are kept: a session id in sessionStorage (patent.v6.parse.session; survives reload, separate per tab; in-memory fallback when storage is blocked), and an in-memory page instance id per document. Duplicated, restored or window.open tabs copy the session id, so the session alone cannot prove a page died. On pagehide (not bfcache) the page synchronously writes an exit marker (patent.v6.parse.exit: sessionId, pageId, at); pageshow from bfcache clears it; a marker is cleared only after a complete loadAll pass. On load, a running job leased by this session is marked interrupted at once only when the marker names the same page instance recorded as the job's ownerPageId and the job was not renewed after that exit; with no marker, a foreign page marker, or a marker older than the last renewal, a live lease reads running. An expired lease reads interrupted for any reader. loadAll accepts {runningAsset, pageExit, now} so tests inject all three. While this page runs a job, runningRow(row, stage) shows 正在<stage> with 取消; when the job ends, the live row is kept until the finished state is re-read, so the row never falls back to the pre-job snapshot (未解析, 0%). Failed and partial rows show parse-error-{assetId}, which holds the error message and （CODE）.",
+    "lease": "LEASE_MS = 60 000. A running job renews its lease on a timer every leaseMs/3 (20 s) and at every stage checkpoint. Renewal is a version-checked transition (knownJob) serialized with checkpoint writes; the timer changes only leaseExpiresAt, never stage or progress. Renewal stops on success, failure, cancel and abort; a late tick against a finished job is rejected by the version check inside the same readwrite transaction. A renewal conflict that cannot be resolved ends the run honestly (interrupted, or storage_unavailable after retries) instead of continuing unowned. The job envelope records ownerPageId. A live lease reads running for every reader unless the owning page left a matching pagehide exit marker and the lease was not renewed afterwards; an expired lease reads interrupted for any reader."
+  },
+  "acceptance": [
+    {
+      "id": "V6-11-A01",
+      "command": "npm run test:v6 -- V6-11",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-11/runner.tap"
+      ],
+      "observed": "TXT, two-page text PDF and DOCX fixtures each parse to schema-valid chunks (chunkSchema), sha256 hash checked, NFC text, per-chunk page numbers [1,1,2,2] for the PDF, deterministic chunk ids, and a SourceRef built with locateQuote passes sourceRefSchema and slices back to the quote. A new repository over the same backend (refresh) reads the same source row, job and chunk set. Runner: 53 tests, 53 pass, 0 fail, 0 skipped (parse-engine.test.mjs 31/31, parse-ui.test.mjs 22/22)."
+    },
+    {
+      "id": "V6-11-A02",
+      "command": "npm run test:v6 -- V6-11",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-11/runner.tap"
+      ],
+      "observed": "The scanned PDF (no text operator) ends with source parseStatus partial, ocrNeeded true, job errorCode OCR_UNAVAILABLE, zero chunks and an empty extracted page text; the panel shows 部分解析, 手动补充 and 重试. A legacy .doc fails UNSUPPORTED_MEDIA at verify; text bytes stored as .pdf fail MIME_MISMATCH; a 201-page PDF fails PARSE_BUDGET_EXCEEDED at verify before extract_text runs. Progress events are exactly verify 1/1 stage, extract_text 2/2 page, ocr_check 2/2 page, chunk 1/1 stage, each emitted only after its checkpoint is saved. The only timer is the lease renewal; a scenario drives it at 20/40/60/80/100 s with an injected clock and shows it never changes stage or progress. A checkpoint write failure returns STORAGE_UNAVAILABLE and leaves no chunk set and no parsed status."
+    },
+    {
+      "id": "V6-11-A03",
+      "command": "npm run test:v6 -- V6-11",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-11/runner.tap"
+      ],
+      "observed": "A job interrupted during extract_text reads as interrupted (never queued) from another session and after a refresh, with saved stage verify; the panel shows 已中断, 从已保存阶段继续 and 放弃. Resume creates a new job (previousJobId set, resumedFromStage extract_text) whose job.started event names extract_text, and verify is not repeated (PDF opened once). Abandon ends it as cancelled and cannot repeat. Cancel stops at a real stage boundary and keeps the saved verify checkpoint. Retry always creates a new job id linked to the old one. A parser version change (retry or resume under v6-local-parser-2) writes a second chunk set with new chunk ids and leaves the v1 set byte-for-byte unchanged. Lease scenarios (runner.tap): a reload in the same tab marks the job interrupted at once, inside the lease; another tab's live lease reads running with the same job and checkpoints; renewal keeps a job live for another tab past its original 60 s expiry with no real waiting; renewal conflicts are retried and, when retries run out, end as storage_unavailable; cancel and abort stop renewal and a late tick cannot revive the job; a refreshToken-style reload mid-parse keeps the job, its checkpoints and its completion. Review-01 additions (runner.tap): (a) a second page sharing the session id with no exit marker, or carrying a marker for a different page instance or a different session, cannot interrupt a live job and writes no job, checkpoint or source row; (b) the owning page's matching exit marker interrupts within the lease at the correct job and is idempotent on a second call; (c) a same-realm second parseSource start while a job runs is refused with INVALID_INPUT and writes nothing, and the first job completes; (d) a persisted running job with a live lease makes a new parseSource refuse with INVALID_INPUT, the same jobId and no writes; (e) an expired lease reads interrupted for any reader while the persisted job row is unchanged, and the parse still completes; (f) orphanInterruptAllowed is exercised over valid, boundary, missing marker, foreign page, foreign session, wrong job id, renewed-after-exit, invalid date, null/empty ownerPageId, null lease, cancelled job and wrong leaseMs cases; (g) UI mount reads cover same-tab reload interruption, duplicated tab and foreign page kept running, the current page's own running asset, a stale marker older than the latest renewal, a stored marker cleared after one full pass, blocked sessionStorage, and an expired lease with no marker."
+    },
+    {
+      "id": "V6-11-typecheck",
+      "command": "./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-11/typecheck.txt"
+      ],
+      "observed": "Exit 0; typecheck.txt is empty (no diagnostics)."
+    },
+    {
+      "id": "V6-11-regression",
+      "command": "npm run test:v6 -- V6-10",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-11/regression.txt"
+      ],
+      "observed": "Exit 0; V6-10 runner 36 tests, 36 pass, 0 fail, 0 skipped (regression.txt)."
+    },
+    {
+      "id": "V6-11-build",
+      "command": "npm run build --workspace @patent/web",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-11/build.txt"
+      ],
+      "observed": "Exit 0; tsc --noEmit + vite build, 2182 modules transformed, V6App-*.js is 115.09 kB (gzip 36.48 kB) and includes the Parse UI. The >500 kB chunk warning existed before this ticket."
+    },
+    {
+      "id": "V6-11-browser",
+      "command": "node qa/v6/evidence/V6-11/browser-drive.mjs qa/v6/evidence/V6-11 http://127.0.0.1:4176/patent (against vite preview of the build above, port 4176)",
+      "exitCode": 0,
+      "status": "run",
+      "evidence": [
+        "qa/v6/evidence/V6-11/browser-drive.mjs",
+        "qa/v6/evidence/V6-11/browser-log.json",
+        "qa/v6/evidence/V6-11/01-create-matter.png",
+        "qa/v6/evidence/V6-11/02-upload-text-appears-without-reload.png",
+        "qa/v6/evidence/V6-11/03-upload-pdf-appears-without-reload.png",
+        "qa/v6/evidence/V6-11/04-parse-both-to-parsed.png",
+        "qa/v6/evidence/V6-11/05-reload-keeps-parsed.png",
+        "qa/v6/evidence/V6-11/06-scanned-pdf-partial.png",
+        "qa/v6/evidence/V6-11/07-legacy-doc-refused-at-upload.png",
+        "qa/v6/evidence/V6-11/08-failed-parse-then-retry-new-job.png",
+        "qa/v6/evidence/V6-11/09-interrupt-by-reload-then-resume.png",
+        "qa/v6/evidence/V6-11/09a-running-before-reload.png",
+        "qa/v6/evidence/V6-11/09b-interrupted-after-reload.png",
+        "qa/v6/evidence/V6-11/10-interrupt-by-reload-then-abandon.png",
+        "qa/v6/evidence/V6-11/10a-running-before-reload.png",
+        "qa/v6/evidence/V6-11/10b-interrupted-after-reload.png",
+        "qa/v6/evidence/V6-11/11-upload-during-parse-keeps-progress.png",
+        "qa/v6/evidence/V6-11/12-duplicated-tab-does-not-interrupt.png",
+        "qa/v6/evidence/V6-11/12a-duplicated-tab-both-running.png",
+        "qa/v6/evidence/V6-11/12b-duplicated-tab-original-completed.png"
+      ],
+      "observed": "Headless Chrome over CDP against vite preview of the build above. Local only: no network or model calls, synthetic fixtures; Chrome launched with --disable-popup-blocking. 12/12 steps pass with 0 console errors; the driver exits 1 on any failed step (this run exit 0). Step 01 creates a matter. Steps 02 and 03: the uploaded TXT and PDF appear in the parse list without a page reload, and the load marker does not change. Step 04: both files parse to 已解析, with 2 段 · 1 页 · 已保存 and 4 段 · 2 页 · 已保存. IndexedDB holds the succeeded job, four saved checkpoints and 4 chunks. Step 05: a reload shows identical rows. Step 06: the scanned PDF reads 部分解析 and — · 已保存, shows OCR_UNAVAILABLE, a disabled 手动补充 and 重试. It is stored as partial with ocrNeeded and 0 chunks. Step 07: V6-10 refuses the .doc at upload (不接受这种文件…), and the file gets no parse row. Step 08: a 201-page PDF fails at verify, and the row shows PARSE_BUDGET_EXCEEDED. 重试 creates a new job linked by previousJobId. Step 09: a real page reload interrupts a 190-page PDF during extract_text. The first settled render after the reload shows 已中断 (immediatelyAfterReload), while 58 798 ms of the original lease remained (reloadToInterruptedMs 1008); the sessionStorage session id survives the reload; IndexedDB holds the job interrupted with no lease, jobVersion 3→4. The row offers 从已保存阶段继续, 放弃 and the stale notice, never 排队. Resume finishes with 10450 段 · 190 页 · 已保存 and resumedFromStage extract_text. Step 10: the same immediate interruption (1010 ms after reload, 58 361 ms of lease left, jobVersion 3→6), then 放弃. The row shows 已取消 with 重试, the job is cancelled with 0 chunks, and the state survives a reload. Step 11: 解析 on a 199-page PDF and 保存材料 for an extra TXT are clicked in the same page tick; a MutationObserver records the parse row on every DOM change. The new source appeared within the first observer tick (browser-log.json records 108 ms) while the parse row was running at verify (20%) with 取消; the parse completed at 901 ms per browser-log.json (timings vary by run) as 10746 段 · 199 页 · 已保存 on the same job id with jobCount 1. From start to completion the row stayed running with 取消 and never read 未解析; progress never moved backwards; the parse panel DOM node was never replaced (no remount). Step 12 (review-01 blocking fix): a MutationObserver in the running page calls window.open(location.href) as soon as the row enters extract_text, so the second document cannot miss a fast parse. The second page has the same sessionStorage session id, its own new page instance id, and reads the row as running. At that mount read the persisted job is still running, same jobId, same ownerPageId, the lease is still present, and jobVersion is 3→3, so the mount wrote no job row. The original page stayed running while the duplicate was open (12a shows the original row in 正在提取文字 with 取消) and completed naturally as 10945 段 · 199 页 · 已保存 on the same single job. The run used vite preview because the dev server in this worktree answers 403 for the pdf.js worker (see limitations)."
+    },
+    {
+      "id": "V6-11-review-01-blocking-1",
+      "command": "npm run test:v6 -- V6-11; node qa/v6/evidence/V6-11/browser-drive.mjs qa/v6/evidence/V6-11 http://127.0.0.1:4176/patent (against vite preview)",
+      "exitCode": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-11/runner.tap",
+        "qa/v6/evidence/V6-11/browser-log.json",
+        "qa/v6/evidence/V6-11/12-duplicated-tab-does-not-interrupt.png",
+        "qa/v6/evidence/V6-11/12a-duplicated-tab-both-running.png",
+        "qa/v6/evidence/V6-11/12b-duplicated-tab-original-completed.png"
+      ],
+      "observed": "Root cause: duplicated/restored tabs copy the sessionStorage session id, and the old mount path treated a same-session lease as proof of an orphan, so a second page could interrupt the first page's live job. Fix: a memory-only page instance id, a synchronous pagehide exit marker, and a job envelope ownerPageId, combined in the pure orphanInterruptAllowed decision; a live-lease job is left running unless the marker names the owning page instance and the job was not renewed after that exit. Node scenarios: a foreign page marker or no marker is refused with no job/checkpoint/source write; the owning page marker interrupts within the lease and is idempotent; a same-realm concurrent start is refused; a persisted live lease makes parseSource refuse with the same jobId and no write; an expired lease reads interrupted without a write; the decision matrix covers the boundary and malformed inputs. Browser step 12: a duplicated tab copies the session, mounts with a new page instance, reads the job as running, and leaves jobVersion 3→3; the original page stays running and completes as 10945 段 · 199 页 · 已保存 on the same single job.",
+      "status": "run"
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S02-A04",
+      "status": "covered",
+      "reason": "Scanned PDF ends partial + ocrNeeded + OCR_UNAVAILABLE with no invented text, and the UI offers manual supplement and retry (engine and UI scenarios)."
+    },
+    {
+      "id": "S02-A05",
+      "status": "covered",
+      "reason": "Interrupted parse shows interrupted with resume-from-saved-stage and abandon, immediately after a same-tab reload; resume continues from the persisted checkpoint (engine and UI scenarios; browser steps 09 and 10)."
+    },
+    {
+      "id": "C11-R1",
+      "status": "covered",
+      "reason": "No background worker; per-stage checkpoints; the lease is renewed while the job runs; a same-tab reload interrupts at once through a page-instance exit marker, a live lease copied into another tab stays running, and an expired lease reads interrupted for any reader, never queued; terminal retry is a new job."
+    },
+    {
+      "id": "S02-UI-states",
+      "status": "covered",
+      "reason": "The empty, loading (real stage label and cancel), error (code, file, recovery) and stale states render in server markup and were seen in a real browser (browser-log.json steps 04, 06, 08, 09, 10 and 11)."
+    },
+    {
+      "id": "S02-A06",
+      "status": "not_applicable",
+      "reason": "S02-A06 covers R2 two-second polling of a persistent job; this is an R1 ticket with no persistent worker and no polling (C11)."
+    }
+  ],
+  "limitations": [
+    "Fixed in this candidate (review-01 blocking 1): a page reloaded mid-parse used to show the dead job as running for the rest of the lease. A session id alone cannot prove a page died, because duplicated and restored tabs copy sessionStorage. A live-lease job is now interrupted at once only with positive exit evidence: an in-memory page instance id, a synchronous pagehide exit marker naming that page instance and session, an ownerPageId match on the persisted job, and no lease renewal after that exit. With no marker, a foreign page marker or a marker older than the last renewal, a live lease reads running for every reader; an expired lease reads interrupted for every reader. Browser steps 09 and 10 assert 已中断 on the first settled render after reload while 58 798 ms / 58 361 ms of the original lease remained; step 12 asserts a duplicated tab with the copied session reads running and writes no job row (jobVersion 3→3).",
+    "Fixed in this candidate (gap 3): the lease used to be set once and never renewed, so a job longer than 60 s read as interrupted to other readers. The lease is now renewed every 20 s and at each checkpoint through a version-checked transition, and renewal stops on finish, cancel and abort. Covered by scenarios with an injected clock; no real run longer than 60 s was driven in the browser.",
+    "Fixed in this candidate (gap 4): an upload batch used to remount Parse via key, which dropped the in-flight job's progress. V6App now passes refreshToken and Parse re-reads without remounting. Browser step 11 shows the new source appearing mid-parse while the same job keeps running and completes.",
+    "Fixed while driving step 11: when a job ended, Parse cleared its live row before re-reading, so the row showed the pre-job snapshot (未解析, 0%) for one render (observed for 13 ms in the browser). Parse now re-reads first and then clears the live row. Covered by step 11's whole-run timeline; there is no server-markup scenario for it, because it is a render-order effect.",
+    "Environment limitation: in this worktree the Vite dev server (port 5174) answers 403 for the pdf.js worker URL, so every PDF fails verify under dev. extract.ts imports the worker the same way. The cause looks environment-specific (node_modules is a symlink outside the Vite root), but it was not checked in the main checkout. All browser evidence comes from vite preview of the production build, which ships the worker as an asset.",
+    "Crash without an unload (renderer crash, OS kill): no pagehide marker is written, so the job keeps its live lease and reads running until the lease expires; after that any reader treats it as interrupted. This fallback was reasoned and unit-tested as the expired-lease path, but a real crash was not driven in the browser.",
+    "bfcache: pagehide with persisted=true writes no exit marker, and pageshow with persisted=true clears a stale one, so a page restored from bfcache does not interrupt its own live job. This path is implemented but not driven in the browser.",
+    "Blocked sessionStorage: the page falls back to an in-memory session id and cannot write an exit marker; a live job then reads running until lease expiry, and a same-tab reload cannot interrupt it early. The fallback is covered by a node UI scenario, not the browser.",
+    "The exit marker is cleared only after a complete loadAll pass, so one marker cannot be consumed by a single row of a multi-source list. Markers from another page instance, another session, or older than the job's latest renewal are ignored; this is covered by the orphanInterruptAllowed matrix and the UI mount-read scenarios.",
+    "The browser covers one duplicated tab opened with window.open from a MutationObserver on extract_text, with Chrome launched with --disable-popup-blocking. Cross-session tabs, foreign markers, missing markers, stale markers, blocked storage and expired leases are covered only by node scenarios, not by a second real browser profile or tab.",
+    "The session id and exit marker use opaque sessionStorage keys (patent.v6.parse.session, patent.v6.parse.exit). A duplicated tab inherits both the session and any exit marker present at duplication time; the decision also requires the marker pageId to equal the job's ownerPageId, which a duplicated tab cannot satisfy because its page instance id lives only in memory.",
+    "The concurrent-start guard is a module-level lock for the same document plus a persisted live-lease check. Two separate tabs starting the same source in the same instant, before either job row is visible, are not synchronized by the in-memory lock; that cross-tab race was not tested.",
+    "Another tab whose job is still live (lease renewed) reads running and cannot be interrupted from this tab. A normal unload lets the next reader interrupt it at once only through the owning page's marker and only if the job was not renewed after the exit; a crash with no marker leaves it running until the lease expires, at most 60 s after the last renewal.",
+    "Renewal depends on the page's timers. A browser that heavily throttles timers in a background tab could delay renewal past the lease, and another tab would then read the job as interrupted while it still runs; if that tab then resumes or abandons the job, the owning tab hits the version check at its next write and stops as interrupted. Not observed here.",
+    "V6-10 refuses a legacy .doc at upload with its generic UNSUPPORTED_MEDIA copy. Only the engine and markup scenarios cover the parse-time .doc failure path (UNSUPPORTED_MEDIA at verify).",
+    "The 手动补充 (manual supplement) button is shown but disabled; no manual-text entry flow exists in this ticket.",
+    "OCR is not available (OCR_PROVIDER_AVAILABLE=false). Scanned pages get no text.",
+    "DOCX, TXT and MD are recorded as one page (pageCount 1); extract.ts gives no reliable page structure for them.",
+    "PDF text is read per page with pdf.js directly (same build and options as extract.ts) rather than through extractFileText, which flattens pages and stops at 100 pages.",
+    "Parse job, source, checkpoint and chunk-set rows live in the V6-06 blobs store under a parse/ key prefix, because the repository has no source or job store. Those rows are written in their own version-checked transaction after the matter commit, not in the same transaction, so a crash between the two can leave a matter event without its job row update.",
+    "Interrupted, abandoned and lease-renewal transitions write no ActivityRecord, because §10 defines no matching action. Each checkpoint with renewal does advance the matter version.",
+    "A second tab trying to run the same job while the first tab's lease is live is refused, not merged.",
+    "The 200-page limit counts pages through pdf.js before extraction; for non-PDF inputs it does not apply.",
+    "The job row uses promptVersion = stageVersion = v6-parse-stages-1 because the contract requires a non-null value and there is no prompt.",
+    "qa/v6/scenarios/V6-11/fixtures/verify-fixtures.mjs is a manual probe, not a test; the runner does not collect it.",
+    "Fixtures are synthetic and generated by fixtures/generate.mjs and by browser-drive.mjs; no real document was used."
+  ],
+  "decisionsRequested": [
+    {
+      "decision": "Where should parse jobs, sources and chunks persist? This candidate uses the existing blobs store under a parse/ key prefix and commits job transitions through the matter version. A dedicated store in the V6-06 repository would allow atomic writes.",
+      "options": [
+        "accept the parse/ prefix in the blobs store for now",
+        "add sources/jobs/chunks stores to the V6-06 repository in a follow-up ticket"
+      ]
+    },
+    {
+      "decision": "§10 has no job.interrupted action. This candidate records interruption and abandonment only on the job row, with no activity event.",
+      "options": [
+        "accept",
+        "add job.interrupted to the §10 whitelist"
+      ]
+    },
+    {
+      "decision": "job.succeeded metadata.count is the number of chunks saved (0 for a scan). Confirm that meaning.",
+      "options": [
+        "chunk count",
+        "stage count"
+      ]
+    }
+  ]
+}

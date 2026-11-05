@@ -1,0 +1,234 @@
+{
+  "ticket": "V6-16",
+  "title": "版本化 pipeline adapter",
+  "status": "accepted",
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-16/review-02.md",
+    "note": "Round 1 blocked on forged/unbound cache metadata and un-evictable poisoned entries; both fixed and independently reproduced. Round 2 accepted: metadata bound to stage kind/execution/provider/model/prompt/rule-pack, cache hits report cached:true, invalid entries are deleted and rewritten, repeated poison fails INTERNAL_ERROR. 14/14 scenarios; regressions V6-10 36, V6-14 41, V6-15 41, tsc and build exit 0. Node 22 remains unverified; C11 checkpoint schema/ownership and canonical per-stage consent scope remain NEEDS_DECISION."
+  },
+  "baseCommit": "ea3e70bea4a6a566fa095890c4dc927eb88ca4e6",
+  "branch": "codex/v6-16-pipeline",
+  "worktree": "/private/tmp/patent-v6-16-worktree",
+  "date": "2026-11-05",
+  "contractVersion": "v6.1",
+  "changedFiles": [
+    "apps/web/src/v6/lib/pipeline-adapter.ts",
+    "qa/v6/evidence/V6-16/build.txt",
+    "qa/v6/evidence/V6-16/receipt.json",
+    "qa/v6/evidence/V6-16/regression.txt",
+    "qa/v6/evidence/V6-16/review-01.md",
+    "qa/v6/evidence/V6-16/review-02.md",
+    "qa/v6/evidence/V6-16/runner.tap",
+    "qa/v6/evidence/V6-16/scope.txt",
+    "qa/v6/evidence/V6-16/typecheck.txt",
+    "qa/v6/evidence/V6-16/v6-10.tap",
+    "qa/v6/evidence/V6-16/v6-14.tap",
+    "qa/v6/evidence/V6-16/v6-15.tap",
+    "qa/v6/scenarios/V6-16/pipeline-adapter.test.mjs"
+  ],
+  "interface": {
+    "exports": [
+      "PipelineAdapter",
+      "createPipelineAdapter",
+      "PipelineAdapterOptions",
+      "PipelineAdapterResult",
+      "PipelineAdapterError",
+      "PipelineAuthorizationRequest",
+      "PipelineAuthorizationDecision",
+      "PipelineAuthorizer",
+      "PipelineExecutionMode",
+      "PipelinePurpose",
+      "PipelineStageCache",
+      "MemoryPipelineStageCache"
+    ],
+    "usage": "Construct with the existing LLMProvider, provider/model ids, purpose, stageVersion, PipelineOptions, and an authorize callback for provider mode; call run(context, targetStage). The returned PipelineAdapterResult contains a cloned PipelineContext and testOutput flag. An optional cache scope and cache implementation support caller-managed namespaced checkpoint storage.",
+    "cache": "SHA-256 of canonical NFC JSON over stage, stageVersion, provider/model, prompt/rule versions, effective input, project/cache scope, and upstream output hashes. Cache metadata is bound to the active mode and versions; untrusted entries are deleted before recomputation. Cache hits set meta.cached=true, including restored upstream checkpoints.",
+    "authorization": "Before every real LLMProvider.generateStructured invocation, authorize receives stage, effective-scope hash, provider id, model id, and purpose. A refusal or missing authorizer throws PipelineAdapterError with the contract error code before the provider is called. Stub mode bypasses authorization and the injected provider and marks testOutput=true.",
+    "failure": "PipelineAdapterError exposes code and stage; provider errors preserve providerCode and map to contract-oriented codes. Failed stages are not cached; successful checkpoints remain reusable. The adapter blocks PipelineRunner's schema-repair request before it reaches the injected provider, so a schema-invalid first response fails immediately as PROVIDER_SCHEMA_INVALID.",
+    "purity": "run clones caller input, validates cached schema/hash data before reuse, and uses injected clock/cache/provider/authorization dependencies. No default provider call or network invocation was made during implementation or tests."
+  },
+  "acceptance": [
+    {
+      "id": "V6-16-A01",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-16",
+      "exitCode": 0,
+      "observed": "14 tests passed, 0 failed, 0 skipped. Identical input resumes with cached metadata, including restored upstream checkpoints; changed chunk facts and user answers invalidate affected stages while independent branches remain cached; provider/model/prompt/rule-pack/stage version variants miss. Stub outputs carry model=null and testOutput=true. Forged metadata is rejected. The poisoned-hash probe made 1 provider call and 1 cache rewrite for the rejected stage; the following adapter made 0 provider calls and 0 cache writes, and reused the repaired entry. The schema failure made exactly one provider call, preserved prior checkpoints, omitted the failed checkpoint, and succeeded after correction."
+    },
+    {
+      "id": "V6-16-A02",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-16",
+      "exitCode": 0,
+      "observed": "Authorization refusal returns RELEASE_GATE_CLOSED with zero provider calls. Stub makes zero injected-provider calls, sets model=null, and marks testOutput=true. Changed input uses distinct cache keys; forged cache metadata is discarded and recomputed."
+    },
+    {
+      "id": "V6-16-A03",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-16",
+      "exitCode": 0,
+      "observed": "Concurrent and repeated snapshots do not duplicate provider calls/cache writes; general provider failure retains earlier checkpoints and retry reruns only failed and downstream stages; invalid cached hashes are deleted and repaired, then reused without duplicate provider calls; input remains unchanged."
+    }
+  ],
+  "runs": [
+    {
+      "name": "V6-16 suite",
+      "command": "npm run test:v6 -- V6-16",
+      "exitCode": 0,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-16/runner.tap"
+    },
+    {
+      "name": "workspace regression",
+      "command": "npm test --workspaces --if-present",
+      "exitCode": 0,
+      "tests": 59,
+      "observed": "15 worker tests and 44 export checks passed",
+      "evidence": "qa/v6/evidence/V6-16/regression.txt"
+    },
+    {
+      "name": "V6-10 regression",
+      "command": "npm run test:v6 -- V6-10",
+      "exitCode": 0,
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-16/v6-10.tap"
+    },
+    {
+      "name": "V6-14 regression",
+      "command": "npm run test:v6 -- V6-14",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-16/v6-14.tap"
+    },
+    {
+      "name": "V6-15 regression",
+      "command": "npm run test:v6 -- V6-15",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-16/v6-15.tap"
+    },
+    {
+      "name": "web typecheck",
+      "command": "./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-16/typecheck.txt"
+    },
+    {
+      "name": "web build",
+      "command": "npm run build --workspace @patent/web",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-16/build.txt"
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S04-A01",
+      "status": "not_applicable",
+      "reason": "The adapter tests that an injected authorization refusal returns RELEASE_GATE_CLOSED with zero provider calls, but it does not load ProviderProfile or render a disabled control for processingRegion=null. Profile completeness and UI state remain outside this library seam."
+    },
+    {
+      "id": "S04-A02",
+      "status": "not_applicable",
+      "reason": "The adapter has no payload-manifest builder or consent scope model. It calculates an effective stage input scope hash but cannot prove a newly added file is excluded by a persisted Consent; V6-15 covers manifest and stale-consent behavior."
+    },
+    {
+      "id": "S04-A03",
+      "status": "not_applicable",
+      "reason": "Quota accounting and platform-provider job creation are not part of this library adapter. No quota or provider fallback exists here; adapter never selects another provider."
+    },
+    {
+      "id": "S04-A04",
+      "status": "not_applicable",
+      "reason": "Adapter checkpoints are in-memory or caller-cache entries, not R2 jobs; jobId persistence, refresh recovery and worker stage status are not represented."
+    },
+    {
+      "id": "S04-A05",
+      "status": "not_applicable",
+      "reason": "No R2 worker, lease, owner or fencing token is modeled by this library adapter."
+    },
+    {
+      "id": "S04-A06",
+      "status": "not_applicable",
+      "reason": "The adapter returns pipeline context and does not create/adopt a generation Job or set obsolete_result. It does invalidate cache entries when input changes, but cannot enact draft adoption semantics."
+    },
+    {
+      "id": "S04-A07",
+      "status": "covered",
+      "reason": "The adapter recognizes PipelineRunner’s deterministic #1 schema-repair request and fails with PROVIDER_SCHEMA_INVALID before a second provider call; the runner itself is unchanged.",
+      "command": "npm run test:v6 -- V6-16",
+      "exitCode": 0,
+      "observed": "A schema-invalid first response yields PROVIDER_SCHEMA_INVALID after exactly one provider call; earlier checkpoint retained; failed stage absent from cache; corrected retry succeeds."
+    },
+    {
+      "id": "S04-A08",
+      "status": "not_applicable",
+      "reason": "The callback is checked before each real provider invocation and can return CONSENT_REVOKED, but revocation state, in-flight job transition and UI notice are outside the adapter's contract. No revoked-consent integration was claimed."
+    },
+    {
+      "id": "S04-A09",
+      "status": "not_applicable",
+      "reason": "The adapter does not own page lifecycle or persistent R1 interruption state. A caller-provided persistent cache could resume data, but interrupted status and refreshed authorization flow are not implemented here."
+    },
+    {
+      "id": "S04-A10",
+      "status": "not_applicable",
+      "reason": "No invocation-record or UI/network response projection exists in this library adapter; this ticket cannot demonstrate DOM or response content redaction."
+    }
+  ],
+  "limitations": [
+    "No real provider, model, network, credential or customer-material call was made; tests use synthetic fixtures and counting mock providers only.",
+    "Library-level adapter only. No route, UI, job row, quota, persistent worker, lease/fencing, draft adoption, or actual consent repository integration is implemented.",
+    "Default MemoryPipelineStageCache lasts only for the adapter instance. A durable checkpoint store can implement PipelineStageCache, but no IndexedDB checkpoint schema or storage ownership contract is defined here.",
+    "Stage versions are supplied by the caller as one stageVersion string; no per-stage version registry is defined by this ticket's contracts.",
+    "Cache records validate output hashes, active provider/model or stub metadata, prompt/rule versions, and all embedded upstream checkpoint metadata. Malformed entries are deleted before recomputation; retained poisoned values are retried once and then fail INTERNAL_ERROR.",
+    "Evidence commands ran on Node 25.8.1. The architecture note specifies Node 22; Node 22 was not available and is unverified.",
+    "The adapter intercepts PipelineRunner's schema-repair request and fails immediately before it reaches the injected provider. The runner implementation is unchanged.",
+    "The production build passed with Vite's existing warning that some minified chunks exceed 500 kB."
+  ],
+  "decisionsRequested": [
+    {
+      "code": "NEEDS_DECISION",
+      "question": "What IndexedDB checkpoint object-store schema, ownership key, and retention/cleanup policy should implement the persistence required by C11?",
+      "suggestion": "Specify the IndexedDB checkpoint object-store shape, key fields, actor/tenant/matter/target ownership checks, and retention/cleanup policy for the cache implementation.",
+      "impact": "Persistence is required by C11; this ticket exposes and validates a cache seam but cannot define its durable storage schema or ownership rules without contract guidance."
+    },
+    {
+      "code": "NEEDS_DECISION",
+      "question": "Which canonical scope object must the consent authorizer validate for each stage, including derived upstream outputs?",
+      "suggestion": "Define a versioned stage payload manifest that binds source/assets/facts/draft/figures and the exact stage input before integration with validateConsentForUse.",
+      "impact": "The adapter supplies an effective-input/upstream scope hash but cannot assert it is equivalent to ConsentScope.payloadManifestHash."
+    }
+  ],
+  "evidence": {
+    "runner": "qa/v6/evidence/V6-16/runner.tap",
+    "typecheck": "qa/v6/evidence/V6-16/typecheck.txt",
+    "workspaceRegression": "qa/v6/evidence/V6-16/regression.txt",
+    "v6-10": "qa/v6/evidence/V6-16/v6-10.tap",
+    "v6-14": "qa/v6/evidence/V6-16/v6-14.tap",
+    "v6-15": "qa/v6/evidence/V6-16/v6-15.tap",
+    "build": "qa/v6/evidence/V6-16/build.txt",
+    "scope": "qa/v6/evidence/V6-16/scope.txt"
+  },
+  "scope": {
+    "porcelainEntries": 13,
+    "excluded": [
+      "node_modules",
+      ".claude/launch.json (absent)"
+    ],
+    "changedFilesCount": 12,
+    "scopeMatchesChangedFiles": true
+  }
+}

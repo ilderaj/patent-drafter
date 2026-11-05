@@ -1,0 +1,29 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+ ⛅️ wrangler 4.90.0 (update available 4.157.0)
+──────────────────────────────────────────────
+🌀 Building list of assets...
+✨ Read 12 files from the assets directory /private/tmp/patent-v6-integration/apps/web/dist/v6
+🌀 Starting asset upload...
+🌀 Found 9 new or modified static assets to upload. Proceeding with upload...
++ /index.html
++ /assets/index-DdwQeOia.css
++ /assets/pdf.min-C5rkUzaZ.js
++ /assets/index-BBUFzeC4.js
++ /assets/assembly-Dh0EvDSW.js
++ /assets/V6App-B33EB_87.js
++ /assets/V6App-BKpE1eve.css
++ /assets/index-_5MN80ZY.js
++ /assets/pdf.worker.min-CLrFZWeq.mjs
+Uploaded 3 of 9 assets
+Uploaded 6 of 9 assets
+Uploaded 9 of 9 assets
+✨ Success! Uploaded 9 files (55.83 sec)
+
+Total Upload: 0.36 KiB / gzip: 0.25 KiB
+Uploaded patent-v6 (60.67 sec)
+Deployed patent-v6 triggers (1.73 sec)
+  https://patent-v6.typemint.workers.dev
+Current Version ID: 068a811d-1996-4e6a-a2fc-d9bfbef05e4c

@@ -1,0 +1,77 @@
+{
+  "ticket": "V6-08",
+  "status": "accepted",
+  "review": {"verdict": "accept", "note": "Independent read-only review found no blocker. It verified A01-A03 against named tests and the 12-step browser log, the additive mount, basename and legacy-route isolation, URL-only state, the single unavailable answer, tenant/user scoping, idempotent create and static error text, and judged the S01 mapping defensible. Its findings were evidence hygiene and residual risks: lazy-chunk failure without an error boundary, a dead V6App chunk when the flag is off, uppercase-only external links, /v6 without the basename, an inaccurate screenshot-06 note (fixed), a stale duplicate browser log (removed) and a stale progress record (updated). None blocks V6-08-A01..A03."},
+  "baseCommit": "813fe90a5ca298c29b1a3e84a44dbdb8b3798c3f",
+  "contractVersion": "v6.1",
+  "dependencies": {"V6-03": "accepted", "V6-06": "accepted (813fe90)"},
+  "changedFilesNote": "Delta against baseCommit. scope.txt also lists V6-07 files (legacy-import.ts, its scenarios and evidence, migration-amendment.md) and the orchestrator's .planning records; the V6-07 files are committed with that ticket, not with this one, and the .planning records are orchestrator-owned. node_modules is the local dependency mount and is not staged. dist/ is ignored.",
+  "changedFiles": [
+    "apps/web/src/App.tsx",
+    "apps/web/src/v6/components/Shell.tsx",
+    "apps/web/src/v6/routes/navigation.ts",
+    "apps/web/src/v6/routes/V6App.tsx",
+    "apps/web/src/v6/routes/v6.css",
+    "qa/v6/scenarios/V6-08/navigation.test.mjs",
+    "qa/v6/evidence/V6-08/receipt.json",
+    "qa/v6/evidence/V6-08/runner.tap",
+    "qa/v6/evidence/V6-08/typecheck.txt",
+    "qa/v6/evidence/V6-08/regression.txt",
+    "qa/v6/evidence/V6-08/build.txt",
+    "qa/v6/evidence/V6-08/scope.txt",
+    "qa/v6/evidence/V6-08/browser-drive.mjs",
+    "qa/v6/evidence/V6-08/browser-log.json",
+    "qa/v6/evidence/V6-08/screens/01-start.png … 12-legacy-still-works.png"
+  ],
+  "interface": {
+    "modules": ["apps/web/src/v6/routes/navigation.ts", "apps/web/src/v6/routes/V6App.tsx", "apps/web/src/v6/components/Shell.tsx"],
+    "navigation": "parseV6Path/v6Path map every /v6 page to a V6Route and back; the URL is the only page state. resolveMatterView and listMatterView read the IndexedDB LocalRepository as LOCAL_ACTOR; a missing, foreign, deleted or malformed matter or target is one 'unavailable' answer; a storage fault is 'storage_unavailable' with a static message (PAGE_ERROR_MESSAGES), never the backend's exception text. createSelfServiceMatter writes one empty matter and its matter.created event at expectedVersion 0; a retry with the same ids returns the existing matter with created:false.",
+    "mount": "App.tsx mounts /v6/* (lazy chunk V6App) under the /patent basename before the catch-all; every legacy route is unchanged. VITE_V6_ENABLED=false builds without the route. The shell's '切换到旧版' link returns to /projects.",
+    "views": "Start page with three entries (self-service creates a matter and opens /v6/matters/:m/upload; professional opens the matter list; human service opens the services section, which states it is not open). Matter list with the S01 empty state (创建案件 active; 回答五个问题 and 示例体验 disabled with reason). Matter page with optional target chips and the eight fixed tabs; overview reads the matter; the other seven show their unavailable reason. Upload placeholder states that upload is not open. Section pages show their capability reason. Loading, 尚未保存 + 重试, and one 案件不可用 page."
+  },
+  "acceptance": [
+    {
+      "id": "V6-08-A01",
+      "command": "npm run test:v6 -- V6-08; node qa/v6/evidence/V6-08/browser-drive.mjs <dir> http://127.0.0.1:5174",
+      "exitCode": 0,
+      "evidence": ["qa/v6/evidence/V6-08/runner.tap", "qa/v6/evidence/V6-08/browser-log.json", "qa/v6/evidence/V6-08/screens/04-upload-after-refresh.png", "qa/v6/evidence/V6-08/screens/07-tab-direct-link-refresh.png"],
+      "observed": "Scenarios: a created matter resolves after a new repository over the same storage; a direct link to matter + target + tab parses and resolves to that target. Browser (headless Chrome, fresh profile, real IndexedDB): creating from the start page lands on /v6/matters/:m/upload, which survives a reload; the 检查 tab link survives a reload with the tab active."
+    },
+    {
+      "id": "V6-08-A02",
+      "command": "npm run test:v6 -- V6-08; browser steps 09-10",
+      "exitCode": 0,
+      "evidence": ["qa/v6/evidence/V6-08/runner.tap", "qa/v6/evidence/V6-08/screens/09-missing-matter.png", "qa/v6/evidence/V6-08/screens/10-malformed-link.png"],
+      "observed": "Missing, other-tenant, other-user, malformed, uppercase and unknown-target links each answer the same unavailable result twice and write nothing; a fresh profile lists no matters and resolves nothing; a read fault is storage_unavailable, not an empty matter, and its exception text never reaches the result. In the browser a missing id and a malformed id both show 案件不可用 with no demo content."
+    },
+    {
+      "id": "V6-08-A03",
+      "command": "npm run test:v6 -- V6-08; browser final count",
+      "exitCode": 0,
+      "evidence": ["qa/v6/evidence/V6-08/runner.tap", "qa/v6/evidence/V6-08/browser-log.json"],
+      "observed": "A create that hits a write fault writes nothing and reports STORAGE_UNAVAILABLE with static text; the retry creates one matter; a further retry with the same ids returns created:false with no second matter or event. Another user's id is never reported as created. Parsing is pure and does not mutate its input. In the browser, after create and two reloads, the list holds exactly one matter (matterCountAfterRetries: 1). Typecheck (workspace and direct tsc), workspace tests and the production build exit 0."
+    }
+  ],
+  "specAcceptance": [
+    { "id": "S01-A01", "status": "covered", "reason": "Fresh store: the list shows the empty state; self-service creates a matter with no assets, targets or blobs and only a matter.created event (scenario V6-08-A01; browser steps 02-04)." },
+    { "id": "S01-A02", "status": "covered", "reason": "Switching across all eight tabs and three target selections leaves every stored record byte-for-byte unchanged and each URL restores its view (scenario S01-A02; browser steps 06-07). R1 has no approval store yet, so 'approvals unchanged' is proven as 'all storage unchanged'." },
+    { "id": "S01-A03", "status": "not_applicable", "reason": "Theme and colour-mode preferences are V6-09; the settings section states it is not open." },
+    { "id": "S01-A04", "status": "not_applicable", "reason": "Saving settings is V6-09. The same 尚未保存 + 重试 pattern is used here for matter creation and storage reads." },
+    { "id": "S01-A05", "status": "partial", "reason": "Every unopened section and tab shows a fixed reason and no simulated success (services, settings, the seven tabs). Email notification settings themselves are V6-09." },
+    { "id": "S01-A06", "status": "not_applicable", "reason": "No demo runtime in this build: 示例体验 is disabled with a reason and nothing writes demo data." },
+    { "id": "S01-A07", "status": "partial", "reason": "local_web has no sign-in, so there is no login redirect. Deep links are preserved: malformed or missing ids show the unavailable page and the upload deep link reloads in place; nothing is created by navigation. Generation pages do not exist yet." }
+  ],
+  "limitations": [
+    "The legacy shell has no link into /v6 (components/AppShell.tsx is outside the write set); users reach it by URL. The /v6 shell links back to the legacy app.",
+    "The 'last read' stale marker and cross-tab refresh are not implemented; each page reads on navigation.",
+    "继续向导 is only overview → upload; the upload step itself is a placeholder until the sources ticket.",
+    "Browser verification ran in headless desktop Chrome at 1280×860 over CDP (the app's preview pane cannot attach to this isolated worktree). Mobile widths and dark mode were not checked; dark mode is V6-09.",
+    "The lazy V6App chunk has no error boundary: if a deploy rotates hashed chunks while a client still holds an old index, opening /v6 raises an unhandled lazy-import rejection and the whole root, including legacy pages, stays blank until reload. Recorded as a residual robustness risk; not covered by V6-08-A01..A03.",
+    "VITE_V6_ENABLED=false removes the /v6/* route, but the build still emits and references the V6App chunk through the dead lazy import; the flag is not an artifact-removal guarantee.",
+    "The router accepts lowercase UUIDs only. Every generated and imported id is lowercase, so an external deep link whose UUID has been uppercased shows 案件不可用 by design.",
+    "Opening /v6 without the /patent basename renders blank because the router basename is /patent; production serves the app only under /patent/*.",
+    "browser-drive.mjs exits 0 whether or not its steps pass; success is read from browser-log.json (all 12 steps ok, no console errors), not from the exit code.",
+    "The browser log and screenshots were regenerated on 2026-10-31 against the worktree dev server; the earlier run's duplicate log under screens/ was removed. Screenshots 06 and 07 both show the settled 检查 tab, not a mid-transition state."
+  ],
+  "decisionsRequested": []
+}

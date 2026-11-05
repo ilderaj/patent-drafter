@@ -1,0 +1,11 @@
+{
+  "base": "https://patent-v6.typemint.workers.dev",
+  "path": "/v6",
+  "title": "专利起草助手",
+  "entries": [
+    "创建案件"
+  ],
+  "consoleErrors": [],
+  "externalRequests": [],
+  "requestCount": 7
+}

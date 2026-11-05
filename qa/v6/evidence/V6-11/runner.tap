@@ -1,0 +1,332 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-11
+
+TAP version 13
+# Subtest: V6-11-A01 a TXT source becomes chunks with hash, locators and deterministic ids; a refresh reads the same state
+ok 1 - V6-11-A01 a TXT source becomes chunks with hash, locators and deterministic ids; a refresh reads the same state
+  ---
+  duration_ms: 43.759459
+  type: 'test'
+  ...
+# Subtest: V6-11-A01 a text PDF keeps page numbers per chunk and normalises each page
+ok 2 - V6-11-A01 a text PDF keeps page numbers per chunk and normalises each page
+  ---
+  duration_ms: 364.12725
+  type: 'test'
+  ...
+# Subtest: V6-11-A01 a DOCX source is extracted through the shared reader and chunked
+ok 3 - V6-11-A01 a DOCX source is extracted through the shared reader and chunked
+  ---
+  duration_ms: 8.121458
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 a scanned PDF ends partial with ocrNeeded and OCR_UNAVAILABLE, and invents no text
+ok 4 - V6-11-A02 a scanned PDF ends partial with ocrNeeded and OCR_UNAVAILABLE, and invents no text
+  ---
+  duration_ms: 9.75675
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 a legacy .doc fails explicitly and creates no chunk set
+ok 5 - V6-11-A02 a legacy .doc fails explicitly and creates no chunk set
+  ---
+  duration_ms: 2.689833
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 bytes renamed to a PDF are refused as a MIME mismatch, not parsed
+ok 6 - V6-11-A02 bytes renamed to a PDF are refused as a MIME mismatch, not parsed
+  ---
+  duration_ms: 2.060792
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 the 200-page limit is enforced before any text is extracted
+ok 7 - V6-11-A02 the 200-page limit is enforced before any text is extracted
+  ---
+  duration_ms: 3.533167
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 progress comes only from real stages and pages, never from the lease timer
+ok 8 - V6-11-A02 progress comes only from real stages and pages, never from the lease timer
+  ---
+  duration_ms: 14.054084
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 an interrupted parse shows `interrupted` (never queued) and resumes from the saved stage
+ok 9 - V6-11-A03 an interrupted parse shows `interrupted` (never queued) and resumes from the saved stage
+  ---
+  duration_ms: 22.036791
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 abandon ends an interrupted job for good
+ok 10 - V6-11-A03 abandon ends an interrupted job for good
+  ---
+  duration_ms: 7.529375
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 a cancelled run stops at a real stage and keeps the stages already saved
+ok 11 - V6-11-A03 a cancelled run stops at a real stage and keeps the stages already saved
+  ---
+  duration_ms: 7.056083
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 retry creates a new job linked to the old one, and never replays the old id
+ok 12 - V6-11-A03 retry creates a new job linked to the old one, and never replays the old id
+  ---
+  duration_ms: 7.268708
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 a parser version change writes a new chunk set and keeps the old one
+ok 13 - V6-11-A03 a parser version change writes a new chunk set and keeps the old one
+  ---
+  duration_ms: 23.494084
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 a resume under a newer parser reuses the saved text stages and writes only the new set
+ok 14 - V6-11-A03 a resume under a newer parser reuses the saved text stages and writes only the new set
+  ---
+  duration_ms: 18.494459
+  type: 'test'
+  ...
+# Subtest: V6-11 stored Source, Chunk and Job rows all parse against the frozen contract
+ok 15 - V6-11 stored Source, Chunk and Job rows all parse against the frozen contract
+  ---
+  duration_ms: 10.828625
+  type: 'test'
+  ...
+# Subtest: V6-11 job versions move forward exactly once per transition and the matter commits every time
+ok 16 - V6-11 job versions move forward exactly once per transition and the matter commits every time
+  ---
+  duration_ms: 9.917208
+  type: 'test'
+  ...
+# Subtest: V6-11 a storage failure during a checkpoint is reported and leaves no fake success
+ok 17 - V6-11 a storage failure during a checkpoint is reported and leaves no fake success
+  ---
+  duration_ms: 1.518166
+  type: 'test'
+  ...
+# Subtest: V6-11 leases stay live past their original expiry without inventing progress
+ok 18 - V6-11 leases stay live past their original expiry without inventing progress
+  ---
+  duration_ms: 4.2265
+  type: 'test'
+  ...
+# Subtest: V6-11 renewal handles retry-conflict and cannot revive a stopped job
+ok 19 - V6-11 renewal handles retry-conflict and cannot revive a stopped job
+  ---
+  duration_ms: 2.591333
+  type: 'test'
+  ...
+# Subtest: V6-11 renewal handles exhaust-conflict and cannot revive a stopped job
+ok 20 - V6-11 renewal handles exhaust-conflict and cannot revive a stopped job
+  ---
+  duration_ms: 1.471167
+  type: 'test'
+  ...
+# Subtest: V6-11 renewal handles cancel and cannot revive a stopped job
+ok 21 - V6-11 renewal handles cancel and cannot revive a stopped job
+  ---
+  duration_ms: 2.45125
+  type: 'test'
+  ...
+# Subtest: V6-11 renewal handles abort and cannot revive a stopped job
+ok 22 - V6-11 renewal handles abort and cannot revive a stopped job
+  ---
+  duration_ms: 1.648208
+  type: 'test'
+  ...
+# Subtest: V6-11 orphanInterruptAllowed requires the owning page's exit marker, not just the session
+ok 23 - V6-11 orphanInterruptAllowed requires the owning page's exit marker, not just the session
+  ---
+  duration_ms: 0.338083
+  type: 'test'
+  ...
+# Subtest: V6-11 a duplicated tab sharing the session id cannot interrupt the first page's live job
+ok 24 - V6-11 a duplicated tab sharing the session id cannot interrupt the first page's live job
+  ---
+  duration_ms: 2.757917
+  type: 'test'
+  ...
+# Subtest: V6-11 the owning page's exit marker interrupts inside the lease and leaves a resumable record
+ok 25 - V6-11 the owning page's exit marker interrupts inside the lease and leaves a resumable record
+  ---
+  duration_ms: 2.453916
+  type: 'test'
+  ...
+# Subtest: V6-11 parseSource refuses a second job while this page is already starting one
+ok 26 - V6-11 parseSource refuses a second job while this page is already starting one
+  ---
+  duration_ms: 3.249
+  type: 'test'
+  ...
+# Subtest: V6-11 parseSource refuses a second job while a stored live lease exists
+ok 27 - V6-11 parseSource refuses a second job while a stored live lease exists
+  ---
+  duration_ms: 1.967541
+  type: 'test'
+  ...
+# Subtest: V6-11 an expired lease reads interrupted for any reader without a write
+ok 28 - V6-11 an expired lease reads interrupted for any reader without a write
+  ---
+  duration_ms: 2.579542
+  type: 'test'
+  ...
+# Subtest: V6-11 splitParagraphs keeps every paragraph, caps long ones, and emits nothing empty
+ok 29 - V6-11 splitParagraphs keeps every paragraph, caps long ones, and emits nothing empty
+  ---
+  duration_ms: 0.24975
+  type: 'test'
+  ...
+# Subtest: V6-11 normalizeText unifies newlines and composes NFC without changing code points after it
+ok 30 - V6-11 normalizeText unifies newlines and composes NFC without changing code points after it
+  ---
+  duration_ms: 0.233708
+  type: 'test'
+  ...
+# Subtest: V6-11 buildParseRows derives actions from persisted state, and an empty list is the empty state
+ok 31 - V6-11 buildParseRows derives actions from persisted state, and an empty list is the empty state
+  ---
+  duration_ms: 5.736292
+  type: 'test'
+  ...
+# Subtest: V6-11 session identity survives reload and falls back when sessionStorage is unavailable
+ok 32 - V6-11 session identity survives reload and falls back when sessionStorage is unavailable
+  ---
+  duration_ms: 45.957083
+  type: 'test'
+  ...
+# Subtest: V6-11 the page instance id is per document in memory, and the exit marker carries session, page and time
+ok 33 - V6-11 the page instance id is per document in memory, and the exit marker carries session, page and time
+  ---
+  duration_ms: 1.05225
+  type: 'test'
+  ...
+# Subtest: V6-11 without sessionStorage the exit marker is unavailable and nothing throws
+ok 34 - V6-11 without sessionStorage the exit marker is unavailable and nothing throws
+  ---
+  duration_ms: 0.201125
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll after this page instance exited (reload)
+ok 35 - V6-11 loadAll after this page instance exited (reload)
+  ---
+  duration_ms: 11.261416
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll in a duplicated tab that copied the session id
+ok 36 - V6-11 loadAll in a duplicated tab that copied the session id
+  ---
+  duration_ms: 3.128833
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll with refreshToken while this page runs that asset
+ok 37 - V6-11 loadAll with refreshToken while this page runs that asset
+  ---
+  duration_ms: 2.788125
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll with a marker from a different page instance of the same session
+ok 38 - V6-11 loadAll with a marker from a different page instance of the same session
+  ---
+  duration_ms: 3.471917
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll with a marker from a different session
+ok 39 - V6-11 loadAll with a marker from a different session
+  ---
+  duration_ms: 4.532667
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll with a marker older than the job's latest renewal
+ok 40 - V6-11 loadAll with a marker older than the job's latest renewal
+  ---
+  duration_ms: 3.027334
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll reads and spends this tab's stored exit marker without injected evidence
+ok 41 - V6-11 loadAll reads and spends this tab's stored exit marker without injected evidence
+  ---
+  duration_ms: 2.44225
+  type: 'test'
+  ...
+# Subtest: V6-11 loadAll falls back to lease expiry when no exit marker exists (crash or blocked storage)
+ok 42 - V6-11 loadAll falls back to lease expiry when no exit marker exists (crash or blocked storage)
+  ---
+  duration_ms: 2.181333
+  type: 'test'
+  ...
+# Subtest: V6-11 the initial surface reads persisted records and shows no fabricated progress
+ok 43 - V6-11 the initial surface reads persisted records and shows no fabricated progress
+  ---
+  duration_ms: 8.1295
+  type: 'test'
+  ...
+# Subtest: V6-11 S02 empty state: no source material offers upload, not a parse
+ok 44 - V6-11 S02 empty state: no source material offers upload, not a parse
+  ---
+  duration_ms: 0.773333
+  type: 'test'
+  ...
+# Subtest: V6-11 an unparsed source offers 解析 and shows 0% with no saved claim
+ok 45 - V6-11 an unparsed source offers 解析 and shows 0% with no saved claim
+  ---
+  duration_ms: 3.402542
+  type: 'test'
+  ...
+# Subtest: V6-11 S02 loading state: a running row shows its real stage counter and a cancel button
+ok 46 - V6-11 S02 loading state: a running row shows its real stage counter and a cancel button
+  ---
+  duration_ms: 1.062875
+  type: 'test'
+  ...
+# Subtest: V6-11 S02 loading state: the row this page is parsing reads 正在… with cancel, not 未解析
+ok 47 - V6-11 S02 loading state: the row this page is parsing reads 正在… with cancel, not 未解析
+  ---
+  duration_ms: 1.031625
+  type: 'test'
+  ...
+# Subtest: V6-11 a parsed source shows its chunk count and 已保存 only after the commit
+ok 48 - V6-11 a parsed source shows its chunk count and 已保存 only after the commit
+  ---
+  duration_ms: 297.187458
+  type: 'test'
+  ...
+# Subtest: V6-11-A02 a scanned PDF renders as partial with OCR copy, 手动补充 and 重试 — no text
+ok 49 - V6-11-A02 a scanned PDF renders as partial with OCR copy, 手动补充 and 重试 — no text
+  ---
+  duration_ms: 8.68225
+  type: 'test'
+  ...
+# Subtest: V6-11 S02 error state: an unsupported file shows the failure, 重试 and 换一个文件
+ok 50 - V6-11 S02 error state: an unsupported file shows the failure, 重试 and 换一个文件
+  ---
+  duration_ms: 4.617916
+  type: 'test'
+  ...
+# Subtest: V6-11-A03 R1 stale state: an interrupted job offers 从已保存阶段继续 and 放弃, never 已排队
+ok 51 - V6-11-A03 R1 stale state: an interrupted job offers 从已保存阶段继续 and 放弃, never 已排队
+  ---
+  duration_ms: 13.604625
+  type: 'test'
+  ...
+# Subtest: V6-11 a storage failure on load shows 尚未保存 and a reload, not a saved claim
+ok 52 - V6-11 a storage failure on load shows 尚未保存 and a reload, not a saved claim
+  ---
+  duration_ms: 0.2905
+  type: 'test'
+  ...
+# Subtest: V6-11 every rendered control has a stable test id and the markup has no timer hook
+ok 53 - V6-11 every rendered control has a stable test id and the markup has no timer hook
+  ---
+  duration_ms: 1.384125
+  type: 'test'
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 807.824333

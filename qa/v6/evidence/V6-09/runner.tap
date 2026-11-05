@@ -1,0 +1,147 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-09
+
+TAP version 13
+# Subtest: V6-09-A01: the default is native/system and a saved choice reads back in a new page
+ok 1 - V6-09-A01: the default is native/system and a saved choice reads back in a new page
+  ---
+  duration_ms: 3.9795
+  type: 'test'
+  ...
+# Subtest: V6-09-A01: every theme and colour mode is stored and read unchanged
+ok 2 - V6-09-A01: every theme and colour mode is stored and read unchanged
+  ---
+  duration_ms: 0.6425
+  type: 'test'
+  ...
+# Subtest: V6-09-A01: the stored record has exactly the version and the two preference fields
+ok 3 - V6-09-A01: the stored record has exactly the version and the two preference fields
+  ---
+  duration_ms: 0.197834
+  type: 'test'
+  ...
+# Subtest: V6-09-A02: invalid, stale and foreign records fall back to the defaults and are reported
+ok 4 - V6-09-A02: invalid, stale and foreign records fall back to the defaults and are reported
+  ---
+  duration_ms: 0.263583
+  type: 'test'
+  ...
+# Subtest: V6-09-A02: a missing or unreadable storage is reported and a later save still works
+ok 5 - V6-09-A02: a missing or unreadable storage is reported and a later save still works
+  ---
+  duration_ms: 0.228417
+  type: 'test'
+  ...
+# Subtest: V6-09-A02: a write failure reports 尚未保存 with static text and persists nothing
+ok 6 - V6-09-A02: a write failure reports 尚未保存 with static text and persists nothing
+  ---
+  duration_ms: 0.353333
+  type: 'test'
+  ...
+# Subtest: V6-09-A02: invalid save input is refused before storage is touched
+ok 7 - V6-09-A02: invalid save input is refused before storage is touched
+  ---
+  duration_ms: 0.151042
+  type: 'test'
+  ...
+# Subtest: V6-09-A02: unknown fields in a stored record are ignored, not trusted
+ok 8 - V6-09-A02: unknown fields in a stored record are ignored, not trusted
+  ---
+  duration_ms: 0.204917
+  type: 'test'
+  ...
+# Subtest: V6-09-A03: saving the same preference twice produces one identical record
+ok 9 - V6-09-A03: saving the same preference twice produces one identical record
+  ---
+  duration_ms: 0.19725
+  type: 'test'
+  ...
+# Subtest: V6-09-A03: a failed save followed by a retry persists the retried value once
+ok 10 - V6-09-A03: a failed save followed by a retry persists the retried value once
+  ---
+  duration_ms: 1.653125
+  type: 'test'
+  ...
+# Subtest: V6-09-A03: a reload does not claim a value whose write failed
+ok 11 - V6-09-A03: a reload does not claim a value whose write failed
+  ---
+  duration_ms: 0.315417
+  type: 'test'
+  ...
+# Subtest: V6-09-A03: pure calls repeat identically and never mutate their input
+ok 12 - V6-09-A03: pure calls repeat identically and never mutate their input
+  ---
+  duration_ms: 0.469375
+  type: 'test'
+  ...
+# Subtest: V6-09-A03: applying a new preference overwrites stale attributes
+ok 13 - V6-09-A03: applying a new preference overwrites stale attributes
+  ---
+  duration_ms: 0.120292
+  type: 'test'
+  ...
+# Subtest: S01-A03: system follows the OS and an explicit mode ignores it
+ok 14 - S01-A03: system follows the OS and an explicit mode ignores it
+  ---
+  duration_ms: 0.164083
+  type: 'test'
+  ...
+# Subtest: S01-A03: a runtime OS change reaches the subscriber and unsubscribe stops it
+ok 15 - S01-A03: a runtime OS change reaches the subscriber and unsubscribe stops it
+  ---
+  duration_ms: 0.408917
+  type: 'test'
+  ...
+# Subtest: S01-A03: the legacy addListener fallback works and is removed by the same stop call
+ok 16 - S01-A03: the legacy addListener fallback works and is removed by the same stop call
+  ---
+  duration_ms: 0.266084
+  type: 'test'
+  ...
+# Subtest: S01-A03: the status text names the theme and the resolved mode
+ok 17 - S01-A03: the status text names the theme and the resolved mode
+  ---
+  duration_ms: 0.153042
+  type: 'test'
+  ...
+# Subtest: V6-09 React lifecycle in headless Chrome
+    # Subtest: keeps a saved preference across navigation and runtime OS changes
+    ok 1 - keeps a saved preference across navigation and runtime OS changes
+      ---
+      duration_ms: 975.70925
+      type: 'test'
+      ...
+    # Subtest: keeps a failed save until the user explicitly discards it
+    ok 2 - keeps a failed save until the user explicitly discards it
+      ---
+      duration_ms: 1408.018334
+      type: 'test'
+      ...
+    # Subtest: restores the previous document attributes when V6 unmounts
+    ok 3 - restores the previous document attributes when V6 unmounts
+      ---
+      duration_ms: 676.708791
+      type: 'test'
+      ...
+    1..3
+ok 18 - V6-09 React lifecycle in headless Chrome
+  ---
+  duration_ms: 4705.599417
+  type: 'suite'
+  ...
+# Subtest: V6-09 browser harness exits nonzero on failed steps or console errors
+ok 19 - V6-09 browser harness exits nonzero on failed steps or console errors
+  ---
+  duration_ms: 4.203583
+  type: 'test'
+  ...
+1..19
+# tests 21
+# suites 1
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5116.374333

@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "url": "http://localhost:4187/patent/v6/demo-generation",
+  "steps": [
+    "01-generation-empty",
+    "02-generation-running-or-done",
+    "03-generation-completed-stub",
+    "04-no-external-network"
+  ],
+  "screenshots": [
+    "01-generation-empty.png",
+    "02-generation-running-or-done.png",
+    "03-generation-completed-stub.png"
+  ],
+  "consoleErrors": [],
+  "network": [
+    "http://localhost:4187/patent/v6/demo-generation",
+    "http://localhost:4187/patent/assets/index-De9L0Ko0.js",
+    "http://localhost:4187/patent/assets/index-DdwQeOia.css",
+    "http://localhost:4187/patent/assets/V6App-BG1bZTKP.js",
+    "http://localhost:4187/patent/assets/V6App-BKpE1eve.css"
+  ],
+  "externalRequests": []
+}

@@ -1,0 +1,26 @@
+
+> build
+> tsc --noEmit && vite build && cp dist/patent/index.html dist/index.html && cp dist/patent/_headers dist/_headers
+
+vite v6.4.3 building for production...
+transforming...
+✓ 2199 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/patent/index.html                              0.80 kB │ gzip:   0.52 kB
+dist/patent/assets/pdf.worker.min-CLrFZWeq.mjs  1,312.45 kB
+dist/patent/assets/V6App-BKpE1eve.css              11.62 kB │ gzip:   2.81 kB
+dist/patent/assets/index-DdwQeOia.css              24.34 kB │ gzip:   4.95 kB
+dist/patent/assets/V6App-Dt0OwSNN.js              357.80 kB │ gzip: 105.13 kB
+dist/patent/assets/index-D-E3X8gO.js              440.54 kB │ gzip: 182.57 kB
+dist/patent/assets/index-_OICJjQ1.js              510.83 kB │ gzip: 161.30 kB
+dist/patent/assets/pdf.min-C5rkUzaZ.js            531.78 kB │ gzip: 160.74 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.02s
+
+command=npm run build --workspace @patent/web
+exitCode=0

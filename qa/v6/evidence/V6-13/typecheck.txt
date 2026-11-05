@@ -1,0 +1,8 @@
+Fix round 4 rerun, 2026-11-02, V6App.tsx reverted (sha256 15b6f3c8...3543ac).
+intake.ts sha256 e121cd3747f9...a1f57d, Intake.tsx sha256 9f00036ee546...e8491ac.
+
+$ /private/tmp/patent-v6-13-worktree/node_modules/.bin/tsc -p /private/tmp/patent-v6-13-worktree/apps/web/tsconfig.json --noEmit
+(no output)
+exit code: 0
+
+With the temporary mount applied (for the browser drive), the same command also exited 0.

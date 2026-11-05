@@ -1,0 +1,76 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-18
+
+TAP version 13
+# Subtest: V6-18 A01: edited DraftRevision is the preview and export projection source
+ok 1 - V6-18 A01: edited DraftRevision is the preview and export projection source
+  ---
+  duration_ms: 23.438167
+  type: 'test'
+  ...
+# Subtest: in-flight edits remain in the model and buffer and save on the next revision
+ok 2 - in-flight edits remain in the model and buffer and save on the next revision
+  ---
+  duration_ms: 7.107291
+  type: 'test'
+  ...
+# Subtest: deleting AI content creates one auditable edited revision
+ok 3 - deleting AI content creates one auditable edited revision
+  ---
+  duration_ms: 2.309791
+  type: 'test'
+  ...
+# Subtest: V6-18 A02 and S05-A04: stale save preserves local buffer and exposes both revisions
+ok 4 - V6-18 A02 and S05-A04: stale save preserves local buffer and exposes both revisions
+  ---
+  duration_ms: 8.022625
+  type: 'test'
+  ...
+# Subtest: V6-18 A03 and S05-A08: reload restores invalid local input and reports its claim node
+ok 5 - V6-18 A03 and S05-A08: reload restores invalid local input and reports its claim node
+  ---
+  duration_ms: 5.426708
+  type: 'test'
+  ...
+# Subtest: claim numbering gap maps to the missing number and nearest claim focus target
+ok 6 - claim numbering gap maps to the missing number and nearest claim focus target
+  ---
+  duration_ms: 1.844208
+  type: 'test'
+  ...
+# Subtest: S05 empty state offers generation and manual writing; manual draft persists and saves
+ok 7 - S05 empty state offers generation and manual writing; manual draft persists and saves
+  ---
+  duration_ms: 1.763167
+  type: 'test'
+  ...
+# Subtest: S05 figure references must resolve in the current target figure set
+ok 8 - S05 figure references must resolve in the current target figure set
+  ---
+  duration_ms: 1.750209
+  type: 'test'
+  ...
+# Subtest: input snapshot precondition rejects source, config, and figure races before revision or event writes
+ok 9 - input snapshot precondition rejects source, config, and figure races before revision or event writes
+  ---
+  duration_ms: 9.641792
+  type: 'test'
+  ...
+# Subtest: stale input refuses the edit seam so saving cannot silently adopt new inputs
+ok 10 - stale input refuses the edit seam so saving cannot silently adopt new inputs
+  ---
+  duration_ms: 2.84025
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 307.006834
+
+exitCode=0

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { StoreProvider } from "./lib/store";
 import { AppShell } from "./components/AppShell";
@@ -10,10 +11,17 @@ import { NoBridge, Pairing } from "./screens/StateScreens";
 import { MobileHome, MobileWorkbench } from "./screens/MobileScreens";
 import { Unlock } from "./screens/Unlock";
 
+// V6-08: the /v6 slice loads on demand. Set VITE_V6_ENABLED=false to build without it.
+const V6_ENABLED = import.meta.env.VITE_V6_ENABLED !== "false";
+// The build base decides the router basename: /patent/ under the legacy worker,
+// / for the standalone patent.paymond.me deployment.
+const BASENAME = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
+const V6App = lazy(() => import("./v6/routes/V6App.tsx"));
+
 export default function App() {
   return (
     <StoreProvider>
-      <BrowserRouter basename="/patent">
+      <BrowserRouter basename={BASENAME}>
         <Routes>
           <Route element={<AppShell />}>
             <Route path="/" element={<Home />} />
@@ -36,6 +44,16 @@ export default function App() {
           <Route path="/unlock" element={<Unlock />} />
           <Route path="/mobile" element={<MobileHome />} />
           <Route path="/mobile/workbench" element={<MobileWorkbench />} />
+          {V6_ENABLED ? (
+            <Route
+              path="/v6/*"
+              element={
+                <Suspense fallback={null}>
+                  <V6App />
+                </Suspense>
+              }
+            />
+          ) : null}
           <Route path="*" element={<Home />} />
         </Routes>
       </BrowserRouter>

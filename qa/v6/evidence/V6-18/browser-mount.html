@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>V6-18 合成浏览器挂载</title>
+  </head>
+  <body>
+    <main class="v6-page">
+      <div id="draft-root"></div>
+    </main>
+    <script type="module">
+      import React from "react";
+      import { createRoot } from "react-dom/client";
+      import "/apps/web/src/v6/styles/theme.css";
+      import "/apps/web/src/v6/routes/v6.css";
+      import { CONTRACT_VERSION, STORES, openLocalRepository } from "/apps/web/src/v6/lib/repository.ts";
+      import { createGenerationRevisionStore } from "/apps/web/src/v6/features/generation/generation.ts";
+      import { DraftEditor } from "/apps/web/src/v6/features/draft/Editor.tsx";
+
+      const actor = {
+        tenantId: "11111111-1111-4111-8111-111111111111",
+        userId: "22222222-2222-4222-8222-222222222222",
+      };
+      const matterId = "33333333-3333-4333-8333-333333333333";
+      const targetId = "44444444-4444-4444-8444-444444444444";
+      const figureRevisionId = "55555555-5555-4555-8555-555555555555";
+      const jobId = "66666666-6666-4666-8666-666666666666";
+      const now = "2026-11-05T12:00:00.000Z";
+
+      class MemoryBackend {
+        constructor() {
+          this.data = new Map(Object.values(STORES).map((name) => [name, new Map()]));
+          this.queue = Promise.resolve();
+        }
+        transaction(mode, run) {
+          if (mode !== "readwrite") return this.run(run);
+          const next = this.queue.then(() => this.run(run));
+          this.queue = next.then(() => undefined, () => undefined);
+          return next;
+        }
+        async run(run) {
+          const before = new Map([...this.data].map(([name, store]) => [name, new Map(store)]));
+          const tx = {
+            get: async (store, key) => {
+              const value = this.data.get(store).get(key);
+              return value === undefined ? undefined : structuredClone(value);
+            },
+            put: async (store, key, value) => this.data.get(store).set(key, structuredClone(value)),
+            delete: async (store, key) => this.data.get(store).delete(key),
+            getAll: async (store) => [...this.data.get(store).values()].map((value) => structuredClone(value)),
+            getAllByIndex: async (store, index, value) => [...this.data.get(store).values()]
+              .filter((row) => row && typeof row === "object" && row[index] === value)
+              .map((value) => structuredClone(value)),
+          };
+          try { return await run(tx); }
+          catch (error) { this.data = before; throw error; }
+        }
+        close() {}
+      }
+
+      async function main() {
+        const repository = openLocalRepository(new MemoryBackend());
+        const committed = await repository.commit(actor, {
+          contractVersion: CONTRACT_VERSION,
+          expectedVersion: 0,
+          payload: {
+            matter: { id: matterId, tenantId: actor.tenantId, version: 1, title: "V6-18 合成浏览器案件", status: "active", sourceVersion: 1, createdBy: actor.userId, createdAt: now, updatedAt: now },
+            targets: [{ id: targetId, matterId, status: "active", configVersion: 1, draftRevisionId: null, figureRevisionId }],
+            assets: [], events: [], blobs: [],
+          },
+        }, { requestId: crypto.randomUUID() });
+        if (!committed.ok) throw new Error(committed.error.message);
+
+        const paragraphIds = Array.from({ length: 5 }, () => crypto.randomUUID());
+        const paragraph = (id, index) => ({
+          id,
+          text: `合成 AI 段落 ${index + 1}。`,
+          origin: "ai",
+          sourceRefs: [],
+          factIds: [],
+          figureIds: [],
+          generationJobId: jobId,
+        });
+        const claimOneId = crypto.randomUUID();
+        const claimTwoId = crypto.randomUUID();
+        const ast = {
+          schemaVersion: "draft.v1",
+          language: "zh-CN",
+          title: "合成浏览器草稿",
+          claims: [
+            { id: claimOneId, number: 1, dependsOn: [], paragraphs: [paragraph(paragraphIds[0], 0)], features: [] },
+            { id: claimTwoId, number: 2, dependsOn: [claimOneId], paragraphs: [paragraph(paragraphIds[1], 1)], features: [] },
+          ],
+          sections: [
+            { kind: "technical_field", paragraphs: [paragraph(paragraphIds[2], 2)] },
+            { kind: "background", paragraphs: [paragraph(paragraphIds[3], 3)] },
+            { kind: "summary", paragraphs: [] },
+            { kind: "figures_description", paragraphs: [] },
+            { kind: "embodiments", paragraphs: [paragraph(paragraphIds[4], 4)] },
+            { kind: "abstract", paragraphs: [] },
+          ],
+        };
+        let revisionSequence = 0;
+        let blockNextSave = false;
+        let releaseSave;
+        const revisions = createGenerationRevisionStore({
+          repository,
+          actor,
+          now: () => new Date(now),
+          newId: () => `77777777-7777-4777-8777-${String(++revisionSequence).padStart(12, "0")}`,
+        });
+        const saveEditedRevision = revisions.saveEditedRevision.bind(revisions);
+        const mountedRevisions = {
+          loadHeadRevision: (...args) => revisions.loadHeadRevision(...args),
+          loadRevision: (...args) => revisions.loadRevision(...args),
+          saveEditedRevision: async (...args) => {
+            if (blockNextSave) {
+              blockNextSave = false;
+              window.__saveEntered = true;
+              await new Promise((resolve) => { releaseSave = resolve; });
+            }
+            return saveEditedRevision(...args);
+          },
+        };
+        window.__pauseNextSave = () => { blockNextSave = true; };
+        window.__releaseSave = () => { releaseSave?.(); };
+        window.__saveEntered = false;
+        const saved = await revisions.saveEditedRevision(matterId, targetId, null, ast);
+        if (!saved.ok) throw new Error(saved.error.message);
+        window.__v618 = { initialRevisionId: saved.data.id, paragraphIds, claimTwoId, matterId, targetId };
+
+        createRoot(document.getElementById("draft-root")).render(React.createElement(DraftEditor, {
+          repository,
+          actor,
+          matterId,
+          targetId,
+          revisions: mountedRevisions,
+          confirmationRevisionId: saved.data.id,
+          confirmedParagraphIds: paragraphIds,
+          onPreview: (projection) => { window.__draftPreview = projection; },
+          onExport: (projection) => { window.__draftExport = projection; },
+        }));
+      }
+
+      main().catch((error) => {
+        document.getElementById("draft-root").textContent = `浏览器挂载失败：${error.message}`;
+        window.__draftMountError = String(error);
+      });
+    </script>
+  </body>
+</html>

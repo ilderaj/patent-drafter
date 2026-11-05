@@ -1,0 +1,86 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-08
+
+TAP version 13
+# Subtest: S01: the shell's fixed navigation, eight tabs and runtime labels
+ok 1 - S01: the shell's fixed navigation, eight tabs and runtime labels
+  ---
+  duration_ms: 2.226375
+  type: 'test'
+  ...
+# Subtest: V6-08-A01: the self-service entry creates one real empty matter and opens its upload step
+ok 2 - V6-08-A01: the self-service entry creates one real empty matter and opens its upload step
+  ---
+  duration_ms: 2.510375
+  type: 'test'
+  ...
+# Subtest: V6-08-A01: a direct link to a matter, target and tab survives a refresh
+ok 3 - V6-08-A01: a direct link to a matter, target and tab survives a refresh
+  ---
+  duration_ms: 0.399083
+  type: 'test'
+  ...
+# Subtest: S01-A02: switching tabs and targets changes only the URL, never stored data
+ok 4 - S01-A02: switching tabs and targets changes only the URL, never stored data
+  ---
+  duration_ms: 1.176041
+  type: 'test'
+  ...
+# Subtest: routes: every page parses and round-trips; anything else is not_found
+ok 5 - routes: every page parses and round-trips; anything else is not_found
+  ---
+  duration_ms: 0.257291
+  type: 'test'
+  ...
+# Subtest: V6-08-A02: missing, foreign, malformed and unknown-target links all show one unavailable page and write nothing
+ok 6 - V6-08-A02: missing, foreign, malformed and unknown-target links all show one unavailable page and write nothing
+  ---
+  duration_ms: 0.571417
+  type: 'test'
+  ...
+# Subtest: S01-A01: a fresh profile lists no matters and no demo content
+ok 7 - S01-A01: a fresh profile lists no matters and no demo content
+  ---
+  duration_ms: 0.168916
+  type: 'test'
+  ...
+# Subtest: STORAGE_UNAVAILABLE: a read fault is reported as such, never as an empty or missing matter
+ok 8 - STORAGE_UNAVAILABLE: a read fault is reported as such, never as an empty or missing matter
+  ---
+  duration_ms: 0.89775
+  type: 'test'
+  ...
+# Subtest: STORAGE_UNAVAILABLE: the storage exception's own text never reaches a page
+ok 9 - STORAGE_UNAVAILABLE: the storage exception's own text never reaches a page
+  ---
+  duration_ms: 0.336833
+  type: 'test'
+  ...
+# Subtest: V6-08-A03: a failed create writes nothing; retrying with the same ids creates exactly one matter
+ok 10 - V6-08-A03: a failed create writes nothing; retrying with the same ids creates exactly one matter
+  ---
+  duration_ms: 0.445333
+  type: 'test'
+  ...
+# Subtest: V6-08-A03: another user's id is never reported as a successful create
+ok 11 - V6-08-A03: another user's id is never reported as a successful create
+  ---
+  duration_ms: 0.229333
+  type: 'test'
+  ...
+# Subtest: V6-08-A03: parsing is pure — the same input gives the same route and nothing is mutated
+ok 12 - V6-08-A03: parsing is pure — the same input gives the same route and nothing is mutated
+  ---
+  duration_ms: 0.056625
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 170.71775

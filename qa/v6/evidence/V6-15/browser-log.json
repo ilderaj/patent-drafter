@@ -1,0 +1,261 @@
+{
+  "steps": [
+    {
+      "step": "01-ai-empty-no-matter",
+      "ok": true,
+      "notes": {
+        "state": "empty",
+        "emptyReason": "no_matters",
+        "manual": "前往案件页手工处理材料"
+      }
+    },
+    {
+      "step": "02-create-matter-and-upload",
+      "ok": true,
+      "notes": {
+        "matterId": "2aa86070-3244-4d8a-9858-f7af3ada8aec",
+        "assetId": "9744eb91-f3f7-4eee-bc55-01ada5520f2f",
+        "upload": null
+      }
+    },
+    {
+      "step": "03-parse-synthetic-source",
+      "ok": true,
+      "notes": {
+        "parseState": "已解析",
+        "parseDetail": "2 段 · 1 页 · 已保存",
+        "parseSources": 1,
+        "chunkSets": 1
+      }
+    },
+    {
+      "step": "04-ai-ready",
+      "ok": true,
+      "notes": {
+        "matter": "案件：未命名案件 进行中 返回案件页",
+        "manifest": "将外发的材料以下清单由案件当前状态生成。清单摘要绑定文件、事实、段落、草稿与附图；任何一项变化都会让旧授权失效（S04-A02）。文件页数大小v6-15-合成材料.txt1122 B来源版本1事实数量0段落数量2草稿版本0附图版本0清单摘要414edb4c5a8814bb37e8bf5336ba7c2fbcb2640e83b19d80cfa955d5e028519b",
+        "manifestHash": "414edb4c5a8814bb37e8bf5336ba7c2fbcb2640e83b19d80cfa955d5e028519b",
+        "profiles": [
+          {
+            "id": "a1000000-0000-4000-8000-000000000001",
+            "grantable": "true",
+            "disabled": false
+          },
+          {
+            "id": "a1000000-0000-4000-8000-000000000002",
+            "grantable": "false",
+            "disabled": true
+          },
+          {
+            "id": "a1000000-0000-4000-8000-000000000003",
+            "grantable": "false",
+            "disabled": true
+          },
+          {
+            "id": "a1000000-0000-4000-8000-000000000004",
+            "grantable": "false",
+            "disabled": true
+          },
+          {
+            "id": "a1000000-0000-4000-8000-000000000005",
+            "grantable": "false",
+            "disabled": true
+          }
+        ]
+      }
+    },
+    {
+      "step": "05-consent-granted",
+      "ok": true,
+      "notes": {
+        "notice": "已保存外发授权。本构建不会发起真实调用。",
+        "consent": {
+          "id": "8ec2e406-ac91-5856-88aa-e533576460fe",
+          "text": "Synthetic Processor A · 提取生效中处理地区 cn-synthetic-1 · 保留 retention-2026.1 · 训练 不用于训练 · 条款 terms-2026.1范围：来源版本 1 · 文件 1 · 事实 0 · 段落 2 · 草稿 0 · 附图 0撤回授权保存于 2026-11-01T19:09:23.344Z"
+        },
+        "db": {
+          "matterId": "2aa86070-3244-4d8a-9858-f7af3ada8aec",
+          "title": "未命名案件",
+          "status": "active",
+          "version": 9,
+          "sourceVersion": 1,
+          "assets": [
+            {
+              "id": "9744eb91-f3f7-4eee-bc55-01ada5520f2f",
+              "name": "v6-15-合成材料.txt",
+              "purpose": "source",
+              "state": "available",
+              "byteLength": 122
+            }
+          ],
+          "parseSources": 1,
+          "chunkSets": 1,
+          "snapshotRows": 0,
+          "consentRows": 1,
+          "invocationRows": 0,
+          "grantedEvents": 1,
+          "revokedEvents": 0,
+          "eventActions": [
+            "job.succeeded",
+            "consent.granted",
+            "job.started",
+            "matter.created"
+          ]
+        }
+      }
+    },
+    {
+      "step": "06-consent-revoked",
+      "ok": true,
+      "notes": {
+        "notice": "已撤回授权；历史记录保留。",
+        "consent": {
+          "id": "8ec2e406-ac91-5856-88aa-e533576460fe",
+          "text": "Synthetic Processor A · 提取已撤回处理地区 cn-synthetic-1 · 保留 retention-2026.1 · 训练 不用于训练 · 条款 terms-2026.1范围：来源版本 1 · 文件 1 · 事实 0 · 段落 2 · 草稿 0 · 附图 0撤回授权保存于 2026-11-01T19:09:23.344Z · 撤回于 2026-11-01T19:09:23.588Z"
+        },
+        "db": {
+          "matterId": "2aa86070-3244-4d8a-9858-f7af3ada8aec",
+          "title": "未命名案件",
+          "status": "active",
+          "version": 10,
+          "sourceVersion": 1,
+          "assets": [
+            {
+              "id": "9744eb91-f3f7-4eee-bc55-01ada5520f2f",
+              "name": "v6-15-合成材料.txt",
+              "purpose": "source",
+              "state": "available",
+              "byteLength": 122
+            }
+          ],
+          "parseSources": 1,
+          "chunkSets": 1,
+          "snapshotRows": 0,
+          "consentRows": 1,
+          "invocationRows": 0,
+          "grantedEvents": 1,
+          "revokedEvents": 1,
+          "eventActions": [
+            "job.succeeded",
+            "consent.granted",
+            "job.started",
+            "matter.created",
+            "consent.revoked"
+          ]
+        }
+      }
+    },
+    {
+      "step": "07-ai-reload-persisted",
+      "ok": true,
+      "notes": {
+        "consent": {
+          "id": "8ec2e406-ac91-5856-88aa-e533576460fe",
+          "text": "Synthetic Processor A · 提取已撤回处理地区 cn-synthetic-1 · 保留 retention-2026.1 · 训练 不用于训练 · 条款 terms-2026.1范围：来源版本 1 · 文件 1 · 事实 0 · 段落 2 · 草稿 0 · 附图 0撤回授权保存于 2026-11-01T19:09:23.344Z · 撤回于 2026-11-01T19:09:23.588Z"
+        },
+        "invocations": 0,
+        "db": {
+          "matterId": "2aa86070-3244-4d8a-9858-f7af3ada8aec",
+          "title": "未命名案件",
+          "status": "active",
+          "version": 10,
+          "sourceVersion": 1,
+          "assets": [
+            {
+              "id": "9744eb91-f3f7-4eee-bc55-01ada5520f2f",
+              "name": "v6-15-合成材料.txt",
+              "purpose": "source",
+              "state": "available",
+              "byteLength": 122
+            }
+          ],
+          "parseSources": 1,
+          "chunkSets": 1,
+          "snapshotRows": 0,
+          "consentRows": 1,
+          "invocationRows": 0,
+          "grantedEvents": 1,
+          "revokedEvents": 1,
+          "eventActions": [
+            "job.succeeded",
+            "consent.granted",
+            "job.started",
+            "matter.created",
+            "consent.revoked"
+          ]
+        }
+      }
+    },
+    {
+      "step": "08-no-external-network",
+      "ok": true,
+      "notes": {
+        "external": [],
+        "totalRequests": 20
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "network": [
+    "http://localhost:4178/patent/v6/ai",
+    "http://localhost:4178/patent/assets/index-Dh_XyvIG.js",
+    "http://localhost:4178/patent/assets/index-DdwQeOia.css",
+    "http://localhost:4178/patent/assets/V6App-D9lVutgT.js",
+    "http://localhost:4178/patent/assets/V6App-C4a6A9xU.css",
+    "http://localhost:4178/patent/v6",
+    "http://localhost:4178/patent/assets/index-Dh_XyvIG.js",
+    "http://localhost:4178/patent/assets/index-DdwQeOia.css",
+    "http://localhost:4178/patent/assets/V6App-D9lVutgT.js",
+    "http://localhost:4178/patent/assets/V6App-C4a6A9xU.css",
+    "http://localhost:4178/patent/v6/ai",
+    "http://localhost:4178/patent/assets/index-Dh_XyvIG.js",
+    "http://localhost:4178/patent/assets/index-DdwQeOia.css",
+    "http://localhost:4178/patent/assets/V6App-D9lVutgT.js",
+    "http://localhost:4178/patent/assets/V6App-C4a6A9xU.css",
+    "http://localhost:4178/patent/v6/ai",
+    "http://localhost:4178/patent/assets/index-Dh_XyvIG.js",
+    "http://localhost:4178/patent/assets/index-DdwQeOia.css",
+    "http://localhost:4178/patent/assets/V6App-D9lVutgT.js",
+    "http://localhost:4178/patent/assets/V6App-C4a6A9xU.css"
+  ],
+  "db": {
+    "matterId": "2aa86070-3244-4d8a-9858-f7af3ada8aec",
+    "title": "未命名案件",
+    "status": "active",
+    "version": 10,
+    "sourceVersion": 1,
+    "assets": [
+      {
+        "id": "9744eb91-f3f7-4eee-bc55-01ada5520f2f",
+        "name": "v6-15-合成材料.txt",
+        "purpose": "source",
+        "state": "available",
+        "byteLength": 122
+      }
+    ],
+    "parseSources": 1,
+    "chunkSets": 1,
+    "snapshotRows": 0,
+    "consentRows": 1,
+    "invocationRows": 0,
+    "grantedEvents": 1,
+    "revokedEvents": 1,
+    "eventActions": [
+      "job.succeeded",
+      "consent.granted",
+      "job.started",
+      "matter.created",
+      "consent.revoked"
+    ]
+  },
+  "screenshots": [
+    "01-ai-empty-no-matter.png",
+    "02-create-matter-and-upload.png",
+    "03-parse-synthetic-source.png",
+    "04-ai-ready.png",
+    "05-consent-granted.png",
+    "06-consent-revoked.png",
+    "07-ai-reload-persisted.png"
+  ],
+  "ok": true
+}

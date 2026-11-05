@@ -1,0 +1,9 @@
+Temporary V6-21 route registration used only for browser evidence.
+
+- V6App.tsx imported the new matters component as `V6MattersPage`, rendered it on `/v6/matters`, passed the actor and upload-navigation callback, and rendered `InboxPage` on the `inbox` section.
+- navigation.ts temporarily changed inbox capability to available.
+- Browser driver: `browser-drive.mjs`; run summary: `browser-run.txt`; console/network detail: `browser-log.json`.
+- Browser run passed 6/6 steps including archive, archived filter, unarchive, active filter, and edit/archive actions enabled after unarchive.
+- Both files were restored by copying their byte backups after the browser run.
+- V6App original SHA-256: `8b7292a799c951cbd25f9311e523557cbe56209e2d47732f74a71750d2e20be5`; mounted SHA-256: `3c90c4adcaf0a754349a0a68ca829a578120f766dc6c5816ed9720c638c9d55f`; reverted SHA-256: `8b7292a799c951cbd25f9311e523557cbe56209e2d47732f74a71750d2e20be5`.
+- navigation original SHA-256: `ccbc78d67d51e8980bf1f513edb0e1a5ce0f75f890cb99980669380f8177d7e3`; mounted SHA-256: `aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951`; reverted SHA-256: `ccbc78d67d51e8980bf1f513edb0e1a5ce0f75f890cb99980669380f8177d7e3`.

@@ -1,0 +1,6 @@
+ M packages/domain/src/index.ts
+?? node_modules
+?? packages/domain/src/v6/confirmation.ts
+?? packages/domain/src/v6/gate.ts
+?? qa/v6/evidence/V6-05/
+?? qa/v6/scenarios/V6-05/

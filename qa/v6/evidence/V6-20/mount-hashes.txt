@@ -1,0 +1,7 @@
+V6-20 used a standalone QA mount in qa/v6/evidence/V6-20/browser-mount.html. No temporary changes were made to V6App, navigation, or v6.css.
+
+| Path | SHA-256 before | SHA-256 after | Match |
+|---|---|---|---|
+| apps/web/src/v6/routes/V6App.tsx | a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37 | a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37 | true |
+| apps/web/src/v6/routes/navigation.ts | aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951 | aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951 | true |
+| apps/web/src/v6/routes/v6.css | 90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7 | 90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7 | true |

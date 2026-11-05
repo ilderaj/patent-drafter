@@ -1,0 +1,44 @@
+/* V6-08 — layout for the /v6 pages. Colours, radii and type come from the existing tokens in styles.css. */
+.v6-shell .logo { text-decoration: none; color: inherit; }
+.v6-shell .side-nav a { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.v6-soon { font-size: 11px; color: var(--muted-foreground); }
+.v6-shell-foot { margin-top: auto; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); padding: var(--space-3, 12px); }
+
+.v6-page { max-width: 960px; margin: 0 auto; padding: 32px 24px; display: flex; flex-direction: column; gap: 16px; }
+.v6-title { font-family: var(--font-display); font-size: 26px; font-weight: 600; margin: 0; }
+.v6-skeleton { height: 120px; border-radius: var(--radius-m); }
+
+.v6-entries { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.v6-entry { display: flex; flex-direction: column; gap: 12px; padding: 20px; align-items: flex-start; }
+.v6-entry .card-description { flex: 1; }
+
+.v6-empty { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+.v6-empty-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.v6-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.v6-list .project-row { display: flex; justify-content: space-between; gap: 16px; }
+
+.v6-targets { display: flex; flex-wrap: wrap; gap: 8px; }
+.v6-targets .chip { text-decoration: none; }
+.v6-targets .chip.active { border-color: var(--foreground); }
+.v6-tabs { display: flex; flex-wrap: wrap; }
+.v6-tabs .tabs-trigger { text-decoration: none; }
+.v6-overview { display: grid; grid-template-columns: max-content 1fr; gap: 8px 24px; margin: 0; }
+.v6-overview dd { margin: 0; }
+
+/* V6-10 upload: thin layout over the existing card/btn/badge/notice styles. */
+.v6-upload { display: flex; flex-direction: column; gap: 12px; }
+.v6-upload .dropzone { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 20px; border: 1px dashed var(--line); border-radius: var(--radius-m); background: var(--surface); text-align: center; cursor: pointer; position: relative; }
+.v6-upload .dropzone.drag { border-color: var(--primary); }
+.v6-upload .drop-ic { font-size: 24px; color: var(--muted-foreground); }
+.v6-upload-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.v6-upload .file-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-s); }
+.v6-upload .ficon { color: var(--muted-foreground); }
+.v6-upload-file { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.v6-upload .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v6-upload .progress-root { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.v6-upload .progress-indicator { height: 100%; background: var(--primary); transition: width 120ms ease; }
+.v6-upload-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 480px) {
+  .v6-upload .file-row { flex-wrap: wrap; }
+}
