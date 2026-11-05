@@ -1,0 +1,30 @@
+# V6-26 predecessor regression
+# baseCommit: beea688ee14ebf2dbcbb584c1d9baf9e66ce3641
+# branch: codex/v6-26-recovery
+# command (one invocation per ticket): npm run test:v6 -- <ticket>
+# date: 2026-11-05
+# Each ticket's raw TAP is regression-<ticket>.tap. All invocations exited 0.
+
+V6-25: tests 20, pass 20, fail 0, skipped 0
+V6-24: tests 6, pass 6, fail 0, skipped 0
+V6-23: tests 12, pass 12, fail 0, skipped 0
+V6-20: tests 9, pass 9, fail 0, skipped 0
+V6-19: tests 16, pass 16, fail 0, skipped 0
+V6-18: tests 10, pass 10, fail 0, skipped 0
+V6-17: tests 37, pass 37, fail 0, skipped 0
+V6-16: tests 14, pass 14, fail 0, skipped 0
+V6-15: tests 41, pass 41, fail 0, skipped 0
+V6-14: tests 41, pass 41, fail 0, skipped 0
+V6-12: tests 42, pass 42, fail 0, skipped 0
+V6-10: tests 36, pass 36, fail 0, skipped 0
+V6-08: tests 12, pass 12, fail 0, skipped 0
+V6-07: tests 32, pass 32, fail 0, skipped 0
+V6-05: tests 26, pass 26, fail 0, skipped 0
+
+TOTAL: tests 354, pass 354, fail 0, skipped 0
+The V6-26 target itself is in runner.tap (14 tests, 14 pass).
+
+Note: one parallel invocation of V6-25 produced a transient byte comparison failure
+in its existing deterministic-DOCX test (one byte 192 vs 193). Re-running V6-25
+alone passed 20/20, and the final regression-V6-25.tap is that passing run.
+The recovery ticket does not import or modify the V6-25 export path.

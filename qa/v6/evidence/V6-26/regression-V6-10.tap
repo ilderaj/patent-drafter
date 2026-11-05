@@ -1,0 +1,230 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-10
+
+TAP version 13
+# Subtest: V6-10-A02 XML name prefixes with XML NameChars cannot hide relationships or macros
+ok 1 - V6-10-A02 XML name prefixes with XML NameChars cannot hide relationships or macros
+  ---
+  duration_ms: 21.924375
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 a password-protected PDF is refused before storage
+ok 2 - V6-10-A02 a password-protected PDF is refused before storage
+  ---
+  duration_ms: 11.248458
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 an encrypted PDF leaves a fresh matter at version 1 with no asset or blob
+ok 3 - V6-10-A03 an encrypted PDF leaves a fresh matter at version 1 with no asset or blob
+  ---
+  duration_ms: 0.464292
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 content-type mappings refuse encoded macros and decoys before storage
+ok 4 - V6-10-A02 content-type mappings refuse encoded macros and decoys before storage
+  ---
+  duration_ms: 3.795375
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 normal content types accept BOM encodings, Unicode names and text decoys
+ok 5 - V6-10-A02 normal content types accept BOM encodings, Unicode names and text decoys
+  ---
+  duration_ms: 1.617041
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 decoded VBA relationship types refuse benign part names
+ok 6 - V6-10-A02 decoded VBA relationship types refuse benign part names
+  ---
+  duration_ms: 1.161542
+  type: 'test'
+  ...
+# Subtest: V6-10-A01 a valid DOCX is saved with its bytes and survives a refresh
+ok 7 - V6-10-A01 a valid DOCX is saved with its bytes and survives a refresh
+  ---
+  duration_ms: 3.9485
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 accepts every whitelisted format from its own bytes
+ok 8 - V6-10-S02 accepts every whitelisted format from its own bytes
+  ---
+  duration_ms: 3.5895
+  type: 'test'
+  ...
+# Subtest: V6-10-S02-A01 a 49 MiB PDF is saved while a 51 MiB PDF in the same batch is FILE_TOO_LARGE
+ok 9 - V6-10-S02-A01 a 49 MiB PDF is saved while a 51 MiB PDF in the same batch is FILE_TOO_LARGE
+  ---
+  duration_ms: 456.770667
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the bytes decide the format, never the extension or declared type
+ok 10 - V6-10-S02 the bytes decide the format, never the extension or declared type
+  ---
+  duration_ms: 0.775375
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the DOCX archive budget refuses too many entries and an over-cap declared size
+ok 11 - V6-10-S02 the DOCX archive budget refuses too many entries and an over-cap declared size
+  ---
+  duration_ms: 60.440958
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a real 16 MiB deflate stream inflates in linear time
+ok 12 - V6-10-S02 a real 16 MiB deflate stream inflates in linear time
+  ---
+  duration_ms: 169.770375
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 many tiny deflated parts retain no 64 KiB backing buffer each
+ok 13 - V6-10-A02 many tiny deflated parts retain no 64 KiB backing buffer each
+  ---
+  duration_ms: 28.366875
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 remote or absolute relationships are refused in every .rels part
+ok 14 - V6-10-A02 remote or absolute relationships are refused in every .rels part
+  ---
+  duration_ms: 1.972916
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 standards-valid .rels encodings and prefixes cannot hide an external relationship
+ok 15 - V6-10-A02 standards-valid .rels encodings and prefixes cannot hide an external relationship
+  ---
+  duration_ms: 2.9545
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 NUL, drive-letter and Unix symlink entries are refused
+ok 16 - V6-10-A02 NUL, drive-letter and Unix symlink entries are refused
+  ---
+  duration_ms: 1.319667
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 an OLE compound file declared .docx reports encryption, not a mismatch
+ok 17 - V6-10-A02 an OLE compound file declared .docx reports encryption, not a mismatch
+  ---
+  duration_ms: 0.119875
+  type: 'test'
+  ...
+# Subtest: V6-10 stores a display name without a path and without control characters
+ok 18 - V6-10 stores a display name without a path and without control characters
+  ---
+  duration_ms: 5.2645
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 oversize, fake-extension and hostile DOCX files leave nothing usable
+ok 19 - V6-10-A02 oversize, fake-extension and hostile DOCX files leave nothing usable
+  ---
+  duration_ms: 31.175375
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 repeated picks of the same bytes create one asset, even in parallel
+ok 20 - V6-10-A02 repeated picks of the same bytes create one asset, even in parallel
+  ---
+  duration_ms: 2.595958
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 a retry after success keeps one asset at one version
+ok 21 - V6-10-A03 a retry after success keeps one asset at one version
+  ---
+  duration_ms: 0.858833
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 a storage failure mid-write leaves neither metadata nor bytes
+ok 22 - V6-10-A03 a storage failure mid-write leaves neither metadata nor bytes
+  ---
+  duration_ms: 1.119333
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 a partly failed batch keeps its successes and retries only what failed
+ok 23 - V6-10-A03 a partly failed batch keeps its successes and retries only what failed
+  ---
+  duration_ms: 1.648208
+  type: 'test'
+  ...
+# Subtest: V6-10 identity and matter state gate the write
+ok 24 - V6-10 identity and matter state gate the write
+  ---
+  duration_ms: 0.498625
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 reads at most three files at once
+ok 25 - V6-10-S02 reads at most three files at once
+  ---
+  duration_ms: 45.104
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 progress reports real stages and real byte counts
+ok 26 - V6-10-S02 progress reports real stages and real byte counts
+  ---
+  duration_ms: 1.669125
+  type: 'test'
+  ...
+# Subtest: V6-10 a cancelled upload stores nothing and can be restarted
+ok 27 - V6-10 a cancelled upload stores nothing and can be restarted
+  ---
+  duration_ms: 0.561209
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 cancelling mid-batch after the first slice stores nothing
+ok 28 - V6-10-A03 cancelling mid-batch after the first slice stores nothing
+  ---
+  duration_ms: 27.159708
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the initial surface offers a picker, a drop zone and answering without documents
+ok 29 - V6-10-S02 the initial surface offers a picker, a drop zone and answering without documents
+  ---
+  duration_ms: 40.803084
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a committed file shows 已保存 only after the asset exists
+ok 30 - V6-10-S02 a committed file shows 已保存 only after the asset exists
+  ---
+  duration_ms: 0.68025
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a storage failure never shows 已保存 and stays removable and retryable
+ok 31 - V6-10-S02 a storage failure never shows 已保存 and stays removable and retryable
+  ---
+  duration_ms: 0.344209
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a rejected file states the reason and creates no saved state
+ok 32 - V6-10-S02 a rejected file states the reason and creates no saved state
+  ---
+  duration_ms: 0.263958
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 progress is the real read fraction and a busy batch can be cancelled
+ok 33 - V6-10-S02 progress is the real read fraction and a busy batch can be cancelled
+  ---
+  duration_ms: 0.364959
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the reducer keeps one row per file and never removes a stored asset
+ok 34 - V6-10-S02 the reducer keeps one row per file and never removes a stored asset
+  ---
+  duration_ms: 1.48125
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a file that has not started is an explicit selected row at zero
+ok 35 - V6-10-S02 a file that has not started is an explicit selected row at zero
+  ---
+  duration_ms: 0.296625
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a cancelled row is removable and is not reported as a problem
+ok 36 - V6-10-S02 a cancelled row is removable and is not reported as a problem
+  ---
+  duration_ms: 0.224125
+  type: 'test'
+  ...
+1..36
+# tests 36
+# suites 0
+# pass 36
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1097.278083

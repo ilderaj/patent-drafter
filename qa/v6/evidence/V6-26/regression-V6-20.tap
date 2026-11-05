@@ -1,0 +1,68 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-20
+
+TAP version 13
+# Subtest: V6-20-A01: a current full local draft records one contract-shaped full_read
+ok 1 - V6-20-A01: a current full local draft records one contract-shaped full_read
+  ---
+  duration_ms: 35.598584
+  type: 'test'
+  ...
+# Subtest: V6-20-A02: preview-only projection and stale snapshots cannot create full_read
+ok 2 - V6-20-A02: preview-only projection and stale snapshots cannot create full_read
+  ---
+  duration_ms: 5.905666
+  type: 'test'
+  ...
+# Subtest: V6-20-A03: reload and repeated confirmation return the same stored row
+ok 3 - V6-20-A03: reload and repeated confirmation return the same stored row
+  ---
+  duration_ms: 2.814667
+  type: 'test'
+  ...
+# Subtest: V6-20-A03: a revoked full_read is hidden and retry creates a new live row
+ok 4 - V6-20-A03: a revoked full_read is hidden and retry creates a new live row
+  ---
+  duration_ms: 2.795875
+  type: 'test'
+  ...
+# Subtest: inputStale compares source, target config and figure input versions
+ok 5 - inputStale compares source, target config and figure input versions
+  ---
+  duration_ms: 5.350792
+  type: 'test'
+  ...
+# Subtest: S05-A01/A02: preview DTO and risk cards preserve the anchor without locked text
+ok 6 - S05-A01/A02: preview DTO and risk cards preserve the anchor without locked text
+  ---
+  duration_ms: 1.640458
+  type: 'test'
+  ...
+# Subtest: locked risk excerpts are replaced while unlocked risk text stays intact
+ok 7 - locked risk excerpts are replaced while unlocked risk text stays intact
+  ---
+  duration_ms: 0.811291
+  type: 'test'
+  ...
+# Subtest: S05-A09: local_unmetered shows every section and the no-fee label without pay controls
+ok 8 - S05-A09: local_unmetered shows every section and the no-fee label without pay controls
+  ---
+  duration_ms: 2.05975
+  type: 'test'
+  ...
+# Subtest: S05 UI empty/loading/error states offer the specified recovery actions
+ok 9 - S05 UI empty/loading/error states offer the specified recovery actions
+  ---
+  duration_ms: 1.590875
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 245.312041
