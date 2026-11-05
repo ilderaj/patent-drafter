@@ -10,12 +10,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Shell } from "../components/Shell.tsx";
 import { AppearancePage, AppearanceProvider } from "../features/settings/Appearance.tsx";
+import { Recovery } from "../features/recovery/Recovery.tsx";
 import { Upload } from "../features/sources/Upload.tsx";
 import { Parse } from "../features/sources/Parse.tsx";
-import { Intake } from "../features/intake/Intake.tsx";
 import { Figures } from "../features/sources/Figures.tsx";
 import { AiPage } from "../features/ai/Ai.tsx";
-import { TargetsPanel } from "../features/targets/Targets.tsx";
+import { ProfessionalWorkbench } from "../features/workbench/Workbench.tsx";
+import { R1_RULE_PACK, R1_ACTIVE_RULE_PACK_VERSION } from "../features/checks/rule-pack.vite.ts";
 import { MattersPage as MattersFeaturePage } from "../features/matters/Matters.tsx";
 import { InboxPage } from "../features/inbox/Inbox.tsx";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
@@ -23,9 +24,7 @@ import { openLocalRepository, type LocalRepository } from "../lib/repository.ts"
 import {
   GLOBAL_NAV,
   LOCAL_ACTOR,
-  MATTER_TABS,
   PAGE_ERROR_MESSAGES,
-  TAB_CAPABILITIES,
   createSelfServiceMatter,
   parseV6Path,
   resolveMatterView,
@@ -121,7 +120,7 @@ function Page({ route, repository }: { route: V6Route; repository: LocalReposito
     case "section":
       if (route.key === "ai") return <AiPage repository={repository} actor={LOCAL_ACTOR} />;
       if (route.key === "inbox") return <InboxPage repository={repository} actor={LOCAL_ACTOR} />;
-      return <SectionPage sectionKey={route.key} />;
+      return <SectionPage sectionKey={route.key} repository={repository} />;
     case "not_found":
       return <UnavailablePage />;
   }
@@ -313,105 +312,12 @@ function MatterPage({
   targetId: string | null;
   tab: MatterTab;
 }) {
-  const [view, retry] = useMatterView(repository, matterId, targetId);
-  const navigate = useNavigate();
-  const [parseKey, setParseKey] = useState(0);
-  const bumpParse = useCallback(() => setParseKey((n) => n + 1), []);
-  const [figuresKey, setFiguresKey] = useState(0);
-  const bumpFigures = useCallback(() => setFiguresKey((n) => n + 1), []);
-  if (view === null) return <Loading />;
-  if (view.state === "storage_unavailable") return <StorageUnavailable message={view.message} onRetry={retry} />;
-  if (view.state === "unavailable") return <UnavailablePage />;
-
-  const capability = TAB_CAPABILITIES[tab];
-  return (
-    <div className="v6-page" data-testid="matter">
-      <h1 className="v6-title">{view.matter.title}</h1>
-      {view.targets.length > 0 ? (
-        <nav className="v6-targets" aria-label="目标">
-          <Link
-            to={v6Path({ kind: "matter", matterId, targetId: null, tab })}
-            className={targetId === null ? "chip active" : "chip"}
-          >
-            整个案件
-          </Link>
-          {view.targets.map((target, index) => (
-            <Link
-              key={target.id}
-              to={v6Path({ kind: "matter", matterId, targetId: target.id, tab })}
-              className={target.id === targetId ? "chip active" : "chip"}
-            >
-              目标 {index + 1}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
-      <nav className="tabs-list v6-tabs" aria-label="案件标签">
-        {MATTER_TABS.map((item) => (
-          <Link
-            key={item.key}
-            to={v6Path({ kind: "matter", matterId, targetId, tab: item.key })}
-            className="tabs-trigger"
-            data-state={item.key === tab ? "active" : "inactive"}
-            aria-current={item.key === tab ? "page" : undefined}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
-      {tab === "facts" ? (
-        <Intake repository={repository} actor={LOCAL_ACTOR} matterId={matterId} />
-      ) : tab === "sources" ? (
-        <>
-          <Upload
-            repository={repository}
-            actor={LOCAL_ACTOR}
-            matterId={matterId}
-            onAnswerWithoutDocuments={() => navigate(v6Path({ kind: "matter", matterId, targetId: null, tab: "facts" }))}
-            onSettled={bumpParse}
-          />
-          <Parse refreshToken={parseKey} repository={repository} actor={LOCAL_ACTOR} matterId={matterId} />
-          <Figures
-            repository={repository}
-            actor={LOCAL_ACTOR}
-            matterId={matterId}
-            targetId={targetId}
-            refreshToken={figuresKey}
-            onSettled={bumpFigures}
-          />
-        </>
-      ) : capability.state === "unavailable" ? (
-        <div className="notice" data-testid="tab-unavailable">
-          {capability.reason}
-        </div>
-      ) : (
-        <>
-          <dl className="kv v6-overview">
-            <dt>状态</dt>
-            <dd>{view.matter.status === "active" ? "进行中" : view.matter.status}</dd>
-            <dt>创建时间</dt>
-            <dd>{formatTime(view.matter.createdAt)}</dd>
-            <dt>材料版本</dt>
-            <dd>{view.matter.sourceVersion}</dd>
-            <dt>目标</dt>
-            <dd>{view.targets.length === 0 ? "尚未创建" : `${view.targets.length} 个`}</dd>
-            <dt>下一步</dt>
-            <dd>
-              <Link to={v6Path({ kind: "upload", matterId })}>上传材料</Link>
-            </dd>
-          </dl>
-          {tab === "overview" ? (
-            <TargetsPanel repository={repository} actor={LOCAL_ACTOR} matterId={matterId} onSettled={retry} />
-          ) : null}
-        </>
-      )}
-    </div>
-  );
+  return <ProfessionalWorkbench repository={repository} actor={LOCAL_ACTOR} matterId={matterId} targetId={targetId} tab={tab} rulePack={R1_RULE_PACK} rulePackVersion={R1_ACTIVE_RULE_PACK_VERSION} />;
 }
 
-function SectionPage({ sectionKey }: { sectionKey: Exclude<GlobalKey, "matters"> }) {
+function SectionPage({ sectionKey, repository }: { sectionKey: Exclude<GlobalKey, "matters">; repository: LocalRepository }) {
   // V6-09: settings opens the appearance panel; the other sections stay notices.
-  if (sectionKey === "settings") return <AppearancePage />;
+  if (sectionKey === "settings") return <><AppearancePage /><Recovery repository={repository} actor={LOCAL_ACTOR} /></>;
   const item = GLOBAL_NAV.find((candidate) => candidate.key === sectionKey)!;
   return (
     <div className="v6-page" data-testid="section">
