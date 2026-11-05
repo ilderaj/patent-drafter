@@ -1,0 +1,328 @@
+{
+  "ticket": "V6-25",
+  "title": "真实导出与完成页",
+  "status": "accepted",
+  "baseCommit": "83c0485d5e49446d758fbded29278429875954e4",
+  "branch": "codex/v6-25-export",
+  "worktree": "/private/tmp/patent-v6-25-worktree",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "dependencies": [
+    {
+      "ticket": "V6-24",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-24/receipt.json",
+      "review": "qa/v6/evidence/V6-24/review-02.md"
+    },
+    {
+      "ticket": "V6-20",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-20/receipt.json",
+      "review": "qa/v6/evidence/V6-20/review-03.md"
+    },
+    {
+      "ticket": "V6-12",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-12/receipt.json",
+      "review": "qa/v6/evidence/V6-12/review-03.md"
+    },
+    {
+      "ticket": "V6-05",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-05/receipt.json"
+    }
+  ],
+  "changedFiles": [
+    "apps/web/src/v6/features/delivery/Done.tsx",
+    "apps/web/src/v6/features/delivery/export-adapter.ts",
+    "qa/v6/evidence/V6-25/01-done-empty.png",
+    "qa/v6/evidence/V6-25/02-done-exported.png",
+    "qa/v6/evidence/V6-25/03-done-stale.png",
+    "qa/v6/evidence/V6-25/browser-drive.mjs",
+    "qa/v6/evidence/V6-25/browser-log.json",
+    "qa/v6/evidence/V6-25/browser-mount.html",
+    "qa/v6/evidence/V6-25/browser-run.txt",
+    "qa/v6/evidence/V6-25/build.txt",
+    "qa/v6/evidence/V6-25/mount-hashes.txt",
+    "qa/v6/evidence/V6-25/receipt.json",
+    "qa/v6/evidence/V6-25/regression-V6-05.tap",
+    "qa/v6/evidence/V6-25/regression-V6-08.tap",
+    "qa/v6/evidence/V6-25/regression-V6-10.tap",
+    "qa/v6/evidence/V6-25/regression-V6-12.tap",
+    "qa/v6/evidence/V6-25/regression-V6-14.tap",
+    "qa/v6/evidence/V6-25/regression-V6-15.tap",
+    "qa/v6/evidence/V6-25/regression-V6-16.tap",
+    "qa/v6/evidence/V6-25/regression-V6-17.tap",
+    "qa/v6/evidence/V6-25/regression-V6-18.tap",
+    "qa/v6/evidence/V6-25/regression-V6-19.tap",
+    "qa/v6/evidence/V6-25/regression-V6-20.tap",
+    "qa/v6/evidence/V6-25/regression-V6-23.tap",
+    "qa/v6/evidence/V6-25/regression-V6-24.tap",
+    "qa/v6/evidence/V6-25/regression.txt",
+    "qa/v6/evidence/V6-25/review-01.md",
+    "qa/v6/evidence/V6-25/review-02.md",
+    "qa/v6/evidence/V6-25/review-03.md",
+    "qa/v6/evidence/V6-25/review-04.md",
+    "qa/v6/evidence/V6-25/runner.tap",
+    "qa/v6/evidence/V6-25/scope.txt",
+    "qa/v6/evidence/V6-25/typecheck.txt",
+    "qa/v6/scenarios/V6-25/done.test.mjs",
+    "qa/v6/scenarios/V6-25/export.test.mjs"
+  ],
+  "interface": {
+    "module": "apps/web/src/v6/features/delivery/export-adapter.ts",
+    "exports": [
+      "ExportSession",
+      "ExportSessionOptions",
+      "ExportSessionState",
+      "ExportRecord",
+      "ExportManifest",
+      "ExportManifestFile",
+      "ExportFileView",
+      "ExportGateDecision",
+      "ExportGateReason",
+      "ExportRoute",
+      "ExportConfirmationMode",
+      "ExportPackageKind",
+      "ExportErrorCode",
+      "ExportActionResult",
+      "XML_FORMAT_CAPABILITY"
+    ],
+    "session": "new ExportSession(options) with load/refresh/getSnapshot/subscribe/createExport/download/setPassphrase. Options carry repository, actor, matterId, targetId, route, access, role, checkResult, activeRulePackVersion, filesAvailable, confirmationMode, passphrase, optional packageKind/revisions/now/renderReport.",
+    "gate": "Every create and download reloads LocalRepository state, evaluates V6-05 evaluateGate(export) with the current check, live confirmations, approval and policy blockers, then adds R1 access, viewer-role, persisted figure-gate, AST source-ref and priority-evidence availability reasons. All reasons are returned.",
+    "builders": "DOCX claims/specification/abstract use packages/export assembleExportArtifacts from the current DraftRevision AST. The PDF checklist uses buildReviewPdf with the same AST text plus risk/confirmation/search/hash notes. The patentpack uses buildPatentPack with versioned JSON (patentpack.v1), the full manifest, current SnapshotRef and original figure bytes. Original figure assets are additionally exported byte-for-byte as standalone files.",
+    "manifest": "ExportManifest carries schemaVersion export.v1, exportId, six-field SnapshotRef, astHash, figureSetHash, rulePackVersion, checkRunId, approvalId, confirmationIds, riskIds, searchState=not_searched, packageKind, language, createdAt and per-file id/name/mime/bytes/sha256. A separately downloadable 导出清单.json sidecar carries the standalone manifest and its own SHA-256; the standalone manifest includes all six generated artifacts, while the manifest embedded inside patentpack cannot include the container's own hash.",
+    "cache": "Export files are reusable for seven days from manifest.createdAt. At expiry the row is persisted as expired, cached file and manifest bytes are discarded, manifest metadata remains for the completion page, old downloads return CACHE_EXPIRED, and regenerating the same snapshot advances a deterministic generation key and creates a fresh export.",
+    "ui": "DoneProps extends ExportSessionOptions without passphrase plus initialPassphrase. Done owns the session; DoneView is exported for static state rendering. DoneHeader exports the route-specific next-step copy. The page shows real file name, byte size, SHA-256 prefix, status and unavailable reasons; XML shows FORMAT_UNAVAILABLE and no .xml; gate reasons link to the relevant matter tab."
+  },
+  "acceptance": [
+    {
+      "id": "V6-25-A01",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-25-worktree run test:v6 -- V6-25",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-25/runner.tap",
+      "observed": "A valid local_unmetered preparation export produced real DOCX claims/specification/abstract, a 提交检查清单.pdf, the original synthetic figure bytes, a project备份.patentpack and a downloadable 导出清单.json. Every manifest entry was downloaded and re-hashed; byte length and SHA-256 matched. DOCX XML contained the synthetic claim text. The patentpack decrypted with the same passphrase, exposed patentpack.v1, the export.v1 manifest, the public snapshot and the original figure bytes (sha256/per-file bytes equal). Exactly one export.created event was written."
+    },
+    {
+      "id": "V6-25-A02",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-25-worktree run test:v6 -- V6-25",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-25/runner.tap",
+      "observed": "Deleting the bound figure blob made the load and create gates return MISSING_BYTES with no export event. XML stayed FORMAT_UNAVAILABLE with explicit G-XML copy and no .xml file. Saving a changed source version left the old export record visible but marked files unavailable with STALE_BINDING; download returned STALE_BINDING. A build without a renderer persisted one failed row, showed no files and produced no export event; retry returned the same failure without duplicating a row or event, and a later retry with the renderer available replaced the failed row and produced exactly one export event. A viewer role was refused with ACTION_FORBIDDEN."
+    },
+    {
+      "id": "V6-25-A03",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-25-worktree run test:v6 -- V6-25",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-25/runner.tap",
+      "observed": "Refresh and retry with the same inputs returned the same manifest, same bytes and one export.created event; the matter version did not advance on replay. An eight-day clock made generation 0 stale with CACHE_EXPIRED, unavailable files and refused old downloads; createExport regenerated the same SnapshotRef as generation 1 with a new manifest, deterministic DOCX bytes, fresh patentpack bytes and exactly one additional export.created event, then replayed without a third event. At day 16 generation 1 expired on its own manifest timestamp, its cached file/manifest bytes were discarded, the page showed stale/CACHE_EXPIRED, and generation 2 regenerated with another event. A snapshot change made the old export stale; at day 8 that stale row was also marked expired, its cached file/manifest bytes were discarded, and the page showed both CACHE_EXPIRED and STALE_BINDING reasons. An internally approved export became STALE_BINDING after a source-version change; the old export record remained visible, its files became unavailable, its approval recomputed invalid with STALE_BINDING, and download was refused. An injected export.created commit failure left one failed row and no event; refresh was error (not ready) with the injected reason, retry succeeded with exactly one event, and never duplicated the event."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S08-A01",
+      "status": "covered",
+      "reason": "XML is a static unavailable format with FORMAT_UNAVAILABLE under the closed G-XML gate. No XML bytes are generated, no non-XML file is renamed to .xml, and the UI and manifest list no .xml file.",
+      "evidence": "qa/v6/evidence/V6-25/runner.tap; qa/v6/evidence/V6-25/02-done-exported.png"
+    },
+    {
+      "id": "S08-A02",
+      "status": "covered",
+      "reason": "Every file listed by the standalone manifest is downloaded from persisted export bytes and rejected if its length or SHA-256 differs. The synthetic scenario matches every manifest entry; the Done page shows the real size and 12-character SHA-256 prefix.",
+      "evidence": "qa/v6/evidence/V6-25/runner.tap; qa/v6/evidence/V6-25/browser-log.json"
+    },
+    {
+      "id": "S08-A03",
+      "status": "covered",
+      "reason": "An internally approved export made against r4 stays visible after r5 (sourceVersion change), but its files and download answer STALE_BINDING and the approval recomputes invalid with STALE_BINDING. The export record and its single event are retained.",
+      "evidence": "qa/v6/evidence/V6-25/runner.tap; qa/v6/evidence/V6-25/03-done-stale.png"
+    },
+    {
+      "id": "S08-A08",
+      "status": "covered",
+      "reason": "CN completion copy points to official-client validation/filing and optional agent help. PCT completion copy points to professional translation and a qualified person, with no China utility-model XML copy. Both always say 产品不代为提交 and never 已提交.",
+      "evidence": "qa/v6/evidence/V6-25/runner.tap; qa/v6/evidence/V6-25/01-done-empty.png"
+    },
+    {
+      "id": "S08-A04",
+      "status": "covered",
+      "reason": "A real open-conflict check produces a requiresAcknowledgement risk. Export returns GATE_BLOCKED with CONFIRMATION_REQUIRED naming that risk ID until a V6-05 risk_ack bound to the current check run exists; after acknowledgement the same current state exports and the manifest records the risk ID.",
+      "evidence": "qa/v6/evidence/V6-25/runner.tap"
+    },
+    {
+      "id": "S08-A05",
+      "status": "not_applicable",
+      "reason": "Editor approval is an ApprovalSession behavior covered by accepted V6-24; this ticket only consumes valid approvals and refuses viewers at export."
+    },
+    {
+      "id": "S08-A06",
+      "status": "not_applicable",
+      "reason": "Recovery export/import belongs to V6-26; this ticket neither generates nor imports a recovery.v1 package."
+    },
+    {
+      "id": "S08-A07",
+      "status": "not_applicable",
+      "reason": "Recovery import idempotency belongs to V6-26."
+    },
+    {
+      "id": "S08-A09",
+      "status": "not_applicable",
+      "reason": "R2 recovery-package content trimming belongs to V6-26."
+    }
+  ],
+  "runs": [
+    {
+      "name": "V6-25",
+      "command": "npm --prefix /private/tmp/patent-v6-25-worktree run test:v6 -- V6-25",
+      "exitCode": 0,
+      "tests": 20,
+      "pass": 20,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-25/runner.tap"
+    },
+    {
+      "name": "workspace typecheck",
+      "command": "npm --prefix /private/tmp/patent-v6-25-worktree run typecheck",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-25/typecheck.txt"
+    },
+    {
+      "name": "direct web typecheck",
+      "command": "./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-25/typecheck.txt"
+    },
+    {
+      "name": "predecessor regressions",
+      "command": "npm run test:v6 -- V6-24/23/20/19/18/17/16/15/14/12/10/08/05",
+      "exitCode": 0,
+      "tests": 302,
+      "pass": 302,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-25/regression.txt and regression-V6-*.tap"
+    },
+    {
+      "name": "web production build",
+      "command": "npm --prefix /private/tmp/patent-v6-25-worktree run build --workspace @patent/web",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-25/build.txt"
+    },
+    {
+      "name": "standalone browser Done flow",
+      "command": "node qa/v6/evidence/V6-25/browser-drive.mjs qa/v6/evidence/V6-25",
+      "exitCode": 0,
+      "steps": 5,
+      "screenshots": 3,
+      "externalRequests": 0,
+      "consoleErrors": 0,
+      "evidence": "qa/v6/evidence/V6-25/browser-log.json"
+    }
+  ],
+  "browserEvidence": {
+    "driver": "qa/v6/evidence/V6-25/browser-drive.mjs",
+    "mount": "qa/v6/evidence/V6-25/browser-mount.html",
+    "log": "qa/v6/evidence/V6-25/browser-log.json",
+    "runOutput": "qa/v6/evidence/V6-25/browser-run.txt",
+    "url": "http://127.0.0.1:4195/patent/qa/v6/evidence/V6-25/browser-mount.html",
+    "browser": "headless Google Chrome via CDP against the local Vite dev server",
+    "result": "5/5 steps passed; 0 console errors; 0 external requests",
+    "steps": [
+      "Empty page shows the allowed gate, XML FORMAT_UNAVAILABLE, preparation copy and no submission claim",
+      "Export creates 7 real files with size, SHA-256 prefix, ready status and one export event",
+      "Repeat export replays one manifest and one event without a matter-version advance",
+      "Snapshot change enters the stale state, marks old files unavailable with STALE_BINDING and offers re-export",
+      "No external network requests or browser console errors"
+    ],
+    "screenshots": [
+      "qa/v6/evidence/V6-25/01-done-empty.png",
+      "qa/v6/evidence/V6-25/02-done-exported.png",
+      "qa/v6/evidence/V6-25/03-done-stale.png"
+    ]
+  },
+  "scope": {
+    "porcelainEntries": 35,
+    "excluded": [
+      "node_modules"
+    ],
+    "changedFilesCount": 35,
+    "scopeMatchesChangedFiles": true,
+    "includedFiles": 35
+  },
+  "mount": {
+    "mode": "standalone synthetic QA HTML; no app route mount",
+    "modifiedAppFiles": [],
+    "allSharedHashesMatchBase": true,
+    "evidence": "qa/v6/evidence/V6-25/mount-hashes.txt"
+  },
+  "decisions": [
+    {
+      "id": "R1-LOCAL-EXPORT",
+      "decision": "Export uses R1 local_unmetered access only. Preview/full access without an entitlement returns ENTITLEMENT_REQUIRED; viewer role returns ACTION_FORBIDDEN. No cloud upload or provider call occurs."
+    },
+    {
+      "id": "EXPORT-CACHE-IDEMPOTENCY",
+      "decision": "The cache key covers actor, matter/target, full SnapshotRef, astHash, figureSetHash, checkRunId, approvalId, current confirmation IDs, risk IDs, package kind, language, route and a hash of the passphrase. A retry replays the stored manifest and bytes; export.created uses a deterministic event ID and is appended at most once. A failed build is persisted once and retried without a new event."
+    },
+    {
+      "id": "MANIFEST-SIDE-CAR",
+      "decision": "The standalone manifest is downloadable as 导出清单.json with its own sha256 and includes all generated artifacts. The manifest embedded in patentpack cannot include the patentpack container's own hash, so it lists the five pre-container artifacts. The standalone manifest is authoritative."
+    },
+    {
+      "id": "PACKAGE-KIND",
+      "decision": "packageKind is explicit and defaults from confirmation mode (professional_paragraphs -> internally_approved). An internally_approved export requires the V6-24 approval; preparation export requires content confirmations without approval."
+    },
+    {
+      "id": "DONE-ROUTE-COPY",
+      "decision": "DoneHeader uses route-specific next-step copy: CN routes point to official-client validation/filing and optional agent help; US/PCT routes point to professional translation and qualified personnel. Every route says 产品不代为提交 and never 已提交."
+    },
+    {
+      "id": "EXPORT-CACHE-TTL",
+      "decision": "Each export generation has its own seven-day TTL from that generation's manifest.createdAt. Every refresh sweeps every stored export row, including stale-snapshot and failed rows, marks each aged row expired, discards its cached file/manifest bytes, retains manifest metadata, and shows the newest expired generation as stale/CACHE_EXPIRED (plus STALE_BINDING when its snapshot is no longer current). Regeneration advances the deterministic generation key again and appends one event for that fresh generation.",
+      "evidence": "qa/v6/scenarios/V6-25/export.test.mjs: V6-25-A03 / S08 cache expires after seven days and regenerates the same snapshot; every regenerated generation expires on its own seven-day clock; a stale-snapshot export also expires and is purged at seven days"
+    },
+    {
+      "id": "PREPARED-EXPORT-FAILURE",
+      "decision": "If export.created cannot be committed after file preparation, the prepared row is marked failed with the original code/message. Refresh excludes its bytes from ready state. Retrying replaces the failed generation row, and event ID idempotency prevents duplicate export.created events.",
+      "evidence": "qa/v6/scenarios/V6-25/export.test.mjs: V6-25-A03 failed export.created commit scenario"
+    },
+    {
+      "id": "NO-XML",
+      "decision": "XML remains a static FORMAT_UNAVAILABLE capability under the closed G-XML gate. No XML is generated or renamed."
+    }
+  ],
+  "limitations": [
+    "Node 25.8.1 / npm 11.11.0 were used. The architecture target Node 22 was unavailable and is unverified.",
+    "G-XML remains closed; XML is unavailable and no official-format XML was generated.",
+    "No real provider, network service, customer material, payment or deployment was used; all fixtures are synthetic.",
+    "Done is exported but not registered in V6App/navigation. The shared route files are orchestrator-owned and were not modified; browser evidence mounts the component directly in a standalone synthetic HTML harness. Complete app-route navigation and the availability of the linked tabs are unverified.",
+    "The browser harness uses an in-memory LocalRepository. Native IndexedDB persistence in the full app was not exercised.",
+    "R1 export rows retain manifest metadata as an audit record. At seven days the cached file/manifest bytes are discarded and the row is marked expired; a later regeneration writes a new generation and event.",
+    "A failed export row keeps its prepared bytes for retry until it is replaced or deleted. After seven days the same TTL sweep clears those cached bytes and marks the row expired, retaining only its manifest and failure metadata.",
+    "CACHE_EXPIRED is a local export-cache/UI reason for expired bytes. It is not a §10 GateDecision error code and does not appear in export manifests or API GateDecision reasons.",
+    "CheckRun production remains host-supplied from the V6-23 page; V6-25 does not persist a durable check-run store.",
+    "The PDF checklist prints hashes for artifacts that exist before the PDF itself; it cannot contain its own hash or the later patentpack hash. The standalone manifest contains all file hashes and is authoritative.",
+    "The patentpack-embedded manifest excludes the patentpack container hash to avoid self-reference; the standalone manifest includes it.",
+    "The patentpack is encrypted with the caller-supplied passphrase; the passphrase is hashed into the cache key but is never stored in the export row.",
+    "Referenced-asset availability is checked for AST SourceRefs, bound figure assets and committed target priority evidence rows that exist. Matter assets not referenced by the current snapshot are not probed.",
+    "Done receives the target route from its host props; this ticket does not resolve TargetConfig.route itself. Shell integration must pass the current target route so CN and US/PCT next-step copy stays correct.",
+    "No independent review or acceptance has occurred. Status remains candidate; the orchestrator decides accepted."
+  ],
+  "decisionsRequested": [],
+  "runtime": {
+    "node": "v25.8.1",
+    "npm": "11.11.0",
+    "architectureTarget": "Node 22",
+    "node22Verified": false,
+    "operatingSystem": "Darwin"
+  },
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-25/review-04.md",
+    "note": "Rounds 1-3 closed prepared-row failure, per-generation TTL, and stale-row TTL. Final: 20/20, deps 302/302, tsc/build 0, browser 5/5."
+  }
+}
