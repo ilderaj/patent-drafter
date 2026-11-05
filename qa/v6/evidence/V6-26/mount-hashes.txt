@@ -1,0 +1,23 @@
+V6-26 mount verification
+
+No shared route, navigation, stylesheet, manifest or lockfile file was edited.
+The Recovery page was browser-tested through the standalone synthetic harness
+qa/v6/evidence/V6-26/browser-mount.html; V6App.tsx, navigation.ts, v6.css,
+App.tsx, package.json and package-lock.json remain byte-identical to baseCommit
+beea688ee14ebf2dbcbb584c1d9baf9e66ce3641.
+
+path	baseSha256	currentSha256	match
+apps/web/src/v6/routes/V6App.tsx	a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37	a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37	true
+apps/web/src/v6/routes/navigation.ts	aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951	aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951	true
+apps/web/src/v6/routes/v6.css	90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7	90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7	true
+apps/web/src/App.tsx	1c10d318d49ef8474bae061eddfa5f0d27e711c5cfd3576750b58da93057ce4c	1c10d318d49ef8474bae061eddfa5f0d27e711c5cfd3576750b58da93057ce4c	true
+package.json	47d0aa2682d34ac96599a1a95658a22faa9fcca4099faf09ae453d4a4d33af80	47d0aa2682d34ac96599a1a95658a22faa9fcca4099faf09ae453d4a4d33af80	true
+package-lock.json	1b8b67cd1c1751a1bac09bdc49acf988c8014638393e4b1aa4bb26551f77fa8b	1b8b67cd1c1751a1bac09bdc49acf988c8014638393e4b1aa4bb26551f77fa8b	true
+
+The standalone mount is a QA-only synthetic page. It does not register a V6App
+route; complete app-route navigation remains unverified.
+
+Implementation hashes at evidence time:
+apps/web/src/v6/features/recovery/recovery.ts	0618673dd11c2316bfd75eabe97f569965a0b14153ce47f16543b0c979d1fe95
+apps/web/src/v6/features/recovery/Recovery.tsx	f5ef9279b499b03040d7e4ffbaaed242ba2a04cc037b8141a8a4b2cf3e589d59
+apps/web/src/v6/features/recovery/index.ts	62ef3f1949d3129e303e0748cea7c5c97c851438aa144a377952792d8ed71063

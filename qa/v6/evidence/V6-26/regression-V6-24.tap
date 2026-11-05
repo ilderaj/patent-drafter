@@ -1,0 +1,50 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-24
+
+TAP version 13
+# Subtest: V6-24-A01: valid professional state creates a contract approval and revocation appends history
+ok 1 - V6-24-A01: valid professional state creates a contract approval and revocation appends history
+  ---
+  duration_ms: 30.560833
+  type: 'test'
+  ...
+# Subtest: V6-24-A02 and S08-A03: internal copy is accurate and figure rebinding invalidates the old approval
+ok 2 - V6-24-A02 and S08-A03: internal copy is accurate and figure rebinding invalidates the old approval
+  ---
+  duration_ms: 13.745917
+  type: 'test'
+  ...
+# Subtest: V6-24 live validity: check replacement and cited confirmation revocation invalidate with APPROVAL_REQUIRED
+ok 3 - V6-24 live validity: check replacement and cited confirmation revocation invalidate with APPROVAL_REQUIRED
+  ---
+  duration_ms: 8.363958
+  type: 'test'
+  ...
+# Subtest: V6-24-A03: refresh and retry reuse one approval event and recompute live rule-pack/input validity
+ok 4 - V6-24-A03: refresh and retry reuse one approval event and recompute live rule-pack/input validity
+  ---
+  duration_ms: 9.737375
+  type: 'test'
+  ...
+# Subtest: S08-A04: an unacknowledged risk blocks and V6-05 risk_ack clears only its current check run
+ok 5 - S08-A04: an unacknowledged risk blocks and V6-05 risk_ack clears only its current check run
+  ---
+  duration_ms: 6.240917
+  type: 'test'
+  ...
+# Subtest: S08-A05: editor approval is ACTION_FORBIDDEN and has no stored record or event
+ok 6 - S08-A05: editor approval is ACTION_FORBIDDEN and has no stored record or event
+  ---
+  duration_ms: 5.980166
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 342.920208
