@@ -40,6 +40,9 @@ V6-11 已提交 953e05d。V6-12 经三轮独立复核（第三轮 accept）后�
 - [x] V6-21 案件列表与待办：两轮独立复核后 accept（review-02.md）。第 1 轮四项阻断：收件箱未消费共享 nextAction、deletion_pending 使整个列表/收件箱读取失败、成功 parse job 永不关闭、S06-A04/A05 覆盖过度；修复为共享投影、跳过 pending、按 parse 终态解决、补 review feedback 测试并把 A05 标 partial。29/29、V6-06 25/25、tsc/build 0、41→42 项 scope 一致。提交 `fb7af75`，合并入集成分支；集成分支 V6-21 29/29、V6-06 25/25。已知契约缺口：无 `matter.unarchived` 事件，取消归档不写事件（已记为 limitation）；nextAction 暂放 features/matters，待 domain 所有者迁移
 - [x] V6-17 任务进度与结果采纳：四轮独立复核后 accept（review-05.md）。阻断依次为：support 实为 readiness 且 AST 无来源、成本/时长未真正限制、astHash 误用输入哈希、修订状态写失败不可恢复、support 假关联、数值归一化 1.5=15；修复为真实 SupportIndex 贯通 AST、按调用即时计费与跨 resume deadline、canonicalAstHash、状态重建、严格 ref 校验与保留数字标点。37/37、V6-10/14/15/16 回归全绿，tsc/build 0。提交 `7d4eae0`，合并入集成分支
 - [ ] V6-18 统一 AST 草稿编辑：执行中（写集 `features/draft/Editor.tsx`、`ast-adapter.ts`）
+- [x] V6-19 支持定位与逐段确认：五轮独立复核后 accept（review-05.md）。阻断依次为 locator 未校验来源/实时哈希、确认未按 C03 递增 matter.version、风险定位与真实焦点缺失、共享 Vite 缓存写入、历史确认无法撤销、存储 rejection 泄漏/错误码误映射；均已修复。16/16、V6-05 26/26、tsc/build/browser 7/7。提交 `e6ae4c9`，合并入集成分支
+- [ ] V6-22 专业工作台与活动：执行中（13/13，证据生成中）
+- [ ] V6-24 内部批准与交付门禁：执行中（5/5，证据生成中）
 - [ ] 按依赖图继续完成 Foundation/R1
 - **状态：** in_progress
 

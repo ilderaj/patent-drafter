@@ -37,6 +37,7 @@
 - V6-19 错误处理修复完成：撤销全流程（matter 读、ledger 读、版本写）try/catch，存储拒绝归一为 STORAGE_UNAVAILABLE；UI helper 捕获 rejected onRevoke 并显示 alert；注入第二次只读事务拒绝的测试验证无未处理 rejection、版本/事件/撤销不变。15/15、tsc 0、回执 24 项一致；已派第四轮复核。
 - V6-19 第四轮复核 CHANGES_REQUIRED（review-04.md），唯一阻断：初始 matter 版本读取被存储拒绝时返回 RESOURCE_NOT_FOUND 而非 STORAGE_UNAVAILABLE。已派修复：只有实际 not-found 结果映射 RESOURCE_NOT_FOUND，原始 rejection/throw 一律 STORAGE_UNAVAILABLE；补首次读取拒绝测试。
 - V6-19 错误码修复完成：currentMatterVersion/confirmParagraph 保留 repository 错误，仅 RESOURCE_NOT_FOUND 映射 not-found，其余失败 STORAGE_UNAVAILABLE；首次读取拒绝测试通过。16/16、回执 25 项一致，已派第五轮复核。
+- V6-19 第五轮复核 ACCEPT（review-05）：两条存储拒绝路径均返回 STORAGE_UNAVAILABLE、无未处理 rejection、无持久副作用，rejected callback 显示错误。回执 accepted（26 项），提交 `e6ae4c9` 并合并入集成分支（`4094031`）。
 - V6-22 当前 13/13、V6-24 当前 5/5（证据仍在生成），两个执行者继续。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
