@@ -1,0 +1,10 @@
+V6-47a integrated R1 regression summary (integration tree)
+
+V6-02..V6-08 and V6-10..V6-26: each suite exit 0.
+V6-09: not_run in this final integrated rerun; its 3 browser lifecycle subtests need a live dev server. Accepted evidence remains qa/v6/evidence/V6-09/review-02.md (21/21).
+V6-47a: exit 0; 5/5 structure/dependency/gate tests.
+Root build: exit 0 (qa/v6/evidence/V6-47a/build.txt).
+Direct web typecheck: exit 0 (qa/v6/evidence/V6-47a/typecheck.txt).
+Node: 25.8.1 (Node 22 unavailable).
+
+Per-ticket logs from the final integrated run are in /tmp/v6-final-*.log during the session; the accepted receipts and their own runner.tap/regression evidence remain under qa/v6/evidence/V6-xx/.

@@ -101,6 +101,8 @@
 - 集成分支回归全绿：V6-06/08/10/11/12/13/14/15/16 全部 exit 0；根构建再次验证。V6-17 收敛到 9/11，剩余失败为：重试重算了 facts 检查点（`:110`）、首个 job 未到 support 即被新引擎视为中断（`:179`）。
 - V6-21 执行者候选已就绪（34 项 changedFiles，浏览器截图与回执齐全），等待其报告与独立复核。已知契约缺口：LocalRepository 在案件 archived 时拒绝一切写入，S06 的「取消归档」在现有写集内无法实现；执行者请求 NEEDS_DECISION，待复核后由编排者决定是否扩展 repository 写集。
 
+- V6-47a 第三轮修复完成并获独立复核 ACCEPT（review-03.md）：staging 配置已移除，baseCommit 校正为 f5082b6，scope/changedFiles 为 15 项（含 review-03）；regression 明确 V6-09 在最终集成重跑为 not_run、接受证据为 review-02 21/21；A02 输出 missingTickets/missingGates，gate 表补齐 owner/evidence/validity。V6-47a 5/5、26/26 闭包一致，回执 accepted，待提交。部署仍需 patent.paymond.me 主机名决策与单独授权。
+
 ## 会话：2026-11-02
 
 - V6-13 第三轮独立复核 NOT_ACCEPT，唯一阻断 B4：无变更（no-op）保存跳过幂等记录，导致同键不同载荷被执行、相同重放不可重放。第三轮修复完成：无变更保存也写幂等记录（同一 readwrite 事务内检查并写入 requestHash、sourceVersion、基线快照、`unchanged: true`），幂等查找移到案件状态门禁之前；非阻断项同修（归档后重放成功、冲突面板「保留我的修改，基于第 N 版保存」、退役材料不再出现在选择器）。新增测试 25/26/27/28/39，修复前 5 项红；V6-13 39/39、V6-11 53/53、V6-10 36/36、tsc/build exit 0、red-before-fix 22 守卫、浏览器 12/12 步 0 console 错误；scope 35 项与 changedFiles 一致；临时挂载已按字节还原。已派第四轮独立复核，含并发同键「无变更 vs 写版本」对抗探针。

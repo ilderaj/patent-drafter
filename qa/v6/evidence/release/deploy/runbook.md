@@ -4,7 +4,7 @@ Status: prepared, not executed. Deploy only after every precondition below is tr
 
 ## Preconditions
 
-1. V6-01–V6-26 all accepted, with receipts under `qa/v6/evidence/V6-*/receipt.json`.
+1. V6-01–V6-26 all accepted: V6-01's receipt is `qa/v6/baseline/receipt.json`; V6-02–26 receipts are under `qa/v6/evidence/V6-xx/receipt.json`.
 2. V6-47a release record exists and its R1 conclusion is candidate-ready; G-RELEASE evidence is recorded and the product owner has authorized this deployment.
 3. The hostname decision is settled. `patent.paymond.me` currently resolves (CNAME) to `custom-domains.chatgpt.site`; attaching a Worker custom domain requires removing/replacing that record. Replacing it takes the existing site offline, so it needs explicit approval. Alternative: deploy on another `paymond.me` subdomain. A prepared non-destructive fallback is `wrangler.patent-v6.alt.jsonc`, which uses the new hostname `patent-v6.paymond.me` and leaves the existing record untouched (also requires approval to create the new hostname).
 4. This checkout is clean and its HEAD commit is recorded in the deployment evidence.

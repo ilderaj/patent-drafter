@@ -45,7 +45,7 @@ V6-11 已提交 953e05d。V6-12 经三轮独立复核（第三轮 accept）后�
 - [x] V6-24 内部批准与交付门禁：两轮独立复核后 accept（review-02）。实现/探针通过，首轮仅证据过期；刷新后 6/6、依赖 200/200、tsc/build 0。提交 `52b732b` 合并入集成分支
 - [x] V6-25 真实导出与完成页：四轮独立复核后 accept（review-04）。阻断为 7 天缓存过期、prepared 行失败残留、逐代 TTL、stale 行 TTL，均已修复；20/20、302/302、tsc/build/browser 5/5。提交 `ef496bb` 合并入集成分支
 - [x] V6-26 加密备份与恢复：两轮独立复核后 accept（review-02）。阻断为图形历史误拒、非法快照/未知 AST 仍可提交、报告计数不一致、验证行明文保留；修复后 14/14、354/354、tsc/build 0、浏览器 6/6。提交 `575780c` 合并入集成分支
-- [ ] V6-47a R1 发布证据：候选就绪（26/26 accepted，candidate_ready），独立复核中
+- [x] V6-47a R1 发布证据：第三轮独立复核 ACCEPT（review-03.md）。26/26 accepted、candidate_ready；scope 为 f5082b6 起的 15 项，V6-47a 5/5；回执 accepted，待提交。部署仍需主机名决策与单独授权
 - [ ] 按依赖图继续完成 Foundation/R1
 - **状态：** in_progress
 

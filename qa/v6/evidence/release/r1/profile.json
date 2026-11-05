@@ -1,7 +1,7 @@
 {
   "ticket": "V6-47a",
   "profile": "R1",
-  "generatedAt": "2026-11-05T08:30:32.133Z",
+  "generatedAt": "2026-11-05T09:11:02.416Z",
   "scope": "Foundation (V6-01–07) + R1 V6-08–26; no cloud tickets",
   "tickets": [
     {
@@ -55,7 +55,12 @@
     {
       "ticket": "V6-05",
       "status": "accepted",
-      "review": null,
+      "review": [
+        "qa/v6/evidence/V6-05/runner.tap",
+        "qa/v6/evidence/V6-05/regression.txt",
+        "qa/v6/evidence/V6-05/typecheck.txt",
+        "qa/v6/evidence/V6-05/scope.txt"
+      ],
       "verdict": "accept",
       "baseCommit": "3daef2b5f3370787773245a2a3769295b5656f1b",
       "receipt": "qa/v6/evidence/V6-05/receipt.json"
@@ -63,7 +68,12 @@
     {
       "ticket": "V6-06",
       "status": "accepted",
-      "review": null,
+      "review": [
+        "qa/v6/evidence/V6-06/runner.tap",
+        "qa/v6/evidence/V6-06/regression.txt",
+        "qa/v6/evidence/V6-06/typecheck.txt",
+        "qa/v6/evidence/V6-06/scope.txt"
+      ],
       "verdict": "accept",
       "baseCommit": "47641f525c79f08d4a4009c5dfa2d928e106bbf1",
       "receipt": "qa/v6/evidence/V6-06/receipt.json"
@@ -71,7 +81,12 @@
     {
       "ticket": "V6-07",
       "status": "accepted",
-      "review": null,
+      "review": [
+        "qa/v6/evidence/V6-07/runner.tap",
+        "qa/v6/evidence/V6-07/regression.txt",
+        "qa/v6/evidence/V6-07/typecheck.txt",
+        "qa/v6/evidence/V6-07/scope.txt"
+      ],
       "verdict": "accept",
       "baseCommit": "813fe90a5ca298c29b1a3e84a44dbdb8b3798c3f",
       "receipt": "qa/v6/evidence/V6-07/receipt.json"
@@ -79,7 +94,13 @@
     {
       "ticket": "V6-08",
       "status": "accepted",
-      "review": null,
+      "review": [
+        "qa/v6/evidence/V6-08/browser-log.json",
+        "qa/v6/evidence/V6-08/runner.tap",
+        "qa/v6/evidence/V6-08/regression.txt",
+        "qa/v6/evidence/V6-08/typecheck.txt",
+        "qa/v6/evidence/V6-08/scope.txt"
+      ],
       "verdict": "accept",
       "baseCommit": "813fe90a5ca298c29b1a3e84a44dbdb8b3798c3f",
       "receipt": "qa/v6/evidence/V6-08/receipt.json"
@@ -240,24 +261,46 @@
         "product owner (deployment goal 2026-11-05)"
       ],
       "evidence": [
-        "all 26 R1 receipts accepted with independent review evidence",
-        "qa/v6/evidence/release/deploy/runbook.md (build, smoke, rollback)",
-        "V6-26 recovery/backup tests 14/14 and V6-25 export manifest/hash tests 20/20",
-        "integrated root build and V6-02–26 suites (V6-09 browser subtests require a live dev server; its accepted evidence is review-02)"
+        "V6-01 accepted in qa/v6/baseline/receipt.json (baseline has no separate review artifact); V6-02–26 each have accepted receipts with independent review evidence (V6-09 review-02, V6-19 review-05, V6-23 review-06, V6-24 review-02, V6-25 review-04, V6-26 review-02).",
+        "qa/v6/evidence/V6-47a/regression.txt: V6-02–08 and V6-10–26 suites exit 0; V6-09 was not_run in the final integrated rerun (browser lifecycle subtests need a live server) and its accepted evidence is review-02 21/21; root build and direct typecheck exit 0.",
+        "qa/v6/evidence/release/deploy/runbook.md: build/smoke/rollback procedure; Worker is separate from patent-drafter.",
+        "V6-25 export 20/20 (manifest/hash, missing bytes, 7-day cache), V6-26 recovery 14/14 (AES-GCM/PBKDF2, tamper refusal, no half case, ID remap)."
       ],
-      "note": "G-RELEASE covers the R1 local preparation package. No payment, real model call or submission is enabled."
+      "note": "Covers the R1 local preparation package only; no payment, real model call or submission is enabled. Deployment requires the hostname decision and separate authorization.",
+      "validity": "Valid for the R1 candidate on 2026-11-05 only; re-evaluate if any ticket receipt, gate status, recovery/export evidence, or the runbook changes. Deployment remains separately authorized."
     },
     "G-MODEL": {
       "status": "closed",
-      "note": "No real model/provider call is made in R1; stub/mock only. Enabling real models requires G-MODEL evidence."
+      "note": "No real model/provider call is made in R1; stub/mock only. Enabling real models requires G-MODEL evidence.",
+      "owners": [
+        "orchestrator"
+      ],
+      "evidence": [
+        "R1 access is local_unmetered; V6-16 stubs and V6-17 generation make no provider call, so no model capability is enabled."
+      ],
+      "validity": "not_applicable while closed; enabling real models requires new G-MODEL evidence and authorization."
     },
     "G-XML": {
       "status": "closed",
-      "note": "XML export returns FORMAT_UNAVAILABLE."
+      "note": "XML export returns FORMAT_UNAVAILABLE.",
+      "owners": [
+        "orchestrator"
+      ],
+      "evidence": [
+        "V6-25 XML export returns FORMAT_UNAVAILABLE; no XML output path is enabled."
+      ],
+      "validity": "not_applicable while closed."
     },
     "G-RULES": {
       "status": "closed",
-      "note": "Legal rule rows remain unverified; they never become legal blockers (V6-23)."
+      "note": "Legal rule rows remain unverified; they never become legal blockers (V6-23).",
+      "owners": [
+        "orchestrator"
+      ],
+      "evidence": [
+        "V6-23 keeps legal rule rows unverified and non-blocking; G-RULES is closed in the R1 rule pack."
+      ],
+      "validity": "not_applicable while closed; any binding legal rule pack requires new G-RULES evidence."
     }
   },
   "recovery": {
@@ -272,5 +315,40 @@
     "Deployment to patent.paymond.me is pending hostname authorization and was not part of acceptance"
   ],
   "missingTickets": [],
-  "conclusion": "candidate_ready"
+  "conclusion": "candidate_ready",
+  "r1ExitConditions": [
+    {
+      "condition": "上传→问答→事实→路线→草稿→确认→检查→真实导出",
+      "evidence": [
+        "V6-10/V6-13/V6-14/V6-17/V6-18/V6-19/V6-20/V6-23/V6-24/V6-25 receipts and suites",
+        "workspace wiring commit 4ee7c28 (Workbench + Checks + Approval + Done + Preview)"
+      ]
+    },
+    {
+      "condition": "同案专业工作台",
+      "evidence": [
+        "V6-22 15/15; MatterPage uses ProfessionalWorkbench"
+      ]
+    },
+    {
+      "condition": "刷新恢复、损坏图稿与旧批准用例",
+      "evidence": [
+        "V6-17 interrupted/resume, V6-18 buffer, V6-19 ledger, V6-12 drawing validation, V6-24 approval invalidation"
+      ]
+    },
+    {
+      "condition": "无收费、本地数据明示",
+      "evidence": [
+        "R1 access local_unmetered; AI/G-MODEL closed; no payment ticket enabled"
+      ]
+    },
+    {
+      "condition": "真实模型需 G-MODEL",
+      "evidence": [
+        "G-MODEL closed; stub/mock only"
+      ]
+    }
+  ],
+  "gateSatisfied": true,
+  "missingGates": []
 }

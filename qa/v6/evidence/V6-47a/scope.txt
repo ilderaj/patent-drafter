@@ -1,8 +1,15 @@
+.planning/2026-10-30-patent-saas-v6/progress.md
+.planning/2026-10-30-patent-saas-v6/task_plan.md
 docs/implementation/patent-saas-v6/release/R1.md
 qa/v6/evidence/V6-47a/build.txt
 qa/v6/evidence/V6-47a/receipt.json
+qa/v6/evidence/V6-47a/regression.txt
+qa/v6/evidence/V6-47a/review-01.md
+qa/v6/evidence/V6-47a/review-02.md
+qa/v6/evidence/V6-47a/review-03.md
 qa/v6/evidence/V6-47a/runner.tap
 qa/v6/evidence/V6-47a/scope.txt
 qa/v6/evidence/V6-47a/typecheck.txt
+qa/v6/evidence/release/deploy/runbook.md
 qa/v6/evidence/release/r1/profile.json
 qa/v6/scenarios/V6-47a/release.test.mjs
