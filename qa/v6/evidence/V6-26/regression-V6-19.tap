@@ -1,0 +1,110 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-19
+
+TAP version 13
+# Subtest: V6-19-A01: a confirmed AI paragraph traces through its source to the confirmer
+ok 1 - V6-19-A01: a confirmed AI paragraph traces through its source to the confirmer
+  ---
+  duration_ms: 18.653167
+  type: 'test'
+  ...
+# Subtest: V6-19-A02: invalid source locators stay visible and a saved revision drops old confirmations
+ok 2 - V6-19-A02: invalid source locators stay visible and a saved revision drops old confirmations
+  ---
+  duration_ms: 10.694583
+  type: 'test'
+  ...
+# Subtest: V6-19-A03: refresh and retry preserve confirmations and revocations without duplicate records
+ok 3 - V6-19-A03: refresh and retry preserve confirmations and revocations without duplicate records
+  ---
+  duration_ms: 4.352083
+  type: 'test'
+  ...
+# Subtest: unresolvable SourceRefs show 不可定位 and keep their original quote
+ok 4 - unresolvable SourceRefs show 不可定位 and keep their original quote
+  ---
+  duration_ms: 5.483875
+  type: 'test'
+  ...
+# Subtest: V6-19 integrity: foreign source ownership is unlocatable
+ok 5 - V6-19 integrity: foreign source ownership is unlocatable
+  ---
+  duration_ms: 2.342458
+  type: 'test'
+  ...
+# Subtest: V6-19 integrity: a foreign asset reference on the same matter is unlocatable
+ok 6 - V6-19 integrity: a foreign asset reference on the same matter is unlocatable
+  ---
+  duration_ms: 1.169542
+  type: 'test'
+  ...
+# Subtest: V6-19 integrity: altered chunk text with the old hash is unlocatable
+ok 7 - V6-19 integrity: altered chunk text with the old hash is unlocatable
+  ---
+  duration_ms: 2.01475
+  type: 'test'
+  ...
+# Subtest: V6-19 integrity: a source-version bump makes the old revision locator stale
+ok 8 - V6-19 integrity: a source-version bump makes the old revision locator stale
+  ---
+  duration_ms: 0.888125
+  type: 'test'
+  ...
+# Subtest: V6-19 C03: confirm and revoke bump matter.version and append one event each
+ok 9 - V6-19 C03: confirm and revoke bump matter.version and append one event each
+  ---
+  duration_ms: 9.74875
+  type: 'test'
+  ...
+# Subtest: V6-19 C03: a version conflict or write fault rolls back every confirmation write
+ok 10 - V6-19 C03: a version conflict or write fault rolls back every confirmation write
+  ---
+  duration_ms: 1.498667
+  type: 'test'
+  ...
+# Subtest: V6-19 round2: a historical confirmation can be revoked after a new revision is saved
+ok 11 - V6-19 round2: a historical confirmation can be revoked after a new revision is saved
+  ---
+  duration_ms: 2.302666
+  type: 'test'
+  ...
+# Subtest: V6-19 round2: unknown or mismatched confirmation ids fail without writes
+ok 12 - V6-19 round2: unknown or mismatched confirmation ids fail without writes
+  ---
+  duration_ms: 3.121167
+  type: 'test'
+  ...
+# Subtest: V6-19 round2: current-snapshot revocation still succeeds
+ok 13 - V6-19 round2: current-snapshot revocation still succeeds
+  ---
+  duration_ms: 1.626083
+  type: 'test'
+  ...
+# Subtest: V6-19 round3: a rejected read-only transaction returns an action failure without writes
+ok 14 - V6-19 round3: a rejected read-only transaction returns an action failure without writes
+  ---
+  duration_ms: 3.075666
+  type: 'test'
+  ...
+# Subtest: V6-19 round4: a rejected initial matter-version read is STORAGE_UNAVAILABLE
+ok 15 - V6-19 round4: a rejected initial matter-version read is STORAGE_UNAVAILABLE
+  ---
+  duration_ms: 3.556167
+  type: 'test'
+  ...
+# Subtest: S05 UI states: loading, empty, error and retry are explicit
+ok 16 - S05 UI states: loading, empty, error and retry are explicit
+  ---
+  duration_ms: 1.307417
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 278.750833

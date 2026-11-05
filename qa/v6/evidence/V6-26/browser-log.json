@@ -1,0 +1,109 @@
+{
+  "ok": true,
+  "steps": [
+    {
+      "step": "empty state shows prerequisites and the non-restored records; no success claim",
+      "ok": true
+    },
+    {
+      "step": "encrypted recovery package generated with a real SHA-256 and download control",
+      "ok": true
+    },
+    {
+      "step": "dry-run report shows mapping counts, missing bytes and legacy_unverified; commit is gated",
+      "ok": true
+    },
+    {
+      "step": "commit creates exactly one new matter with remapped events, identical counts and legacy_unverified rows",
+      "matters": 2,
+      "ok": true
+    },
+    {
+      "step": "in-page refresh reads the persisted commit marker and creates no duplicate side effect",
+      "ok": true
+    },
+    {
+      "step": "no external network or browser console errors",
+      "ok": true
+    }
+  ],
+  "consoleErrors": [],
+  "network": [
+    "http://127.0.0.1:4196/patent/qa/v6/evidence/V6-26/browser-mount.html",
+    "http://127.0.0.1:4196/patent/@vite/client",
+    "http://127.0.0.1:4196/patent/qa/v6/evidence/V6-26/browser-mount.html?html-proxy&index=0.js",
+    "http://127.0.0.1:4196/patent/@react-refresh",
+    "http://127.0.0.1:4196/patent/apps/web/src/styles.css",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/styles/theme.css",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/routes/v6.css",
+    "http://127.0.0.1:4196/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-26-vite-cache/deps/react.js?v=ca22fc60",
+    "http://127.0.0.1:4196/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-26-vite-cache/deps/react-dom_client.js?v=ca22fc60",
+    "http://127.0.0.1:4196/patent/packages/contracts/src/index.ts",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/features/recovery/Recovery.tsx",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/features/recovery/recovery.ts",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/features/generation/generation.ts",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/features/sources/drawings.ts",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/lib/repository.ts",
+    "http://127.0.0.1:4196/patent/qa/v6/scenarios/V6-12/fixtures/drawing-valid.png?import&url",
+    "http://127.0.0.1:4196/patent/packages/contracts/src/primitives.ts",
+    "http://127.0.0.1:4196/patent/packages/contracts/src/matter.ts",
+    "http://127.0.0.1:4196/patent/packages/contracts/src/draft.ts",
+    "http://127.0.0.1:4196/patent/packages/contracts/src/jobs.ts",
+    "http://127.0.0.1:4196/patent/packages/contracts/src/delivery.ts",
+    "http://127.0.0.1:4196/patent/packages/contracts/src/records.ts",
+    "http://127.0.0.1:4196/patent/packages/contracts/src/billing.ts",
+    "http://127.0.0.1:4196/patent/packages/contracts/src/privacy.ts",
+    "http://127.0.0.1:4196/patent/packages/contracts/src/fixtures.ts",
+    "http://127.0.0.1:4196/patent/@fs/Users/jared/Personal%20Projects/Patent/node_modules/vite/dist/client/env.mjs",
+    "http://127.0.0.1:4196/patent/packages/export/src/index.ts",
+    "http://127.0.0.1:4196/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-26-vite-cache/deps/chunk-CD6HDBVX.js?v=ca22fc60",
+    "http://127.0.0.1:4196/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-26-vite-cache/deps/chunk-6ZNS7KUZ.js?v=ca22fc60",
+    "http://127.0.0.1:4196/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-26-vite-cache/deps/chunk-WOOG5QLI.js?v=ca22fc60",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/lib/legacy-import.ts",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/features/sources/parse.ts",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/features/sources/ingest.ts",
+    "http://127.0.0.1:4196/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-26-vite-cache/deps/react_jsx-dev-runtime.js?v=ca22fc60",
+    "http://127.0.0.1:4196/patent/packages/domain/src/v6/revision.ts",
+    "http://127.0.0.1:4196/patent/packages/providers/src/index.ts",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/lib/pipeline-adapter.ts",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/features/ai/ai.ts",
+    "http://127.0.0.1:4196/patent/apps/web/src/v6/features/targets/targets.ts",
+    "http://127.0.0.1:4196/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-26-vite-cache/deps/zod.js?v=ca22fc60",
+    "http://127.0.0.1:4196/patent/packages/pipeline/src/index.ts",
+    "http://127.0.0.1:4196/patent/packages/providers/src/types.ts",
+    "http://127.0.0.1:4196/patent/packages/providers/src/llm-provider.ts",
+    "http://127.0.0.1:4196/patent/packages/providers/src/deepseek-bridge-provider.ts",
+    "http://127.0.0.1:4196/patent/packages/providers/src/mock-provider.ts",
+    "http://127.0.0.1:4196/patent/packages/providers/src/codex-local-provider.ts",
+    "http://127.0.0.1:4196/patent/packages/export/src/types.ts",
+    "http://127.0.0.1:4196/patent/packages/export/src/base64.ts",
+    "http://127.0.0.1:4196/patent/packages/export/src/zip.ts",
+    "http://127.0.0.1:4196/patent/packages/export/src/docx.ts",
+    "http://127.0.0.1:4196/patent/packages/export/src/figures.ts",
+    "http://127.0.0.1:4196/patent/packages/export/src/pdf.ts",
+    "http://127.0.0.1:4196/patent/packages/export/src/patentpack.ts",
+    "http://127.0.0.1:4196/patent/packages/export/src/notes.ts",
+    "http://127.0.0.1:4196/patent/packages/export/src/assembly.ts",
+    "http://127.0.0.1:4196/patent/packages/pipeline/src/types.ts",
+    "http://127.0.0.1:4196/patent/packages/pipeline/src/stages.ts",
+    "http://127.0.0.1:4196/patent/packages/pipeline/src/runner.ts",
+    "http://127.0.0.1:4196/patent/packages/pipeline/src/mock.ts",
+    "http://127.0.0.1:4196/patent/packages/pipeline/src/schemas.ts",
+    "http://127.0.0.1:4196/patent/apps/web/src/lib/extract.ts",
+    "http://127.0.0.1:4196/patent/packages/parsers/src/guard.ts",
+    "http://127.0.0.1:4196/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-26-vite-cache/deps/fflate.js?v=ca22fc60",
+    "http://127.0.0.1:4196/patent/@fs/var/folders/1_/m2vfg4n10n9_50cz0bmvnmx80000gn/T/v6-26-vite-cache/deps/pdf-lib.js?v=ca22fc60",
+    "http://127.0.0.1:4196/patent/apps/web/src/shims/empty.ts",
+    "http://127.0.0.1:4196/patent/qa/v6/scenarios/V6-12/fixtures/drawing-valid.png",
+    "http://127.0.0.1:4196/favicon.ico"
+  ],
+  "screenshots": [
+    "01-recovery-empty.png",
+    "02-recovery-generated.png",
+    "03-recovery-stale-report.png",
+    "04-recovery-committed.png",
+    "05-recovery-refreshed.png"
+  ],
+  "url": "http://127.0.0.1:4196/patent/qa/v6/evidence/V6-26/browser-mount.html",
+  "externalRequests": []
+}

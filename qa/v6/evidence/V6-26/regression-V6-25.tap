@@ -1,0 +1,134 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-25
+
+TAP version 13
+# Subtest: S08-A08: CN completion copy points to official client and never claims submission
+ok 1 - S08-A08: CN completion copy points to official client and never claims submission
+  ---
+  duration_ms: 6.832917
+  type: 'test'
+  ...
+# Subtest: S08-A08: PCT completion copy offers translation and qualified-person next steps without CN XML copy
+ok 2 - S08-A08: PCT completion copy offers translation and qualified-person next steps without CN XML copy
+  ---
+  duration_ms: 0.353583
+  type: 'test'
+  ...
+# Subtest: done page renders real file metadata and XML unavailability without placeholders
+ok 3 - done page renders real file metadata and XML unavailability without placeholders
+  ---
+  duration_ms: 21.338375
+  type: 'test'
+  ...
+# Subtest: DoneView renders real file size, hash prefix and unavailable reason without fake files
+ok 4 - DoneView renders real file size, hash prefix and unavailable reason without fake files
+  ---
+  duration_ms: 1.595584
+  type: 'test'
+  ...
+# Subtest: gate reasons link to the tab that resolves them
+ok 5 - gate reasons link to the tab that resolves them
+  ---
+  duration_ms: 0.7525
+  type: 'test'
+  ...
+# Subtest: V6-25-A01 / S08-A02: current local export downloads bytes matching its manifest
+ok 6 - V6-25-A01 / S08-A02: current local export downloads bytes matching its manifest
+  ---
+  duration_ms: 120.898375
+  type: 'test'
+  ...
+# Subtest: V6-25-A02 / S08-A01: missing figure bytes block export and XML stays unavailable
+ok 7 - V6-25-A02 / S08-A01: missing figure bytes block export and XML stays unavailable
+  ---
+  duration_ms: 9.197042
+  type: 'test'
+  ...
+# Subtest: V6-25-A02 / S08-A03: old files remain visible as stale and cannot be downloaded
+ok 8 - V6-25-A02 / S08-A03: old files remain visible as stale and cannot be downloaded
+  ---
+  duration_ms: 41.979083
+  type: 'test'
+  ...
+# Subtest: S08-A03: an approved r4 export becomes STALE_BINDING after r5 while the record and invalid approval remain visible
+ok 9 - S08-A03: an approved r4 export becomes STALE_BINDING after r5 while the record and invalid approval remain visible
+  ---
+  duration_ms: 42.986083
+  type: 'test'
+  ...
+# Subtest: V6-25-A03: refresh and retry reuse the same manifest, bytes and one export event
+ok 10 - V6-25-A03: refresh and retry reuse the same manifest, bytes and one export event
+  ---
+  duration_ms: 56.80575
+  type: 'test'
+  ...
+# Subtest: V6-25-A03 / S08 cache expires after seven days and regenerates the same snapshot
+ok 11 - V6-25-A03 / S08 cache expires after seven days and regenerates the same snapshot
+  ---
+  duration_ms: 85.593583
+  type: 'test'
+  ...
+# Subtest: V6-25-A03: every regenerated generation expires on its own seven-day clock
+ok 12 - V6-25-A03: every regenerated generation expires on its own seven-day clock
+  ---
+  duration_ms: 105.336542
+  type: 'test'
+  ...
+# Subtest: V6-25-A03: a stale-snapshot export also expires and is purged at seven days
+ok 13 - V6-25-A03: a stale-snapshot export also expires and is purged at seven days
+  ---
+  duration_ms: 41.016959
+  type: 'test'
+  ...
+# Subtest: V6-25-A03: failed export.created commit never refreshes as ready and retry completes once
+ok 14 - V6-25-A03: failed export.created commit never refreshes as ready and retry completes once
+  ---
+  duration_ms: 73.900583
+  type: 'test'
+  ...
+# Subtest: preparation export reports every unmet prerequisite and writes no export event
+ok 15 - preparation export reports every unmet prerequisite and writes no export event
+  ---
+  duration_ms: 11.386541
+  type: 'test'
+  ...
+# Subtest: a required risk acknowledgement gates export until a current risk_ack exists
+ok 16 - a required risk acknowledgement gates export until a current risk_ack exists
+  ---
+  duration_ms: 42.367083
+  type: 'test'
+  ...
+# Subtest: a stale check run blocks export with CHECK_REQUIRED
+ok 17 - a stale check run blocks export with CHECK_REQUIRED
+  ---
+  duration_ms: 6.902292
+  type: 'test'
+  ...
+# Subtest: a build failure is persisted once, shown without fake files, and not repeated as an event
+ok 18 - a build failure is persisted once, shown without fake files, and not repeated as an event
+  ---
+  duration_ms: 44.873333
+  type: 'test'
+  ...
+# Subtest: a viewer role cannot export even when content prerequisites are met
+ok 19 - a viewer role cannot export even when content prerequisites are met
+  ---
+  duration_ms: 7.126167
+  type: 'test'
+  ...
+# Subtest: professional export requires a live internal approval
+ok 20 - professional export requires a live internal approval
+  ---
+  duration_ms: 38.639208
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1047.747417

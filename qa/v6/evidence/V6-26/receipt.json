@@ -1,0 +1,358 @@
+{
+  "ticket": "V6-26",
+  "title": "加密备份与恢复",
+  "status": "accepted",
+  "baseCommit": "beea688ee14ebf2dbcbb584c1d9baf9e66ce3641",
+  "branch": "codex/v6-26-recovery",
+  "worktree": "/private/tmp/patent-v6-26-worktree",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "dependencies": [
+    {
+      "ticket": "V6-25",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-25/receipt.json"
+    },
+    {
+      "ticket": "V6-07",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-07/receipt.json"
+    }
+  ],
+  "changedFiles": [
+    "apps/web/src/v6/features/recovery/Recovery.tsx",
+    "apps/web/src/v6/features/recovery/index.ts",
+    "apps/web/src/v6/features/recovery/recovery.ts",
+    "qa/v6/evidence/V6-26/01-recovery-empty.png",
+    "qa/v6/evidence/V6-26/02-recovery-generated.png",
+    "qa/v6/evidence/V6-26/03-recovery-stale-report.png",
+    "qa/v6/evidence/V6-26/04-recovery-committed.png",
+    "qa/v6/evidence/V6-26/05-recovery-refreshed.png",
+    "qa/v6/evidence/V6-26/browser-drive.mjs",
+    "qa/v6/evidence/V6-26/browser-log.json",
+    "qa/v6/evidence/V6-26/browser-mount.html",
+    "qa/v6/evidence/V6-26/browser-run.txt",
+    "qa/v6/evidence/V6-26/build.txt",
+    "qa/v6/evidence/V6-26/mount-hashes.txt",
+    "qa/v6/evidence/V6-26/receipt.json",
+    "qa/v6/evidence/V6-26/regression-V6-05.tap",
+    "qa/v6/evidence/V6-26/regression-V6-07.tap",
+    "qa/v6/evidence/V6-26/regression-V6-08.tap",
+    "qa/v6/evidence/V6-26/regression-V6-10.tap",
+    "qa/v6/evidence/V6-26/regression-V6-12.tap",
+    "qa/v6/evidence/V6-26/regression-V6-14.tap",
+    "qa/v6/evidence/V6-26/regression-V6-15.tap",
+    "qa/v6/evidence/V6-26/regression-V6-16.tap",
+    "qa/v6/evidence/V6-26/regression-V6-17.tap",
+    "qa/v6/evidence/V6-26/regression-V6-18.tap",
+    "qa/v6/evidence/V6-26/regression-V6-19.tap",
+    "qa/v6/evidence/V6-26/regression-V6-20.tap",
+    "qa/v6/evidence/V6-26/regression-V6-23.tap",
+    "qa/v6/evidence/V6-26/regression-V6-24.tap",
+    "qa/v6/evidence/V6-26/regression-V6-25.tap",
+    "qa/v6/evidence/V6-26/regression.txt",
+    "qa/v6/evidence/V6-26/review-01.md",
+    "qa/v6/evidence/V6-26/review-02.md",
+    "qa/v6/evidence/V6-26/runner.tap",
+    "qa/v6/evidence/V6-26/scope.txt",
+    "qa/v6/evidence/V6-26/typecheck.txt",
+    "qa/v6/scenarios/V6-26/recovery.test.mjs"
+  ],
+  "interface": {
+    "modules": [
+      "apps/web/src/v6/features/recovery/recovery.ts",
+      "apps/web/src/v6/features/recovery/Recovery.tsx",
+      "apps/web/src/v6/features/recovery/index.ts"
+    ],
+    "exports": [
+      "RECOVERY_SCHEMA_VERSION",
+      "RECOVERY_CRYPTO",
+      "RECOVERY_MAX_ASSET_BYTES",
+      "RECOVERY_MAX_PACKAGE_BYTES",
+      "RECOVERY_MAX_ASSETS",
+      "RECOVERY_MAX_RECORDS",
+      "RECOVERY_VALIDATION_TTL_MS",
+      "RecoveryAccess",
+      "RecoveryErrorCode",
+      "RecoveryFailure",
+      "RecoveryError",
+      "RecoveryAsset",
+      "RecoveryTarget",
+      "RecoveryFigureRef",
+      "RecoveryLegacyReview",
+      "RecoveryRecord",
+      "RecoveryPackageReport",
+      "RecoveryPackage",
+      "RecoveryExportOptions",
+      "RecoveryClockOptions",
+      "MigrationIssue",
+      "MigrationReport",
+      "ValidatedRecovery",
+      "RecoveryResult",
+      "RecoveryValidationView",
+      "RecoveryCommitResult",
+      "RecoveryDraftView",
+      "createRecoveryPackage",
+      "validateRecoveryPackage",
+      "commitRecoveryImport",
+      "readRecoveryValidation",
+      "readRecoveredDraft",
+      "canonicalJson",
+      "recoveryPackageFileName",
+      "Recovery",
+      "RecoveryReport",
+      "RecoveryProps"
+    ],
+    "package": "createRecoveryPackage(repository, actor, matterId, { passphrase, access, now? }) returns encrypted Uint8Array bytes. The recovery.v1 payload contains packageId, sourceMatterId, access, source summary, assets + assetManifest (id, purpose, original name, MIME, byteLength, SHA-256, state available|missing_bytes, optional base64 bytes), figureRefs, versioned records (drawings, figure sets, generation revisions, target configs, parse sources/chunks, intake snapshot/drafts/candidates), sourceSnapshot, legacyReviews and migrationReport. Missing or mismatched bytes are marked missing_bytes and listed; no placeholder bytes are invented. preview access keeps claims plus technical_field/background only, strips generated sourceRefs/generationJobId and lists every omitted paragraph/revision/candidate; local_unmetered keeps the current full generated content. Original user asset bytes are always included when present.",
+    "crypto": "The package is the existing patentpack authenticated envelope: v=1, alg=PBKDF2-SHA256-AESGCM-200000, random 16-byte salt per package, PBKDF2-SHA-256 with 200,000 iterations deriving a 256-bit AES-GCM key, random 12-byte IV, authenticated ciphertext. The passphrase is not stored, logged, returned or written to evidence. Wrong passphrase or tampered ciphertext fails as RECOVERY_DECRYPT_FAILED before any validation row or matter is written.",
+    "validation": "validateRecoveryPackage(repository, actor, bytes, passphrase, { now? }?) decrypts and dry-runs schema, recovery.v1 version, plain-file paths, 50 MiB per-asset and 256 MiB package budgets, 2,000 asset / 20,000 record limits, asset/figure/target/source references and SHA-256 of every available asset. Figure IDs are unique per figure-set revision but may repeat across revisions, as bindFigures produces. It returns MigrationReport (mappingCounts, missingBytes, unknownVersions, unconvertible, omittedGeneratedContent, legacyUnverified) and a deterministic validationId derived from tenant, actor and the encrypted package hash. mappingCounts counts package entries: figures counts figure entries across all figure-set revisions, drawings counts drawing records, revisions counts draft revisions. Invalid snapshots, invalid ASTs and unknown AST versions set canCommit=false. A valid dry-run persists one recovery.validation row with a 15-minute expiresAt; an invalid package writes nothing.",
+    "commit": "commitRecoveryImport(repository, actor, validationId, { now? }?) reads the persisted validation, refuses an expired row, verifies the canonical payload hash, builds every new id from validationId, and writes the matter aggregate, target.created/matter.created events, asset bytes and all feature rows (drawings, figure sets, draft revision + revision state, target config, parse sources/chunks, intake snapshot/drafts/candidates, legacy_unverified metadata) in one backend transaction. A successful transaction deletes the decrypted recovery.validation row and writes only a metadata-only recovery.commit marker (validationId, matterId, report, committedAt; no package, bytes, AST, chunks, passphrase or key). Repeating the same validationId reads the marker and returns the committed matter with replayed=true. Any write failure aborts the whole transaction; a locally tampered package that bypasses validation is re-checked and sanitized as IMPORT_INVALID before writes.",
+    "retention": "RECOVERY_VALIDATION_TTL_MS is 15 minutes. validateRecoveryPackage sweeps the actor's expired rows before saving a new one; readRecoveryValidation and commitRecoveryImport delete an expired row and refuse it. The commit marker contains no decrypted payload and is retained for idempotent replay/refresh. The passphrase and derived key are never persisted.",
+    "notRestored": "Approvals, confirmations, authenticated identity, entitlements, payments, service orders/grants and shares are not restored. Facts carrying an old confirmedBy/confirmedAt lose that identity and are imported with null confirmation fields. Legacy local reviews are stored only as recovery.legacy_review rows with identity legacy_unverified; they cannot become approvals or authenticated reviews.",
+    "ui": "Recovery props: repository, actor, sourceMatterId?, initialPassphrase?, now?. States are data-state empty, loading, error, ready and stale. The page shows the non-restored scope, a passphrase-only field, a C10 access selector, the generated package SHA-256, a dry-run MigrationReport before commit, a required review checkbox and a disabled commit button until a valid report is reviewed. A committed validation shows the new matter id and remains non-committable after refresh. No success text is rendered before the persisted commit succeeds."
+  },
+  "acceptance": [
+    {
+      "id": "V6-26-A01",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-26",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-26/runner.tap; qa/v6/evidence/V6-26/04-recovery-committed.png",
+      "observed": "A synthetic matter with a real PNG drawing was encrypted with a non-empty passphrase; the envelope carried the frozen PBKDF2-SHA-256/AES-GCM parameters, random salt and IV, and no plaintext claim text, passphrase or source title. The correct passphrase restored the new matter, target, draft AST text '一种合成温控装置', and one drawing whose bytes were deep-equal to the source blob with the same SHA-256; restored matter/target/asset/activity rows parsed against the frozen contract schemas. The report positively listed the fixture's known byte-less source asset and no drawing bytes were missing. A second fixture appended a normal bindFigures revision with the same stable figureId; validation accepted both revisions, commit imported them, and mappingCounts.figures was pkg.figureRefs.length with identical counts before and after commit."
+    },
+    {
+      "id": "V6-26-A02",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-26",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-26/runner.tap; qa/v6/evidence/V6-26/browser-log.json",
+      "observed": "A wrong passphrase and a real ciphertext-byte tamper (ciphertext decoded, one byte flipped, re-encoded) returned RECOVERY_DECRYPT_FAILED with zero storage rows. Re-encrypted packages with a bad asset SHA-256, a traversal name '../../escape.png', an unknown recovery.v2 version, a schema-invalid sourceSnapshot, or a draft.v99 AST were refused as IMPORT_INVALID with report entries and zero rows; invalid snapshot/AST cases set canCommit=false. A locally tampered validation row with an invalid snapshot or unknown AST was rejected by commit with a sanitized IMPORT_INVALID message and no matter/event/blob writes. A missing-bytes package validated and committed with the asset state missing_bytes, no bytes and no approval/entitlement/payment/grant/share rows. An injected failure while writing a drawing or parse/source row aborted the transaction: listMatters was empty, no events existed and only the pre-existing validation row remained; retrying the same validationId then created exactly one matter and a second commit replayed it."
+    },
+    {
+      "id": "V6-26-A03",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-26",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-26/runner.tap; qa/v6/evidence/V6-26/browser-log.json",
+      "observed": "After the first commit, readRecoveryValidation returned status committed with the same matter id from the package-free commit marker; the decrypted validation row was deleted in the same transaction. A repeated commit with the same validationId returned the same matter with replayed=true; listMatters had one item and exactly one matter.created event. The browser flow performed an in-page refresh of the committed marker, kept one new matter and one matter.created event, kept identical mapping counts before and after commit, and left the commit control disabled. Partial-write failure followed by the same validationId also produced exactly one matter. Concurrent commits with the same validationId (Promise.all) produced one matter and one matter.created event, with at least one commit reporting replayed=true. A validation row past its 15-minute expiresAt was deleted and refused by both read and commit with zero matters."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S08-A01",
+      "status": "not_applicable",
+      "reason": "XML FORMAT_UNAVAILABLE is an export-format decision owned by V6-25. V6-26 reads existing patentpack bytes and never generates XML."
+    },
+    {
+      "id": "S08-A02",
+      "status": "not_applicable",
+      "reason": "Per-file export manifest hash verification is owned by V6-25. V6-26 uses the same SHA-256 primitive for recovery assets and figures, but does not create an export manifest."
+    },
+    {
+      "id": "S08-A03",
+      "status": "not_applicable",
+      "reason": "STALE_BINDING on old export downloads and approval invalidation are delivery behaviors owned by V6-25/V6-24. Recovery imports create a new matter and do not reuse approvals or SnapshotRefs."
+    },
+    {
+      "id": "S08-A04",
+      "status": "not_applicable",
+      "reason": "Risk acknowledgement gates preparation exports (V6-25). The recovery import deliberately does not restore approvals or confirmations and has no export gate to evaluate."
+    },
+    {
+      "id": "S08-A05",
+      "status": "not_applicable",
+      "reason": "Editor approval ACTION_FORBIDDEN is an ApprovalSession behavior covered by accepted V6-24. V6-26 never creates an approval."
+    },
+    {
+      "id": "S08-A06",
+      "status": "covered",
+      "reason": "A recovery package with a missing-byte asset validates with the asset listed under missingBytes and incomplete=true. Commit creates the new matter, stores the asset as missing_bytes with no blob, and creates no approval, confirmation, entitlement or usage-right rows. The browser report lists the missing item before the user can commit.",
+      "evidence": "qa/v6/evidence/V6-26/runner.tap; qa/v6/evidence/V6-26/03-recovery-stale-report.png"
+    },
+    {
+      "id": "S08-A07",
+      "status": "covered",
+      "reason": "The validationId is persisted with commit_once semantics. Two or concurrent commits with the same validationId return one matter id and one matter.created event; a successful commit deletes the decrypted validation row and leaves a package-free commit marker, and an in-page refresh reads committed status without appending a second case.",
+      "evidence": "qa/v6/evidence/V6-26/runner.tap; qa/v6/evidence/V6-26/browser-log.json"
+    },
+    {
+      "id": "S08-A08",
+      "status": "not_applicable",
+      "reason": "PCT completion-page copy is owned by V6-25. This ticket only generates/imports recovery packages and does not render a completion page."
+    },
+    {
+      "id": "S08-A09",
+      "status": "covered",
+      "reason": "With access=preview, the package keeps claims plus technical_field/background, removes summary/figures_description/embodiments/abstract generated and draft paragraphs, strips generated sourceRefs/generationJobId, omits revision history and extract candidates, lists each omitted item in migrationReport.omittedGeneratedContent, and keeps the user's original figure bytes complete.",
+      "evidence": "qa/v6/evidence/V6-26/runner.tap"
+    }
+  ],
+  "runs": [
+    {
+      "name": "V6-26 scenario",
+      "command": "npm --prefix /private/tmp/patent-v6-26-worktree run test:v6 -- V6-26",
+      "exitCode": 0,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-26/runner.tap"
+    },
+    {
+      "name": "workspace typecheck",
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-26/typecheck.txt"
+    },
+    {
+      "name": "direct web typecheck",
+      "command": "./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-26/typecheck.txt"
+    },
+    {
+      "name": "predecessor regressions",
+      "command": "npm run test:v6 -- <each of V6-25/24/23/20/19/18/17/16/15/14/12/10/08/07/05>",
+      "exitCode": 0,
+      "tests": 354,
+      "pass": 354,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-26/regression.txt and regression-V6-*.tap"
+    },
+    {
+      "name": "web production build",
+      "command": "npm --prefix /private/tmp/patent-v6-26-worktree run build --workspace @patent/web",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-26/build.txt"
+    },
+    {
+      "name": "standalone browser recovery flow",
+      "command": "node qa/v6/evidence/V6-26/browser-drive.mjs qa/v6/evidence/V6-26",
+      "exitCode": 0,
+      "steps": 6,
+      "screenshots": 5,
+      "externalRequests": 0,
+      "consoleErrors": 0,
+      "evidence": "qa/v6/evidence/V6-26/browser-log.json"
+    }
+  ],
+  "browserEvidence": {
+    "driver": "qa/v6/evidence/V6-26/browser-drive.mjs",
+    "mount": "qa/v6/evidence/V6-26/browser-mount.html",
+    "log": "qa/v6/evidence/V6-26/browser-log.json",
+    "runOutput": "qa/v6/evidence/V6-26/browser-run.txt",
+    "url": "http://127.0.0.1:4196/patent/qa/v6/evidence/V6-26/browser-mount.html",
+    "browser": "headless Google Chrome via CDP against the local Vite dev server",
+    "passphraseHandling": "The driver reads the synthetic passphrase from V6_26_BROWSER_PASSPHRASE at runtime. No passphrase literal or raw package bytes are stored in the harness, driver, log, run output or screenshots.",
+    "result": "6/6 steps passed; 0 console errors; 0 external requests",
+    "steps": [
+      "Empty state shows prerequisites, the non-restored records and no success claim",
+      "Generate creates an encrypted package and shows its real SHA-256 and download control",
+      "Validation shows mapping counts, missing bytes and legacy_unverified; commit is disabled until review",
+      "Commit creates exactly one new matter with target.created events, identical mapping counts, legacy_unverified rows, no approval/confirmation/payment/entitlement rows, and deletes the decrypted validation row",
+      "In-page refresh reads the package-free commit marker and creates no duplicate case or event",
+      "No external network requests or browser console errors"
+    ],
+    "screenshots": [
+      "qa/v6/evidence/V6-26/01-recovery-empty.png",
+      "qa/v6/evidence/V6-26/02-recovery-generated.png",
+      "qa/v6/evidence/V6-26/03-recovery-stale-report.png",
+      "qa/v6/evidence/V6-26/04-recovery-committed.png",
+      "qa/v6/evidence/V6-26/05-recovery-refreshed.png"
+    ]
+  },
+  "scope": {
+    "porcelainEntries": 37,
+    "excluded": [
+      "node_modules"
+    ],
+    "changedFilesCount": 37,
+    "scopeMatchesChangedFiles": true,
+    "includedFiles": 37
+  },
+  "mount": {
+    "mode": "standalone synthetic QA HTML; no app route mount",
+    "modifiedAppFiles": [],
+    "allSharedHashesMatchBase": true,
+    "evidence": "qa/v6/evidence/V6-26/mount-hashes.txt"
+  },
+  "decisions": [
+    {
+      "id": "RECOVERY-CRYPTO",
+      "decision": "Reuse packages/export/src/patentpack.ts unchanged: envelope v=1, PBKDF2-SHA-256 with a random 16-byte salt and 200,000 iterations deriving a 256-bit AES-GCM key, random 12-byte IV and authenticated ciphertext. The passphrase is never stored or logged. Wrong passphrase and ciphertext tampering are the same authenticated-decryption failure and are reported without exposing crypto details."
+    },
+    {
+      "id": "VALIDATION-IDEMPOTENCY",
+      "decision": "validationId is a UUID derived from tenant, actor and the encrypted package SHA-256. A valid dry-run stores a recovery.validation row keyed by tenant/actor with a 15-minute expiresAt. Commit writes the matter and deletes the decrypted validation row in the same transaction, replacing it with a package-free recovery.commit marker (validationId, matterId, report, committedAt). A repeated commit reads the marker and replays its matter id. The canonical payload hash in the validation row detects local tampering; commit re-checks it."
+    },
+    {
+      "id": "VALIDATION-TTL",
+      "decision": "RECOVERY_VALIDATION_TTL_MS is 15 minutes. validateRecoveryPackage sweeps expired rows for the actor before saving another; readRecoveryValidation and commitRecoveryImport delete an expired row and refuse it. A commit marker holds no decrypted data and is retained for idempotent replay/refresh. The passphrase and derived key are never persisted."
+    },
+    {
+      "id": "FIGURE-REVISION-SCOPE",
+      "decision": "A stable figureId may appear in multiple FigureSetRevisions. Validation enforces uniqueness only within one figureRevisionId, and import maps the stable logical figure once while preserving each revision's entries and parent chain. mappingCounts.figures counts figure entries across all figure-set revisions in both validation and commit reports."
+    },
+    {
+      "id": "SCHEMA-BLOCKING",
+      "decision": "A schema-invalid sourceSnapshot, invalid AST, unknown AST version or package-level unknown recovery version sets canCommit=false and writes no validation row. commit defensively re-parses snapshot and AST values and returns a sanitized IMPORT_INVALID without raw Zod text or partial writes."
+    },
+    {
+      "id": "ATOMIC-IMPORT",
+      "decision": "Matter, targets, assets, asset bytes, activity events, drawings, figure sets, draft revisions/state, target configs, parse rows, intake rows, legacy-review metadata, deletion of the decrypted validation row and creation of the package-free commit marker are all written through one LocalRepository backend transaction. A write failure leaves no matter, event or feature row for the new case and leaves the validation row available for retry."
+    },
+    {
+      "id": "C10-PREVIEW-TRIM",
+      "decision": "preview access keeps claims and technical_field/background paragraphs, removes every other draft section, strips sourceRefs and generationJobId from generated paragraphs, omits revision history and extract candidates, and lists every omission. User-uploaded asset bytes and parse text are not trimmed. local_unmetered and explicitly supplied full access keep the full generated AST."
+    },
+    {
+      "id": "MISSING-BYTES",
+      "decision": "A missing or digest-mismatched asset is listed as missing_bytes and the package remains committable so the user can recover everything else. Import stores the asset record as missing_bytes with no blob; it never invents placeholder bytes or a successful drawing."
+    },
+    {
+      "id": "LEGACY-UNVERIFIED",
+      "decision": "Old local confirmation/review records are carried as metadata-only legacyReviews and persisted as recovery.legacy_review rows with identity legacy_unverified. They are not restored as Confirmations, Reviews, CheckRuns or Approvals, and no old actor identity is retained."
+    },
+    {
+      "id": "ID-REMAP",
+      "decision": "Every imported id (matter, target, asset, drawing, figure, figure-set revision, draft revision, party, fact, conflict, source, chunk, legacy review) is derived from validationId plus its kind and old id. The imported matter, target config and revision reference only the new ids; the source matter is untouched."
+    },
+    {
+      "id": "TARGET-CONFIG-EVENTS",
+      "decision": "Imported targets receive target.created activity rows keyed by the same deterministic event id used for their target.config row, so a later targets view can resolve the imported config without restoring old approvals or share links."
+    }
+  ],
+  "limitations": [
+    "Node 25.8.1 / npm 11.11.0 were used. The architecture target Node 22 was unavailable and is unverified.",
+    "No real customer material, production provider, network service, payment, order or deployment was used; all fixtures and screenshots are synthetic.",
+    "The recovery crypto is the existing patentpack implementation: PBKDF2-SHA-256 200,000 iterations, 16-byte random salt, 256-bit AES-GCM key, 12-byte random IV, authenticated ciphertext. Crypto parameter choice and browser WebCrypto behavior were tested under the installed Chrome/Node; independent cryptographic review has not occurred.",
+    "Recovery is exported but not registered in V6App or navigation. The shared route files are orchestrator-owned and were not modified; browser evidence mounts the component directly in a standalone synthetic HTML harness. Complete app-route navigation and route registration are unverified.",
+    "The browser harness uses an in-memory repository. Native IndexedDB persistence and cross-tab behavior of the recovery flow were not exercised.",
+    "Validation rows persist the decrypted recovery payload locally only until RECOVERY_VALIDATION_TTL_MS (15 minutes) or a successful commit, whichever comes first. Commit deletes the row and keeps only a package-free recovery.commit marker. The encrypted package remains the transfer artifact; the passphrase and derived key are never persisted.",
+    "access=full is caller-supplied. This R1-local ticket does not itself verify an R2 content-use entitlement or integrate the C05/C10 runtime gate; preview trimming is implemented, full/local behavior is a documented caller contract.",
+    "Legacy reviews are metadata-only (kind, recordedAt, legacy_unverified identity). Historical review comments, attestations and actor identities are not restored.",
+    "Facts that carried confirmedBy/confirmedAt are imported with those fields cleared, because restoring the old local actor identity is forbidden. The user must re-confirm them in the new case; the report does not currently give a separate count for this clearing.",
+    "Imported parse source rows use synthetic job ids and do not restore old parse jobs/checkpoints. Chunk text and hashes are remapped and preserved; parser history beyond current chunk sets is not imported.",
+    "Missing bytes can be imported but cannot be repaired by this ticket; the new matter keeps missing_bytes until the user re-uploads or otherwise fixes the asset.",
+    "Unknown internal AST versions, invalid ASTs and invalid source snapshots block validation and commit (canCommit=false) rather than being skipped; the package-level unknown version also blocks. No raw Zod error or partial case is produced.",
+    "Extract candidates are imported for non-preview packages as remapped intake.candidates rows. Preview intentionally omits them and lists the omission.",
+    "The V6-07 old-store legacy plan is not consumed here: only repository-resident local confirmation/review rows are carried as legacy_unverified metadata. The V6-07 handoff for old-store reviews remains a separate orchestrator decision.",
+    "The web build emitted only pre-existing chunk-size warnings; no build failure occurred.",
+    "One parallel regression invocation of V6-25 produced a transient one-byte difference in its existing deterministic-DOCX assertion; the V6-25 suite passed 20/20 when rerun alone, and the final regression-V6-25.tap is that passing run. The recovery ticket does not import or modify the V6-25 export path.",
+    "Independent review 01 returned CHANGES_REQUIRED; B1-B4, validation-row TTL/cleanup, and ciphertext-tamper evidence were fixed. Status remains candidate pending re-review; the orchestrator decides accepted."
+  ],
+  "decisionsRequested": [],
+  "runtime": {
+    "node": "v25.8.1",
+    "npm": "11.11.0",
+    "architectureTarget": "Node 22",
+    "node22Verified": false,
+    "operatingSystem": "Darwin"
+  },
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-26/review-02.md",
+    "note": "Rounds 1-2 closed figure history, invalid snapshot/AST validation, report counts, plaintext TTL/cleanup and ciphertext tamper. Final: 14/14, 354/354 regressions, tsc/build 0, browser 6/6."
+  }
+}

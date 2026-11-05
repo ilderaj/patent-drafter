@@ -1,0 +1,74 @@
+V6-26 scope verification
+
+Base commit: beea688ee14ebf2dbcbb584c1d9baf9e66ce3641
+Branch: codex/v6-26-recovery
+Worktree: /private/tmp/patent-v6-26-worktree
+
+Allowed write set (ticket):
+- apps/web/src/v6/features/recovery/
+- qa/v6/scenarios/V6-26/
+- qa/v6/evidence/V6-26/
+
+git status --short --branch at evidence time:
+
+## codex/v6-26-recovery
+?? apps/web/src/v6/features/recovery/
+?? node_modules
+?? qa/v6/evidence/V6-26/
+?? qa/v6/scenarios/V6-26/
+
+With -uall this is 37 entries: the 36 candidate files below plus the excluded
+node_modules symlink. `git status --porcelain -uall | wc -l` = 37.
+
+The untracked node_modules symlink is the pre-existing local dependency mount and is excluded.
+No tracked file was modified. No shared barrel, route, navigation, stylesheet, package manifest,
+lockfile, schema, database migration or other feature directory changed.
+
+Changed files (36; this matches receipt.changedFiles and scope minus node_modules):
+
+apps/web/src/v6/features/recovery/Recovery.tsx
+apps/web/src/v6/features/recovery/index.ts
+apps/web/src/v6/features/recovery/recovery.ts
+qa/v6/scenarios/V6-26/recovery.test.mjs
+qa/v6/evidence/V6-26/01-recovery-empty.png
+qa/v6/evidence/V6-26/02-recovery-generated.png
+qa/v6/evidence/V6-26/03-recovery-stale-report.png
+qa/v6/evidence/V6-26/04-recovery-committed.png
+qa/v6/evidence/V6-26/05-recovery-refreshed.png
+qa/v6/evidence/V6-26/browser-drive.mjs
+qa/v6/evidence/V6-26/browser-log.json
+qa/v6/evidence/V6-26/browser-mount.html
+qa/v6/evidence/V6-26/browser-run.txt
+qa/v6/evidence/V6-26/build.txt
+qa/v6/evidence/V6-26/mount-hashes.txt
+qa/v6/evidence/V6-26/receipt.json
+qa/v6/evidence/V6-26/regression.txt
+qa/v6/evidence/V6-26/regression-V6-05.tap
+qa/v6/evidence/V6-26/regression-V6-07.tap
+qa/v6/evidence/V6-26/regression-V6-08.tap
+qa/v6/evidence/V6-26/regression-V6-10.tap
+qa/v6/evidence/V6-26/regression-V6-12.tap
+qa/v6/evidence/V6-26/regression-V6-14.tap
+qa/v6/evidence/V6-26/regression-V6-15.tap
+qa/v6/evidence/V6-26/regression-V6-16.tap
+qa/v6/evidence/V6-26/regression-V6-17.tap
+qa/v6/evidence/V6-26/regression-V6-18.tap
+qa/v6/evidence/V6-26/regression-V6-19.tap
+qa/v6/evidence/V6-26/regression-V6-20.tap
+qa/v6/evidence/V6-26/regression-V6-23.tap
+qa/v6/evidence/V6-26/regression-V6-24.tap
+qa/v6/evidence/V6-26/regression-V6-25.tap
+qa/v6/evidence/V6-26/review-01.md
+qa/v6/evidence/V6-26/runner.tap
+qa/v6/evidence/V6-26/scope.txt
+qa/v6/evidence/V6-26/typecheck.txt
+
+Shared-file hash comparison (base vs current; all true):
+apps/web/src/v6/routes/V6App.tsx a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37 true
+apps/web/src/v6/routes/navigation.ts aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951 true
+apps/web/src/v6/routes/v6.css 90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7 true
+apps/web/src/App.tsx 1c10d318d49ef8474bae061eddfa5f0d27e711c5cfd3576750b58da93057ce4c true
+package.json 47d0aa2682d34ac96599a1a95658a22faa9fcca4099faf09ae453d4a4d33af80 true
+package-lock.json 1b8b67cd1c1751a1bac09bdc49acf988c8014638393e4b1aa4bb26551f77fa8b true
+
+Scope result: 36/36 changed files inside the allowed directories; 0 outside.
