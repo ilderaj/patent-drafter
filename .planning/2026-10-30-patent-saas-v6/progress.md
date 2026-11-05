@@ -45,6 +45,8 @@
 - V6-22 已合入更新依赖，V6-19/20/23 回归分别 16/16、9/9、12/12；V6-22 13/13。V6-24 已由编排者合入 de8247c，V6-19 16/16、V6-24 6/6、tsc 0。两票仍在生成回执与浏览器证据。
 - V6-22/24 代码、测试与浏览器证据完成后执行者仍未产出回执，已停止两个执行者并由编排者补写 candidate 回执：V6-22 38 项 changedFiles、V6-24 28 项，均与各自 scope 一致；已派首轮独立复核。V6-25/26 简报已备好，待 V6-24/25 接受后派发。
 - V6-24 首轮复核：实现与探针全部通过，阻断仅是 V6-19 回归证据过期（tap 15/16、regression.txt exit=1）。已重跑 V6-19 16/16、更新 regression.txt 与回执 runs（V6-24 6/6、依赖 0、tsc/build 0），请复核者做最终确认。V6-22 首轮复核仍在进行。
+- V6-24 第二轮复核 ACCEPT（review-02）：证据刷新后 28→29 项 scope 一致，6/6、依赖 200/200、tsc/build 0。回执 accepted，提交 `52b732b` 并合并入集成分支（`83c0485`）。
+- V6-25 真实导出已从集成 tip 建独立工作树并启动执行者（DOCX/PDF/patentpack/manifest、门禁、XML unavailable、完成页），写集仅 export-adapter.ts/Done.tsx 与本票场景/证据。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
