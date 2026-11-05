@@ -1,0 +1,170 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-05
+
+TAP version 13
+# Subtest: V6-05-A01: a current check with every AI paragraph confirmed allows a preparation export
+ok 1 - V6-05-A01: a current check with every AI paragraph confirmed allows a preparation export
+  ---
+  duration_ms: 5.420584
+  type: 'test'
+  ...
+# Subtest: V6-05-A01: the self-service mode is satisfied by a current full read
+ok 2 - V6-05-A01: the self-service mode is satisfied by a current full read
+  ---
+  duration_ms: 0.2635
+  type: 'test'
+  ...
+# Subtest: V6-05-A01: an internal release requires an approval whose confirmations are still current
+ok 3 - V6-05-A01: an internal release requires an approval whose confirmations are still current
+  ---
+  duration_ms: 0.694292
+  type: 'test'
+  ...
+# Subtest: V6-05-A01: every produced record and decision is contract-shaped
+ok 4 - V6-05-A01: every produced record and decision is contract-shaped
+  ---
+  duration_ms: 1.422709
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: revoking one AI paragraph confirmation closes the gate
+ok 5 - V6-05-A02: revoking one AI paragraph confirmation closes the gate
+  ---
+  duration_ms: 0.518
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a new draft revision invalidates every confirmation and the check
+ok 6 - V6-05-A02: a new draft revision invalidates every confirmation and the check
+  ---
+  duration_ms: 0.243584
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: rebinding a figure expires the check, so export is refused with CHECK_REQUIRED
+ok 7 - V6-05-A02: rebinding a figure expires the check, so export is refused with CHECK_REQUIRED
+  ---
+  duration_ms: 0.155916
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a check that was never run is refused with CHECK_REQUIRED
+ok 8 - V6-05-A02: a check that was never run is refused with CHECK_REQUIRED
+  ---
+  duration_ms: 0.106583
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a failed check is never read as "no risk"
+ok 9 - V6-05-A02: a failed check is never read as "no risk"
+  ---
+  duration_ms: 0.126709
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a rule pack upgrade expires the existing check
+ok 10 - V6-05-A02: a rule pack upgrade expires the existing check
+  ---
+  duration_ms: 0.294208
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a duplicate figure number blocks export with its own reason code
+ok 11 - V6-05-A02: a duplicate figure number blocks export with its own reason code
+  ---
+  duration_ms: 0.379584
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: an unverified legal finding never blocks
+ok 12 - V6-05-A02: an unverified legal finding never blocks
+  ---
+  duration_ms: 0.1675
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: acknowledging a blocker does not resolve it
+ok 13 - V6-05-A02: acknowledging a blocker does not resolve it
+  ---
+  duration_ms: 0.171834
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a blocker still blocks when its finding claims to be resolved
+ok 14 - V6-05-A02: a blocker still blocks when its finding claims to be resolved
+  ---
+  duration_ms: 0.128292
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a policy finding blocks only the action its rule declares
+ok 15 - V6-05-A02: a policy finding blocks only the action its rule declares
+  ---
+  duration_ms: 0.129375
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a risk that needs acknowledgement is not cleared by a resolved status
+ok 16 - V6-05-A02: a risk that needs acknowledgement is not cleared by a resolved status
+  ---
+  duration_ms: 0.117084
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a risk the context carries but the check does not repeat still applies
+ok 17 - V6-05-A02: a risk the context carries but the check does not repeat still applies
+  ---
+  duration_ms: 0.093292
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a risk needs a current acknowledgement and an older check run does not count
+ok 18 - V6-05-A02: a risk needs a current acknowledgement and an older check run does not count
+  ---
+  duration_ms: 0.237833
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: an approval stops authorising export once a confirmation it cites is revoked
+ok 19 - V6-05-A02: an approval stops authorising export once a confirmation it cites is revoked
+  ---
+  duration_ms: 0.214375
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: input staleness and a missing approval both close the gate with their own codes
+ok 20 - V6-05-A02: input staleness and a missing approval both close the gate with their own codes
+  ---
+  duration_ms: 0.110625
+  type: 'test'
+  ...
+# Subtest: V6-05-A02: a confirmation that does not describe a real claim is refused
+ok 21 - V6-05-A02: a confirmation that does not describe a real claim is refused
+  ---
+  duration_ms: 0.125875
+  type: 'test'
+  ...
+# Subtest: V6-05-A03: the same inputs produce the same decision and mutate nothing
+ok 22 - V6-05-A03: the same inputs produce the same decision and mutate nothing
+  ---
+  duration_ms: 0.155583
+  type: 'test'
+  ...
+# Subtest: V6-05-A03: revoking is append-only and a repeat revocation is a refused transition
+ok 23 - V6-05-A03: revoking is append-only and a repeat revocation is a refused transition
+  ---
+  duration_ms: 0.079333
+  type: 'test'
+  ...
+# Subtest: V6-05-A03: only prepare, approve and export consult the rule pack
+ok 24 - V6-05-A03: only prepare, approve and export consult the rule pack
+  ---
+  duration_ms: 0.09675
+  type: 'test'
+  ...
+# Subtest: V6-05-A03: every code the gate can emit is a contract error code
+ok 25 - V6-05-A03: every code the gate can emit is a contract error code
+  ---
+  duration_ms: 0.244208
+  type: 'test'
+  ...
+# Subtest: V6-05-A03: both snapshot-equality copies agree with revision.isCurrent on every field
+ok 26 - V6-05-A03: both snapshot-equality copies agree with revision.isCurrent on every field
+  ---
+  duration_ms: 0.27725
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 270.832708

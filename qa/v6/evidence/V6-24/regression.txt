@@ -1,0 +1,12 @@
+V6-23 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-23.tap
+V6-20 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-20.tap
+V6-19 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-19.tap
+V6-18 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-18.tap
+V6-17 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-17.tap
+V6-16 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-16.tap
+V6-15 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-15.tap
+V6-14 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-14.tap
+V6-12 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-12.tap
+V6-10 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-10.tap
+V6-08 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-08.tap
+V6-05 exit=0 evidence=/private/tmp/patent-v6-24-worktree/qa/v6/evidence/V6-24/regression-V6-05.tap

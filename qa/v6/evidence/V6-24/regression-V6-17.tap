@@ -1,0 +1,236 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-17
+
+TAP version 13
+# Subtest: V6-17 B1: support derives traceable facts and the AST carries factIds/sourceRefs
+ok 1 - V6-17 B1: support derives traceable facts and the AST carries factIds/sourceRefs
+  ---
+  duration_ms: 130.186917
+  type: 'test'
+  ...
+# Subtest: V6-17 B1: changing persisted facts changes the support output and job input hash
+ok 2 - V6-17 B1: changing persisted facts changes the support output and job input hash
+  ---
+  duration_ms: 133.58675
+  type: 'test'
+  ...
+# Subtest: V6-17 B2: maxCostMinor is enforced and the next provider call fails with JOB_LIMIT_EXCEEDED
+ok 3 - V6-17 B2: maxCostMinor is enforced and the next provider call fails with JOB_LIMIT_EXCEEDED
+  ---
+  duration_ms: 12.685125
+  type: 'test'
+  ...
+# Subtest: V6-17 B2: an unknown-cost call consumes the remaining budget
+ok 4 - V6-17 B2: an unknown-cost call consumes the remaining budget
+  ---
+  duration_ms: 6.914583
+  type: 'test'
+  ...
+# Subtest: V6-17 B2: maxDurationSeconds is enforced across the whole job
+ok 5 - V6-17 B2: maxDurationSeconds is enforced across the whole job
+  ---
+  duration_ms: 13.113
+  type: 'test'
+  ...
+# Subtest: V6-17 B3: generated DraftRevision.astHash is the canonical AST digest
+ok 6 - V6-17 B3: generated DraftRevision.astHash is the canonical AST digest
+  ---
+  duration_ms: 45.571834
+  type: 'test'
+  ...
+# Subtest: V6-17 B4: a failed final revision-state write is recoverable and the next save succeeds
+ok 7 - V6-17 B4: a failed final revision-state write is recoverable and the next save succeeds
+  ---
+  duration_ms: 46.150667
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: a short fact with substring overlap does not map a multi-component provider fact
+ok 8 - V6-17 B1 probe: a short fact with substring overlap does not map a multi-component provider fact
+  ---
+  duration_ms: 55.303083
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: an absent chunk UUID makes the fact unresolved and never links it
+ok 9 - V6-17 B1 probe: an absent chunk UUID makes the fact unresolved and never links it
+  ---
+  duration_ms: 55.195792
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: a persisted unsupported fact is never linked or marked supported
+ok 10 - V6-17 B1 probe: a persisted unsupported fact is never linked or marked supported
+  ---
+  duration_ms: 54.488666
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: a provider source_backed feature with no factId is partial, not supported
+ok 11 - V6-17 B1 probe: a provider source_backed feature with no factId is partial, not supported
+  ---
+  duration_ms: 55.7235
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: altered sourceId/hash/quote/offsets invalidate the ref
+ok 12 - V6-17 B1 probe: altered sourceId/hash/quote/offsets invalidate the ref
+  ---
+  duration_ms: 206.569875
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: numeric punctuation distinguishes 1.5mm from 15mm while NFKC/whitespace variants match
+ok 13 - V6-17 B1 probe: numeric punctuation distinguishes 1.5mm from 15mm while NFKC/whitespace variants match
+  ---
+  duration_ms: 127.534458
+  type: 'test'
+  ...
+# Subtest: V6-17 B2 probe: a cap of 2 stops after the second call inside one multi-call stage
+ok 14 - V6-17 B2 probe: a cap of 2 stops after the second call inside one multi-call stage
+  ---
+  duration_ms: 12.108792
+  type: 'test'
+  ...
+# Subtest: V6-17 B3 probe: a 2 s overrun during the final provider response fails before success
+ok 15 - V6-17 B3 probe: a 2 s overrun during the final provider response fails before success
+  ---
+  duration_ms: 37.573959
+  type: 'test'
+  ...
+# Subtest: V6-17 B3 probe: resume reuses the original deadline and 0.7 s + 0.7 s fails a 1 s cap
+ok 16 - V6-17 B3 probe: resume reuses the original deadline and 0.7 s + 0.7 s fails a 1 s cap
+  ---
+  duration_ms: 29.827208
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A06: a fact/input change during generation marks the result obsolete
+ok 17 - V6-17 S04-A06: a fact/input change during generation marks the result obsolete
+  ---
+  duration_ms: 142.19675
+  type: 'test'
+  ...
+# Subtest: V6-17 A03: repeated adoption has one side effect and replays the same revision
+ok 18 - V6-17 A03: repeated adoption has one side effect and replays the same revision
+  ---
+  duration_ms: 59.336916
+  type: 'test'
+  ...
+# Subtest: V6-17 A02: a queued job can be cancelled before any provider call
+ok 19 - V6-17 A02: a queued job can be cancelled before any provider call
+  ---
+  duration_ms: 2.747833
+  type: 'test'
+  ...
+# Subtest: V6-17 A02: cancelling a completed job is refused and cannot remove its result
+ok 20 - V6-17 A02: cancelling a completed job is refused and cannot remove its result
+  ---
+  duration_ms: 55.402084
+  type: 'test'
+  ...
+# Subtest: V6-17 A03: retry with a different consent/provider configuration is refused, not silently switched
+ok 21 - V6-17 A03: retry with a different consent/provider configuration is refused, not silently switched
+  ---
+  duration_ms: 18.134542
+  type: 'test'
+  ...
+# Subtest: empty, loading and error states are distinct
+ok 22 - empty, loading and error states are distinct
+  ---
+  duration_ms: 168.781708
+  type: 'test'
+  ...
+# Subtest: all five real states and completed/total progress render
+ok 23 - all five real states and completed/total progress render
+  ---
+  duration_ms: 1.226958
+  type: 'test'
+  ...
+# Subtest: a failed stage shows its code, recovery action and retry control
+ok 24 - a failed stage shows its code, recovery action and retry control
+  ---
+  duration_ms: 0.487791
+  type: 'test'
+  ...
+# Subtest: interrupted offers resume and discard; stale offers a compare entry
+ok 25 - interrupted offers resume and discard; stale offers a compare entry
+  ---
+  duration_ms: 0.756958
+  type: 'test'
+  ...
+# Subtest: a ready candidate has an explicit adopt action; stub output is labelled and not adoptable
+ok 26 - a ready candidate has an explicit adopt action; stub output is labelled and not adoptable
+  ---
+  duration_ms: 0.714542
+  type: 'test'
+  ...
+# Subtest: V6-17 A01: completed output is a candidate until explicit adoption creates a viewable revision
+ok 27 - V6-17 A01: completed output is a candidate until explicit adoption creates a viewable revision
+  ---
+  duration_ms: 129.989
+  type: 'test'
+  ...
+# Subtest: V6-17 A02: cancellation fences a late response and leaves the draft pointer unchanged
+ok 28 - V6-17 A02: cancellation fences a late response and leaves the draft pointer unchanged
+  ---
+  duration_ms: 36.820125
+  type: 'test'
+  ...
+# Subtest: V6-17 A02: stale candidate returns obsolete_result and is never adopted over the current draft
+ok 29 - V6-17 A02: stale candidate returns obsolete_result and is never adopted over the current draft
+  ---
+  duration_ms: 55.992042
+  type: 'test'
+  ...
+# Subtest: V6-17 A03: failed retry creates a new job and retains successful stage checkpoints
+ok 30 - V6-17 A03: failed retry creates a new job and retains successful stage checkpoints
+  ---
+  duration_ms: 59.131625
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A07: schema-invalid output makes one provider call and preserves earlier results
+ok 31 - V6-17 S04-A07: schema-invalid output makes one provider call and preserves earlier results
+  ---
+  duration_ms: 18.087209
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A08: revoked consent blocks the next provider call
+ok 32 - V6-17 S04-A08: revoked consent blocks the next provider call
+  ---
+  duration_ms: 33.147417
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A09: refresh recovery resumes from saved stages after consent validation
+ok 33 - V6-17 S04-A09: refresh recovery resumes from saved stages after consent validation
+  ---
+  duration_ms: 127.931625
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A09: interrupted work refuses resume if consent is revoked
+ok 34 - V6-17 S04-A09: interrupted work refuses resume if consent is revoked
+  ---
+  duration_ms: 6.636125
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A10: invocation rows contain metadata only, never prompts, body or keys
+ok 35 - V6-17 S04-A10: invocation rows contain metadata only, never prompts, body or keys
+  ---
+  duration_ms: 43.166875
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A10: stub execution records local location without consent or injected provider calls
+ok 36 - V6-17 S04-A10: stub execution records local location without consent or injected provider calls
+  ---
+  duration_ms: 34.309917
+  type: 'test'
+  ...
+# Subtest: V6-17 A03: exported revision seam loads head and CAS-saves an edited DraftRevision
+ok 37 - V6-17 A03: exported revision seam loads head and CAS-saves an edited DraftRevision
+  ---
+  duration_ms: 46.626375
+  type: 'test'
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 37
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1281.00925

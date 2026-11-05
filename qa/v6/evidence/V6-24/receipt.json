@@ -1,0 +1,185 @@
+{
+  "ticket": "V6-24",
+  "status": "accepted",
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-24/review-02.md",
+    "note": "Approval behavior passed independent probes; stale V6-19 regression evidence was regenerated and re-verified. Final: 6/6, deps 200/200, tsc/build 0."
+  },
+  "baseCommit": "5b02ebf",
+  "dependencyStatus": "V6-19 accepted (review-05) and V6-23 accepted (review-06); integration de8247c merged into this branch.",
+  "contractVersion": "v6.1",
+  "changedFiles": [
+    "apps/web/src/v6/features/delivery/Approval.tsx",
+    "qa/v6/evidence/V6-24/01-approval-ready.png",
+    "qa/v6/evidence/V6-24/02-approval-created.png",
+    "qa/v6/evidence/V6-24/03-approval-stale-figure-set.png",
+    "qa/v6/evidence/V6-24/04-approval-revoked.png",
+    "qa/v6/evidence/V6-24/browser-drive.mjs",
+    "qa/v6/evidence/V6-24/browser-log.json",
+    "qa/v6/evidence/V6-24/browser-mount.html",
+    "qa/v6/evidence/V6-24/browser-run.txt",
+    "qa/v6/evidence/V6-24/build.txt",
+    "qa/v6/evidence/V6-24/regression-V6-05.tap",
+    "qa/v6/evidence/V6-24/regression-V6-08.tap",
+    "qa/v6/evidence/V6-24/regression-V6-10.tap",
+    "qa/v6/evidence/V6-24/regression-V6-12.tap",
+    "qa/v6/evidence/V6-24/regression-V6-14.tap",
+    "qa/v6/evidence/V6-24/regression-V6-15.tap",
+    "qa/v6/evidence/V6-24/regression-V6-16.tap",
+    "qa/v6/evidence/V6-24/regression-V6-17.tap",
+    "qa/v6/evidence/V6-24/regression-V6-18.tap",
+    "qa/v6/evidence/V6-24/regression-V6-19.tap",
+    "qa/v6/evidence/V6-24/regression-V6-20.tap",
+    "qa/v6/evidence/V6-24/regression-V6-23.tap",
+    "qa/v6/evidence/V6-24/regression-workspace.txt",
+    "qa/v6/evidence/V6-24/regression.txt",
+    "qa/v6/evidence/V6-24/review-02.md",
+    "qa/v6/evidence/V6-24/runner.tap",
+    "qa/v6/evidence/V6-24/typecheck.txt",
+    "qa/v6/scenarios/V6-24/approval.test.mjs",
+    "qa/v6/scenarios/V6-24/harness.mjs"
+  ],
+  "acceptance": [
+    {
+      "id": "V6-24-A01",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-24",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-24/runner.tap",
+      "observed": "A valid professional snapshot with a current check, current confirmations and acknowledged risks creates a contract Approval; revocation is append-only and visible. Browser steps confirm the approval record and one event."
+    },
+    {
+      "id": "V6-24-A02",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-24",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-24/runner.tap",
+      "observed": "The panel never claims legal signature or submission and labels output as preparation material. Rebinding a figure makes the old approval stale with STALE_BINDING; check replacement and cited-confirmation revocation invalidate with APPROVAL_REQUIRED."
+    },
+    {
+      "id": "V6-24-A03",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-24",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-24/runner.tap",
+      "observed": "Refresh/retry reuses the same approval and one approval.created event; rule-pack and input changes are recomputed live without duplicate side effects."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S08-A01",
+      "status": "not_applicable",
+      "reason": "XML export format selection belongs to V6-25; this ticket creates the internal approval only."
+    },
+    {
+      "id": "S08-A02",
+      "status": "not_applicable",
+      "reason": "Export manifest hashing belongs to V6-25."
+    },
+    {
+      "id": "S08-A03",
+      "status": "covered",
+      "reason": "Figure rebinding makes the approval stale and reports STALE_BINDING (test + browser).",
+      "evidence": "qa/v6/evidence/V6-24/runner.tap"
+    },
+    {
+      "id": "S08-A04",
+      "status": "covered",
+      "reason": "An unacknowledged risk blocks; risk_ack clears only its current check run (test).",
+      "evidence": "qa/v6/evidence/V6-24/runner.tap"
+    },
+    {
+      "id": "S08-A05",
+      "status": "covered",
+      "reason": "An editor approval attempt returns ACTION_FORBIDDEN with no stored record or event (test).",
+      "evidence": "qa/v6/evidence/V6-24/runner.tap"
+    },
+    {
+      "id": "S08-A06",
+      "status": "not_applicable",
+      "reason": "Recovery import belongs to V6-26."
+    },
+    {
+      "id": "S08-A07",
+      "status": "not_applicable",
+      "reason": "Recovery import idempotency belongs to V6-26."
+    },
+    {
+      "id": "S08-A08",
+      "status": "not_applicable",
+      "reason": "The completion page belongs to V6-25."
+    },
+    {
+      "id": "S08-A09",
+      "status": "not_applicable",
+      "reason": "Recovery package generation belongs to V6-26."
+    }
+  ],
+  "limitations": [
+    "Approval is an internal team record, not a legal signature or a filing; the UI never displays 法定签署/已递交.",
+    "The panel is exported but not registered in V6App/navigation; shared registration is orchestrator-owned.",
+    "Browser evidence uses a direct synthetic mount with an in-memory LocalRepository; native IndexedDB and app routing are unverified.",
+    "Legal rules are unverified under G-RULES closed; no legal blocker is claimed.",
+    "No real provider, network call or customer material was used.",
+    "Node 25.8.1 was used; the architecture target Node 22 remains unverified."
+  ],
+  "decisionsRequested": [],
+  "interface": {
+    "components": [
+      "ApprovalPanel / ApprovalPanelView"
+    ],
+    "session": "ApprovalSession owns load, live gate evaluation, create and revoke; it uses V6-05 gate/confirmation APIs and the repository confirmation ledger.",
+    "props": "ApprovalPanel: repository, actor, matterId, targetId, role, confirmationMode, optional onSettled/onOpenCheck/onOpenReview."
+  },
+  "runs": [
+    {
+      "name": "V6-24 suite",
+      "command": "npm run test:v6 -- V6-24",
+      "exitCode": 0,
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-24/runner.tap"
+    },
+    {
+      "name": "V6-19 regression",
+      "command": "npm run test:v6 -- V6-19",
+      "exitCode": 0,
+      "tests": 16,
+      "pass": 16,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-24/regression-V6-19.tap"
+    },
+    {
+      "name": "dependency regressions",
+      "command": "V6-05/08/10/12/16/17/18/20/23",
+      "exitCode": 0,
+      "observed": "All exit 0; see regression.txt and regression-*.tap",
+      "evidence": "qa/v6/evidence/V6-24/regression.txt"
+    },
+    {
+      "name": "web typecheck",
+      "command": "./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-24/typecheck.txt"
+    },
+    {
+      "name": "web build",
+      "command": "npm run build --workspace @patent/web",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-24/build.txt"
+    }
+  ],
+  "scope": {
+    "porcelainEntries": 29,
+    "excluded": [
+      "node_modules"
+    ],
+    "changedFilesCount": 29,
+    "scopeMatchesChangedFiles": true,
+    "includedFiles": 29
+  }
+}
