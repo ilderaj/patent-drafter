@@ -41,6 +41,7 @@
 - V6-22 当前 13/13、V6-24 当前 5/5（证据仍在生成），两个执行者继续。
 - V6-22/V6-24 执行者遭遇临时 502 网关错误并中断，已从当前工作树恢复。V6-22 的两个非零回归定位为分支缺少 V6-20/23（基线早于其合并），已要求合入集成分支后重跑；V6-24 在补强确认集合变化失效（APPROVAL_REQUIRED），继续生成证据。
 - 复核发现 V6-24 分支仍基于 V6-19 候选，`V6-19` 回归 exit 1；已要求其合入含 accepted V6-19/20/23 的集成分支后重跑。V6-22 也尚未合入 integration，两个执行者继续补齐依赖与证据。
+- 发现跨票语义冲突：V6-20 协调修改 V6-05 后，撤销后的重试会创建新 live 确认，而 V6-19 的 C03 测试仍断言 created:false。已在集成分支把该场景改为「撤销后重试 created:true 且版本 +1，live 重复仍幂等」，V6-19 重跑 16/16；回执记录 amendment，runner.tap 重采；提交 `de8247c` 并通知 V6-22/24 再次合入。
 
 - 原集成工作树 `/private/tmp/patent-v6-worktree` 被外部清理逐步删除（未提交的 planning 文字丢失，已提交的 `ea3e70b` 与分支完好）。已从 `ea3e70b` 新建集成分支 `codex/v6-integration` 与工作树 `/private/tmp/patent-v6-integration`；执行者工作树 16/21 未受影响。当前 PR 分支仍为 `codex/patent-saas-v6-foundation-origin`，合并后再推送。
 - 按依赖图并行启动 V6-16（`/private/tmp/patent-v6-16-worktree`，分支 `codex/v6-16-pipeline`）与 V6-21（`/private/tmp/patent-v6-21-worktree`，分支 `codex/v6-21-matters`）。V6-16 首版把 S04-A07 的「schema 错误不重试」标为 not_applicable；已要求执行者在 provider 包装层拦截 runner 的 `#1` 修复请求，做到恰好一次 provider 调用并以 `PROVIDER_SCHEMA_INVALID` 失败，随后重跑证据。12/12 通过，已派第一轮独立复核。
