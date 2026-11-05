@@ -53,6 +53,7 @@
 - V6-25 第二轮复核 CHANGES_REQUIRED（review-02.md），唯一阻断：TTL 只对 generation 0 生效；gen0 过期后重生成 gen1，到第 16 天 refresh 仍把 gen1 标 ready（下载却 CACHE_EXPIRED）。已派修复：每次 refresh 按所选行自身的 manifest.createdAt 应用 7 天 TTL，过期删除该代缓存字节并允许再次重生成；补 gen0→gen1→第 16 天测试。
 - V6-25 逐代 TTL 修复完成：refresh 对每个 generation 独立判定，过期标记并删除该代缓存字节（保留元数据），currentFiles 排除过期代，gen2 可继续重生成；新测试覆盖 gen0→gen1→T+16d→gen2。19/19、302/302、tsc/build/browser 5/5 通过，回执 33 项一致；已派第三轮复核。
 - V6-25 第三轮复核 CHANGES_REQUIRED（review-03.md），唯一阻断：快照变化后的 stale 导出未经过期清理，第 8 天仍保留 112,630 缓存字节。已派修复：对所有已存导出行（含 stale）应用 7 天 TTL，过期删除字节并标 expired/CACHE_EXPIRED；补 stale + 8 天测试。
+- V6-25 stale TTL 修复完成：refresh 先对全部导出行做 7 天 TTL 清扫，stale 行同样过期并清除文件/manifest 字节，页面同时显示 CACHE_EXPIRED 与 STALE_BINDING，下载拒绝；新测试通过。20/20、302/302、tsc/build/browser 5/5，回执 34 项一致；已派第四轮复核。
 - V6-22 首轮复核 CHANGES_REQUIRED（review-01.md）：(1) 概览缺少目标 language；(2) A02 的失败测试只证明陈旧版本写入被拒，当前版本的同 job 成功事件仍可写入；(3) 浏览器 run 因 createRoot 重复调用产生 1 个控制台错误。另有 V6-19 回归证据过期、S06-A07 理由、回执缺 mount/baseline 哈希。已派修复：语言投影与列、收窄/实现失败终态主张、复用 root、刷新证据。
 - V6-22 修复完成：目标 language 投影并渲染（zh-CN/en-US 测试）；A02 收窄到真实公开边界（失败 job 保持失败、重试为不同 job id，不声称同 job 终态守卫）；浏览器 9/9、0 控制台错误；V6-19 16/16、baseline/mount 哈希与 S06-A07 理由补齐。15/15、38 项 scope 一致，已派第二轮复核。
 - V6-22 第二轮复核 ACCEPT（review-02）：语言列、收窄的失败/重试主张、9/9 零错误浏览器证据均确认；同 job 终态守卫缺口记录为 decisionsRequested。回执 accepted（39 项），提交 `97eb133` 并合并入集成分支（`c2b4c86`）。
