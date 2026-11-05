@@ -753,12 +753,43 @@ export class LocalRepository {
           throw new Refusal("RESOURCE_NOT_FOUND", `target ${event.targetId} not found`);
         }
         const eventSnapshot = event.snapshot;
-        if (eventSnapshot === null
-          || eventSnapshot.sourceVersion !== aggregate.matter.sourceVersion
-          || eventSnapshot.targetConfigVersion !== target.configVersion
-          || eventSnapshot.draftRevisionId !== target.draftRevisionId
-          || eventSnapshot.figureRevisionId !== target.figureRevisionId) {
-          throw new Refusal("INVALID_TRANSITION", `confirmation event snapshot is not current for matter ${matterId}`);
+        if (eventSnapshot === null) {
+          throw new Refusal("INVALID_INPUT", `event ${event.id} must carry a snapshot`);
+        }
+        if (event.action === "confirmation.created") {
+          if (eventSnapshot.sourceVersion !== aggregate.matter.sourceVersion
+            || eventSnapshot.targetConfigVersion !== target.configVersion
+            || eventSnapshot.draftRevisionId !== target.draftRevisionId
+            || eventSnapshot.figureRevisionId !== target.figureRevisionId) {
+            throw new Refusal("INVALID_TRANSITION", `confirmation event snapshot is not current for matter ${matterId}`);
+          }
+        } else {
+          // §4: revocation appends a record and is not restricted to a current
+          // snapshot. It must still name the confirmation row being revoked and
+          // that row's exact SnapshotRef, so a stale or forged id cannot retire
+          // a different confirmation.
+          const confirmation = ledger.confirmations.find(
+            (item) => isRecord(item) && item.id === event.resourceId,
+          );
+          if (!isRecord(confirmation) || typeof confirmation.id !== "string") {
+            throw new Refusal("RESOURCE_NOT_FOUND", `confirmation ${event.resourceId} is not in this ledger`);
+          }
+          if (confirmation.actorId !== actor.userId) {
+            throw new Refusal("INVALID_INPUT", `confirmation ${confirmation.id} belongs to another actor`);
+          }
+          if (!isRecord(confirmation.snapshot) || !sameSnapshotRecord(confirmation.snapshot, eventSnapshot)
+            || confirmation.snapshot.matterId !== matterId || confirmation.snapshot.targetId !== target.id) {
+            throw new Refusal("INVALID_INPUT", `confirmation ${confirmation.id} snapshot does not match the event`);
+          }
+          const revocation = ledger.revocations.find(
+            (item) => isRecord(item) && item.objectType === "confirmation" && item.objectId === confirmation.id,
+          );
+          if (!isRecord(revocation)) {
+            throw new Refusal("INVALID_INPUT", `confirmation ${confirmation.id} has no appended revocation`);
+          }
+          if (revocation.actorId !== actor.userId) {
+            throw new Refusal("INVALID_INPUT", `revocation ${String(revocation.id)} belongs to another actor`);
+          }
         }
         if ((await tx.get(STORES.events, event.id)) !== undefined) {
           throw new Refusal("INVALID_INPUT", `event ${event.id} is already recorded`);
@@ -1055,6 +1086,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function confirmationLedgerKey(actor: Actor, matterId: string): string {
   return `draft-review/confirmations/${encodeURIComponent(actor.tenantId)}/${encodeURIComponent(actor.userId)}/${encodeURIComponent(matterId)}`;
+}
+
+function sameSnapshotRecord(a: Record<string, unknown>, b: SnapshotRecord): boolean {
+  return a.matterId === b.matterId
+    && a.targetId === b.targetId
+    && a.sourceVersion === b.sourceVersion
+    && a.targetConfigVersion === b.targetConfigVersion
+    && a.draftRevisionId === b.draftRevisionId
+    && a.figureRevisionId === b.figureRevisionId;
 }
 
 function isText(value: unknown): value is string {
