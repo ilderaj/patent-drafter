@@ -18,6 +18,7 @@ import {
   QUOTE,
   SOURCE_ID,
   SOURCE_REF,
+  T0,
   TARGET_ID,
   makeFixture,
   modules,
@@ -359,6 +360,198 @@ test("V6-19 C03: a version conflict or write fault rolls back every confirmation
   assert.equal(afterFailure.data.data.matter.version, aggregate.matter.version);
   const events = await current.repository.listEvents(ACTOR, MATTER_ID);
   assert.equal(events.data.items.filter((event) => event.action === "confirmation.created").length, 0);
+});
+
+test("V6-19 round2: a historical confirmation can be revoked after a new revision is saved", async () => {
+  const current = await makeFixture();
+  const session = current.makeReviewSession();
+  await session.load();
+  const confirmed = await session.confirmParagraph(PARAGRAPH_ID);
+  assert.equal(confirmed.ok, true, JSON.stringify(confirmed));
+  const confirmationId = session.getSnapshot().ledger.confirmations[0].id;
+  const afterConfirm = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  const versionAfterConfirm = afterConfirm.data.data.matter.version;
+
+  const edited = structuredClone(current.ast);
+  edited.claims[0].paragraphs[0].text = "人工修订后的合成段落";
+  const saved = await current.revisions.saveEditedRevision(MATTER_ID, TARGET_ID, current.revision.id, edited);
+  assert.equal(saved.ok, true, saved.ok ? "" : JSON.stringify(saved.error));
+  const afterRevision = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  assert.equal(afterRevision.data.data.matter.version, versionAfterConfirm + 1);
+
+  await session.refresh();
+  assert.equal(session.getSnapshot().phase, "stale");
+  const revoked = await session.revokeParagraphConfirmation(confirmationId, "历史修订的确认不再有效");
+  assert.equal(revoked.ok, true, JSON.stringify(revoked));
+  const afterRevoke = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  assert.equal(afterRevoke.data.data.matter.version, versionAfterConfirm + 2, "historical revocation bumps matter.version once");
+
+  const state = session.getSnapshot();
+  assert.equal(state.ledger.confirmations.length, 1);
+  assert.equal(state.ledger.revocations.length, 1);
+  assert.equal(state.ledger.revocations[0].objectId, confirmationId);
+  assert.equal(state.ledger.revocations[0].reason, "历史修订的确认不再有效");
+  assert.equal(state.ledger.confirmations[0].id, confirmationId);
+  const events = await current.repository.listEvents(ACTOR, MATTER_ID);
+  assert.equal(events.ok, true);
+  assert.equal(events.data.items.filter((event) => event.action === "confirmation.revoked").length, 1);
+  assert.equal(events.data.items.find((event) => event.action === "confirmation.revoked").snapshot.draftRevisionId, current.revision.id);
+});
+
+test("V6-19 round2: unknown or mismatched confirmation ids fail without writes", async () => {
+  const current = await makeFixture();
+  const session = current.makeReviewSession();
+  await session.load();
+  const confirmed = await session.confirmParagraph(PARAGRAPH_ID);
+  assert.equal(confirmed.ok, true, JSON.stringify(confirmed));
+  const confirmation = session.getSnapshot().ledger.confirmations[0];
+  const before = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  const versionBefore = before.data.data.matter.version;
+
+  const unknown = await session.revokeParagraphConfirmation("eeeeeeee-eeee-4eee-8eee-eeeeeeeeee99", "未知确认");
+  assert.equal(unknown.ok, false);
+  assert.equal(unknown.error.code, "RESOURCE_NOT_FOUND");
+  const afterUnknown = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  assert.equal(afterUnknown.data.data.matter.version, versionBefore);
+
+  const mismatchSnapshot = {
+    ...confirmation.snapshot,
+    draftRevisionId: "dddddddd-dddd-4ddd-8ddd-000000000099",
+  };
+  const event = activitySchema.parse({
+    id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeee98",
+    tenantId: ACTOR.tenantId,
+    matterId: MATTER_ID,
+    targetId: TARGET_ID,
+    actorId: ACTOR.userId,
+    actorKind: "user",
+    action: "confirmation.revoked",
+    snapshot: mismatchSnapshot,
+    jobId: null,
+    resourceId: confirmation.id,
+    occurredAt: T0,
+    metadata: { count: 1 },
+  });
+  const craftedRevocation = {
+    id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeee97",
+    objectType: "confirmation",
+    objectId: confirmation.id,
+    actorId: ACTOR.userId,
+    reason: "伪造的撤销",
+    createdAt: T0,
+  };
+  const ledgerKey = `draft-review/confirmations/${encodeURIComponent(ACTOR.tenantId)}/${encodeURIComponent(ACTOR.userId)}/${MATTER_ID}`;
+  const storedBefore = await current.backend.transaction("readonly", (tx) => tx.get(modules.repositoryModule.STORES.blobs, ledgerKey));
+  const mismatched = await current.repository.writeConfirmationLedger(
+    ACTOR,
+    MATTER_ID,
+    versionBefore,
+    { matterId: MATTER_ID, confirmations: [confirmation], revocations: [craftedRevocation] },
+    event,
+    event.occurredAt,
+  );
+  assert.equal(mismatched.ok, false);
+  assert.equal(mismatched.error.code, "INVALID_INPUT");
+  const afterMismatch = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  assert.equal(afterMismatch.data.data.matter.version, versionBefore);
+  const events = await current.repository.listEvents(ACTOR, MATTER_ID);
+  assert.equal(events.data.items.filter((item) => item.action === "confirmation.revoked").length, 0);
+  const storedAfter = await current.backend.transaction("readonly", (tx) => tx.get(modules.repositoryModule.STORES.blobs, ledgerKey));
+  assert.deepEqual(storedAfter.ledger.revocations, storedBefore.ledger.revocations);
+});
+
+test("V6-19 round2: current-snapshot revocation still succeeds", async () => {
+  const current = await makeFixture();
+  const session = current.makeReviewSession();
+  await session.load();
+  const confirmed = await session.confirmParagraph(PARAGRAPH_ID);
+  assert.equal(confirmed.ok, true, JSON.stringify(confirmed));
+  const confirmationId = session.getSnapshot().ledger.confirmations[0].id;
+  const revoked = await session.revokeParagraphConfirmation(confirmationId, "当前修订撤销");
+  assert.equal(revoked.ok, true, JSON.stringify(revoked));
+  const state = session.getSnapshot();
+  assert.equal(state.ledger.revocations.length, 1);
+  assert.equal(state.ledger.confirmations.length, 1);
+});
+
+test("V6-19 round3: a rejected read-only transaction returns an action failure without writes", async () => {
+  const current = await makeFixture();
+  const session = current.makeReviewSession();
+  await session.load();
+  const confirmed = await session.confirmParagraph(PARAGRAPH_ID);
+  assert.equal(confirmed.ok, true, JSON.stringify(confirmed));
+  const confirmationId = session.getSnapshot().ledger.confirmations[0].id;
+  const before = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  const versionBefore = before.data.data.matter.version;
+  const eventsBefore = await current.repository.listEvents(ACTOR, MATTER_ID);
+  const ledgerKey = `draft-review/confirmations/${encodeURIComponent(ACTOR.tenantId)}/${encodeURIComponent(ACTOR.userId)}/${MATTER_ID}`;
+  const ledgerBefore = await current.backend.transaction("readonly", (tx) => tx.get(modules.repositoryModule.STORES.blobs, ledgerKey));
+
+  let unhandled = null;
+  const onUnhandled = (reason) => { unhandled = reason; };
+  process.on("unhandledRejection", onUnhandled);
+  try {
+    current.backend.setReadFault(({ count }) => count === 2
+      ? new Error("synthetic readonly transaction failure")
+      : null);
+    const revoked = await session.revokeParagraphConfirmation(confirmationId, "读取失败的撤销");
+    assert.equal(revoked.ok, false);
+    assert.equal(revoked.error.code, "STORAGE_UNAVAILABLE");
+    assert.match(revoked.error.message, /重试/);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(unhandled, null, "the rejected transaction must not become an unhandled rejection");
+  } finally {
+    process.off("unhandledRejection", onUnhandled);
+  }
+
+  const after = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  assert.equal(after.data.data.matter.version, versionBefore);
+  const eventsAfter = await current.repository.listEvents(ACTOR, MATTER_ID);
+  assert.equal(eventsAfter.data.items.length, eventsBefore.data.items.length);
+  assert.equal(eventsAfter.data.items.filter((event) => event.action === "confirmation.revoked").length, 0);
+  const ledgerAfter = await current.backend.transaction("readonly", (tx) => tx.get(modules.repositoryModule.STORES.blobs, ledgerKey));
+  assert.deepEqual(ledgerAfter.ledger.revocations, ledgerBefore.ledger.revocations);
+  assert.equal(session.getSnapshot().ledger.revocations.length, 0);
+});
+
+test("V6-19 round4: a rejected initial matter-version read is STORAGE_UNAVAILABLE", async () => {
+  const current = await makeFixture();
+  const session = current.makeReviewSession();
+  await session.load();
+  const confirmed = await session.confirmParagraph(PARAGRAPH_ID);
+  assert.equal(confirmed.ok, true, JSON.stringify(confirmed));
+  const confirmationId = session.getSnapshot().ledger.confirmations[0].id;
+  const before = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  const versionBefore = before.data.data.matter.version;
+  const eventsBefore = await current.repository.listEvents(ACTOR, MATTER_ID);
+  const ledgerKey = `draft-review/confirmations/${encodeURIComponent(ACTOR.tenantId)}/${encodeURIComponent(ACTOR.userId)}/${MATTER_ID}`;
+  const ledgerBefore = await current.backend.transaction("readonly", (tx) => tx.get(modules.repositoryModule.STORES.blobs, ledgerKey));
+
+  let unhandled = null;
+  const onUnhandled = (reason) => { unhandled = reason; };
+  process.on("unhandledRejection", onUnhandled);
+  try {
+    current.backend.setReadFault(({ count }) => count === 1
+      ? new Error("synthetic matter-version read failure")
+      : null);
+    const revoked = await session.revokeParagraphConfirmation(confirmationId, "版本读取失败的撤销");
+    assert.equal(revoked.ok, false);
+    assert.equal(revoked.error.code, "STORAGE_UNAVAILABLE", "a failed first read must not be reported as not-found");
+    assert.match(revoked.error.message, /重试/);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(unhandled, null, "the rejected initial read must not become an unhandled rejection");
+  } finally {
+    process.off("unhandledRejection", onUnhandled);
+  }
+
+  const after = await current.repository.loadMatter(ACTOR, MATTER_ID);
+  assert.equal(after.data.data.matter.version, versionBefore);
+  const eventsAfter = await current.repository.listEvents(ACTOR, MATTER_ID);
+  assert.equal(eventsAfter.data.items.length, eventsBefore.data.items.length);
+  assert.equal(eventsAfter.data.items.filter((event) => event.action === "confirmation.revoked").length, 0);
+  const ledgerAfter = await current.backend.transaction("readonly", (tx) => tx.get(modules.repositoryModule.STORES.blobs, ledgerKey));
+  assert.deepEqual(ledgerAfter.ledger.revocations, ledgerBefore.ledger.revocations);
+  assert.equal(session.getSnapshot().ledger.revocations.length, 0);
 });
 
 test("S05 UI states: loading, empty, error and retry are explicit", async () => {

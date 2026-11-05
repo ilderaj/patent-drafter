@@ -18,7 +18,7 @@
       import { CONTRACT_VERSION, STORES, openLocalRepository } from "/apps/web/src/v6/lib/repository.ts";
       import { createGenerationRevisionStore } from "/apps/web/src/v6/features/generation/generation.ts";
       import { DraftEditor } from "/apps/web/src/v6/features/draft/Editor.tsx";
-      import { DraftReviewPanel } from "/apps/web/src/v6/features/draft/Review.tsx";
+      import { DraftReviewPanel, DraftReviewPanelView } from "/apps/web/src/v6/features/draft/Review.tsx";
       import { sourceIdFor } from "/apps/web/src/v6/features/sources/parse.ts";
 
       const actor = {
@@ -125,7 +125,97 @@
         });
         const saved = await revisions.saveEditedRevision(matterId, targetId, null, ast);
         if (!saved.ok) throw new Error(saved.error.message);
-        window.__v619 = { revisionId: saved.data.id, paragraphId, featureId, claimId, actorId: actor.userId, sourceId, chunkId };
+        const foreignConfirmationId = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeee77";
+        window.__v619 = {
+          revisionId: saved.data.id,
+          paragraphId,
+          featureId,
+          claimId,
+          actorId: actor.userId,
+          sourceId,
+          chunkId,
+          foreignConfirmationId,
+        };
+        window.__v619.injectForeignConfirmation = async () => {
+          const key = `draft-review/confirmations/${encodeURIComponent(actor.tenantId)}/${encodeURIComponent(actor.userId)}/${matterId}`;
+          const snapshot = {
+            matterId,
+            targetId,
+            sourceVersion: 1,
+            targetConfigVersion: 1,
+            draftRevisionId: saved.data.id,
+            figureRevisionId,
+          };
+          await backend.transaction("readwrite", async (tx) => {
+            const existing = await tx.get(STORES.blobs, key);
+            const ledger = existing?.ledger ?? { matterId, confirmations: [], revocations: [] };
+            ledger.confirmations.push({
+              id: foreignConfirmationId,
+              snapshot,
+              actorId: "99999999-9999-4999-8999-999999999999",
+              identity: "authenticated",
+              kind: "ai_paragraph",
+              paragraphId,
+              riskId: null,
+              checkRunId: null,
+              createdAt: now,
+            });
+            await tx.put(STORES.blobs, key, {
+              kind: "draft-review.confirmations",
+              tenantId: actor.tenantId,
+              actorId: actor.userId,
+              matterId,
+              ledger,
+            });
+          });
+          return foreignConfirmationId;
+        };
+        window.__v619.mountRejectingCallbackPanel = () => {
+          const snapshot = {
+            matterId,
+            targetId,
+            sourceVersion: 1,
+            targetConfigVersion: 1,
+            draftRevisionId: saved.data.id,
+            figureRevisionId,
+          };
+          const rejectionConfirmationId = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeee88";
+          const rejectionState = {
+            phase: "ready",
+            revision: { revision: saved.data, ast },
+            snapshot,
+            currentSnapshot: snapshot,
+            isCurrent: true,
+            supportRows: [],
+            locators: [],
+            ledger: {
+              matterId,
+              confirmations: [{
+                id: rejectionConfirmationId,
+                snapshot,
+                actorId: actor.userId,
+                identity: "local_self_reported",
+                kind: "ai_paragraph",
+                paragraphId,
+                riskId: null,
+                checkRunId: null,
+                createdAt: now,
+              }],
+              revocations: [],
+            },
+            error: null,
+          };
+          const host = document.createElement("div");
+          host.id = "rejecting-review-root";
+          document.body.appendChild(host);
+          createRoot(host).render(React.createElement(DraftReviewPanelView, {
+            state: rejectionState,
+            onRefresh() {},
+            onConfirm() {},
+            onRevoke: () => Promise.reject(new Error("synthetic rejected revoke callback")),
+          }));
+          return rejectionConfirmationId;
+        };
         const risks = [{
           id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb9",
           category: "risk",

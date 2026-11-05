@@ -57,6 +57,8 @@ export class MemoryBackend {
     this.data = new Map(Object.values(repositoryModule.STORES).map((name) => [name, new Map()]));
     this.queue = Promise.resolve();
     this.failPut = null;
+    this.failRead = null;
+    this.readCount = 0;
   }
 
   setPutFault(fault) {
@@ -64,8 +66,25 @@ export class MemoryBackend {
     return this;
   }
 
+  /** Reject the next read-only transaction(s); the counter resets on arming. */
+  setReadFault(fault) {
+    this.failRead = fault;
+    this.readCount = 0;
+    return this;
+  }
+
   transaction(mode, run) {
-    if (mode !== "readwrite") return this.runTransaction(run);
+    if (mode !== "readwrite") {
+      if (this.failRead) {
+        this.readCount += 1;
+        const failure = this.failRead({ count: this.readCount }) ?? null;
+        if (failure) {
+          this.failRead = null;
+          return Promise.reject(failure);
+        }
+      }
+      return this.runTransaction(run);
+    }
     const next = this.queue.then(() => this.runTransaction(run));
     this.queue = next.then(() => undefined, () => undefined);
     return next;

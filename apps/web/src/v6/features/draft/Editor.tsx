@@ -166,6 +166,7 @@ export interface DraftEditorState {
   baseRevision: GenerationRevisionView | null;
   latestRevision: GenerationRevisionView | null;
   baseRevisionId: string | null;
+  baseInputRef: GenerationRevisionView["revision"]["input"] | null;
   model: DraftEditorModel | null;
   preservedLocalModel: DraftEditorModel | null;
   preservedBufferBaseRevisionId: string | null | undefined;
@@ -307,6 +308,7 @@ export class DraftEditorSession {
       phase: "ready",
       baseRevision: latest,
       baseRevisionId: latest.revision.id,
+      baseInputRef: latest.revision.input,
       model: latestModel,
       preservedLocalModel: local,
       preservedBufferBaseRevisionId: previousBaseId,
@@ -334,16 +336,24 @@ export class DraftEditorSession {
       });
       return null;
     }
+    const submittedModel = structuredClone(this.state.model);
+    const submittedModelJson = JSON.stringify(editorModelToDraftAst(submittedModel));
+    const submittedBaseRevisionId = this.state.baseRevisionId;
+    const submittedInputRef = this.state.baseRevision?.revision.input ?? this.state.baseInputRef;
+    const submittedPreservedBufferBaseId = this.state.preservedBufferBaseRevisionId;
+    this.setState({ ...this.state, saving: true, error: null, notice: null });
+
     const context = await this.refreshValidationContext();
     if (context.error) {
-      this.setState({ ...this.state, phase: "ready", error: context.error, notice: null });
+      this.setState({ ...this.state, phase: "ready", saving: false, error: context.error, notice: null });
       return null;
     }
-    const validation = validateEditorModel(this.state.model);
+    const validation = validateEditorModel(submittedModel);
     if (!validation.ok) {
       this.setState({
         ...this.state,
         phase: "ready",
+        saving: false,
         error: { code: "INVALID_AST", message: "编辑内容不符合 DraftAST 结构，请修复标记的节点。", issues: validation.issues },
         notice: null,
       });
@@ -355,15 +365,31 @@ export class DraftEditorSession {
       this.setState({
         ...this.state,
         phase: "ready",
+        saving: false,
         error: { code: "INVALID_AST", message: "正文引用了不属于当前图集的图号。", issues: figureIssues },
         notice: null,
       });
       return null;
     }
 
-    const baseRevisionId = this.state.baseRevisionId;
-    this.setState({ ...this.state, saving: true, error: null, notice: null });
-    const saved = await this.revisions.saveEditedRevision(this.matterId, this.targetId, baseRevisionId, validation.ast);
+    const expectedInput = submittedInputRef;
+    if (!expectedInput) {
+      this.setState({
+        ...this.state,
+        phase: "ready",
+        saving: false,
+        error: { code: "STORAGE_UNAVAILABLE", message: "缺少草稿基础输入引用，本机缓冲已保留。", issues: [] },
+      });
+      return null;
+    }
+    const baseRevisionId = submittedBaseRevisionId;
+    const saved = await this.revisions.saveEditedRevision(
+      this.matterId,
+      this.targetId,
+      baseRevisionId,
+      validation.ast,
+      { input: expectedInput, figureRevisionId: expectedInput.figureRevisionId },
+    );
     if (!saved.ok) {
       if (saved.error.code === "VERSION_CONFLICT") {
         const latest = await this.revisions.loadHeadRevision(this.matterId, this.targetId);
@@ -390,6 +416,7 @@ export class DraftEditorSession {
         ...this.state,
         phase: "ready",
         saving: false,
+        inputStale: saved.error.code === "INPUT_STALE" ? true : this.state.inputStale,
         error: {
           code: saved.error.code,
           message: saved.error.message,
@@ -399,8 +426,48 @@ export class DraftEditorSession {
       return null;
     }
 
-    const priorBufferBaseId = this.state.preservedBufferBaseRevisionId;
+    const currentModelJson = this.state.model
+      ? JSON.stringify(editorModelToDraftAst(this.state.model))
+      : "";
+    const editedDuringSave = currentModelJson !== submittedModelJson
+      || this.state.baseRevisionId !== submittedBaseRevisionId;
+    const priorBufferBaseId = submittedPreservedBufferBaseId;
     const view: GenerationRevisionView = { revision: saved.data, ast: structuredClone(saved.data.ast) };
+    if (editedDuringSave) {
+      const currentModel = this.state.model ?? draftAstToEditorModel(saved.data.ast);
+      const currentModelDiffersFromSaved = currentModelJson !== JSON.stringify(saved.data.ast);
+      this.setState({
+        ...this.state,
+        phase: "ready",
+        error: null,
+        baseRevision: view,
+        latestRevision: view,
+        baseRevisionId: saved.data.id,
+        baseInputRef: saved.data.input,
+        model: currentModel,
+        preservedLocalModel: null,
+        preservedBufferBaseRevisionId: undefined,
+        dirty: currentModelDiffersFromSaved,
+        conflict: false,
+        saving: false,
+        inputStale: false,
+        notice: `已保存修订 ${saved.data.id}；保存期间的新编辑仍保留，请再次保存。`,
+        supportRows: buildSupportTable(editorModelToDraftAst(currentModel), this.state.facts, this.state.targetConfig?.priorityClaims ?? []),
+      });
+      await this.enqueueBuffer(currentModel, saved.data.id, null, undefined);
+      try {
+        if (submittedBaseRevisionId !== saved.data.id) {
+          await this.buffers.delete(this.matterId, this.targetId, submittedBaseRevisionId);
+        }
+        if (submittedPreservedBufferBaseId !== undefined && submittedPreservedBufferBaseId !== submittedBaseRevisionId) {
+          await this.buffers.delete(this.matterId, this.targetId, submittedPreservedBufferBaseId);
+        }
+      } catch {
+        this.setState({ ...this.state, notice: "修订已保存；旧的本机缓冲未能清理。" });
+      }
+      return saved.data as DraftRevision;
+    }
+
     this.setState({
       ...this.state,
       phase: "ready",
@@ -408,6 +475,7 @@ export class DraftEditorSession {
       baseRevision: view,
       latestRevision: view,
       baseRevisionId: saved.data.id,
+      baseInputRef: saved.data.input,
       model: draftAstToEditorModel(saved.data.ast),
       preservedLocalModel: null,
       preservedBufferBaseRevisionId: undefined,
@@ -484,12 +552,17 @@ export class DraftEditorSession {
         if (parsedSnapshot.success && parsedSnapshot.data.matterId === this.matterId
           && parsedSnapshot.data.version === inputSourceVersion) facts = parsedSnapshot.data.facts;
       }
-      const revisionInput = base?.revision.input;
-      const inputStale = revisionInput !== undefined && (
-        revisionInput.sourceVersion !== aggregate.matter.sourceVersion
-        || revisionInput.targetConfigVersion !== target.configVersion
-        || revisionInput.figureRevisionId !== target.figureRevisionId
-      );
+      const currentInputRef = {
+        matterId: this.matterId,
+        targetId: this.targetId,
+        sourceVersion: aggregate.matter.sourceVersion,
+        targetConfigVersion: target.configVersion,
+        figureRevisionId: target.figureRevisionId,
+      };
+      const baseInputRef = base?.revision.input ?? currentInputRef;
+      const inputStale = baseInputRef.sourceVersion !== currentInputRef.sourceVersion
+        || baseInputRef.targetConfigVersion !== currentInputRef.targetConfigVersion
+        || baseInputRef.figureRevisionId !== currentInputRef.figureRevisionId;
       const supportAst = model ? editorModelToDraftAst(model) : latest?.ast;
       this.setState({
         phase: "ready",
@@ -501,6 +574,7 @@ export class DraftEditorSession {
         baseRevision: base,
         latestRevision: latest,
         baseRevisionId,
+        baseInputRef,
         model,
         preservedLocalModel,
         preservedBufferBaseRevisionId,
@@ -538,8 +612,8 @@ export class DraftEditorSession {
       const target = aggregate.targets.find((item) => item.id === this.targetId);
       if (!target) return { error: { code: "RESOURCE_NOT_FOUND", message: "目标不可用。", issues: [] }, figureIds: new Set() };
       const figureIds = new Set(figureRead.data.current.get(this.targetId)?.entries.map((entry) => entry.figureId) ?? []);
-      const input = this.state.baseRevision?.revision.input;
-      const inputStale = input !== undefined && (
+      const input = this.state.baseInputRef;
+      const inputStale = input !== null && (
         input.sourceVersion !== aggregate.matter.sourceVersion
         || input.targetConfigVersion !== target.configVersion
         || input.figureRevisionId !== target.figureRevisionId
@@ -612,6 +686,7 @@ function emptyState(): DraftEditorState {
     baseRevision: null,
     latestRevision: null,
     baseRevisionId: null,
+    baseInputRef: null,
     model: null,
     preservedLocalModel: null,
     preservedBufferBaseRevisionId: undefined,
@@ -657,6 +732,8 @@ export interface DraftEditorProps {
   onPreview?: (projection: ReturnType<typeof projectDraftPreview>) => void;
   onExport?: (projection: ReturnType<typeof projectDraftExport>) => void;
   bufferStore?: DraftBufferStore;
+  /** Injectable revision seam for embedding tests; defaults to the shared V6-17 store. */
+  revisions?: GenerationRevisionStore;
   /** Only IDs confirmed against `confirmationRevisionId` are treated as confirmed. */
   confirmationRevisionId?: string | null;
   confirmedParagraphIds?: readonly string[];
@@ -673,7 +750,8 @@ export function DraftEditor(props: DraftEditorProps) {
     matterId: props.matterId,
     targetId: props.targetId,
     bufferStore: props.bufferStore,
-  }), [props.repository, props.actor, props.matterId, props.targetId, props.bufferStore]);
+    revisions: props.revisions,
+  }), [props.repository, props.actor, props.matterId, props.targetId, props.bufferStore, props.revisions]);
   const [state, setState] = useState(() => session.getSnapshot());
 
   useEffect(() => {
@@ -789,23 +867,23 @@ export function DraftEditor(props: DraftEditorProps) {
 
     <label className="field">
       <span className="field-label">稿件标题</span>
-      <input className="input" value={model.title} onChange={(event) => update({ ...model, title: event.currentTarget.value })} data-testid="draft-title" />
+      <input className="input" value={model.title} disabled={state.saving} onChange={(event) => update({ ...model, title: event.currentTarget.value })} data-testid="draft-title" />
     </label>
 
     <div className="stack-3" data-testid="draft-claims">
       <h3 className="card-title">权利要求</h3>
       {model.claims.length === 0 ? <p className="muted">暂无权利要求。</p> : model.claims.map((claim) => {
         const issue = state.error?.issues.find((item) => item.nodeId === claim.id);
-        return <article className="card stack-3" key={claim.id} id={`draft-node-${claim.id}`} data-node-id={claim.id} data-invalid={issue ? "true" : undefined}>
+        return <article className="card stack-3" key={claim.id} id={`draft-node-${claim.id}`} tabIndex={-1} data-node-id={claim.id} data-invalid={issue ? "true" : undefined}>
           <div className="row" style={{ flexWrap: "wrap" }}>
             <strong>权利要求</strong>
-            <input aria-label={`权利要求 ${claim.number} 编号`} type="number" min={1} value={claim.number} onChange={(event) => {
+            <input aria-label={`权利要求 ${claim.number} 编号`} type="number" min={1} value={claim.number} disabled={state.saving} onChange={(event) => {
               const number = Number(event.currentTarget.value);
               update(editClaim(model, claim.id, { number: Number.isFinite(number) ? number : 0 }));
             }} style={{ width: "7rem" }} />
             <label className="field" style={{ minWidth: "14rem" }}>
               <span className="field-label">前置权利要求 ID（逗号分隔）</span>
-              <input className="input" aria-label={`权利要求 ${claim.number} 依赖`} value={claim.dependsOn.join(", ")} onChange={(event) => update(editClaim(model, claim.id, {
+              <input className="input" aria-label={`权利要求 ${claim.number} 依赖`} value={claim.dependsOn.join(", ")} disabled={state.saving} onChange={(event) => update(editClaim(model, claim.id, {
                 dependsOn: event.currentTarget.value.split(",").map((id) => id.trim()).filter(Boolean),
               }))} />
             </label>
@@ -815,6 +893,7 @@ export function DraftEditor(props: DraftEditorProps) {
             paragraphs={claim.paragraphs}
             location={{ claimId: claim.id }}
             confirmedIds={confirmedIds}
+            disabled={state.saving}
             onEdit={(index, text) => { void session.updateParagraph({ claimId: claim.id }, index, text); }}
             onInsert={(index) => { void session.addParagraph({ claimId: claim.id }, index); }}
             onDelete={(index) => { void session.removeParagraph({ claimId: claim.id }, index); }}
@@ -835,6 +914,7 @@ export function DraftEditor(props: DraftEditorProps) {
             paragraphs={paragraphs}
             location={{ sectionKind: kind }}
             confirmedIds={confirmedIds}
+            disabled={state.saving}
             onEdit={(index, text) => { void session.updateParagraph({ sectionKind: kind }, index, text); }}
             onInsert={(index) => { void session.addParagraph({ sectionKind: kind }, index); }}
             onDelete={(index) => { void session.removeParagraph({ sectionKind: kind }, index); }}
@@ -870,6 +950,7 @@ interface ParagraphListProps {
   paragraphs: readonly Paragraph[];
   location: ParagraphLocation;
   confirmedIds: ReadonlySet<string>;
+  disabled: boolean;
   onEdit: (index: number, text: string) => void;
   onInsert: (index: number) => void;
   onDelete: (index: number) => void;
@@ -877,7 +958,7 @@ interface ParagraphListProps {
 }
 
 function ParagraphList(props: ParagraphListProps) {
-  const { paragraphs, location, confirmedIds, onEdit, onInsert, onDelete, issues } = props;
+  const { paragraphs, location, confirmedIds, disabled, onEdit, onInsert, onDelete, issues } = props;
   const labelPrefix = location.claimId ? "权利要求段落" : SECTION_LABELS[location.sectionKind as SectionKind];
   return <div className="stack-3">
     {paragraphs.map((paragraph, index) => {
@@ -886,17 +967,17 @@ function ParagraphList(props: ParagraphListProps) {
       return <div className="v6-entry stack-3" key={paragraph.id} id={`draft-node-${paragraph.id}`} data-node-id={paragraph.id} data-origin={paragraph.origin} data-invalid={issue ? "true" : undefined}>
         <label className="field">
           <span className="field-label">{labelPrefix} {index + 1} · {paragraph.origin}{needsConfirmation ? " · ◇ 待确认" : ""}</span>
-          <textarea className="textarea" rows={4} value={paragraph.text} aria-invalid={issue ? "true" : undefined}
+          <textarea className="textarea" rows={4} value={paragraph.text} disabled={disabled} aria-invalid={issue ? "true" : undefined}
             aria-label={`${labelPrefix} ${index + 1}`} onChange={(event) => onEdit(index, event.currentTarget.value)} />
         </label>
         <div className="row" style={{ flexWrap: "wrap" }}>
-          <button type="button" className="btn btn-outline btn-sm" onClick={() => onInsert(index)} aria-label={`在${labelPrefix} ${index + 1} 后插入段落`}>插入段落</button>
-          <button type="button" className="btn btn-outline btn-sm" onClick={() => onDelete(index)} aria-label={`删除${labelPrefix} ${index + 1}`}>删除段落</button>
+          <button type="button" className="btn btn-outline btn-sm" disabled={disabled} onClick={() => onInsert(index)} aria-label={`在${labelPrefix} ${index + 1} 后插入段落`}>插入段落</button>
+          <button type="button" className="btn btn-outline btn-sm" disabled={disabled} onClick={() => onDelete(index)} aria-label={`删除${labelPrefix} ${index + 1}`}>删除段落</button>
           {needsConfirmation ? <span className="field-hint">◇ 待确认</span> : null}
         </div>
       </div>;
     })}
-    <button type="button" className="btn btn-outline btn-sm" onClick={() => onInsert(paragraphs.length - 1)}>添加段落</button>
+    <button type="button" className="btn btn-outline btn-sm" disabled={disabled} onClick={() => onInsert(paragraphs.length - 1)}>添加段落</button>
   </div>;
 }
 

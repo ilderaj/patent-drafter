@@ -1,0 +1,37 @@
+V6-23 candidate verification summary
+Date: 2026-11-05
+Base commit: 73a70df393a1c4f9b299bce84b0259a2776eacff
+Node: v25.8.1; architecture target Node 22 is unavailable and unverified.
+Review round 1: CHANGES_REQUIRED. B1 stale policy metadata and B2 prerequisite status wording were addressed in the current candidate.
+
+Acceptance suite
+- Command: npm --prefix /private/tmp/patent-v6-23-worktree run test:v6 -- V6-23
+- Exit: 0; 12 tests passed, 0 failed, 0 skipped. Full output: runner.tap.
+- B1 regression: an old `old-v1` product policy with `action=export` and the same ID as an active `active-v2` policy with `action=prepare` yields `blockingPolicyRuleIds.export=[]` and `prepare=[id]`. evaluateGate(export) allows; evaluateGate(prepare) refuses.
+- B2 receipt: V6-18 is accepted (review-04, merge e9c14f9); this dependency was revalidated on the merged tree.
+
+Regression suites
+- V6-18: exit 0; 10/10 passed. Output: regression-v6-18.tap.
+- V6-17: exit 0; 37/37 passed. Output: regression-v6-17.tap.
+- V6-16: exit 0; 14/14 passed. Output: regression-v6-16.tap.
+- V6-15: exit 0; 41/41 passed. Output: regression-v6-15.tap.
+- V6-14: exit 0; 41/41 passed. Output: regression-v6-14.tap.
+- V6-12: exit 0; 42/42 passed. Output: regression-v6-12.tap.
+- V6-10: exit 0; 36/36 passed. Output: regression-v6-10.tap.
+- V6-08: exit 0; 12/12 passed. Output: regression-v6-08.tap.
+- Workspace command: npm --prefix /private/tmp/patent-v6-23-worktree test --workspaces --if-present
+- Workspace exit: 0; 15 worker tests and 44 export checks passed. Output: regression-workspace.tap.
+
+Typecheck and build
+- Workspace typecheck: npm --prefix /private/tmp/patent-v6-23-worktree run typecheck; exit 0.
+- Web typecheck: /private/tmp/patent-v6-23-worktree/node_modules/.bin/tsc -p /private/tmp/patent-v6-23-worktree/apps/web/tsconfig.json --noEmit; exit 0.
+- Evidence: typecheck.txt.
+- Build: npm --prefix /private/tmp/patent-v6-23-worktree run build --workspace @patent/web; exit 0. Vite reports the existing chunk-size warning for bundles over 500 kB. Output: build.txt.
+
+Browser harness
+- Command: node qa/v6/evidence/V6-23/browser-drive.mjs qa/v6/evidence/V6-23 http://127.0.0.1:4177
+- Exit: 0; 7/7 steps passed, 0 console errors, 0 external requests.
+- Captures: 01-checks-ready.png, 02-checks-rerunning.png, 03-checks-error-retains-previous.png, 04-checks-stale.png. Driver and log are in this directory.
+- The standalone harness uses synthetic data and no V6App/navigation mount, provider, network service, or customer material.
+
+Regression volume: 233 V6 tests plus 59 configured workspace checks, all passing. No real patent search was run; the UI says “未检索”. No real provider was called.

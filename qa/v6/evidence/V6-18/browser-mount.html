@@ -82,36 +82,60 @@
           figureIds: [],
           generationJobId: jobId,
         });
+        const claimOneId = crypto.randomUUID();
+        const claimTwoId = crypto.randomUUID();
         const ast = {
           schemaVersion: "draft.v1",
           language: "zh-CN",
           title: "合成浏览器草稿",
-          claims: [{ id: crypto.randomUUID(), number: 1, dependsOn: [], paragraphs: [paragraph(paragraphIds[0], 0)], features: [] }],
+          claims: [
+            { id: claimOneId, number: 1, dependsOn: [], paragraphs: [paragraph(paragraphIds[0], 0)], features: [] },
+            { id: claimTwoId, number: 2, dependsOn: [claimOneId], paragraphs: [paragraph(paragraphIds[1], 1)], features: [] },
+          ],
           sections: [
-            { kind: "technical_field", paragraphs: [paragraph(paragraphIds[1], 1)] },
-            { kind: "background", paragraphs: [paragraph(paragraphIds[2], 2)] },
-            { kind: "summary", paragraphs: [paragraph(paragraphIds[3], 3)] },
+            { kind: "technical_field", paragraphs: [paragraph(paragraphIds[2], 2)] },
+            { kind: "background", paragraphs: [paragraph(paragraphIds[3], 3)] },
+            { kind: "summary", paragraphs: [] },
             { kind: "figures_description", paragraphs: [] },
             { kind: "embodiments", paragraphs: [paragraph(paragraphIds[4], 4)] },
             { kind: "abstract", paragraphs: [] },
           ],
         };
         let revisionSequence = 0;
+        let blockNextSave = false;
+        let releaseSave;
         const revisions = createGenerationRevisionStore({
           repository,
           actor,
           now: () => new Date(now),
           newId: () => `77777777-7777-4777-8777-${String(++revisionSequence).padStart(12, "0")}`,
         });
+        const saveEditedRevision = revisions.saveEditedRevision.bind(revisions);
+        const mountedRevisions = {
+          loadHeadRevision: (...args) => revisions.loadHeadRevision(...args),
+          loadRevision: (...args) => revisions.loadRevision(...args),
+          saveEditedRevision: async (...args) => {
+            if (blockNextSave) {
+              blockNextSave = false;
+              window.__saveEntered = true;
+              await new Promise((resolve) => { releaseSave = resolve; });
+            }
+            return saveEditedRevision(...args);
+          },
+        };
+        window.__pauseNextSave = () => { blockNextSave = true; };
+        window.__releaseSave = () => { releaseSave?.(); };
+        window.__saveEntered = false;
         const saved = await revisions.saveEditedRevision(matterId, targetId, null, ast);
         if (!saved.ok) throw new Error(saved.error.message);
-        window.__v618 = { initialRevisionId: saved.data.id, paragraphIds, matterId, targetId };
+        window.__v618 = { initialRevisionId: saved.data.id, paragraphIds, claimTwoId, matterId, targetId };
 
         createRoot(document.getElementById("draft-root")).render(React.createElement(DraftEditor, {
           repository,
           actor,
           matterId,
           targetId,
+          revisions: mountedRevisions,
           confirmationRevisionId: saved.data.id,
           confirmedParagraphIds: paragraphIds,
           onPreview: (projection) => { window.__draftPreview = projection; },

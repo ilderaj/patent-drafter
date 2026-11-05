@@ -130,11 +130,54 @@ async function main() {
     assert(projections.exported?.revisionId === latest && projections.exported.text === changedText, "export references edited revision", projections.exported);
     log.steps.push({ step: "03-preview-export-revision-binding", ok: true, projections });
 
+    const pausedEditing = await evaluate(`(() => {
+      const field = document.querySelector('[aria-label="权利要求段落 1"]');
+      window.__pauseNextSave();
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
+      setter.call(field, '浏览器保存快照文本');
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      return true;
+    })()`);
+    assert(pausedEditing, "pause next browser save");
+    await waitFor(`document.querySelector('[data-testid="draft-save"]')?.disabled === false`, "paused save button enabled");
+    await click("draft-save");
+    await waitFor("window.__saveEntered === true", "save seam pause entered");
+    const controlsDisabled = await evaluate(`({
+      paragraph: document.querySelector('[aria-label="权利要求段落 1"]')?.disabled,
+      insert: document.querySelector('[aria-label^="在权利要求段落 1 后插入"]')?.disabled,
+      delete: document.querySelector('[aria-label="删除权利要求段落 1"]')?.disabled,
+    })`);
+    assert(controlsDisabled.paragraph && controlsDisabled.insert && controlsDisabled.delete, "paragraph controls disabled during save", controlsDisabled);
+    await evaluate("window.__releaseSave()");
+    await waitFor(`document.querySelector('[data-testid="draft-editor-notice"]')?.textContent?.includes('已保存新修订')`, "paused save completed");
+    log.steps.push({ step: "04-fields-disabled-during-save", ok: true, controls: controlsDisabled });
+
+    const numberingChanged = await evaluate(`(() => {
+      const field = document.querySelector('[aria-label="权利要求 2 编号"]');
+      if (!field) return false;
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(field, '4');
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      return true;
+    })()`);
+    assert(numberingChanged, "claim 2 number input is available");
+    await waitFor(`document.querySelector('[data-testid="draft-save"]')?.disabled === false`, "numbering save enabled");
+    await click("draft-save");
+    await waitFor(`document.querySelector('[data-testid="draft-editor-action-error"][data-code="INVALID_AST"]')`, "numbering INVALID_AST");
+    const focus = await evaluate(`({
+      activeId: document.activeElement?.id ?? null,
+      expectedId: 'draft-node-' + window.__v618.claimTwoId,
+      issue: document.querySelector('[data-invalid-node]')?.textContent?.trim() ?? null,
+    })`);
+    assert(focus.activeId === focus.expectedId, "numbering gap focuses claim 2", focus);
+    assert(focus.issue?.includes("权利要求 2"), "numbering issue names the missing claim number", focus);
+    log.steps.push({ step: "05-claim-number-gap-focus", ok: true, focus });
+
     const localOrigin = new URL(base).origin;
     const externalRequests = log.network.filter((url) => isExternalRequest(url, localOrigin));
     assert(externalRequests.length === 0, "no external requests", externalRequests);
     assert(log.consoleErrors.length === 0, "no browser console errors", log.consoleErrors);
-    log.steps.push({ step: "04-no-external-network-or-console-errors", ok: true });
+    log.steps.push({ step: "06-no-external-network-or-console-errors", ok: true });
   } finally {
     ws?.close();
     chrome.kill("SIGTERM");
