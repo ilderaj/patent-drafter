@@ -42,7 +42,9 @@ V6-11 已提交 953e05d。V6-12 经三轮独立复核（第三轮 accept）后�
 - [ ] V6-18 统一 AST 草稿编辑：执行中（写集 `features/draft/Editor.tsx`、`ast-adapter.ts`）
 - [x] V6-19 支持定位与逐段确认：五轮独立复核后 accept（review-05.md）。阻断依次为 locator 未校验来源/实时哈希、确认未按 C03 递增 matter.version、风险定位与真实焦点缺失、共享 Vite 缓存写入、历史确认无法撤销、存储 rejection 泄漏/错误码误映射；均已修复。16/16、V6-05 26/26、tsc/build/browser 7/7。提交 `e6ae4c9`，合并入集成分支
 - [x] V6-22 专业工作台与活动：两轮独立复核后 accept（review-02.md）。首轮阻断为概览缺目标 language、A02 失败测试未覆盖当前版本同 job 成功、浏览器 createRoot 重复；修复为语言投影/列、把主张收窄到真实失败/重试边界并记录同 job 终态守卫为待决、浏览器 9/9 零错误。15/15、38 项 scope 一致，提交 `97eb133`，合并入集成分支
-- [ ] V6-24 内部批准与交付门禁：执行中（5/5，证据生成中）
+- [x] V6-24 内部批准与交付门禁：两轮独立复核后 accept（review-02）。实现/探针通过，首轮仅证据过期；刷新后 6/6、依赖 200/200、tsc/build 0。提交 `52b732b` 合并入集成分支
+- [x] V6-25 真实导出与完成页：四轮独立复核后 accept（review-04）。阻断为 7 天缓存过期、prepared 行失败残留、逐代 TTL、stale 行 TTL，均已修复；20/20、302/302、tsc/build/browser 5/5。提交 `ef496bb` 合并入集成分支
+- [ ] V6-26 加密备份与恢复：执行中
 - [ ] 按依赖图继续完成 Foundation/R1
 - **状态：** in_progress
 
