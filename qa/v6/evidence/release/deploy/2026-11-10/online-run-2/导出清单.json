@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "export.v1",
+  "exportId": "bd73ce4e-71f5-542e-80c0-b646db85e41c",
+  "snapshot": {
+    "matterId": "ba2d3d4a-74d9-4c58-af2d-3f2e341a5e8e",
+    "targetId": "38e0376a-e161-57a5-862f-be7c2a698686",
+    "sourceVersion": 7,
+    "targetConfigVersion": 1,
+    "draftRevisionId": "09db325e-3f1e-47f6-b54e-d6367e9d9d33",
+    "figureRevisionId": "d4f0eacd-d50a-5bfa-8316-e8d8665ecb9d"
+  },
+  "astHash": "b0fd11bac3524410d917e28fa2c18b2420bfd36c92e8262fb577666ba87e1fe8",
+  "figureSetHash": "2286b485661cfde92f81a16a9795418c75440fced9a8084deedbcb89e57c40f7",
+  "rulePackVersion": "cnipa-2026-01-01",
+  "checkRunId": "94778b14-ffdc-4fb7-a76d-54e8cec0c6a9",
+  "approvalId": null,
+  "confirmationIds": [
+    "ef3c058f-838d-4ca0-9773-c25b5f9e9235",
+    "cefe9e31-b9e7-446e-8a0f-c204604ee3d5",
+    "aab33a76-0728-471e-bc97-9f71370b26e7",
+    "3002184a-e526-434a-9569-01a8e7e4b868",
+    "3039ed4a-425f-45fb-aee9-2e461eb8eaa3",
+    "25f889f4-373c-40eb-9c73-e111104009a8",
+    "8219a72d-b185-4946-8753-a557d18747e2",
+    "6edba0eb-11ad-48ab-a3a2-f7e2026802b0",
+    "38a9cb29-a547-49a5-992c-a85ba4af1363",
+    "2346c519-8be0-4507-a511-435cd9567505",
+    "b34e8cce-6edd-4476-acbd-2d1368f33cf7",
+    "d4e7b2f6-10f7-4b3c-b446-381ef7fc5840",
+    "a9bcd2bc-53b4-4022-a308-d7c4b89617f7"
+  ],
+  "riskIds": [
+    "a38adabc-2c30-41bd-afe0-e710d1dcf867",
+    "151d6e74-b89e-4add-a0d0-f4807a63215f",
+    "04f862ed-6662-4b04-ae62-341915f583ee",
+    "f8b22389-25fb-4560-a9cc-d6c52bac6e4e"
+  ],
+  "searchState": "not_searched",
+  "packageKind": "preparation",
+  "testOutput": true,
+  "language": "zh-CN",
+  "createdAt": "2026-11-10T08:47:49.964Z",
+  "files": [
+    {
+      "id": "1c2e9edc-220d-5cc1-84e8-c7dc63c3dbc6",
+      "name": "测试输出-权利要求书.docx",
+      "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "bytes": 1507,
+      "sha256": "aab4d11c1f2f5ff624f07f8b86054a1621b9ac9f20d9c5640fa833e0321d58fd"
+    },
+    {
+      "id": "7943c7d5-e6c0-5953-8e84-9a07b142f660",
+      "name": "测试输出-说明书.docx",
+      "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "bytes": 1604,
+      "sha256": "bca2f67f9c6c2c8eb2767389d7afd17e45e82a3574996cb0a16f404977876757"
+    },
+    {
+      "id": "d971c9af-17f5-593c-8917-853df2c3671f",
+      "name": "测试输出-说明书摘要.docx",
+      "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "bytes": 1335,
+      "sha256": "8f530b49bf79af0fcb7f68311c021518fdb62eb1f40fbceff512ca75c0b77db4"
+    },
+    {
+      "id": "51fe0883-4e50-5bd0-8088-c6298982db6e",
+      "name": "synthetic-acceptance-figure.png",
+      "mime": "image/png",
+      "bytes": 31461,
+      "sha256": "b1446958fa3de748b7cbdf6d8dcc0a6c6c52a331906c318a92fab7dfa70f67f7"
+    },
+    {
+      "id": "256984b8-6e5c-5b46-890b-1bdb8862a9e0",
+      "name": "测试输出-提交检查清单.pdf",
+      "mime": "application/pdf",
+      "bytes": 287979,
+      "sha256": "289a73671d80741c3b011ef00a7862a9418b0e9e7b47f43bf1b9d2e2f07b8f7c"
+    },
+    {
+      "id": "2821aad4-73c8-5a18-8016-8d6b8715e109",
+      "name": "项目备份.patentpack",
+      "mime": "application/vnd.patent-drafter.patentpack+json",
+      "bytes": 62501,
+      "sha256": "dc9e55bab707b22f879ee7dbf074f8f76464ff20fb09214a50a59a717408b2fd"
+    }
+  ]
+}

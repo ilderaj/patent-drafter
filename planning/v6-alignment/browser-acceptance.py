@@ -11,10 +11,12 @@ import argparse
 import base64
 import json
 import re
+import time
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from playwright.sync_api import Browser, BrowserContext, Locator, Page, TimeoutError, sync_playwright
 
@@ -53,13 +55,55 @@ class Evidence:
         self.skipped: list[dict[str, str]] = []
         self.pageerrors: list[dict[str, str]] = []
         self.console_errors: list[dict[str, str]] = []
+        self.third_party_console: list[dict[str, str]] = []
         self.downloads: list[dict[str, Any]] = []
         self.context: BrowserContext | None = None
+        self.app_host: str | None = None
+        self.requests: dict[str, dict[str, Any]] = {}
+        self.redirects: list[dict[str, Any]] = []
+
+    def attach_context(self, context: BrowserContext, app_host: str) -> None:
+        self.app_host = app_host
+
+        def note(request) -> None:
+            url = request.url
+            parsed = urlparse(url)
+            entry = self.requests.setdefault(url, {"url": url, "count": 0, "resourceType": request.resource_type, "host": parsed.hostname})
+            entry["count"] += 1
+
+        context.on("request", note)
+
+    def network_summary(self) -> dict[str, Any]:
+        cloudflare: list[dict[str, Any]] = []
+        external: list[dict[str, Any]] = []
+        same_origin = 0
+        for entry in self.requests.values():
+            host = entry.get("host") or ""
+            if "cloudflareinsights" in host or "cloudflareinsights" in entry["url"]:
+                cloudflare.append(entry)
+            elif self.app_host is not None and host == self.app_host:
+                same_origin += entry["count"]
+            else:
+                external.append(entry)
+        return {
+            "appHost": self.app_host,
+            "sameOriginRequestCount": same_origin,
+            "cloudflareInsightsRequests": sorted(cloudflare, key=lambda item: item["url"]),
+            "externalRequests": sorted(external, key=lambda item: item["url"]),
+        }
 
     def attach(self, page: Page) -> None:
         page.on("pageerror", lambda error: self.pageerrors.append({"url": page.url, "error": str(error)[:1000]}))
-        page.on("console", lambda message: self.console_errors.append({"url": page.url, "text": message.text[:1000]})
-                 if message.type == "error" else None)
+        def on_console(message) -> None:
+            if message.type != "error":
+                return
+            if "cloudflareinsights" in message.text:
+                # Third-party analytics beacon blocked by CSP; reported separately, not an app error.
+                self.third_party_console.append({"url": page.url, "text": message.text[:300]})
+                return
+            self.console_errors.append({"url": page.url, "text": message.text[:1000]})
+
+        page.on("console", on_console)
 
     def record(self, name: str, page: Page, status: str = "observed", detail: str = "") -> None:
         safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", name).strip("_")[:100] or "capture"
@@ -122,7 +166,10 @@ class Evidence:
             "skipped": self.skipped,
             "pageerrors": self.pageerrors,
             "consoleErrors": self.console_errors,
+            "thirdPartyConsoleErrors": self.third_party_console,
             "downloads": self.downloads,
+            "redirects": self.redirects,
+            "network": self.network_summary(),
             "constraints": {
                 "directIndexedDbAccess": False,
                 "storageFixtureInjection": False,
@@ -176,7 +223,12 @@ def click_named(page: Page, patterns: tuple[str, ...], *, buttons_only: bool = T
 
 def wait_dom(page: Page) -> None:
     page.locator("body").wait_for(state="visible", timeout=20000)
-    page.wait_for_timeout(250)
+    try:
+        # The hosted build loads over a proxy; let its app shell finish fetching.
+        page.wait_for_load_state("networkidle", timeout=10000)
+    except TimeoutError:
+        pass
+    page.wait_for_timeout(400)
 
 
 def question_box(page: Page, key: str) -> Locator | None:
@@ -383,9 +435,17 @@ def create_matter(page: Page, evidence: Evidence, name: str) -> str | None:
     if not base:
         evidence.fail(f"{name}:create", "脚本没有配置应用 base URL。", page)
         return None
+    started = time.monotonic()
     page.goto(f"{base}/v6", wait_until="domcontentloaded")
     wait_dom(page)
+    ready_ms = None
+    try:
+        page.get_by_role("button", name=re.compile("创建案件|开始准备|开始自助|自助起草")).first.wait_for(state="visible", timeout=20000)
+        ready_ms = int((time.monotonic() - started) * 1000)
+    except TimeoutError:
+        pass
     evidence.record(f"{name}-home", page)
+    evidence.records[-1]["homeButtonReadyMs"] = ready_ms
     created = click_named(page, (r"^创建案件$", r"^开始准备$", r"开始自助", r"自助起草"))
     if not created:
         evidence.fail(f"{name}:create", "首页没有可用的创建案件/自助起草按钮。", page)
@@ -1826,6 +1886,7 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=None, help="Evidence directory; defaults to a timestamped folder beside this script")
     parser.add_argument("--channel", default="chrome", help="Installed Playwright browser channel")
     parser.add_argument("--headed", action="store_true", help="Show browser UI")
+    parser.add_argument("--proxy", default=None, help="HTTP proxy for the browser, e.g. http://127.0.0.1:7897")
     args = parser.parse_args()
     base = args.base_url.rstrip("/")
     out_dir = args.out or (Path(__file__).resolve().parent / f"browser-acceptance-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
@@ -1839,9 +1900,23 @@ def main() -> int:
 
     try:
         with sync_playwright() as pw:
-            browser = pw.chromium.launch(channel=args.channel, headless=not args.headed)
+            launch_options: dict[str, Any] = {"channel": args.channel, "headless": not args.headed}
+            if args.proxy:
+                launch_options["proxy"] = {"server": args.proxy}
+            browser = pw.chromium.launch(**launch_options)
             context = browser.new_context(**BASELINE, accept_downloads=True, color_scheme="light")
             evidence.context = context
+            evidence.attach_context(context, urlparse(base).hostname or "")
+            # Record the root redirect before any page navigation.
+            try:
+                redirect = context.request.get(f"{base}/", max_redirects=0)
+                evidence.redirects.append({
+                    "url": f"{base}/",
+                    "status": redirect.status,
+                    "location": redirect.headers.get("location"),
+                })
+            except Exception as error:
+                evidence.redirects.append({"url": f"{base}/", "error": str(error)[:300]})
             page = context.new_page()
             page._acceptance_base = base  # type: ignore[attr-defined]
             evidence.attach(page)
