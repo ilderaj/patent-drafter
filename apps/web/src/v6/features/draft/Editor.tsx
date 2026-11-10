@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   SECTION_KINDS,
   sourceSnapshotSchema,
@@ -34,6 +34,7 @@ import {
 } from "./ast-adapter.ts";
 import type { Actor, LocalRepository, StorageBackend } from "../../lib/repository.ts";
 import { STORES } from "../../lib/repository.ts";
+import { TestOutputNotice } from "../workbench/TestOutputNotice.tsx";
 
 const SECTION_LABELS: Readonly<Record<SectionKind, string>> = Object.freeze({
   technical_field: "技术领域",
@@ -64,20 +65,25 @@ export interface DraftEditorEmptyStateProps {
   matterId: string;
   targetId: string;
   onGenerateDraft?: () => void;
+  /** Label for the generation entry; the host owns whether it starts a job or reveals the panel. */
+  generateEntryLabel?: string;
   onManualWrite: () => void;
 }
 
 export function DraftEditorEmptyState(props: DraftEditorEmptyStateProps) {
+  const canGenerate = typeof props.onGenerateDraft === "function";
   return <section className="card stack-3" data-testid="draft-editor" data-state="empty">
     <h2 className="card-title">专业草稿</h2>
     <p className="muted">此目标还没有草稿。可以生成候选稿，或直接手工撰写。</p>
     <div className="row" style={{ flexWrap: "wrap" }}>
-      <button type="button" className="btn btn-default" data-testid="draft-generate" onClick={() => {
-        if (props.onGenerateDraft) props.onGenerateDraft();
-        else if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("v6:draft-generate", { detail: { matterId: props.matterId, targetId: props.targetId } }));
-      }}>生成草稿</button>
+      <button type="button" className="btn btn-default" data-testid="draft-generate" disabled={!canGenerate}
+        title={canGenerate ? undefined : "当前工作台没有可用的生成面板；可先手工撰写。"}
+        onClick={() => { if (props.onGenerateDraft) props.onGenerateDraft(); }}>
+        {props.generateEntryLabel ?? "生成草稿"}
+      </button>
       <button type="button" className="btn btn-outline" data-testid="draft-manual" onClick={props.onManualWrite}>手工撰写</button>
     </div>
+    {!canGenerate ? <p className="field-hint" data-testid="draft-generate-unavailable">当前工作台没有可用的生成面板；可先手工撰写。</p> : null}
   </section>;
 }
 
@@ -716,21 +722,22 @@ function isEditorModel(value: unknown): value is DraftEditorModel {
     && SECTION_KINDS.includes(section.kind as SectionKind) && typeof section.present === "boolean" && Array.isArray(section.paragraphs));
 }
 
-function projectionEvent(name: string, matterId: string, targetId: string, projection: ReturnType<typeof projectDraftPreview>): void {
-  if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent(name, { detail: { matterId, targetId, ...projection } }));
-}
-
 export interface DraftEditorProps {
   /** Existing local repository and verified local actor; no provider is created. */
   repository: LocalRepository;
   actor: Actor;
   matterId: string;
   targetId: string;
-  /** Called by the empty-state generation entry; omitted callback dispatches `v6:draft-generate`. */
+  /** Called by the empty-state generation entry; the host owns the real action or panel reveal. */
   onGenerateDraft?: () => void;
   onPreview?: (projection: ReturnType<typeof projectDraftPreview>) => void;
   onExport?: (projection: ReturnType<typeof projectDraftExport>) => void;
+  /** Empty-state generation entry label; the host decides whether it starts a job or reveals the panel. */
+  generateEntryLabel?: string;
+  /** Called after a real save (not a no-op) so the host can refresh confirmations/checks. */
+  onSaved?: (revision: DraftRevision) => void;
+  /** Increment to reload the head revision; an unsaved local buffer is preserved. */
+  refreshToken?: number;
   bufferStore?: DraftBufferStore;
   /** Injectable revision seam for embedding tests; defaults to the shared V6-17 store. */
   revisions?: GenerationRevisionStore;
@@ -753,12 +760,19 @@ export function DraftEditor(props: DraftEditorProps) {
     revisions: props.revisions,
   }), [props.repository, props.actor, props.matterId, props.targetId, props.bufferStore, props.revisions]);
   const [state, setState] = useState(() => session.getSnapshot());
+  const lastRefreshToken = useRef(props.refreshToken);
 
   useEffect(() => {
     const unsubscribe = session.subscribe(setState);
     void session.load();
     return unsubscribe;
   }, [session]);
+
+  useEffect(() => {
+    if (props.refreshToken === undefined || lastRefreshToken.current === props.refreshToken) return;
+    lastRefreshToken.current = props.refreshToken;
+    void session.refresh();
+  }, [props.refreshToken, session]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !(state.dirty || state.conflict || state.preservedLocalModel)) return;
@@ -800,6 +814,7 @@ export function DraftEditor(props: DraftEditorProps) {
       matterId={props.matterId}
       targetId={props.targetId}
       onGenerateDraft={props.onGenerateDraft}
+      generateEntryLabel={props.generateEntryLabel}
       onManualWrite={() => session.beginManualDraft()}
     />;
   }
@@ -822,17 +837,18 @@ export function DraftEditor(props: DraftEditorProps) {
   const pendingAi = pendingIds.size;
 
   const update = (next: DraftEditorModel) => { void session.updateModel(next); };
+  const save = async () => {
+    const shouldNotify = state.dirty && !state.conflict && !state.saving;
+    const saved = await session.save();
+    if (saved && shouldNotify) props.onSaved?.(saved);
+  };
   const project = (kind: "preview" | "export") => {
     const revision = state.baseRevision?.revision as DraftRevision | undefined;
     if (!revision) return;
     if (kind === "preview") {
-      const projection = projectDraftPreview(revision);
-      if (props.onPreview) props.onPreview(projection);
-      else projectionEvent("v6:draft-preview", props.matterId, props.targetId, projection);
-    } else {
-      const projection = projectDraftExport(revision);
-      if (props.onExport) props.onExport(projection);
-      else projectionEvent("v6:draft-export", props.matterId, props.targetId, projection);
+      if (props.onPreview) props.onPreview(projectDraftPreview(revision));
+    } else if (props.onExport) {
+      props.onExport(projectDraftExport(revision));
     }
   };
 
@@ -841,6 +857,7 @@ export function DraftEditor(props: DraftEditorProps) {
       <h2 className="card-title">专业草稿</h2>
       <span className="field-hint" data-testid="draft-revision">{state.baseRevisionId ? `修订 ${state.baseRevisionId}` : "未保存的手工草稿"}</span>
     </div>
+    {state.baseRevision ? <TestOutputNotice revision={state.baseRevision.revision} testId="draft-test-output" /> : null}
 
     {state.inputStale ? <div className="notice" role="status" data-testid="draft-input-stale">
       草稿所依据的事实、目标配置或图集版本已变化。核对输入后再决定是否继续编辑。
@@ -931,12 +948,14 @@ export function DraftEditor(props: DraftEditorProps) {
     {pendingAi > 0 ? <p className="field-hint" data-testid="draft-pending-ai">◇ {pendingAi} 段 AI/混合内容待确认</p> : null}
 
     <div className="row" style={{ flexWrap: "wrap" }}>
-      <button type="button" className="btn btn-default" data-testid="draft-save" disabled={!state.dirty || state.conflict || state.saving} onClick={() => void session.save()}>
+      <button type="button" className="btn btn-default" data-testid="draft-save" disabled={!state.dirty || state.conflict || state.saving} onClick={() => void save()}>
         {state.saving ? "正在保存…" : "保存修订"}
       </button>
       <button type="button" className="btn btn-outline btn-sm" data-testid="draft-refresh" disabled={state.saving} onClick={() => void session.refresh()}>刷新</button>
-      <button type="button" className="btn btn-outline btn-sm" data-testid="draft-preview" disabled={!state.baseRevision} onClick={() => project("preview")}>预览此修订</button>
-      <button type="button" className="btn btn-outline btn-sm" data-testid="draft-export" disabled={!state.baseRevision} onClick={() => project("export")}>导出此修订</button>
+      <button type="button" className="btn btn-outline btn-sm" data-testid="draft-preview" disabled={!state.baseRevision || !props.onPreview}
+        title={props.onPreview ? undefined : "此工作台未接入手动预览；请到交付页查看或导出。"} onClick={() => project("preview")}>预览此修订</button>
+      <button type="button" className="btn btn-outline btn-sm" data-testid="draft-export" disabled={!state.baseRevision || !props.onExport}
+        title={props.onExport ? undefined : "此工作台未接入手动导出；请到交付页查看或导出。"} onClick={() => project("export")}>导出此修订</button>
     </div>
     {state.notice ? <p role="status" aria-live="polite" data-testid="draft-editor-notice">{state.notice}</p> : null}
   </section>;

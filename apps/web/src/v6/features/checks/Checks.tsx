@@ -33,6 +33,8 @@ export interface ChecksPanelProps {
   currentSnapshot: SnapshotRef;
   activeRulePackVersion: string;
   initialResult?: CheckRunResult | null;
+  confirmedRiskIds?: readonly string[];
+  onResult?: (result: CheckRunResult) => void | Promise<void>;
   loading?: boolean;
   loadError?: { code: string; message: string } | null;
   run?: (input: CheckInput, pack: CheckRulePack, at: string) => CheckRunResult | Promise<CheckRunResult>;
@@ -62,6 +64,7 @@ const LABELS: Readonly<Record<RiskCategory, string>> = Object.freeze({
 });
 
 const STACK = { flexDirection: "column", alignItems: "flex-start" } as const;
+const EMPTY_CONFIRMED_RISK_IDS: readonly string[] = Object.freeze([]);
 
 function formatTimestamp(value: string): string {
   const parsed = new Date(value);
@@ -142,6 +145,10 @@ function FindingCard({
       </div>
       <h3 className="card-title">{finding.title}</h3>
       <p>{finding.explanation}</p>
+      {finding.ruleId === "ast.invalid" ? <details data-testid={`check-raw-error-${finding.id}`}>
+        <summary>查看原始校验错误</summary>
+        <pre style={{ whiteSpace: "pre-wrap" }}>{finding.locator.label}: {finding.explanation}</pre>
+      </details> : null}
       <dl className="kv">
         <dt>依据</dt>
         <dd>{basisText(finding).map((line, index) => <div key={`${finding.id}-basis-${index}`}>{line}</div>)}</dd>
@@ -189,6 +196,8 @@ export function ChecksPanel({
   currentSnapshot,
   activeRulePackVersion,
   initialResult = null,
+  confirmedRiskIds = EMPTY_CONFIRMED_RISK_IDS,
+  onResult,
   loading = false,
   loadError = null,
   run = runChecks,
@@ -198,14 +207,14 @@ export function ChecksPanel({
   const [result, setResult] = useState<CheckRunResult | null>(initialResult);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ code: string; message: string } | null>(loadError);
-  const [acknowledged, setAcknowledged] = useState<ReadonlySet<string>>(() => new Set());
+  const [acknowledged, setAcknowledged] = useState<ReadonlySet<string>>(() => new Set(confirmedRiskIds));
   const busyRef = useRef(false);
   const ackBusy = useRef(new Set<string>());
 
   useEffect(() => {
     setResult(initialResult);
-    setAcknowledged(new Set());
-  }, [initialResult]);
+    setAcknowledged(new Set(confirmedRiskIds));
+  }, [initialResult, confirmedRiskIds]);
   useEffect(() => setError(loadError), [loadError, currentSnapshot, activeRulePackVersion]);
 
   const successfulResult = result?.checkRun.state === "succeeded" ? result : null;
@@ -235,6 +244,7 @@ export function ChecksPanel({
         const code = "errorCode" in next && typeof next.errorCode === "string" ? next.errorCode : "CHECK_FAILED";
         throw Object.assign(new Error("检查未成功完成。结果不能作为无问题的证明。"), { code });
       }
+      await onResult?.(next);
       setResult(next);
       setAcknowledged(new Set());
     } catch (failure) {
@@ -311,6 +321,9 @@ export function ChecksPanel({
       </div>
 
       <section className="card" data-testid="checks-summary">
+        {input.ast === null || input.ast === undefined ? <div className="notice" data-testid="checks-no-draft">
+          尚无可检查的草稿。请先前往“草稿”创建或生成测试草稿，再返回运行检查。
+        </div> : null}
         <dl className="kv">
           <dt>检查时间</dt><dd data-testid="checks-time">{time ? formatTimestamp(time) : "尚未检查"}</dd>
           <dt>规则包版本</dt><dd data-testid="checks-rule-pack">{successfulResult?.checkRun.rulePackVersion ?? activeRulePackVersion}</dd>

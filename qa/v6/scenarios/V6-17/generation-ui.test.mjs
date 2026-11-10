@@ -218,5 +218,31 @@ test("a ready candidate has an explicit adopt action; stub output is labelled an
     result: { ast: AST, testOutput: true },
   })));
   assert.match(stub, /data-testid="generation-test-output"/);
+  assert.match(stub, /不能采纳为正式生成修订/);
   assert.doesNotMatch(stub, /data-testid="generation-adopt"/);
+});
+
+test("stub output is adoptable only when test adoption is explicitly allowed", () => {
+  const job = jobView({
+    state: "succeeded",
+    disposition: "ready",
+    stageStates: ["completed", "completed", "completed", "completed", "completed"],
+    completed: 5,
+    result: { ast: AST, testOutput: true },
+  });
+  const allowedView = ui.makeView(job, "matter", "target", true, true);
+  assert.equal(allowedView.testAdoptionAllowed, true);
+  assert.equal(allowedView.canAdopt, true);
+  const allowed = ui.renderView(viewProps(job, { view: allowedView }));
+  assert.match(allowed, /data-testid="generation-adopt"/);
+  assert.equal(attr(allowed, "generation-adopt", "disabled"), null);
+  assert.match(allowed, /采纳为测试修订（带测试标记，不能作为正式申请材料）/);
+  assert.match(allowed, /不能作为正式申请材料/);
+
+  const deniedView = ui.makeView(job, "matter", "target");
+  assert.equal(deniedView.testAdoptionAllowed, false);
+  assert.equal(deniedView.canAdopt, false);
+  const denied = ui.renderView(viewProps(job, { view: deniedView }));
+  assert.doesNotMatch(denied, /data-testid="generation-adopt"/);
+  assert.match(denied, /不能采纳为正式生成修订/);
 });

@@ -170,6 +170,8 @@ export interface GenerationEngineOptions {
   limits: GenerationLimits;
   /** R1 test/stub output bypasses consent and never calls the injected provider. */
   execution?: "provider" | "stub";
+  /** Explicitly permits stub results to become persistently marked test revisions. */
+  allowTestAdoption?: boolean;
   provider?: LLMProvider;
   profileId?: string;
   profileVersion?: number;
@@ -611,6 +613,9 @@ export function createGenerationRevisionStore(options: GenerationRevisionStoreOp
       if (loaded.data.target.draftRevisionId !== baseRevisionId) {
         return fail("VERSION_CONFLICT", "基础修订已变化，请重新读取并合并编辑内容。");
       }
+      const base = baseRevisionId === null ? null : await readStoredRevision(matterId, targetId, baseRevisionId);
+      if (base !== null && !base.ok) return fail(base.error.code, base.error.message);
+      const testOutput = base?.ok === true && base.data.revision.testOutput === true;
       const state = await revisionState(matterId, targetId, baseRevisionId, loaded.data.aggregate, loaded.data.input);
       if (!state) return fail("VERSION_CONFLICT", "当前基础修订不在本机修订记录中。");
       const astHash = await canonicalAstHash(parsed.data);
@@ -621,6 +626,7 @@ export function createGenerationRevisionStore(options: GenerationRevisionStoreOp
         astHash,
         reason: "edited",
         input: loaded.data.input,
+        ...(testOutput ? { testOutput: true } : {}),
       }, { newId: (label) => newId(label), now: () => now().toISOString(), actorId: options.actor.userId });
       if (!saved.ok) return fail(saved.error.code, saved.error.message);
       const eventId = newId("revision-created-event");
@@ -717,6 +723,10 @@ export function createGenerationRevisionStore(options: GenerationRevisionStoreOp
 export function createGenerationEngine(options: GenerationEngineOptions): GenerationEngine {
   if (!validateLimits(options.limits)) throw new TypeError("Generation limits must be positive safe integers.");
   const execution = options.execution ?? "provider";
+  const allowTestAdoption = options.allowTestAdoption === true;
+  if (allowTestAdoption && execution !== "stub") {
+    throw new TypeError("allowTestAdoption is only valid for stub execution.");
+  }
   const revisions = createGenerationRevisionStore(options);
   const config = options.config ?? DEFAULT_AI_CONFIG;
   const profile = config.profiles.find((candidate) =>
@@ -1789,7 +1799,7 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
       if (record.job.state !== "succeeded" || !record.resultAst || (record.job.disposition !== "ready" && record.job.disposition !== "obsolete_result")) {
         return fail("INVALID_TRANSITION", "任务没有可采纳的完整结果。");
       }
-      if (record.testOutput) return fail("CAPABILITY_UNAVAILABLE", "测试输出可预览，但不能作为正式生成修订采纳。");
+      if (record.testOutput && !allowTestAdoption) return fail("CAPABILITY_UNAVAILABLE", "测试输出可预览，但只有明确启用本地测试采纳时才能保存为测试修订。");
       const input = await currentInput(record.matterId, record.targetId);
       if (!input) return fail("RESOURCE_NOT_FOUND", "案件或目标不可用。");
       const loadedHead = await revisions.loadHeadRevision(record.matterId, record.targetId);
@@ -1821,6 +1831,7 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
         astHash,
         reason: "generated",
         input: input.input,
+        ...(record.testOutput ? { testOutput: true } : {}),
       }, revisionContext);
       if (!saved.ok) {
         if (saved.error.code === "VERSION_CONFLICT" || saved.error.code === "INPUT_STALE") {

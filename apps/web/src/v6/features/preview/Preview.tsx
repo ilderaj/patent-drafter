@@ -12,6 +12,7 @@ import {
   type PreviewLoadReady,
 } from "./preview.ts";
 import { v6Path } from "../../routes/navigation.ts";
+import { TestOutputNotice } from "../workbench/TestOutputNotice.tsx";
 
 export interface PreviewProps {
   repository: LocalRepository;
@@ -86,13 +87,14 @@ export function Preview(props: PreviewProps) {
     event.preventDefault();
     props.onOpenDraft(props.matterId, props.targetId);
   };
+  const draftPath = v6Path({ kind: "matter", matterId: props.matterId, targetId: props.targetId, tab: "draft" });
   const regenerate = () => {
     if (props.onRegenerate) props.onRegenerate(props.matterId, props.targetId);
-    else emit("v6:draft-generate", { matterId: props.matterId, targetId: props.targetId });
+    else navigateToV6(draftPath);
   };
   const adoptInputs = () => {
     if (props.onAdoptInputs) props.onAdoptInputs(props.matterId, props.targetId);
-    else emit("v6:draft-adopt-inputs", { matterId: props.matterId, targetId: props.targetId });
+    else navigateToV6(draftPath);
   };
   const confirmRead = async () => {
     if (!confirmedRead || !ready.isCurrent || ready.projection.fullDraft === null || confirming) return;
@@ -129,14 +131,15 @@ export function Preview(props: PreviewProps) {
           <p className="field-hint" data-testid="preview-local-label">本地预览，未接入付费</p>
         ) : null}
       </header>
+      <TestOutputNotice revision={ready.revision.revision} testId="preview-test-output" />
 
       {ready.projection.preview.inputStale ? (
         <div className="notice" role="status" data-testid="preview-stale" data-stale-kind="input">
           <strong>材料已更新</strong>
           <p>草稿基于事实版本 {ready.revision.revision.input.sourceVersion}，当前为 {ready.currentSourceVersion}。{ready.revision.revision.input.targetConfigVersion !== ready.currentTargetConfigVersion || ready.revision.revision.input.figureRevisionId !== ready.currentFigureRevisionId ? "目标配置或附图版本也已变化。" : ""}</p>
           <div className="row" style={{ flexWrap: "wrap", gap: "0.5rem" }}>
-            <button type="button" className="btn btn-outline btn-sm" onClick={regenerate}>重新生成</button>
-            <button type="button" className="btn btn-outline btn-sm" onClick={adoptInputs}>核对后采纳新输入</button>
+            <button type="button" className="btn btn-outline btn-sm" onClick={regenerate}>{props.onRegenerate ? "重新生成" : "前往草稿页生成"}</button>
+            <button type="button" className="btn btn-outline btn-sm" onClick={adoptInputs}>{props.onAdoptInputs ? "核对后采纳新输入" : "前往草稿页核对输入"}</button>
           </div>
         </div>
       ) : !ready.isCurrent ? (
@@ -236,18 +239,16 @@ export function PreviewError({ code, message, onRetry }: { code: string; message
 }
 
 export function PreviewEmpty(props: PreviewProps) {
-  const generate = () => {
-    if (props.onGenerateDraft) props.onGenerateDraft(props.matterId, props.targetId);
-    else emit("v6:draft-generate", { matterId: props.matterId, targetId: props.targetId });
-  };
+  const draftPath = v6Path({ kind: "matter", matterId: props.matterId, targetId: props.targetId, tab: "draft" });
   return (
     <main className="v6-page" data-testid="preview-empty" data-preview-state="empty">
       <h1 className="v6-title">草稿预览</h1>
       <section className="card stack-3">
         <h2 className="card-title">还没有草稿</h2>
         <div className="row" style={{ flexWrap: "wrap", gap: "0.75rem" }}>
-          <button type="button" className="btn btn-default" onClick={generate}>生成草稿</button>
-          <a className="btn btn-outline" href={v6Path({ kind: "matter", matterId: props.matterId, targetId: props.targetId, tab: "draft" })} onClick={(event) => {
+          {props.onGenerateDraft ? <button type="button" className="btn btn-default" onClick={() => props.onGenerateDraft?.(props.matterId, props.targetId)}>生成草稿</button>
+            : <a className="btn btn-default" href={draftPath} data-testid="preview-empty-generate">生成草稿</a>}
+          <a className="btn btn-outline" href={draftPath} onClick={(event) => {
             if (!props.onOpenDraft) return;
             event.preventDefault();
             props.onOpenDraft(props.matterId, props.targetId);
@@ -382,8 +383,11 @@ function locateRisk(risk: RiskDTO, access: PreviewProps["access"], update?: (id:
   requestAnimationFrame(() => document.getElementById(targetId)?.scrollIntoView({ block: "center", behavior: "smooth" }));
 }
 
-function emit(name: string, detail: { matterId: string; targetId: string }) {
-  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(name, { detail }));
+function navigateToV6(path: string): void {
+  if (typeof window === "undefined") return;
+  const marker = window.location.pathname.indexOf("/v6");
+  const basePath = marker < 0 ? "" : window.location.pathname.slice(0, marker);
+  window.location.assign(`${basePath}${path}`);
 }
 
 function formatTime(value: string): string {

@@ -264,6 +264,7 @@ export async function loadLocalPreview(
   const inputStale = !sameDraftInputRef(revision.revision.input, currentInput);
   let confirmation: ContractConfirmation | null = null;
   if (current) {
+    await migrateLegacyConfirmationLedger(repository, actor, matterId);
     const ledger = await readConfirmationLedger(repository, actor, matterId);
     confirmation = currentConfirmations(ledger, snapshot).find((item) => item.kind === "full_read") ?? null;
   }
@@ -380,7 +381,7 @@ export async function confirmLocalFullRead(options: {
         });
         await tx.put(STORES.events, event.id, event);
         await tx.put(STORES.blobs, confirmationLedgerKey(actor, snapshot.matterId), {
-          kind: "preview.confirmation-ledger",
+          kind: CANONICAL_LEDGER_KIND,
           tenantId: actor.tenantId,
           actorId: actor.userId,
           matterId: snapshot.matterId,
@@ -410,6 +411,8 @@ export function snapshotFromRevision(revision: DraftRevision): SnapshotRef {
 }
 
 const EMPTY_LEDGER = (matterId: string): ConfirmationLedger => ({ matterId, confirmations: [], revocations: [] });
+const CANONICAL_LEDGER_KIND = "draft-review.confirmations" as const;
+const LEGACY_LEDGER_KIND = "preview.confirmation-ledger" as const;
 
 async function readConfirmationLedger(
   repository: LocalRepository,
@@ -424,14 +427,43 @@ async function ledgerInTransaction(
   actor: Actor,
   matterId: string,
 ): Promise<ConfirmationLedger> {
-  const row = await tx.get(STORES.blobs, confirmationLedgerKey(actor, matterId));
-  if (!isRecord(row) || row.kind !== "preview.confirmation-ledger" || row.tenantId !== actor.tenantId
-    || row.actorId !== actor.userId || row.matterId !== matterId || !isRecord(row.ledger)) {
-    return EMPTY_LEDGER(matterId);
+  const [canonical, legacy] = await Promise.all([
+    tx.get(STORES.blobs, confirmationLedgerKey(actor, matterId)),
+    tx.get(STORES.blobs, legacyConfirmationLedgerKey(actor, matterId)),
+  ]);
+  return mergeLedgerRows(canonical, legacy, actor, matterId);
+}
+
+/** Merge the shared ledger with the retired preview-only key, canonical rows winning duplicates. */
+export function mergeLedgerRows(
+  canonical: unknown,
+  legacy: unknown,
+  actor: Actor,
+  matterId: string,
+): ConfirmationLedger {
+  const merged = EMPTY_LEDGER(matterId);
+  const confirmations = new Map<string, ConfirmationLedger["confirmations"][number]>();
+  const revocations = new Map<string, ConfirmationLedger["revocations"][number]>();
+  for (const row of [legacy, canonical]) {
+    const ledger = ledgerRow(row, actor, matterId);
+    if (!ledger) continue;
+    for (const item of ledger.confirmations) confirmations.set(item.id, item);
+    for (const item of ledger.revocations) revocations.set(item.id, item);
   }
-  const candidate = row.ledger as Record<string, unknown>;
+  return {
+    matterId: merged.matterId,
+    confirmations: [...confirmations.values()],
+    revocations: [...revocations.values()],
+  };
+}
+
+function ledgerRow(value: unknown, actor: Actor, matterId: string): ConfirmationLedger | null {
+  if (!isRecord(value) || (value.kind !== CANONICAL_LEDGER_KIND && value.kind !== LEGACY_LEDGER_KIND)
+    || value.tenantId !== actor.tenantId || value.actorId !== actor.userId || value.matterId !== matterId
+    || !isRecord(value.ledger)) return null;
+  const candidate = value.ledger as Record<string, unknown>;
   if (candidate.matterId !== matterId || !Array.isArray(candidate.confirmations) || !Array.isArray(candidate.revocations)) {
-    return EMPTY_LEDGER(matterId);
+    return null;
   }
   const confirmations = candidate.confirmations.flatMap((item) => {
     const parsed = confirmationSchema.safeParse(item);
@@ -444,6 +476,38 @@ async function ledgerInTransaction(
       : [];
   });
   return { matterId, confirmations, revocations };
+}
+
+/** Copy legacy preview confirmations into the shared ledger once; the legacy row is kept. */
+export async function migrateLegacyConfirmationLedger(
+  repository: LocalRepository,
+  actor: Actor,
+  matterId: string,
+): Promise<boolean> {
+  try {
+    return await repository.backend.transaction("readwrite", async (tx) => {
+      const [canonical, legacy] = await Promise.all([
+        tx.get(STORES.blobs, confirmationLedgerKey(actor, matterId)),
+        tx.get(STORES.blobs, legacyConfirmationLedgerKey(actor, matterId)),
+      ]);
+      const legacyLedger = ledgerRow(legacy, actor, matterId);
+      if (!legacyLedger || legacyLedger.confirmations.length === 0) return false;
+      const merged = mergeLedgerRows(canonical, legacy, actor, matterId);
+      const canonicalLedger = ledgerRow(canonical, actor, matterId);
+      if (canonicalLedger && canonicalLedger.confirmations.length === merged.confirmations.length
+        && canonicalLedger.revocations.length === merged.revocations.length) return false;
+      await tx.put(STORES.blobs, confirmationLedgerKey(actor, matterId), {
+        kind: CANONICAL_LEDGER_KIND,
+        tenantId: actor.tenantId,
+        actorId: actor.userId,
+        matterId,
+        ledger: merged,
+      });
+      return true;
+    });
+  } catch {
+    return false;
+  }
 }
 
 interface LocalMatterSnapshot {
@@ -485,7 +549,19 @@ async function matterInTransaction(
 }
 
 function confirmationLedgerKey(actor: Actor, matterId: string): string {
+  return `draft-review/confirmations/${encodeURIComponent(actor.tenantId)}/${encodeURIComponent(actor.userId)}/${encodeURIComponent(matterId)}`;
+}
+
+function legacyConfirmationLedgerKey(actor: Actor, matterId: string): string {
   return `preview/confirmations/${encodeURIComponent(actor.tenantId)}/${encodeURIComponent(actor.userId)}/${encodeURIComponent(matterId)}`;
+}
+
+export function confirmationLedgerStorageKey(actor: Actor, matterId: string): string {
+  return confirmationLedgerKey(actor, matterId);
+}
+
+export function legacyConfirmationLedgerStorageKey(actor: Actor, matterId: string): string {
+  return legacyConfirmationLedgerKey(actor, matterId);
 }
 
 function randomId(_label: string): string {

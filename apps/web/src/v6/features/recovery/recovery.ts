@@ -1144,6 +1144,10 @@ async function validatePackageObject(
         report.unconvertible.push(issue("INVALID_AST", "revision", "draft revision is missing"));
         continue;
       }
+      if (revision.testOutput !== undefined && typeof revision.testOutput !== "boolean") {
+        blocking = true;
+        report.unconvertible.push(issue("INVALID_RECORD", `revision:${String(revision.id ?? "unknown")}`, "test output provenance is malformed"));
+      }
       if (revision.ast.schemaVersion !== "draft.v1") {
         blocking = true;
         report.unknownVersions.push({ ref: `revision:${String(revision.id ?? "unknown")}`, version: String(revision.ast.schemaVersion) });
@@ -1857,6 +1861,7 @@ async function buildImportPlan(actor: Actor, row: StoredValidation, createdAt: s
       astHash: await astHash(ast),
       reason: "imported",
       restoredFrom: null,
+      ...(oldRevision.testOutput === true ? { testOutput: true } : {}),
       createdBy: actor.userId,
       createdAt,
     };

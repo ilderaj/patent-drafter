@@ -91,7 +91,7 @@ export const GLOBAL_NAV = Object.freeze([
   { key: "inbox", label: "收件箱", capability: AVAILABLE },
   { key: "matters", label: "案件", capability: AVAILABLE },
   { key: "filings", label: "申请", capability: unavailable("跨案件申请状态需要专业协作功能，本地版暂不提供。") },
-  { key: "activity", label: "动态", capability: unavailable("跨案件动态尚未开放；单个案件的记录保存在本机。") },
+  { key: "activity", label: "动态", capability: AVAILABLE },
   { key: "ai", label: "AI 与数据", capability: AVAILABLE },
   { key: "services", label: "服务", capability: unavailable("人工服务（咨询、复核、代理对接）尚未开放，暂不能下单。") },
   { key: "billing", label: "账单", capability: unavailable("本地版不收费，没有订单或额度。") },
@@ -99,18 +99,22 @@ export const GLOBAL_NAV = Object.freeze([
 ] as const);
 
 export type GlobalKey = (typeof GLOBAL_NAV)[number]["key"];
+export type SectionKey = Exclude<GlobalKey, "matters"> | "pricing";
+
+export type SelfServiceStep = "upload" | "questions" | "route" | "generate" | "preview" | "done";
 
 export type V6Route =
   | { kind: "start" }
   | { kind: "matters" }
   | { kind: "upload"; matterId: string }
+  | { kind: "self_service"; matterId: string; step: SelfServiceStep }
   | { kind: "matter"; matterId: string; targetId: string | null; tab: MatterTab }
-  | { kind: "section"; key: Exclude<GlobalKey, "matters"> }
+  | { kind: "section"; key: SectionKey }
   | { kind: "not_found" };
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const TAB_KEYS: ReadonlySet<string> = new Set(MATTER_TABS.map((tab) => tab.key));
-const SECTION_KEYS: ReadonlySet<string> = new Set(GLOBAL_NAV.map((item) => item.key).filter((key) => key !== "matters"));
+const SECTION_KEYS: ReadonlySet<string> = new Set([...GLOBAL_NAV.map((item) => item.key).filter((key) => key !== "matters"), "pricing"]);
 
 /** True for the lowercase UUID shape every matter and target id has (05-contracts `Id`). */
 export function isEntityId(value: string): boolean {
@@ -131,8 +135,14 @@ export function parseV6Path(pathname: string): V6Route {
   const [a, b, c, d, e, ...extra] = rest as string[];
 
   if (a === undefined) return { kind: "start" };
+  if (a === "new") {
+    const steps: ReadonlySet<string> = new Set(["upload", "questions", "route", "generate", "preview", "done"]);
+    return b !== undefined && c !== undefined && d === undefined && steps.has(c)
+      ? { kind: "self_service", matterId: b, step: c as SelfServiceStep }
+      : { kind: "not_found" };
+  }
   if (a !== "matters") {
-    return b === undefined && SECTION_KEYS.has(a) ? { kind: "section", key: a as Exclude<GlobalKey, "matters"> } : { kind: "not_found" };
+    return b === undefined && SECTION_KEYS.has(a) ? { kind: "section", key: a as SectionKey } : { kind: "not_found" };
   }
   if (b === undefined) return { kind: "matters" };
   if (c === undefined) return { kind: "matter", matterId: b, targetId: null, tab: "overview" };
@@ -154,6 +164,8 @@ export function v6Path(route: V6Route): string {
       return "/v6/matters";
     case "upload":
       return `/v6/matters/${encodeURIComponent(route.matterId)}/upload`;
+    case "self_service":
+      return `/v6/new/${encodeURIComponent(route.matterId)}/${route.step}`;
     case "matter": {
       const base = `/v6/matters/${encodeURIComponent(route.matterId)}`;
       return route.targetId === null

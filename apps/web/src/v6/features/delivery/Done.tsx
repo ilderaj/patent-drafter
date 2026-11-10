@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ExportSession,
   type ExportFileView,
@@ -8,6 +8,7 @@ import {
 
 export interface DoneProps extends Omit<ExportSessionOptions, "passphrase"> {
   initialPassphrase?: string;
+  refreshToken?: number;
 }
 
 const STATUS_LABELS: Readonly<Record<ExportFileView["status"], string>> = Object.freeze({
@@ -46,13 +47,16 @@ const ERROR_LABELS: Readonly<Record<string, string>> = Object.freeze({
   STORAGE_UNAVAILABLE: "本机存储暂时不可用。",
 });
 
-export function DoneHeader({ route }: { route: ExportSessionOptions["route"] }) {
+export function DoneHeader({ route, testOutput = false }: { route: ExportSessionOptions["route"]; testOutput?: boolean }) {
   const nextStep = route === "cn_um" || route === "cn_invention"
     ? "下一步：使用官方客户端校验材料并办理递交；需要时可请代理师协助。"
     : "下一步：安排专业翻译，再由适格人员核对和办理。";
   return <header className="stack-2">
     <h1 className="v6-title">交付材料</h1>
     <p className="notice" data-testid="done-preparation-label">申请准备材料</p>
+    {testOutput ? <p className="notice" role="status" data-testid="done-test-output-label">
+      测试输出：本地固定测试结果，非真实 AI 生成或正式申请稿。
+    </p> : null}
     <p className="muted">{nextStep}</p>
     <p className="field-hint">产品不代为提交。</p>
   </header>;
@@ -80,12 +84,19 @@ export function Done(props: DoneProps) {
     props.renderReport,
   ]);
   const [state, setState] = useState<ExportSessionState>(() => session.getSnapshot());
+  const previousRefreshToken = useRef(props.refreshToken);
 
   useEffect(() => {
     const unsubscribe = session.subscribe(setState);
     void session.load();
     return unsubscribe;
   }, [session]);
+
+  useEffect(() => {
+    if (previousRefreshToken.current === props.refreshToken) return;
+    previousRefreshToken.current = props.refreshToken;
+    void session.refresh();
+  }, [session, props.refreshToken]);
 
   useEffect(() => {
     session.setPassphrase(passphrase);
@@ -160,7 +171,7 @@ export function DoneView({ route, state, passphrase, busy, actionError, onPassph
   const hasUnavailableRecord = state.files.some((file) => file.status !== "ready");
   const actionLabel = hasUnavailableRecord ? "重新导出材料包" : state.record ? "再次导出材料包" : "生成材料包";
   return <main className="v6-page" data-testid="done-page" data-state={state.phase}>
-    <DoneHeader route={route} />
+    <DoneHeader route={route} testOutput={state.testOutput} />
     <div className="row" style={{ justifyContent: "flex-end" }}>
       <button type="button" className="btn btn-outline btn-sm" data-testid="done-refresh" onClick={() => void onRefresh()}>刷新状态</button>
     </div>

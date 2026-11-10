@@ -88,6 +88,15 @@ function copyNumerals(numerals: FigurePanelRevision["entries"][number]["numerals
   return numerals.map((numeral) => ({ value: numeral.value, label: numeral.label }));
 }
 
+/**
+ * The empty base for a target whose first set row has not been written yet.
+ * The target already names its first revision id; binding with that id creates
+ * the first version at that pointer instead of inventing a second one.
+ */
+export function unboundFigureRevision(target: { figureRevisionId: string }): FigurePanelRevision {
+  return { id: target.figureRevisionId, parentId: null, hash: "", createdAt: "", entries: [] };
+}
+
 type LoadState = { phase: "loading" } | { phase: "ready"; view: FigurePanelView };
 
 export function Figures({
@@ -232,7 +241,11 @@ export function FiguresPanel({
   if (view.kind === "loading") return <FiguresLoading />;
   const data = "data" in view ? view.data : null;
   const targetId = view.kind === "library" ? view.targetId : null;
+  const target = data && targetId !== null ? (data.targets.find((item) => item.id === targetId) ?? null) : null;
   const current = data && targetId ? (data.revisions.get(targetId) ?? null) : null;
+  // A target whose first figure-set row is absent still names its first
+  // revision id; binding against that id creates the first version.
+  const bindBase = current ?? (target !== null ? unboundFigureRevision(target) : null);
   const gate = data && targetId ? data.gate : null;
   const bound = new Set(current?.entries.map((entry) => entry.drawingId).filter((id): id is string => id !== null) ?? []);
   const drawingsById = new Map((data?.drawings ?? []).map((item) => [item.drawing.id, item]));
@@ -315,13 +328,13 @@ export function FiguresPanel({
                 </span>
               </div>
               {bound.has(item.drawing.id) ? <span className="badge badge-ok">已编入图集</span> : null}
-              {current && !bound.has(item.drawing.id) ? (
+              {bindBase && !bound.has(item.drawing.id) ? (
                 <button
                   type="button"
                   className="btn btn-default btn-sm"
                   disabled={busy}
                   data-testid={`figure-append-${item.drawing.id}`}
-                  onClick={() => onAppend(current, item.drawing.id)}
+                  onClick={() => onAppend(bindBase, item.drawing.id)}
                 >
                   编入图集
                 </button>
@@ -347,9 +360,9 @@ export function FiguresPanel({
       ) : null}
 
       {data && targetId !== null && current === null ? (
-        <div className="notice" role="alert" data-testid="figures-set-missing">
+        <div className="notice" role="status" data-testid="figures-set-missing">
           <strong>找不到这个目标的图集</strong>
-          <p>{figureErrorMessage("STALE_BINDING")}</p>
+          <p>这个目标还没有第一版图集。把图库中的图编入后，第一版图集将按目标当前的图集版本创建；不会自动加入任何图。</p>
         </div>
       ) : null}
 

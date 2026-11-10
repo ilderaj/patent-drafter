@@ -157,6 +157,7 @@ export const manifestSchema = z
     riskIds: z.array(idSchema),
     searchState: z.enum(["not_searched", "recorded"]),
     packageKind: exportPackageKindSchema,
+    testOutput: z.boolean().optional(),
     language: languageSchema,
     createdAt: isoDateTimeSchema,
     files: z.array(manifestFileSchema),

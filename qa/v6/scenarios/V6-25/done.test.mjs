@@ -104,6 +104,32 @@ test("DoneView renders real file size, hash prefix and unavailable reason withou
   assert.equal((markup.match(/>下载<\/button>/g) ?? []).length, 1, "only the ready file offers a download");
 });
 
+test("Done labels a persisted test-output revision and does not call it a formal application draft", () => {
+  const markup = ReactDomServer.renderToStaticMarkup(React.createElement(doneUi.DoneView, {
+    route: "cn_invention",
+    state: {
+      phase: "blocked",
+      snapshot: null,
+      inputStale: false,
+      testOutput: true,
+      gate: { action: "export", allowed: false, evaluatedAt: v624.T0, reasons: [] },
+      record: null,
+      files: [],
+      unavailableFormats: [],
+      error: null,
+    },
+    passphrase: "",
+    busy: false,
+    actionError: null,
+    onPassphrase() {},
+    onRefresh() {},
+    onCreate() {},
+    onDownload() {},
+  }));
+  assert.match(markup, /测试输出/);
+  assert.match(markup, /正式申请稿/);
+});
+
 test("gate reasons link to the tab that resolves them", () => {
   const snapshot = {
     matterId: "33333333-3333-4333-8333-333333333333",

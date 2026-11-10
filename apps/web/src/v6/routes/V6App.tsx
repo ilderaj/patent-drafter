@@ -7,15 +7,15 @@
  * entry, and nothing is filled in with demo content.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Shell } from "../components/Shell.tsx";
 import { AppearancePage, AppearanceProvider } from "../features/settings/Appearance.tsx";
 import { Recovery } from "../features/recovery/Recovery.tsx";
-import { Upload } from "../features/sources/Upload.tsx";
-import { Parse } from "../features/sources/Parse.tsx";
-import { Figures } from "../features/sources/Figures.tsx";
 import { AiPage } from "../features/ai/Ai.tsx";
 import { ProfessionalWorkbench } from "../features/workbench/Workbench.tsx";
+import { ActivityFeed } from "../features/workbench/ActivityFeed.tsx";
+import { LOCAL_TEST_GENERATION_OPTIONS } from "../features/generation/local-runtime.ts";
+import { SelfService } from "../features/self-service/SelfService.tsx";
 import { R1_RULE_PACK, R1_ACTIVE_RULE_PACK_VERSION } from "../features/checks/rule-pack.vite.ts";
 import { MattersPage as MattersFeaturePage } from "../features/matters/Matters.tsx";
 import { InboxPage } from "../features/inbox/Inbox.tsx";
@@ -27,11 +27,10 @@ import {
   PAGE_ERROR_MESSAGES,
   createSelfServiceMatter,
   parseV6Path,
-  resolveMatterView,
   v6Path,
   type GlobalKey,
   type MatterTab,
-  type MatterView,
+  type SectionKey,
   type V6Route,
 } from "./navigation.ts";
 import "../styles/theme.css";
@@ -72,10 +71,12 @@ function activeSection(route: V6Route): GlobalKey | null {
   switch (route.kind) {
     case "matters":
     case "matter":
-    case "upload":
       return "matters";
+    case "upload":
+    case "self_service":
+      return null;
     case "section":
-      return route.key;
+      return route.key === "pricing" ? null : route.key;
     default:
       return null;
   }
@@ -94,8 +95,10 @@ function V6Pages() {
   const route = parseV6Path(pathname);
   const [repo, retry] = useRepository();
 
+  const shellMode = route.kind === "start" ? "public" : route.kind === "self_service" || route.kind === "upload" ? "self_service" : "professional";
+  const matterId = route.kind === "self_service" || route.kind === "upload" ? route.matterId : undefined;
   return (
-    <Shell runtime="local_web" active={activeSection(route)}>
+    <Shell runtime="local_web" active={activeSection(route)} mode={shellMode} matterId={matterId} repository={repo.state === "ready" ? repo.repository : undefined}>
       {repo.state === "loading" ? (
         <Loading />
       ) : repo.state === "failed" ? (
@@ -114,7 +117,9 @@ function Page({ route, repository }: { route: V6Route; repository: LocalReposito
     case "matters":
       return <MattersPage repository={repository} />;
     case "upload":
-      return <UploadPage repository={repository} matterId={route.matterId} />;
+      return <Navigate to={v6Path({ kind: "self_service", matterId: route.matterId, step: "upload" })} replace />;
+    case "self_service":
+      return <SelfService key={`${route.matterId}/${route.step}`} repository={repository} actor={LOCAL_ACTOR} matterId={route.matterId} step={route.step} />;
     case "matter":
       return <MatterPage repository={repository} matterId={route.matterId} targetId={route.targetId} tab={route.tab} />;
     case "section":
@@ -177,7 +182,7 @@ function useSelfServiceCreate(repository: LocalRepository) {
     });
     if (result.ok) {
       ids.current = null;
-      navigate(result.next);
+      navigate(v6Path({ kind: "self_service", matterId: result.matterId, step: "upload" }));
       return;
     }
     setState({ busy: false, error: result.message });
@@ -200,36 +205,44 @@ function CreateError({ message, onRetry }: { message: string; onRetry: () => voi
 
 function StartPage({ repository }: { repository: LocalRepository }) {
   const { busy, error, create } = useSelfServiceCreate(repository);
-  const services = GLOBAL_NAV.find((item) => item.key === "services")!;
   return (
-    <div className="v6-page">
-      <h1 className="v6-title">从哪里开始</h1>
-      <p className="muted">案件保存在这台设备的浏览器里，不会上传。</p>
+    <div className="v6-page v6-start-page" data-testid="start-page">
+      <header className="v6-start-intro">
+        <p className="v6-self-kicker">专利材料准备</p>
+        <h1 className="v6-title">把你的技术整理成申请准备材料</h1>
+        <p className="muted">从已有材料或几个真实回答开始。先整理事实，再选择路线；案件和文件保存在本机浏览器。</p>
+      </header>
       {error ? <CreateError message={error} onRetry={create} /> : null}
       <div className="v6-entries">
         <section className="card v6-entry" data-testid="entry-self">
-          <h2 className="card-title">自助起草</h2>
-          <p className="card-description">新建一个空案件，从上传材料开始。</p>
+          <h2 className="card-title">自助准备</h2>
+          <p className="card-description">新建一个空案件，上传材料或直接回答问题。没有现成文档也能开始，不会自动补造材料。</p>
           <button type="button" className="btn btn-default" disabled={busy} onClick={create}>
-            {busy ? "正在创建…" : "创建案件"}
+            {busy ? "正在创建…" : "开始准备"}
           </button>
         </section>
         <section className="card v6-entry" data-testid="entry-pro">
           <h2 className="card-title">专业工作台</h2>
-          <p className="card-description">打开已有案件，按材料、事实、草稿、检查等标签处理。</p>
-          <Link className="btn btn-outline" to={v6Path({ kind: "matters" })}>
-            打开案件列表
-          </Link>
+          <p className="card-description">在同一个案件中处理材料、事实、目标、草稿、检查和版本。</p>
+          <Link className="btn btn-outline" to={v6Path({ kind: "matters" })}>打开案件列表</Link>
         </section>
         <section className="card v6-entry" data-testid="entry-service">
           <h2 className="card-title">人工服务</h2>
-          <p className="card-description">咨询、复核和代理对接。</p>
-          <Link className="btn btn-outline" to={v6Path({ kind: "section", key: "services" })}>
-            查看服务目录
-          </Link>
-          <p className="field-hint">{services.capability.reason}</p>
+          <p className="card-description">了解咨询、材料复核和代理对接的范围与当前开放状态。</p>
+          <Link className="btn btn-outline" to={v6Path({ kind: "section", key: "services" })}>查看服务范围</Link>
+          <p className="field-hint">当前未开放预约、资料分享或付款。</p>
         </section>
       </div>
+      <section className="v6-start-data">
+        <strong>AI 与数据</strong>
+        <span>当前自助流程使用本机测试引擎；不会把案件材料发送到模型服务。</span>
+        <Link to={v6Path({ kind: "section", key: "ai" })}>查看处理能力</Link>
+      </section>
+      <footer className="v6-start-footer">
+        <span>当前为本地准备功能，不收费、不自动递交。</span>
+        <Link to={v6Path({ kind: "section", key: "pricing" })}>套餐与价格</Link>
+        <Link to={v6Path({ kind: "section", key: "settings" })}>设置</Link>
+      </footer>
     </div>
   );
 }
@@ -243,64 +256,6 @@ function MattersPage({ repository }: { repository: LocalRepository }) {
   return <MattersFeaturePage repository={repository} actor={LOCAL_ACTOR} onCreate={openUpload} onOpenUpload={openUpload} />;
 }
 
-/** Load a matter view for the URL; reloads when the URL's ids change. A retry refreshes in place. */
-function useMatterView(repository: LocalRepository, matterId: string, targetId: string | null) {
-  const [view, setView] = useState<MatterView | null>(null);
-  const [attempt, setAttempt] = useState(0);
-  const ids = useRef(`${matterId}:${targetId ?? ""}`);
-  useEffect(() => {
-    let live = true;
-    const nextIds = `${matterId}:${targetId ?? ""}`;
-    if (ids.current !== nextIds) {
-      ids.current = nextIds;
-      setView(null);
-    }
-    void resolveMatterView(repository, LOCAL_ACTOR, matterId, targetId).then((next) => live && setView(next));
-    return () => {
-      live = false;
-    };
-  }, [repository, matterId, targetId, attempt]);
-  return [view, () => setAttempt((n) => n + 1)] as const;
-}
-
-function UploadPage({ repository, matterId }: { repository: LocalRepository; matterId: string }) {
-  const [view, retry] = useMatterView(repository, matterId, null);
-  const navigate = useNavigate();
-  const [parseKey, setParseKey] = useState(0);
-  const bumpParse = useCallback(() => setParseKey((n) => n + 1), []);
-  const [figuresKey, setFiguresKey] = useState(0);
-  const bumpFigures = useCallback(() => setFiguresKey((n) => n + 1), []);
-  if (view === null) return <Loading />;
-  if (view.state === "storage_unavailable") return <StorageUnavailable message={view.message} onRetry={retry} />;
-  if (view.state === "unavailable") return <UnavailablePage />;
-  return (
-    <div className="v6-page">
-      <p className="muted">{view.matter.title}</p>
-      <Upload
-        repository={repository}
-        actor={LOCAL_ACTOR}
-        matterId={matterId}
-        onAnswerWithoutDocuments={() => navigate(v6Path({ kind: "matter", matterId, targetId: null, tab: "facts" }))}
-        onSettled={bumpParse}
-      />
-      <Parse refreshToken={parseKey} repository={repository} actor={LOCAL_ACTOR} matterId={matterId} />
-      <Figures
-        repository={repository}
-        actor={LOCAL_ACTOR}
-        matterId={matterId}
-        targetId={null}
-        refreshToken={figuresKey}
-        onSettled={bumpFigures}
-      />
-      <p>
-        <Link className="link-button" to={v6Path({ kind: "matter", matterId, targetId: null, tab: "overview" })}>
-          返回案件
-        </Link>
-      </p>
-    </div>
-  );
-}
-
 function MatterPage({
   repository,
   matterId,
@@ -312,17 +267,38 @@ function MatterPage({
   targetId: string | null;
   tab: MatterTab;
 }) {
-  return <ProfessionalWorkbench repository={repository} actor={LOCAL_ACTOR} matterId={matterId} targetId={targetId} tab={tab} rulePack={R1_RULE_PACK} rulePackVersion={R1_ACTIVE_RULE_PACK_VERSION} />;
+  return <ProfessionalWorkbench repository={repository} actor={LOCAL_ACTOR} matterId={matterId} targetId={targetId} tab={tab} generation={LOCAL_TEST_GENERATION_OPTIONS} rulePack={R1_RULE_PACK} rulePackVersion={R1_ACTIVE_RULE_PACK_VERSION} />;
 }
 
-function SectionPage({ sectionKey, repository }: { sectionKey: Exclude<GlobalKey, "matters">; repository: LocalRepository }) {
-  // V6-09: settings opens the appearance panel; the other sections stay notices.
+function SectionPage({ sectionKey, repository }: { sectionKey: SectionKey; repository: LocalRepository }) {
   if (sectionKey === "settings") return <><AppearancePage /><Recovery repository={repository} actor={LOCAL_ACTOR} /></>;
+  if (sectionKey === "activity") return <ActivityFeed repository={repository} actor={LOCAL_ACTOR} currentMatterId="" />;
+  if (sectionKey === "services") return (
+    <div className="v6-page" data-testid="section-services">
+      <p className="v6-self-kicker">能力范围</p><h1 className="v6-title">人工服务</h1>
+      <div className="notice"><strong>当前未开放预约</strong><p>本地版不匹配服务人员，不展示已核验资质或报价，也不接收预约、付款或资料分享。</p></div>
+      <section className="card stack-3"><h2 className="card-title">未来服务范围</h2><ul><li>申请路线咨询：核对目标、公开历史与准备事项。</li><li>材料复核：由确认了资格、法域、保密条款和报价的专业人员查看指定版本。</li><li>代理对接：确认服务范围和委托关系后，再单独授权材料。</li></ul><p className="field-hint">这些服务当前都不可预约；页面说明不代表已建立委托或提供法律意见。</p></section>
+    </div>
+  );
+  if (sectionKey === "pricing") return (
+    <div className="v6-page" data-testid="section-pricing">
+      <p className="v6-self-kicker">本地版本</p><h1 className="v6-title">套餐与价格</h1>
+      <div className="notice"><strong>当前不收费</strong><p>本地准备功能没有套餐、单案解锁、平台额度或支付流程。未来收费范围尚未开放，也没有已确认的价格。</p></div>
+      <p className="muted">人工咨询、材料复核和代理对接与软件功能分开；这些服务当前也未开放预约。</p>
+    </div>
+  );
+  if (sectionKey === "billing") return (
+    <div className="v6-page" data-testid="section-billing">
+      <p className="v6-self-kicker">账户状态</p><h1 className="v6-title">账单</h1>
+      <div className="notice"><strong>本地版没有账单</strong><p>当前没有账户套餐、订单、额度账本或真实扣款。这里不会生成模拟付款或续费状态。</p></div>
+      <Link className="link-button" to={v6Path({ kind: "section", key: "pricing" })}>查看套餐与价格范围</Link>
+    </div>
+  );
   const item = GLOBAL_NAV.find((candidate) => candidate.key === sectionKey)!;
   return (
     <div className="v6-page" data-testid="section">
       <h1 className="v6-title">{item.label}</h1>
-      <div className="notice">{item.capability.reason}</div>
+      <div className="notice">{item.capability.reason ?? "本地版本的能力范围有限。"}</div>
     </div>
   );
 }

@@ -175,6 +175,49 @@ test("V6-26-A01 / S08-A06: valid encrypted recovery restores text and original f
   assert.equal(text.includes(source.imported.data.asset.id), false);
 });
 
+test("V6-26 preserves a test-output revision through encrypted .patentpack export and import", async () => {
+  const source = await v624.makeApprovalFixture();
+  const head = await source.revisions.loadHeadRevision(v624.MATTER_ID, v624.TARGET_ID);
+  assert.equal(head.ok, true);
+  const revisionKey = [
+    "generation",
+    encodeURIComponent(v624.ACTOR.tenantId),
+    encodeURIComponent(v624.ACTOR.userId),
+    "revision",
+    encodeURIComponent(v624.MATTER_ID),
+    encodeURIComponent(v624.TARGET_ID),
+    encodeURIComponent(head.data.revision.id),
+  ].join("/");
+  await source.repository.backend.transaction("readwrite", async (tx) => {
+    const row = await tx.get(repoModule.STORES.blobs, revisionKey);
+    assert.ok(row?.revision);
+    row.revision.testOutput = true;
+    await tx.put(repoModule.STORES.blobs, revisionKey, row);
+  });
+
+  const packed = await recovery.createRecoveryPackage(source.repository, v624.ACTOR, v624.MATTER_ID, {
+    passphrase: PASS_PHRASE,
+    access: "local_unmetered",
+  });
+  const opened = await patentpack.openPatentPack(packed, PASS_PHRASE);
+  const packedRevision = opened.records.find((record) => record.kind === "generation.revision"
+    && record.value.revision.id === head.data.revision.id);
+  assert.equal(packedRevision?.value.revision.testOutput, true);
+
+  const destinationBackend = new MemoryBackend();
+  const { destination, checked } = await importInto(destinationBackend, packed);
+  assert.equal(checked.canCommit, true);
+  const committed = await recovery.commitRecoveryImport(destination, v624.ACTOR, checked.validationId);
+  assert.equal(committed.ok, true, committed.ok ? "" : `${committed.error.code}: ${committed.error.message}`);
+  const matter = await destination.loadMatter(v624.ACTOR, committed.data.matterId);
+  assert.equal(matter.ok, true);
+  const target = matter.data.data.targets.find((item) => item.draftRevisionId !== null);
+  assert.ok(target);
+  const restored = await recovery.readRecoveredDraft(destination, v624.ACTOR, committed.data.matterId, target.id);
+  assert.equal(restored.ok, true);
+  assert.equal(restored.data.revision.testOutput, true);
+});
+
 test("V6-26-A01 / B1: a stable figureId across figure-set revisions validates and imports", async () => {
   const source = await v624.makeApprovalFixture();
   const loaded = await source.repository.loadMatter(v624.ACTOR, v624.MATTER_ID);

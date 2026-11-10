@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { register } from "tsx/esm/api";
 import { unzipSync } from "fflate";
+import { PDFDocument } from "pdf-lib";
 
 register();
 
@@ -36,6 +37,7 @@ test("V6-25-A01 / S08-A02: current local export downloads bytes matching its man
   assert.equal(created.ok, true, created.ok ? "" : JSON.stringify(created.error));
   assert.equal(created.record.manifest.searchState, "not_searched");
   assert.equal(created.record.manifest.packageKind, "preparation");
+  assert.equal(created.record.manifest.testOutput, undefined, "ordinary exports do not force a false test-output marker");
   assert.equal(created.record.manifest.snapshot.draftRevisionId, fixture.checkResult.checkRun.snapshot.draftRevisionId);
   assert.equal(created.record.manifest.astHash, fixture.session.getSnapshot().revision.revision.astHash);
   assert.equal(created.record.manifest.figureSetHash, fixture.figureRevision.hash);
@@ -76,6 +78,12 @@ test("V6-25-A01 / S08-A02: current local export downloads bytes matching its man
   const downloadedClaims = await session.download(claims.id);
   const document = new TextDecoder().decode(unzipSync(downloadedClaims.bytes)["word/document.xml"]);
   assert.match(document, /一种合成温控装置/);
+  assert.doesNotMatch(document, /测试输出，仅用于验证流程，不能作为正式申请材料/);
+  const checklistFile = byName.get("提交检查清单.pdf");
+  const downloadedChecklist = await session.download(checklistFile.id);
+  assert.equal(downloadedChecklist.ok, true);
+  const ordinaryPdf = await PDFDocument.load(downloadedChecklist.bytes);
+  assert.doesNotMatch(`${ordinaryPdf.getTitle() ?? ""} ${ordinaryPdf.getSubject() ?? ""}`, /测试输出，仅用于验证流程，不能作为正式申请材料/);
 
   const pack = await session.download(byName.get("项目备份.patentpack").id);
   assert.equal(pack.ok, true);
@@ -95,6 +103,53 @@ test("V6-25-A01 / S08-A02: current local export downloads bytes matching its man
   const events = await fixture.repository.listEvents(v624.ACTOR, v624.MATTER_ID);
   assert.equal(events.ok, true);
   assert.equal(events.data.items.filter((event) => event.action === "export.created").length, 1);
+});
+
+test("test-output export keeps its provenance in the manifest, checklist and generated filenames", async () => {
+  const fixture = await v624.makeApprovalFixture();
+  await v624.addFullReadConfirmation(fixture);
+  const baseRead = await fixture.revisions.loadHeadRevision(v624.MATTER_ID, v624.TARGET_ID);
+  assert.equal(baseRead.ok, true);
+  const revisions = {
+    ...fixture.revisions,
+    async loadHeadRevision(matterId, targetId) {
+      const loaded = await fixture.revisions.loadHeadRevision(matterId, targetId);
+      if (!loaded.ok || loaded.data === null) return loaded;
+      const revision = { ...loaded.data.revision, testOutput: true };
+      return { ...loaded, data: { ...loaded.data, revision } };
+    },
+  };
+  let checklistSpec = null;
+  const session = new exportAdapter.ExportSession({
+    ...v624.approvalProps(fixture, { confirmationMode: "self_read", revisions }),
+    access: "local_unmetered",
+    route: "cn_invention",
+    passphrase: PASS_PHRASE,
+    now: () => v624.T0,
+    renderReport: async (spec) => { checklistSpec = spec; return [PNG_1PX]; },
+  });
+  await session.load();
+  assert.equal(session.getSnapshot().testOutput, true);
+  const created = await session.createExport();
+  assert.equal(created.ok, true, created.ok ? "" : JSON.stringify(created.error));
+  assert.equal(created.record.manifest.testOutput, true);
+  assert.match(JSON.stringify(checklistSpec), /测试输出，仅用于验证流程，不能作为正式申请材料/);
+  const marker = "测试输出，仅用于验证流程，不能作为正式申请材料";
+  const claimsFile = created.record.files.find((file) => file.name === "测试输出-权利要求书.docx");
+  assert.ok(claimsFile);
+  const claimsBytes = await session.download(claimsFile.id);
+  assert.equal(claimsBytes.ok, true, claimsBytes.ok ? "" : JSON.stringify(claimsBytes.error));
+  const claimsXml = new TextDecoder().decode(unzipSync(claimsBytes.bytes)["word/document.xml"]);
+  assert.match(claimsXml, new RegExp(marker));
+  assert.ok(claimsXml.indexOf(marker) < claimsXml.indexOf("权利要求书"), "the marker is the first DOCX paragraph");
+  const pdfFile = created.record.files.find((file) => file.name === "测试输出-提交检查清单.pdf");
+  assert.ok(pdfFile);
+  const pdfBytes = await session.download(pdfFile.id);
+  assert.equal(pdfBytes.ok, true, pdfBytes.ok ? "" : JSON.stringify(pdfBytes.error));
+  const pdf = await PDFDocument.load(pdfBytes.bytes);
+  assert.match(`${pdf.getTitle() ?? ""} ${pdf.getSubject() ?? ""}`, new RegExp(marker));
+  assert.ok(created.record.files.some((file) => file.name === "测试输出-权利要求书.docx"));
+  assert.ok(created.record.files.some((file) => file.name === "测试输出-提交检查清单.pdf"));
 });
 
 test("V6-25-A02 / S08-A01: missing figure bytes block export and XML stays unavailable", async () => {

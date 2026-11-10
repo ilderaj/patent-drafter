@@ -174,6 +174,8 @@ export const draftRevisionSchema = z
     astHash: sha256Schema,
     reason: draftRevisionReasonSchema,
     restoredFrom: idSchema.nullable(),
+    /** True when this revision descends from local fixture generation. */
+    testOutput: z.boolean().optional(),
     createdBy: idSchema,
     createdAt: isoDateTimeSchema,
   })

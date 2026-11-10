@@ -72,8 +72,10 @@ export interface GenerationView {
   progress: { completed: number; total: number | null; unit: string };
   /** `obsolete_result`: input or base revision changed before completion/adoption. */
   inputStale: boolean;
-  /** True when the result is a fixture/stub output and cannot be adopted. */
+  /** True when the result is a fixture/stub output; adopting must keep that marker. */
   testOutput: boolean;
+  /** True when the engine was explicitly configured to adopt test output. */
+  testAdoptionAllowed: boolean;
   canStart: boolean;
   canCancel: boolean;
   canRetry: boolean;
@@ -84,7 +86,7 @@ export interface GenerationView {
   revisionId: string | null;
 }
 
-export function generationView(job: GenerationJobView | null, matterId: string, targetId: string, canStart = true): GenerationView {
+export function generationView(job: GenerationJobView | null, matterId: string, targetId: string, canStart = true, allowTestAdoption = false): GenerationView {
   const stages = job?.stages ?? GENERATE_STAGES.map((stage) => ({
     stage,
     state: "pending" as const,
@@ -98,7 +100,8 @@ export function generationView(job: GenerationJobView | null, matterId: string, 
   const canRetry = state === "failed";
   const canResume = state === "interrupted";
   const canDiscard = canResume || state === "succeeded" || state === "failed" || state === "cancelled";
-  const canAdopt = state === "succeeded" && job?.result !== null && !inputStale && !testOutput && job?.job.disposition === "ready";
+  const canAdopt = state === "succeeded" && job?.result !== null && !inputStale
+    && (!testOutput || allowTestAdoption) && job?.job.disposition === "ready";
   return {
     matterId,
     targetId,
@@ -107,6 +110,7 @@ export function generationView(job: GenerationJobView | null, matterId: string, 
     progress: job?.progress ?? { completed: 0, total: GENERATE_STAGES.length, unit: "stage" },
     inputStale,
     testOutput,
+    testAdoptionAllowed: allowTestAdoption,
     canStart: canStart && (state === null || ["succeeded", "failed", "cancelled", "interrupted"].includes(state)),
     canCancel: state === "queued" || state === "running",
     canRetry,
@@ -140,6 +144,8 @@ export interface GenerationPanelProps {
   loadError?: { code: string; message: string } | null;
   /** Optional cap on polling while a job is running; default 2000 ms. */
   pollMs?: number;
+  /** Called after a successful adoption so the owning editor/review can reload. */
+  onAdopted?: () => void;
 }
 
 export interface GenerationViewProps {
@@ -202,7 +208,9 @@ function CandidatePreview({ view, actions }: { view: GenerationView; actions: Ge
       ) : null}
       {view.job.result.testOutput ? (
         <p className="notice" data-testid="generation-test-output">
-          测试输出：这是固定测试结果，可预览，不能采纳为正式生成修订。
+          {view.testAdoptionAllowed
+            ? "测试输出：这是固定测试结果，可预览；采纳后仍带测试标记，不能作为正式申请材料。"
+            : "测试输出：这是固定测试结果，可预览，不能采纳为正式生成修订。"}
         </p>
       ) : null}
       {ast.claims.map((claim) => (
@@ -230,7 +238,7 @@ function CandidatePreview({ view, actions }: { view: GenerationView; actions: Ge
           </button>
         </div>
       ) : null}
-      {view.testOutput ? null : (
+      {view.testOutput && !view.testAdoptionAllowed ? null : (
         <button
           type="button"
           className="btn btn-default"
@@ -239,7 +247,7 @@ function CandidatePreview({ view, actions }: { view: GenerationView; actions: Ge
           title={view.inputStale ? "输入已变化，结果未采纳" : undefined}
           onClick={() => void actions.adopt()}
         >
-          采纳为新修订
+          {view.testOutput ? "采纳为测试修订（带测试标记，不能作为正式申请材料）" : "采纳为新修订"}
         </button>
       )}
     </div>
@@ -388,6 +396,11 @@ export function GenerationPanel(props: GenerationPanelProps) {
   const [notice, setNotice] = useState<string | null>(null);
   const [actionError, setActionError] = useState<{ code: string; message: string } | null>(null);
   const busyRef = useRef(false);
+  const testAdoptionAllowed = props.engineOptions?.allowTestAdoption === true;
+  const viewFor = useCallback((job: GenerationJobView | null) =>
+    generationView(job, props.matterId ?? "", props.targetId ?? "", true, testAdoptionAllowed),
+  [props.matterId, props.targetId, testAdoptionAllowed]);
+
   const engine = useMemo<GenerationEngine | null>(() => {
     if (props.engine) return props.engine;
     if (!props.repository || !props.actor || !props.matterId || !props.targetId || !props.engineOptions) return null;
@@ -406,8 +419,8 @@ export function GenerationPanel(props: GenerationPanelProps) {
       return;
     }
     setLoadError(null);
-    setView(generationView(listed.data[0] ?? null, props.matterId, props.targetId));
-  }, [injected, engine, props.matterId, props.targetId]);
+    setView(viewFor(listed.data[0] ?? null));
+  }, [injected, engine, props.matterId, props.targetId, viewFor]);
 
   useEffect(() => {
     if (injected) return;
@@ -432,7 +445,7 @@ export function GenerationPanel(props: GenerationPanelProps) {
       if (operation === "start") {
         const result = await engine.start(props.matterId, props.targetId);
         if (!result.ok) setActionError(result.error);
-        else setView(generationView(result.data, props.matterId, props.targetId));
+        else setView(viewFor(result.data));
         return;
       }
       const jobId = view?.job?.job.id;
@@ -442,22 +455,25 @@ export function GenerationPanel(props: GenerationPanelProps) {
         if (!result.ok) {
           setActionError(result.error);
         } else if (result.data.status === "obsolete_result") {
-          setView(generationView(result.data.job, props.matterId, props.targetId));
+          setView(viewFor(result.data.job));
           setNotice("输入已变化，结果未采纳。");
         } else {
-          setView(generationView(result.data.job, props.matterId, props.targetId));
-          setNotice(`已采纳为修订 ${result.data.revision.id}。`);
+          setView(viewFor(result.data.job));
+          setNotice(result.data.revision.testOutput === true
+            ? `已采纳为测试修订 ${result.data.revision.id}（带测试标记，不能作为正式申请材料）。`
+            : `已采纳为修订 ${result.data.revision.id}。`);
+          props.onAdopted?.();
         }
         return;
       }
       const result = await engine[operation](jobId);
       if (!result.ok) setActionError(result.error);
-      else setView(generationView(result.data, props.matterId, props.targetId));
+      else setView(viewFor(result.data));
     } finally {
       busyRef.current = false;
       setBusy(false);
     }
-  }, [engine, props.matterId, props.targetId, view]);
+  }, [engine, props.matterId, props.targetId, props.onAdopted, view, viewFor]);
 
   const actions = useMemo<GenerationActions>(() => ({
     start: () => act("start"),

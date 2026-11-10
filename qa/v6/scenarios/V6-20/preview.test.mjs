@@ -183,7 +183,7 @@ function renderContents(ready, highlightedAnchor = null) {
 
 function ledgerRows(backend) {
   return [...backend.data.get(repositoryModule.STORES.blobs).values()]
-    .filter((row) => row?.kind === "preview.confirmation-ledger");
+    .filter((row) => row?.kind === "draft-review.confirmations");
 }
 
 test("V6-20-A01: a current full local draft records one contract-shaped full_read", async () => {
@@ -346,7 +346,7 @@ test("V6-20-A03: a revoked full_read is hidden and retry creates a new live row"
   assert.equal(first.created, true);
 
   const [ledgerKey, storedRow] = [...current.backend.data.get(repositoryModule.STORES.blobs).entries()]
-    .find(([, row]) => row?.kind === "preview.confirmation-ledger");
+    .find(([, row]) => row?.kind === "draft-review.confirmations");
   const revoked = confirmationModule.revokeConfirmation(
     storedRow.ledger,
     { confirmationId: first.confirmation.id, actorId: ACTOR.userId, reason: "需要重新核对" },

@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { Actor, LocalRepository } from "../../lib/repository.ts";
 import { Intake } from "../intake/Intake.tsx";
 import { DraftEditor } from "../draft/Editor.tsx";
-import { DraftReviewPanel } from "../draft/Review.tsx";
+import { DraftReviewPanelView, DraftReviewSession } from "../draft/Review.tsx";
+import type { DraftReviewState } from "../draft/Review.tsx";
+import { currentConfirmations } from "../../../../../../packages/domain/src/v6/confirmation.ts";
 import { GenerationPanel } from "../generation/Generation.tsx";
 import type { GenerationEngineOptions } from "../generation/generation.ts";
 import { Figures } from "../sources/Figures.tsx";
@@ -13,6 +15,7 @@ import { TargetsPanel } from "../targets/Targets.tsx";
 import { ChecksWorkspace, DeliveryWorkspace } from "../delivery/Workspace.tsx";
 import type { CheckRulePack } from "@patent/domain";
 import { ActivityFeed } from "./ActivityFeed.tsx";
+import { TestOutputNotice } from "./TestOutputNotice.tsx";
 import {
   loadWorkbenchOverview,
   type ApprovalValidity,
@@ -106,13 +109,14 @@ export function ProfessionalWorkbench(props: ProfessionalWorkbenchProps) {
   const { overview } = state;
   const stale = Date.now() - overview.loadedAt > STALE_AFTER_MS;
   const selectedTarget = overview.targets.find((target) => target.id === props.targetId) ?? null;
+  const testOutput = selectedTarget?.testOutput ?? overview.targets.some((target) => target.testOutput);
   const onSettled = () => { void refresh(true); };
   const archivedReadOnlyTab = overview.matterStatus === "archived" && WRITE_TABS.has(props.tab);
 
-  return <main className="v6-page" data-testid="professional-workbench" data-state={state.error ? "stale" : "ready"}
+  return <main className="v6-page v6-professional" data-testid="professional-workbench" data-state={state.error ? "stale" : "ready"}
     data-matter-id={overview.matterId} data-tab={props.tab}>
-    <header className="stack-3">
-      <div className="row-between" style={{ flexWrap: "wrap" }}>
+    <header className="v6-workbench-header">
+      <div className="v6-workbench-heading">
         <div>
           <p className="muted">专业工作台 · {overview.matterStatus === "archived" ? "已归档，只读" : "本机案件"}</p>
           <h1 className="v6-title">{overview.title}</h1>
@@ -120,14 +124,15 @@ export function ProfessionalWorkbench(props: ProfessionalWorkbenchProps) {
         <Link className="btn btn-outline btn-sm" to={professionalMatterPath(overview.matterId)}>打开同一案件概览</Link>
       </div>
       <MatterTargetNav overview={overview} selectedTargetId={props.targetId} tab={props.tab} />
-      <nav className="tabs-list v6-tabs" aria-label="专业工作台标签">
+      <nav className="v6-workbench-tabs" aria-label="专业工作台标签">
         {MATTER_TABS.map((item) => <Link key={item.key}
           to={v6Path({ kind: "matter", matterId: overview.matterId, targetId: props.targetId, tab: item.key })}
           className="tabs-trigger" data-state={item.key === props.tab ? "active" : "inactive"}
           aria-current={item.key === props.tab ? "page" : undefined}>
-          {item.label}
+          {item.key === "review" ? "客户审阅（R3）" : item.label}
         </Link>)}
       </nav>
+      {testOutput ? <TestOutputNotice revision={{ testOutput: true }} testId="workbench-test-output" /> : null}
       {overview.matterStatus === "archived" ? <div className="notice" role="status" data-testid="workbench-archived">
         案件已归档，现为只读。<Link to="/v6/matters">返回案件列表后可取消归档。</Link>
       </div> : null}
@@ -144,7 +149,7 @@ export function ProfessionalWorkbench(props: ProfessionalWorkbenchProps) {
           : props.tab === "facts" ? <Intake repository={props.repository} actor={props.actor} matterId={overview.matterId} />
             : props.tab === "draft" ? <DraftPanel {...props} overview={overview} />
               : props.tab === "check" ? <ChecksWorkspace repository={props.repository} actor={props.actor} matterId={overview.matterId} targetId={selectedTarget?.id ?? null} rulePack={props.rulePack} rulePackVersion={props.rulePackVersion} />
-                : props.tab === "review" ? <ReviewPanel repository={props.repository} actor={props.actor} matterId={overview.matterId} target={selectedTarget} />
+                : props.tab === "review" ? <ReviewPanel matterId={overview.matterId} target={selectedTarget} />
                   : props.tab === "deliver" ? <DeliveryWorkspace repository={props.repository} actor={props.actor} matterId={overview.matterId} targetId={selectedTarget?.id ?? null} rulePack={props.rulePack} rulePackVersion={props.rulePackVersion} onSettled={onSettled} />
                     : <ApplicationPanel />}
   </main>;
@@ -191,44 +196,78 @@ function OverviewPanel({ overview, repository, actor, onSettled }: {
   actor: Actor;
   onSettled: () => void;
 }) {
-  return <div className="stack-3" data-testid="workbench-overview">
+  return <div className="stack-3 v6-overview-targets" data-testid="workbench-overview">
     <section className="card stack-3">
       <div className="row-between" style={{ flexWrap: "wrap" }}>
         <h2 className="card-title">案件概览</h2>
         <span className="field-hint">案件 v{overview.matterVersion} · 输入 v{overview.sourceVersion}</span>
       </div>
-      {overview.targets.length === 0 ? <p className="muted">尚无目标；没有示例目标或待办。</p> : <TargetOverviewTable targets={overview.targets} />}
+      {overview.targets.length === 0 ? <p className="muted">尚无目标。选择路线并保存后，可在这里查看进度和下一步。</p> : <TargetOverviewTable targets={overview.targets} matterId={overview.matterId} />}
     </section>
-    <TargetsPanel repository={repository} actor={actor} matterId={overview.matterId} onSettled={onSettled} />
+    {overview.targets.length > 0 ? <section className="card stack-3" data-testid="workbench-next-actions">
+      <h2 className="card-title">下一步</h2>
+      <ul className="v6-list">{overview.targets.map((target, index) => {
+        const next = nextActionPresentation(target.nextAction);
+        return <li className="v6-entry" key={target.id}>
+          <div className="row-between" style={{ flexWrap: "wrap" }}>
+            <strong>目标 {index + 1} · {routeLabel(target.route)}</strong>
+            {next.tab ? <Link className="btn btn-outline btn-sm" to={v6Path({ kind: "matter", matterId: overview.matterId, targetId: target.id, tab: next.tab })}>{next.linkLabel}</Link> : <span className="badge badge-ok">暂无待处理动作</span>}
+          </div>
+          <p className="muted">{next.description}</p>
+        </li>;
+      })}</ul>
+    </section> : null}
+    <details className="v6-overview-config" data-testid="workbench-target-settings">
+      <summary>目标与路线设置</summary>
+      <TargetsPanel repository={repository} actor={actor} matterId={overview.matterId} onSettled={onSettled} />
+    </details>
     <ActivityFeed repository={repository} actor={actor} currentMatterId={overview.matterId} />
   </div>;
 }
 
 export interface TargetOverviewTableProps {
   targets: readonly WorkbenchTargetSummary[];
+  matterId?: string;
 }
 
 /** Read-only target aggregate: route, language, versions, check, confirmation, approval and next action. */
-export function TargetOverviewTable({ targets }: TargetOverviewTableProps) {
-  return <div style={{ overflowX: "auto" }}>
-    <table className="table" data-testid="workbench-target-summary">
+export function TargetOverviewTable({ targets, matterId }: TargetOverviewTableProps) {
+  return <div className="v6-overview-table-wrap">
+    <table className="table v6-target-summary" data-testid="workbench-target-summary">
       <thead><tr><th>目标</th><th>路线 / 状态</th><th>语言</th><th>配置 / 修订</th><th>检查</th><th>AI 确认</th><th>内部批准</th><th>下一步</th></tr></thead>
-      <tbody>{targets.map((target, index) => <TargetSummaryRow key={target.id} target={target} index={index} />)}</tbody>
+      <tbody>{targets.map((target, index) => <TargetSummaryRow key={target.id} target={target} index={index} matterId={matterId} />)}</tbody>
     </table>
   </div>;
 }
 
-function TargetSummaryRow({ target, index }: { target: WorkbenchTargetSummary; index: number }) {
+function TargetSummaryRow({ target, index, matterId }: { target: WorkbenchTargetSummary; index: number; matterId?: string }) {
+  const next = nextActionPresentation(target.nextAction);
   return <tr data-testid={`workbench-target-${target.id}`} data-check-state={target.check.state} data-approval-state={target.approval.state} data-language={target.language ?? ""}>
-    <td>目标 {index + 1}<div className="field-hint">{target.id}</div></td>
+    <td>目标 {index + 1}<details className="v6-tech-details"><summary>技术详情</summary><code>{target.id}</code></details></td>
     <td>{routeLabel(target.route)}<div className="field-hint">{target.status === "active" ? "进行中" : "已归档"}</div></td>
     <td>{languageLabel(target.language)}</td>
-    <td>配置 v{target.configVersion}<div className="field-hint">{target.revisionId ? `修订 ${target.revisionId}` : "尚无修订"}{target.inputStale ? " · 输入陈旧" : ""}</div></td>
-    <td>{checkLabel(target.check.state)}<div className="field-hint">{target.check.rulePackVersion ?? "无检查版本"}</div></td>
-    <td>{target.confirmations.confirmed}/{target.confirmations.required}</td>
+    <td>配置 v{target.configVersion}<div className="field-hint">{target.revisionId ? "已有当前修订" : "尚无修订"}{target.inputStale ? " · 输入陈旧" : ""}</div>{target.revisionId ? <details className="v6-tech-details"><summary>修订编号</summary><code>{target.revisionId}</code></details> : null}</td>
+    <td>{checkLabel(target.check.state)}<div className="field-hint">{target.check.rulePackVersion ? "已记录检查规则版本" : "无检查记录"}</div></td>
+    <td>{target.confirmations.confirmed}/{target.confirmations.required}<div className="field-hint">段落确认</div></td>
     <td>{approvalLabel(target.approval)}</td>
-    <td><code>{target.nextAction}</code></td>
+    <td className="v6-target-next">{matterId && next.tab ? <Link to={v6Path({ kind: "matter", matterId, targetId: target.id, tab: next.tab })}>{next.label}</Link> : next.label}</td>
   </tr>;
+}
+
+function nextActionPresentation(action: WorkbenchTargetSummary["nextAction"]): { label: string; description: string; tab: MatterTab | null; linkLabel: string } {
+  switch (action) {
+    case "add_sources": return { label: "补充材料或事实", description: "添加可用材料，或完成案件事实信息。", tab: "sources", linkLabel: "打开材料" };
+    case "resolve_conflict": return { label: "处理事实冲突", description: "查看冲突记录，选择处理意见或保留不确定状态。", tab: "facts", linkLabel: "查看事实" };
+    case "generate_draft": return { label: "生成或撰写草稿", description: "准备好当前输入后，运行配置的生成方式或开始手工撰写。", tab: "draft", linkLabel: "打开草稿" };
+    case "refresh_inputs": return { label: "核对最新输入", description: "事实、目标配置或附图已变化，请核对后再继续。", tab: "facts", linkLabel: "核对输入" };
+    case "confirm_content": return { label: "确认草稿内容", description: "检查当前修订中的 AI 或混合段落，并记录逐段确认。", tab: "draft", linkLabel: "确认内容" };
+    case "run_check": return { label: "运行检查", description: "对当前草稿和输入运行规则检查。", tab: "check", linkLabel: "运行检查" };
+    case "ack_risk": return { label: "处理检查风险", description: "阅读风险依据并记录需要的人工确认。", tab: "check", linkLabel: "查看风险" };
+    case "approve": return { label: "记录内部批准", description: "检查当前导出门禁后，记录本机内部批准。", tab: "deliver", linkLabel: "打开交付" };
+    case "export": return { label: "准备导出", description: "查看当前导出门禁和可用文件格式。", tab: "deliver", linkLabel: "查看导出" };
+    case "record_receipt": return { label: "核对回执记录", description: "只有取得真实回执后，才能确认提交后的基线。", tab: "filing", linkLabel: "查看申请记录" };
+    case "none": return { label: "当前没有待处理动作", description: "当前案件状态没有派生出下一项工作。", tab: null, linkLabel: "" };
+  }
 }
 
 function MaterialsPanel(props: ProfessionalWorkbenchProps & { onSettled: () => void; onOpenFacts: () => void }) {
@@ -243,21 +282,91 @@ function DraftPanel(props: ProfessionalWorkbenchProps & { overview: WorkbenchOve
   if (!props.targetId) return <TargetRequired />;
   const target = props.overview.targets.find((item) => item.id === props.targetId);
   if (!target) return <MatterUnavailable />;
-  return <div className="stack-3" data-testid="workbench-draft">
-    {props.generation ? <GenerationPanel repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId} engineOptions={props.generation} />
+  return <DraftWorkspacePanel repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId} generation={props.generation} />;
+}
+
+function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository" | "actor" | "matterId" | "generation"> & { targetId: string }) {
+  const session = useMemo(() => new DraftReviewSession({
+    repository: props.repository,
+    actor: props.actor,
+    matterId: props.matterId,
+    targetId: props.targetId,
+  }), [props.repository, props.actor, props.matterId, props.targetId]);
+  const [reviewState, setReviewState] = useState<DraftReviewState>(() => session.getSnapshot());
+  const [editorRefreshToken, setEditorRefreshToken] = useState(0);
+  const generationRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = session.subscribe(setReviewState);
+    void session.load();
+    return unsubscribe;
+  }, [session]);
+
+  const revealGeneration = useCallback(() => {
+    const node = generationRef.current;
+    if (!node) return;
+    node.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    node.focus?.({ preventScroll: true });
+  }, []);
+  const onAdopted = useCallback(() => {
+    // Load the adopted head in the editor; an unsaved local buffer stays in conflict view.
+    setEditorRefreshToken((value) => value + 1);
+    void session.refresh();
+  }, [session]);
+  const onEditorSaved = useCallback(() => {
+    void session.refresh();
+  }, [session]);
+
+  const liveConfirmations = reviewState.currentSnapshot
+    ? currentConfirmations(reviewState.ledger, reviewState.currentSnapshot)
+    : [];
+  const confirmedParagraphIds = liveConfirmations
+    .filter((item) => item.kind === "ai_paragraph" && typeof item.paragraphId === "string")
+    .map((item) => item.paragraphId as string);
+  const confirmationRevisionId = reviewState.isCurrent
+    ? reviewState.currentSnapshot?.draftRevisionId ?? null
+    : null;
+
+  return <div className="stack-3 v6-draft-workspace" data-testid="workbench-draft-workspace">
+    {props.generation ? <div ref={generationRef} tabIndex={-1} data-testid="workbench-generation-panel">
+      <GenerationPanel repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId}
+        engineOptions={props.generation} onAdopted={onAdopted} />
+    </div>
       : <div className="notice" data-testid="workbench-generation-unavailable">本工作台没有配置可用的生成执行引擎。不会运行测试输出或联系外部处理方；可继续编辑已保存草稿。</div>}
-    <DraftEditor repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId} />
+    <div className="v6-draft-columns" data-testid="workbench-draft-columns">
+      <DraftEditor repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId}
+        confirmationRevisionId={confirmationRevisionId} confirmedParagraphIds={confirmedParagraphIds}
+        onGenerateDraft={props.generation ? revealGeneration : undefined}
+        generateEntryLabel={props.generation ? "查看生成面板" : undefined}
+        onSaved={onEditorSaved}
+        refreshToken={editorRefreshToken} />
+      <div className="v6-draft-review">
+        <DraftReviewPanelView
+          state={reviewState}
+          onRefresh={() => session.refresh()}
+          onConfirm={(paragraphId) => session.confirmParagraph(paragraphId)}
+          onRevoke={(confirmationId, reason) => session.revokeParagraphConfirmation(confirmationId, reason)}
+        />
+      </div>
+    </div>
   </div>;
 }
 
-function ReviewPanel({ repository, actor, matterId, target }: {
-  repository: LocalRepository;
-  actor: Actor;
+function ReviewPanel({ matterId, target }: {
   matterId: string;
   target: WorkbenchTargetSummary | null;
 }) {
   if (!target) return <TargetRequired />;
-  return <DraftReviewPanel repository={repository} actor={actor} matterId={matterId} targetId={target.id} />;
+  return <section className="card stack-3 v6-client-review" data-testid="workbench-client-review" data-release="R3">
+    <h2 className="card-title">客户审阅往返 · R3</h2>
+    <p>客户审阅包、外部回复和往返状态将在 R3 提供。此版本不会向客户发送材料，也不会把内部记录显示为客户意见。</p>
+    <div className="notice" role="status">
+      当前可在草稿页编辑修订并确认 AI/混合段落；内部批准和可用导出状态在交付页查看。
+    </div>
+    <div className="row" style={{ flexWrap: "wrap" }}>
+      <Link className="btn btn-outline btn-sm" to={v6Path({ kind: "matter", matterId, targetId: target.id, tab: "draft" })}>打开草稿</Link>
+    </div>
+  </section>;
 }
 
 function ApplicationPanel() {

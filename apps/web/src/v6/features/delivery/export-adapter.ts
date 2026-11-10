@@ -34,6 +34,7 @@ import {
   type GenerationRevisionStore,
   type GenerationRevisionView,
 } from "../generation/generation.ts";
+import { legacyConfirmationLedgerStorageKey, mergeLedgerRows } from "../preview/preview.ts";
 import {
   ACTIVITY_METADATA_KEYS_BY_ACTION,
   CONTRACT_VERSION,
@@ -82,6 +83,7 @@ export interface ExportManifest {
   riskIds: string[];
   searchState: "not_searched";
   packageKind: ExportPackageKind;
+  testOutput?: boolean;
   language: "zh-CN" | "en-US";
   createdAt: string;
   files: ExportManifestFile[];
@@ -135,6 +137,7 @@ export interface ExportSessionState {
   phase: "loading" | "empty" | "ready" | "blocked" | "stale" | "error";
   snapshot: SnapshotRef | null;
   inputStale: boolean;
+  testOutput: boolean;
   gate: ExportGateDecision | null;
   record: ExportRecord | null;
   files: readonly ExportFileView[];
@@ -189,6 +192,7 @@ interface LoadedExportContext {
 
 export const EXPORT_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const XML_UNAVAILABLE = "G-XML 未通过，官方 XML 格式不可用；不会生成或改名伪造 .xml 文件。";
+export const TEST_OUTPUT_NOTICE = "测试输出，仅用于验证流程，不能作为正式申请材料";
 
 function effectivePackageKind(options: ExportSessionOptions): ExportPackageKind {
   return options.packageKind ?? (options.confirmationMode === "professional_paragraphs" ? "internally_approved" : "preparation");
@@ -253,6 +257,14 @@ function readConfirmations(raw: unknown, actor: Actor, matterId: string): Confir
       return { ...parsed, objectType: "confirmation" as const };
     }),
   };
+}
+
+function withLegacyConfirmations(canonical: ConfirmationLedger, legacy: ConfirmationLedger): ConfirmationLedger {
+  const confirmations = new Map(canonical.confirmations.map((item) => [item.id, item]));
+  const revocations = new Map(canonical.revocations.map((item) => [item.id, item]));
+  for (const item of legacy.confirmations) if (!confirmations.has(item.id)) confirmations.set(item.id, item);
+  for (const item of legacy.revocations) if (!revocations.has(item.id)) revocations.set(item.id, item);
+  return { matterId: canonical.matterId, confirmations: [...confirmations.values()], revocations: [...revocations.values()] };
 }
 
 function readApprovalLedger(raw: unknown, actor: Actor, matterId: string): { matterId: string; approvals: Approval[]; revocations: Revocation[] } {
@@ -398,6 +410,7 @@ async function readCurrentContext(options: ExportSessionOptions): Promise<Loaded
     readFigureLibrary(repository, actor, matterId),
     repository.backend.transaction("readonly", async (tx) => ({
       confirmations: await tx.get(STORES.blobs, confirmationKey(actor, matterId)),
+      legacyConfirmations: await tx.get(STORES.blobs, legacyConfirmationLedgerStorageKey(actor, matterId)),
       approvals: await tx.get(STORES.blobs, approvalKey(actor, matterId)),
     })),
   ]);
@@ -418,7 +431,10 @@ async function readCurrentContext(options: ExportSessionOptions): Promise<Loaded
   };
   const snapshotCurrent = target.draftRevisionId !== null && target.draftRevisionId === revision.revision.id;
   const inputStale = !sameInput(revision, snapshot);
-  const confirmations = readConfirmations(ledgers.confirmations, actor, matterId);
+  const confirmations = withLegacyConfirmations(
+    readConfirmations(ledgers.confirmations, actor, matterId),
+    mergeLedgerRows(undefined, ledgers.legacyConfirmations, actor, matterId),
+  );
   const liveConfirmations = currentConfirmations(confirmations, snapshot);
   const checkRun = options.checkResult?.checkRun ?? null;
   const approvalLedger = readApprovalLedger(ledgers.approvals, actor, matterId);
@@ -613,7 +629,7 @@ function projectData(context: LoadedExportContext, route: ExportRoute): ExportPr
     body: section.paragraphs.map((paragraph) => paragraph.text).join("\n"),
   }));
   return {
-    name: context.aggregate.matter.title,
+    name: context.revision.revision.testOutput === true ? `${context.aggregate.matter.title}（测试输出，非正式申请稿）` : context.aggregate.matter.title,
     patentType: route,
     claims: ast.claims.map((claim) => ({
       id: claim.id,
@@ -652,7 +668,9 @@ function makeChecklist(
     { text: `说明书摘要\n${data.abstractText}`, tone: "ink" as const },
   ];
   const riskIds = (context.checkRun?.findings ?? []).filter((finding) => finding.category === "risk").map((finding) => finding.id);
+  const testOutput = context.revision.revision.testOutput === true;
   const checkItems = [
+    ...(testOutput ? [{ text: TEST_OUTPUT_NOTICE, tone: "warn" as const }] : []),
     { text: `目标路线：${route}`, tone: "ink" as const },
     { text: `导出包：${packageKind === "preparation" ? "准备包" : "内部批准包"}`, tone: "ink" as const },
     { text: `检查记录：${context.checkRun?.id ?? "无"} · 当前规则包 ${context.checkRun?.rulePackVersion ?? "无"}`, tone: "ink" as const },
@@ -663,7 +681,7 @@ function makeChecklist(
     { text: `生成时间：${generatedAt}`, tone: "muted" as const },
   ];
   return {
-    title: "申请准备材料：全文与提交检查清单",
+    title: testOutput ? `${TEST_OUTPUT_NOTICE}：申请准备材料：全文与提交检查清单` : "申请准备材料：全文与提交检查清单",
     meta: [
       { label: "案件", value: data.name },
       { label: "SnapshotRef", value: `${context.snapshot.matterId} / ${context.snapshot.targetId} / ${context.snapshot.draftRevisionId}` },
@@ -675,7 +693,7 @@ function makeChecklist(
       { heading: "说明书与摘要全文", items: fullText.slice(data.claims.length), emptyText: "（无说明书正文）" },
       { heading: "提交检查清单", items: checkItems, emptyText: "（无检查项目）" },
     ],
-    footer: "申请准备材料，非递交回执；产品不代为提交。",
+    footer: testOutput ? "测试输出，非正式申请稿；申请准备材料，非递交回执；产品不代为提交。" : "申请准备材料，非递交回执；产品不代为提交。",
   };
 }
 
@@ -700,6 +718,7 @@ async function packageKindKey(options: ExportSessionOptions, context: LoadedExpo
     targetId: options.targetId,
     snapshot: context.snapshot,
     astHash: context.revision.revision.astHash,
+    testOutput: context.revision.revision.testOutput === true,
     figureSetHash: context.figures.current.get(options.targetId)?.hash,
     checkRunId: options.checkResult?.checkRun.id ?? null,
     approvalId: packageKind === "internally_approved" ? context.approval?.id ?? null : null,
@@ -723,13 +742,12 @@ async function buildFiles(options: ExportSessionOptions, context: LoadedExportCo
     figures: false,
     report: false,
     patentpack: false,
-  }, { exportedAt: createdAt });
-  const output: { name: string; manifestName: string; data: Uint8Array; mime: string }[] = artifacts.map((artifact: ExportArtifact) => ({
-    name: artifact.fileName,
-    manifestName: artifact.fileName,
-    data: artifact.data,
-    mime: mimeFor(artifact.fileName),
-  }));
+  }, { exportedAt: createdAt, ...(context.revision.revision.testOutput === true ? { notice: TEST_OUTPUT_NOTICE } : {}) });
+  const testOutput = context.revision.revision.testOutput === true;
+  const output: { name: string; manifestName: string; data: Uint8Array; mime: string }[] = artifacts.map((artifact: ExportArtifact) => {
+    const fileName = testOutput ? `测试输出-${artifact.fileName}` : artifact.fileName;
+    return { name: fileName, manifestName: fileName, data: artifact.data, mime: mimeFor(fileName) };
+  });
   for (const figure of context.figureAssets) {
     const originalName = figure.originalName.normalize("NFC");
     output.push({
@@ -745,9 +763,12 @@ async function buildFiles(options: ExportSessionOptions, context: LoadedExportCo
   const renderReport = options.renderReport ?? await browserReportRenderer();
   const checklistPdf = await buildReviewPdf(
     makeChecklist(data, context, packageKind, createdAt, baseFiles, options.route),
-    { renderPages: renderReport },
+    {
+      renderPages: renderReport,
+      ...(testOutput ? { metadata: { title: TEST_OUTPUT_NOTICE, subject: TEST_OUTPUT_NOTICE, keywords: TEST_OUTPUT_NOTICE } } : {}),
+    },
   );
-  const pdfName = "提交检查清单.pdf";
+  const pdfName = testOutput ? "测试输出-提交检查清单.pdf" : "提交检查清单.pdf";
   output.push({ name: pdfName, manifestName: pdfName, data: checklistPdf, mime: "application/pdf" });
   const withPdf: ExportManifestFile[] = [...baseFiles, await manifestFile(exportId, pdfName, checklistPdf, pdfName, "application/pdf")];
   const riskIds = (options.checkResult?.checkRun.findings ?? [])
@@ -767,6 +788,7 @@ async function buildFiles(options: ExportSessionOptions, context: LoadedExportCo
     riskIds,
     searchState: "not_searched",
     packageKind,
+    ...(testOutput ? { testOutput: true } : {}),
     language: context.revision.ast.language,
     createdAt,
     files: manifestFiles,
@@ -832,6 +854,7 @@ export class ExportSession {
       phase: "loading",
       snapshot: null,
       inputStale: false,
+      testOutput: false,
       gate: null,
       record: null,
       files: [],
@@ -907,6 +930,7 @@ export class ExportSession {
         phase: shownExpired || (stale && !currentFiles) ? "stale" : blocked ? "blocked" : currentFailed ? "error" : current?.state === "prepared" ? "error" : record ? "ready" : "empty",
         snapshot: context.snapshot,
         inputStale: context.inputStale,
+        testOutput: context.revision.revision.testOutput === true,
         gate: context.gate,
         record,
         files: record?.files ?? [],
@@ -1000,6 +1024,7 @@ export class ExportSession {
         riskIds: (this.options.checkResult.checkRun.findings ?? []).filter((item) => item.category === "risk").map((item) => item.id),
         searchState: "not_searched",
         packageKind,
+        ...(context.revision.revision.testOutput === true ? { testOutput: true } : {}),
         language: context.revision.ast.language,
         createdAt,
         files: files.map(({ data: _data, ...file }) => file),

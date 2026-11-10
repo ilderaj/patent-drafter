@@ -56,6 +56,8 @@ export interface RevisionRecord<Ast> {
   astHash: string;
   reason: RevisionReason;
   restoredFrom: string | null;
+  /** Test-origin marker is inherited through every revision transition. */
+  testOutput?: boolean;
   createdBy: string;
   createdAt: string;
 }
@@ -144,6 +146,8 @@ export interface SaveRevisionCommand<Ast> {
   ast: Ast;
   astHash: string;
   reason: SaveReason;
+  /** Marks initial local test output; descendants inherit the marker. */
+  testOutput?: boolean;
   /** Defaults to the base revision's input; may not point past the matter sourceVersion. */
   input?: DraftInputRef;
 }
@@ -263,6 +267,7 @@ export function saveRevision<Ast, Figure = unknown>(
     ]);
   }
 
+  const testOutput = command.testOutput === true || base?.testOutput === true;
   const revision: RevisionRecord<Ast> = {
     id: context.newId("draft-revision"),
     matterId: state.matterId,
@@ -273,6 +278,7 @@ export function saveRevision<Ast, Figure = unknown>(
     astHash: command.astHash,
     reason: command.reason,
     restoredFrom: null,
+    ...(testOutput ? { testOutput: true } : {}),
     createdBy: context.actorId,
     createdAt: context.now(),
   };
@@ -304,6 +310,8 @@ export function restoreRevision<Ast, Figure = unknown>(
     // A revision of another matter or target is not addressable here: 404, not 403.
     return fail(state, "RESOURCE_NOT_FOUND", `revision ${command.revisionId} is not part of target ${command.targetId}`);
   }
+  const parent = target.headRevisionId === null ? null : target.revisions.find((item) => item.id === target.headRevisionId) ?? null;
+  const testOutput = source.testOutput === true || parent?.testOutput === true;
   if (!(FIGURE_STRATEGIES as readonly string[]).includes(command.figureStrategy)) {
     return fail(state, "INVALID_INPUT", `unknown figure strategy ${String(command.figureStrategy)}`, [
       { path: "figureStrategy", reason: `expected one of ${FIGURE_STRATEGIES.join(", ")}` },
@@ -350,6 +358,7 @@ export function restoreRevision<Ast, Figure = unknown>(
     astHash: source.astHash,
     reason: "restored",
     restoredFrom: source.id,
+    ...(testOutput ? { testOutput: true } : {}),
     createdBy: context.actorId,
     createdAt: context.now(),
   };
@@ -393,6 +402,7 @@ export function adoptInputs<Ast, Figure = unknown>(
   }
   const input = currentInput(state, command.targetId);
   if (!input) return fail(state, "RESOURCE_NOT_FOUND", `unknown target ${command.targetId}`);
+  const testOutput = base.testOutput === true;
 
   const revision: RevisionRecord<Ast> = {
     id: context.newId("draft-revision"),
@@ -404,6 +414,7 @@ export function adoptInputs<Ast, Figure = unknown>(
     astHash: base.astHash,
     reason: "adopted_inputs",
     restoredFrom: null,
+    ...(testOutput ? { testOutput: true } : {}),
     createdBy: context.actorId,
     createdAt: context.now(),
   };

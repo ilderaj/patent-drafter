@@ -24,6 +24,7 @@ import {
   type GenerationRevisionView,
 } from "../generation/generation.ts";
 import { readFigureLibrary } from "../sources/drawings.ts";
+import { migrateLegacyConfirmationLedger } from "../preview/preview.ts";
 import {
   ACTIVITY_METADATA_KEYS_BY_ACTION,
   STORES,
@@ -49,6 +50,7 @@ export interface ApprovalPanelProps {
   /** Availability of the current source and other referenced files, resolved by the host. */
   filesAvailable: boolean;
   confirmationMode?: ApprovalConfirmationMode;
+  onSettled?: () => void;
   revisions?: GenerationRevisionStore;
   newId?: (label: string) => string;
   now?: () => string;
@@ -456,6 +458,7 @@ export class ApprovalSession {
       const aggregate = loaded.data.data;
       const target = aggregate.targets.find((item) => item.id === this.targetId);
       if (!target) throw new ApprovalReadFailure("RESOURCE_NOT_FOUND", "目标不可用。");
+      await migrateLegacyConfirmationLedger(this.repository, this.actor, this.matterId);
       const [head, figureRead, records] = await Promise.all([
         this.revisions.loadHeadRevision(this.matterId, this.targetId),
         readFigureLibrary(this.repository, this.actor, this.matterId),
@@ -582,6 +585,7 @@ export function ApprovalPanel(props: ApprovalPanelProps) {
     props.activeRulePackVersion,
     props.filesAvailable,
     props.confirmationMode,
+    props.onSettled,
     props.revisions,
     props.newId,
     props.now,
@@ -598,8 +602,16 @@ export function ApprovalPanel(props: ApprovalPanelProps) {
     model={model}
     role={props.role}
     onRefresh={() => session.refresh()}
-    onCreate={(note) => session.createApproval(note)}
-    onRevoke={(id, reason) => session.revokeApproval(id, reason)}
+    onCreate={async (note) => {
+      const result = await session.createApproval(note);
+      if (result.ok) props.onSettled?.();
+      return result;
+    }}
+    onRevoke={async (id, reason) => {
+      const result = await session.revokeApproval(id, reason);
+      if (result.ok) props.onSettled?.();
+      return result;
+    }}
   />;
 }
 

@@ -697,3 +697,48 @@ test('V6-04-A03: a refusal is deterministic and leaves the state untouched', () 
   assert.equal(first.state, frozen);
   assert.deepEqual(frozen, before);
 });
+
+test('test-output provenance persists through edit, restore and input adoption', () => {
+  const fixture = createFixture();
+  const context = makeContext(fixture.actorId, 'v6-04-test-provenance');
+  const ordinary = seed(fixture, context, fixture.targetA);
+  const tagged = saveRevision(fixture.state, {
+    targetId: fixture.targetA,
+    baseRevisionId: ordinary.id,
+    ast: structuredClone(FIXTURES.draftAst),
+    astHash: EDITED_HASH,
+    reason: 'generated',
+    testOutput: true,
+  }, context);
+  assert.equal(tagged.ok, true);
+  assert.equal(tagged.revision.testOutput, true);
+  assert.equal(draftRevisionSchema.safeParse(ordinary).success, true, 'older revision rows without the field stay valid');
+  assert.equal(draftRevisionSchema.safeParse(tagged.revision).success, true);
+
+  const edited = saveRevision(tagged.state, {
+    targetId: fixture.targetA,
+    baseRevisionId: tagged.revision.id,
+    ast: structuredClone(FIXTURES.draftAst),
+    astHash: 'd'.repeat(64),
+    reason: 'edited',
+  }, context);
+  assert.equal(edited.ok, true);
+  assert.equal(edited.revision.testOutput, true);
+
+  const restored = restoreRevision(edited.state, {
+    targetId: fixture.targetA,
+    revisionId: ordinary.id,
+    figureStrategy: 'restore_bound',
+  }, context);
+  assert.equal(restored.ok, true);
+  assert.equal(restored.revision.testOutput, true, 'restoring an older clean revision cannot erase test lineage');
+
+  const advanced = { ...restored.state, sourceVersion: restored.state.sourceVersion + 1 };
+  const adopted = adoptInputs(advanced, {
+    targetId: fixture.targetA,
+    baseRevisionId: restored.revision.id,
+    acknowledgedInputReview: true,
+  }, context);
+  assert.equal(adopted.ok, true);
+  assert.equal(adopted.revision.testOutput, true);
+});

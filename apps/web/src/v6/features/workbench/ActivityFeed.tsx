@@ -72,12 +72,19 @@ export interface ActivityFeedViewProps {
 /** Presentational feed interface for review and server-rendered scenario checks. */
 export function ActivityFeedView({ data, error, refreshing, currentMatterId, onRetry }: ActivityFeedViewProps) {
   const [filters, setFilters] = useState<ActivityFilters>({
-    matterId: currentMatterId,
+    matterId: currentMatterId === "" ? null : currentMatterId,
     targetId: "all",
     actorKind: "all",
     actionClass: "all",
     modelOnly: false,
   });
+  useEffect(() => {
+    setFilters((current) => ({
+      ...current,
+      matterId: currentMatterId === "" ? null : currentMatterId,
+      targetId: "all",
+    }));
+  }, [currentMatterId]);
   const events = useMemo(() => data === null ? [] : filterActivity(data.events, filters), [data, filters]);
   const matterNames = useMemo(() => new Map((data?.matters ?? []).map((matter) => [matter.id, matter.title])), [data]);
   const targetIds = useMemo(() => [...new Set((data?.events ?? [])
@@ -111,7 +118,7 @@ export function ActivityFeedView({ data, error, refreshing, currentMatterId, onR
         <select className="select" value={filters.targetId === "all" ? "all" : filters.targetId === null ? "matter" : filters.targetId}
           onChange={(event) => setFilters({ ...filters, targetId: event.target.value === "all" ? "all" : event.target.value === "matter" ? null : event.target.value })}>
           <option value="all">全部目标</option><option value="matter">整个案件</option>
-          {targetIds.map((id) => <option key={id} value={id}>{id}</option>)}
+          {targetIds.map((id, index) => <option key={id} value={id}>目标 {index + 1}</option>)}
         </select>
       </label>
       <label className="field"><span className="field-label">操作者</span>
@@ -147,20 +154,48 @@ function ActivityRow({ event, matterTitle }: { event: ActivityRecord; matterTitl
   return <li className="v6-entry stack-2" data-testid={`activity-${event.id}`} data-state={outcome} data-action={event.action}>
     <div className="row-between" style={{ flexWrap: "wrap" }}>
       <strong>{activityActionLabel(event.action)}</strong>
-      <time dateTime={event.occurredAt}>{event.occurredAt}</time>
+      <time dateTime={event.occurredAt}>{formatActivityTime(event.occurredAt)}</time>
     </div>
-    <div className="field-hint">操作者：{actorLabel(event)} · 案件：{matterTitle} · 目标：{event.targetId ?? "整个案件"}</div>
+    <div className="field-hint">操作者：{actorLabel(event)} · 案件：{matterTitle} · 目标：{event.targetId === null ? "整个案件" : "目标记录"}</div>
     <div className="field-hint">
       {version !== null ? <span>版本 {version} · </span> : null}
-      {revisionId ? <span>修订 {revisionId} · </span> : null}
-      {event.snapshot ? <span>配置 v{event.snapshot.targetConfigVersion} · 输入 v{event.snapshot.sourceVersion}</span> : null}
-      {stage ? <span> · 阶段 {stage}</span> : null}
+      {revisionId ? <span>有修订记录 · </span> : null}
+      {event.snapshot ? <span>配置版本 {event.snapshot.targetConfigVersion} · 输入版本 {event.snapshot.sourceVersion}</span> : null}
+      {stage ? <span> · 阶段 {stageLabel(stage)}</span> : null}
     </div>
-    {outcome === "failed" ? <p className="badge badge-err">失败{errorCode ? ` · ${errorCode}` : ""}</p> : null}
+    {outcome === "failed" ? <p className="badge badge-err">失败</p> : null}
     {hasModel ? <div className="field-hint" data-testid={`activity-model-${event.id}`}>
-      模型参与{event.jobId ? ` · job ${event.jobId}` : ""}{provider ? ` · 处理方 ${provider}` : ""}{model ? ` · 模型 ${model}` : ""}
+      模型参与{provider ? ` · 处理方 ${provider}` : ""}{model ? ` · 模型 ${model}` : ""}
     </div> : null}
+    <details className="v6-tech-details">
+      <summary>技术详情</summary>
+      <div>事件：<code>{event.id}</code></div>
+      <div>动作：<code>{event.action}</code></div>
+      <div>案件 ID：<code>{event.matterId ?? "无"}</code></div>
+      {event.targetId ? <div>目标 ID：<code>{event.targetId}</code></div> : null}
+      <div>资源 ID：<code>{event.resourceId ?? "无"}</code></div>
+      <div>作业 ID：<code>{event.jobId ?? "无"}</code></div>
+      <div>操作者 ID：<code>{event.actorId}</code></div>
+      {errorCode ? <><div>失败 · {errorCode}</div><div>错误码：<code>{errorCode}</code></div></> : null}
+      <div>发生时间：<code>{event.occurredAt}</code></div>
+    </details>
   </li>;
+}
+
+function formatActivityTime(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "时间未知" : date.toLocaleString("zh-CN", { hour12: false });
+}
+
+function stageLabel(stage: string): string {
+  switch (stage) {
+    case "extract": return "材料提取";
+    case "draft": return "起草";
+    case "check":
+    case "checks": return "检查";
+    case "ocr": return "文字识别";
+    default: return "其他阶段";
+  }
 }
 
 function safeMetadataNumber(event: ActivityRecord, key: "version" | "count"): number | null {

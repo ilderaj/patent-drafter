@@ -26,6 +26,7 @@ export interface WorkbenchTargetSummary {
   language: TargetLanguage | null;
   configVersion: number;
   revisionId: string | null;
+  testOutput: boolean;
   inputStale: boolean;
   check: { state: CheckState; runId: string | null; rulePackVersion: string | null };
   confirmations: { confirmed: number; required: number };
@@ -149,6 +150,7 @@ export function deriveWorkbenchOverview(
       language: targetConfigLanguage(blobs, aggregate.matter.tenantId, aggregate.matter.id, target),
       configVersion: target.configVersion,
       revisionId: target.draftRevisionId,
+      testOutput: revision?.testOutput === true,
       inputStale,
       check: { state: checkState, runId: check?.id ?? null, rulePackVersion: check?.rulePackVersion ?? null },
       confirmations: {
@@ -220,14 +222,14 @@ export function activityOutcome(event: ActivityRecord): "failed" | "succeeded" |
 }
 
 export function activityActionLabel(action: string): string {
-  return ACTION_LABELS[action] ?? action;
+  return ACTION_LABELS[action] ?? "其他操作";
 }
 
 export function actorLabel(event: ActivityRecord): string {
   switch (event.actorKind) {
     case "user": return "本机用户（自报）";
-    case "worker": return "worker";
-    case "webhook": return "webhook";
+    case "worker": return "后台处理服务";
+    case "webhook": return "系统回调";
   }
 }
 

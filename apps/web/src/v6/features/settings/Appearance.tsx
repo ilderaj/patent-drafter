@@ -12,7 +12,7 @@
  * value that never reached storage is not claimed after a reload.
  */
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useState, type ReactNode } from "react";
-import { UNSAFE_NavigationContext } from "react-router-dom";
+import { UNSAFE_NavigationContext, Link } from "react-router-dom";
 import {
   COLOR_MODES,
   MODE_LABELS,
@@ -174,15 +174,16 @@ export function AppearancePage() {
         : null;
 
   return (
-    <div className="v6-page" data-testid="appearance">
+    <div className="v6-page v6-settings-page" data-testid="appearance">
       <h1 className="v6-title">设置</h1>
       <p className="muted">外观保存在这台设备的浏览器里，不会上传。</p>
+      <div className="v6-settings-groups">
       {readNote ? (
         <div className="notice" data-testid="appearance-read-note">
           {readNote}
         </div>
       ) : null}
-      <section className="card v6-appearance" aria-labelledby="appearance-title">
+      <section className="card v6-appearance v6-settings-group" aria-labelledby="appearance-title">
         <h2 className="card-title" id="appearance-title">
           外观
         </h2>
@@ -239,12 +240,22 @@ export function AppearancePage() {
         ) : null}
         <p className="field-hint">选择「跟随系统」时，系统切换浅色或深色会立即生效。这里只保存主题和颜色模式。</p>
       </section>
-      <section className="card" data-testid="notification-capability">
+      <section className="card v6-settings-group" data-testid="notification-capability">
         <h2 className="card-title">通知</h2>
         <p className="card-description">
           R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。
         </p>
       </section>
+      <section className="card v6-settings-group" data-testid="settings-data-privacy">
+        <h2 className="card-title">数据与隐私</h2>
+        <p className="card-description">案件与外观偏好保存在这台设备的本机存储中。恢复数据的工具在本页下方。</p>
+      </section>
+      <section className="card v6-settings-group" data-testid="settings-legacy">
+        <h2 className="card-title">旧版入口</h2>
+        <p className="card-description">需要使用旧版工作区时，可从这里切换。</p>
+        <div><Link className="btn btn-outline btn-sm" to="/projects">切换到旧版</Link></div>
+      </section>
+      </div>
     </div>
   );
 }

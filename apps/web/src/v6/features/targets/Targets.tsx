@@ -39,9 +39,9 @@ import type { Actor, LocalRepository } from "../../lib/repository.ts";
 export interface ConfigFormState {
   route: Route;
   language: Language;
-  applicantIds: string;
-  inventorIds: string;
-  priorityClaims: string;
+  applicantIds: string[];
+  inventorIds: string[];
+  priorityClaims: PriorityClaimInput[];
 }
 
 function defaultRoute(view: TargetsView): Route {
@@ -57,9 +57,9 @@ function initialForm(view: TargetsView): ConfigFormState {
   return {
     route,
     language: card?.defaultLanguage ?? "zh-CN",
-    applicantIds: "",
-    inventorIds: "",
-    priorityClaims: "",
+    applicantIds: [],
+    inventorIds: [],
+    priorityClaims: [],
   };
 }
 
@@ -67,68 +67,45 @@ function formFromConfig(view: TargetsView, config: TargetView["config"]): Config
   return {
     route: config?.route ?? "cn_um",
     language: config?.language ?? "zh-CN",
-    applicantIds: config?.applicantIds.join(", ") ?? "",
-    inventorIds: config?.inventorIds.join(", ") ?? "",
-    priorityClaims:
-      config?.priorityClaims
-        .map((claim) =>
-          [claim.country, claim.applicationNumber, claim.filedOn, claim.evidenceAssetId ?? ""].join(" | "),
-        )
-        .join("\n") ?? "",
+    applicantIds: [...(config?.applicantIds ?? [])],
+    inventorIds: [...(config?.inventorIds ?? [])],
+    priorityClaims: (config?.priorityClaims ?? []).map((claim) => ({ ...claim })),
   };
 }
 
-function splitIds(value: string): string[] {
-  return value
-    .split(/[\s,，、]+/)
-    .map((item) => item.trim())
-    .filter((item) => item.length > 0);
+function sameForm(a: ConfigFormState, b: ConfigFormState): boolean {
+  return a.route === b.route
+    && a.language === b.language
+    && JSON.stringify(a.applicantIds) === JSON.stringify(b.applicantIds)
+    && JSON.stringify(a.inventorIds) === JSON.stringify(b.inventorIds)
+    && JSON.stringify(a.priorityClaims) === JSON.stringify(b.priorityClaims);
 }
 
-/** One claim per line: `国家 | 申请号 | YYYY-MM-DD | 证据材料 id（可选）`. */
-function parseClaims(value: string): { ok: true; claims: PriorityClaimInput[] } | { ok: false; reason: string } {
-  const claims: PriorityClaimInput[] = [];
-  for (const [index, line] of value.split(/\r?\n/).entries()) {
-    const trimmed = line.trim();
-    if (trimmed.length === 0) continue;
-    const parts = trimmed.split("|").map((part) => part.trim());
-    if (parts.length < 3 || parts.length > 4) {
-      return { ok: false, reason: `第 ${index + 1} 行格式应为「国家 | 申请号 | 日期 | 证据材料 id（可选）」` };
-    }
-    claims.push({
-      country: parts[0],
-      applicationNumber: parts[1],
-      filedOn: parts[2],
-      evidenceAssetId: parts[3] === undefined || parts[3].length === 0 ? null : parts[3],
-      verification: "unverified",
-    });
-  }
-  return { ok: true, claims };
-}
-
-function formConfig(form: ConfigFormState): { config: TargetConfigInput | null; problem: string | null } {
-  const claims = parseClaims(form.priorityClaims);
-  if (!claims.ok) return { config: null, problem: claims.reason };
+function formConfig(form: ConfigFormState): { config: TargetConfigInput; problem: null } {
   return {
     config: {
       route: form.route,
       language: form.language,
-      applicantIds: splitIds(form.applicantIds),
-      inventorIds: splitIds(form.inventorIds),
-      priorityClaims: claims.claims,
+      applicantIds: [...form.applicantIds],
+      inventorIds: [...form.inventorIds],
+      priorityClaims: form.priorityClaims.map((claim) => ({ ...claim, verification: "unverified" })),
     },
     problem: null,
   };
 }
 
-function sameForm(a: ConfigFormState, b: ConfigFormState): boolean {
-  return (
-    a.route === b.route &&
-    a.language === b.language &&
-    a.applicantIds.trim() === b.applicantIds.trim() &&
-    a.inventorIds.trim() === b.inventorIds.trim() &&
-    a.priorityClaims.trim() === b.priorityClaims.trim()
-  );
+function toggleId(values: readonly string[], id: string, checked: boolean): string[] {
+  return checked ? [...new Set([...values, id])] : values.filter((value) => value !== id);
+}
+
+function unavailableIds(ids: readonly string[], view: TargetsView): string[] {
+  const known = new Set(view.parties.map((party) => party.id));
+  const missing = ids.filter((id) => !known.has(id));
+  return missing.length > 0 ? missing : [];
+}
+
+function appendPriorityClaim(claims: readonly PriorityClaimInput[]): PriorityClaimInput[] {
+  return [...claims, { country: "", applicationNumber: "", filedOn: "", evidenceAssetId: null, verification: "unverified" }];
 }
 
 // ---------------------------------------------------------------------------
@@ -400,32 +377,27 @@ function ConfigFields({
   const card = view.routeCards.find((candidate) => candidate.route === form.route) ?? null;
   const languageProblem =
     card?.languageOptions.find((option) => option.value === form.language && option.disabled)?.reason ?? null;
+  const unavailableApplicantIds = unavailableIds(form.applicantIds, view);
+  const unavailableInventorIds = unavailableIds(form.inventorIds, view);
   return (
     <>
-      <div className="row" style={{ flexWrap: "wrap", alignItems: "flex-end" }}>
-        <label className="field-label" htmlFor={`${idPrefix}-route`}>
-          申请路线
-        </label>
-        <select
-          id={`${idPrefix}-route`}
-          className="select"
-          data-testid={`${idPrefix}-route`}
-          value={form.route}
-          disabled={busy}
-          onChange={(event) => {
-            const route = event.target.value as Route;
-            const nextCard = view.routeCards.find((candidate) => candidate.route === route);
-            onChange({ ...form, route, language: nextCard?.defaultLanguage ?? "zh-CN" });
-          }}
-        >
-          {view.routeCards.map((candidate) => (
-            <option key={candidate.route} value={candidate.route}>
-              {candidate.label}
-              {candidate.recommended ? "（推荐）" : ""}
-            </option>
-          ))}
-        </select>
-      </div>
+      <fieldset className="v6-field" data-testid={`${idPrefix}-route`}>
+        <legend className="field-label">申请路线</legend>
+        <div className="v6-route-grid">
+          {view.routeCards.map((candidate) => <label key={candidate.route} className="v6-route-choice">
+            <input type="radio" name={`${idPrefix}-route`} value={candidate.route} checked={form.route === candidate.route} disabled={busy}
+              onChange={() => onChange({ ...form, route: candidate.route, language: candidate.defaultLanguage })} />
+            <span className="v6-route-choice-body">
+              <span className="v6-route-choice-title">{candidate.label}{candidate.recommended ? " · 推荐" : ""}</span>
+              <span className="v6-route-choice-detail">保护对象：{candidate.protection}</span>
+              <span className="v6-route-choice-detail">审查方式：{candidate.examination}</span>
+              <span className="v6-route-choice-detail">能力：{candidate.limits.map((limit) => `${limit.reason}（${limit.state === "available" ? "可用" : "不可用"}）`).join("；")}</span>
+              {candidate.excludedBy ? <span className="badge badge-warn">依据当前事实不推荐</span> : null}
+              <span className="v6-route-choice-detail">规则：{candidate.verificationLabel} · 周期 {gatedText(candidate.cycle)} · 费用 {gatedText(candidate.fee)} · 保护期 {gatedText(candidate.term)}</span>
+            </span>
+          </label>)}
+        </div>
+      </fieldset>
       <fieldset className="v6-field" data-testid={`${idPrefix}-language`}>
         <legend className="field-label">语言</legend>
         {card?.languageOptions.map((option) => (
@@ -453,62 +425,64 @@ function ConfigFields({
           </p>
         ) : null}
       </fieldset>
-      <div className="row" style={COLUMN}>
-        <label className="field-label" htmlFor={`${idPrefix}-applicants`}>
-          申请人（人员 id，多个用逗号分隔）
-        </label>
-        <input
-          id={`${idPrefix}-applicants`}
-          className="input"
-          data-testid={`${idPrefix}-applicants`}
-          value={form.applicantIds}
-          disabled={busy}
-          onChange={(event) => onChange({ ...form, applicantIds: event.target.value })}
-        />
-        {view.parties.length === 0 ? (
-          <p className="field-hint" data-testid={`${idPrefix}-no-parties`}>
-            本案还没有人员；请先在「事实」标签添加申请人或发明人。
-          </p>
-        ) : (
-          <p className="field-hint">
-            本案人员：
-            {view.parties
-              .map((party) => `${party.name}（${party.id}，${party.kind === "person" ? "自然人" : "组织"}）`)
-              .join("；")}
-          </p>
-        )}
-      </div>
-      <div className="row" style={COLUMN}>
-        <label className="field-label" htmlFor={`${idPrefix}-inventors`}>
-          发明人（人员 id，多个用逗号分隔）
-        </label>
-        <input
-          id={`${idPrefix}-inventors`}
-          className="input"
-          data-testid={`${idPrefix}-inventors`}
-          value={form.inventorIds}
-          disabled={busy}
-          onChange={(event) => onChange({ ...form, inventorIds: event.target.value })}
-        />
-      </div>
-      <div className="row" style={COLUMN}>
-        <label className="field-label" htmlFor={`${idPrefix}-claims`}>
-          优先权声明（每行：国家 | 申请号 | YYYY-MM-DD | 证据材料 id）
-        </label>
-        <textarea
-          id={`${idPrefix}-claims`}
-          className="textarea"
-          data-testid={`${idPrefix}-claims`}
-          value={form.priorityClaims}
-          disabled={busy}
-          onChange={(event) => onChange({ ...form, priorityClaims: event.target.value })}
-        />
+      <fieldset className="v6-field" data-testid={`${idPrefix}-applicants`}>
+        <legend className="field-label">申请人</legend>
+        {view.parties.length === 0 ? <p className="field-hint">本案尚无人员。请先在「事实」中添加申请人或发明人。</p> : <div className="v6-person-picker">
+          {view.parties.map((party) => <label className="v6-person-option" key={party.id}>
+            <input type="checkbox" checked={form.applicantIds.includes(party.id)} disabled={busy}
+              onChange={(event) => onChange({ ...form, applicantIds: toggleId(form.applicantIds, party.id, event.currentTarget.checked) })} />
+            <span>{party.name} · {party.kind === "person" ? "个人" : "组织"}</span>
+          </label>)}
+        </div>}
+        {unavailableApplicantIds.length > 0 ? <details className="v6-tech-details"><summary>无法匹配的已保存人员记录</summary>{unavailableApplicantIds.map((id) => <code key={id}>{id} </code>)}</details> : null}
+      </fieldset>
+      <fieldset className="v6-field" data-testid={`${idPrefix}-inventors`}>
+        <legend className="field-label">发明人</legend>
+        {view.parties.filter((party) => party.kind === "person").length === 0 ? <p className="field-hint">本案尚无可选的个人。请先在「事实」中添加发明人。</p> : <div className="v6-person-picker">
+          {view.parties.filter((party) => party.kind === "person").map((party) => <label className="v6-person-option" key={party.id}>
+            <input type="checkbox" checked={form.inventorIds.includes(party.id)} disabled={busy}
+              onChange={(event) => onChange({ ...form, inventorIds: toggleId(form.inventorIds, party.id, event.currentTarget.checked) })} />
+            <span>{party.name} · 个人</span>
+          </label>)}
+        </div>}
+        {unavailableInventorIds.length > 0 ? <details className="v6-tech-details"><summary>无法匹配的已保存人员记录</summary>{unavailableInventorIds.map((id) => <code key={id}>{id} </code>)}</details> : null}
+      </fieldset>
+      <div className="stack-3" data-testid={`${idPrefix}-claims`}>
+        <div>
+          <h4 className="field-label">优先权声明</h4>
+          <p className="field-hint">填写国家、申请号和申请日；可从本案材料中选择证据。保存后仍标记为未核实。</p>
+        </div>
+        {form.priorityClaims.map((claim, index) => {
+          const evidenceMissing = claim.evidenceAssetId !== null && !view.evidenceAssets.some((asset) => asset.id === claim.evidenceAssetId);
+          return <fieldset className="v6-priority-claim" key={`${idPrefix}-claim-${index}`}>
+            <legend>优先权 {index + 1}</legend>
+            <label className="field">国家或地区
+              <input className="input" value={claim.country} disabled={busy} onChange={(event) => onChange({ ...form, priorityClaims: form.priorityClaims.map((item, itemIndex) => itemIndex === index ? { ...item, country: event.currentTarget.value } : item) })} />
+            </label>
+            <label className="field">申请号
+              <input className="input" value={claim.applicationNumber} disabled={busy} onChange={(event) => onChange({ ...form, priorityClaims: form.priorityClaims.map((item, itemIndex) => itemIndex === index ? { ...item, applicationNumber: event.currentTarget.value } : item) })} />
+            </label>
+            <label className="field">申请日
+              <input className="input" type="date" value={claim.filedOn} disabled={busy} onChange={(event) => onChange({ ...form, priorityClaims: form.priorityClaims.map((item, itemIndex) => itemIndex === index ? { ...item, filedOn: event.currentTarget.value } : item) })} />
+            </label>
+            <label className="field">证据材料
+              <select className="select" value={claim.evidenceAssetId ?? ""} disabled={busy} onChange={(event) => onChange({ ...form, priorityClaims: form.priorityClaims.map((item, itemIndex) => itemIndex === index ? { ...item, evidenceAssetId: event.currentTarget.value || null } : item) })}>
+                <option value="">不关联证据材料</option>
+                {view.evidenceAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
+                {evidenceMissing ? <option value={claim.evidenceAssetId ?? ""}>已保存的证据材料暂不可用</option> : null}
+              </select>
+              {evidenceMissing ? <details className="v6-tech-details"><summary>查看材料标识</summary><code>{claim.evidenceAssetId}</code></details> : null}
+            </label>
+            <button type="button" className="btn btn-outline btn-sm" disabled={busy}
+              onClick={() => onChange({ ...form, priorityClaims: form.priorityClaims.filter((_, itemIndex) => itemIndex !== index) })}>移除此声明</button>
+          </fieldset>;
+        })}
+        <button type="button" className="btn btn-outline btn-sm" disabled={busy}
+          onClick={() => onChange({ ...form, priorityClaims: appendPriorityClaim(form.priorityClaims) })}>添加优先权声明</button>
         <p className="field-hint" data-testid={`${idPrefix}-evidence-assets`}>
           {view.evidenceAssets.length === 0
             ? "本案还没有可作为证据的材料。"
-            : `可作为证据的材料：${view.evidenceAssets
-                .map((asset) => `${asset.name}（${asset.id}）`)
-                .join("；")}`}
+            : `可选证据材料：${view.evidenceAssets.map((asset) => asset.name).join("、")}`}
         </p>
       </div>
     </>

@@ -39,12 +39,18 @@ export interface FigurePageSpec {
 /** Renders one or more A4 page images (PNG) for the given spec. */
 export type PageRenderer<S> = (spec: S) => Promise<Uint8Array[]>;
 
+export interface ReportPdfMetadata {
+  title?: string;
+  subject?: string;
+  keywords?: string;
+}
+
 export async function buildReviewPdf(
   spec: ReportPageSpec,
-  opts: { renderPages: PageRenderer<ReportPageSpec> },
+  opts: { renderPages: PageRenderer<ReportPageSpec>; metadata?: ReportPdfMetadata },
 ): Promise<Uint8Array> {
   const pages = await opts.renderPages(spec);
-  return embedPages(pages);
+  return embedPages(pages, opts.metadata);
 }
 
 export async function buildFiguresPdf(
@@ -71,8 +77,11 @@ export async function buildFiguresPdf(
   return embedPages(pages);
 }
 
-async function embedPages(pageImages: Uint8Array[]): Promise<Uint8Array> {
+async function embedPages(pageImages: Uint8Array[], metadata?: ReportPdfMetadata): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
+  if (metadata?.title) doc.setTitle(metadata.title);
+  if (metadata?.subject) doc.setSubject(metadata.subject);
+  if (metadata?.keywords) doc.setKeywords([metadata.keywords]);
   for (const png of pageImages) {
     const img = await doc.embedPng(png);
     const page = doc.addPage([A4_W, A4_H]);

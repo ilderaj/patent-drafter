@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { register } from "tsx/esm/api";
 import { draftAstSchema } from "../../../../packages/contracts/src/draft.ts";
-import { ACTOR, MATTER_ID, TARGET_ID, createFixture, revokeFixtureConsent, waitForJob, CountingProvider } from "./harness.mjs";
+import { ACTOR, MATTER_ID, TARGET_ID, T0, createFixture, revokeFixtureConsent, waitForJob, CountingProvider } from "./harness.mjs";
 
 register();
 
@@ -174,6 +174,7 @@ test("V6-17 S04-A09: refresh recovery resumes from saved stages after consent va
     config: DEFAULT_AI_CONFIG,
     pipeline: { prompts, promptVersion: "synthetic-prompt-v1", rulePackVersion: "synthetic-rules-v1" },
     limits,
+    now: () => new Date(T0),
   });
   const interrupted = await fresh.get(started.data.job.id);
   assert.equal(interrupted.data.job.state, "interrupted");

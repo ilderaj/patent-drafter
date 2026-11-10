@@ -13,6 +13,7 @@
  * `toSafeInvocationRow`).
  */
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import { v6Path } from "../../routes/navigation.ts";
 
 import type { Actor, LocalRepository, MatterRecord } from "../../lib/repository.ts";
 import {
@@ -46,6 +47,8 @@ export interface AiPanelProps {
   onGrant?: (providerProfileId: string) => void;
   onRevoke?: (consentId: string) => void;
   onReload?: () => void;
+  onOpenMatter?: () => void;
+  onOpenDraft?: () => void;
 }
 
 const UNKNOWN = "未知";
@@ -53,18 +56,18 @@ const UNKNOWN = "未知";
 const S = {
   panel: {
     display: "grid",
-    gap: "20px",
+    gap: "14px",
     color: "var(--foreground, #1b1915)",
   } satisfies CSSProperties,
   page: {
     display: "grid",
-    gap: "20px",
+    gap: "14px",
     width: "100%",
-    maxWidth: "960px",
+    maxWidth: "1200px",
     margin: "0 auto",
-    padding: "32px 24px",
+    padding: "24px",
     boxSizing: "border-box",
-    color: "var(--foreground, #1b1915)",
+    color: "var(--foreground, #1d1d1f)",
   } satisfies CSSProperties,
   banner: {
     border: "1px solid var(--border, #e6e2d8)",
@@ -74,19 +77,19 @@ const S = {
     lineHeight: 1.6,
   } satisfies CSSProperties,
   warning: {
-    border: "1px solid #d4a72c",
+    border: "1px solid color-mix(in srgb, var(--warning, #865600) 32%, var(--border, #dadada))",
     borderRadius: "8px",
     padding: "12px 14px",
-    background: "#fff8c5",
-    color: "#4d2d00",
+    background: "color-mix(in srgb, var(--warning, #865600) 8%, var(--card, #ffffff))",
+    color: "var(--foreground, #1d1d1f)",
     lineHeight: 1.6,
   } satisfies CSSProperties,
   error: {
-    border: "1px solid #cf222e",
+    border: "1px solid color-mix(in srgb, var(--destructive, #c0261b) 32%, var(--border, #dadada))",
     borderRadius: "8px",
     padding: "12px 14px",
-    background: "#ffebe9",
-    color: "#82071e",
+    background: "color-mix(in srgb, var(--destructive, #c0261b) 8%, var(--card, #ffffff))",
+    color: "var(--foreground, #1d1d1f)",
     lineHeight: 1.6,
   } satisfies CSSProperties,
   section: {
@@ -146,7 +149,7 @@ const S = {
     marginRight: "6px",
   } satisfies CSSProperties,
   unknown: {
-    color: "#9a6700",
+    color: "var(--warning, #865600)",
     fontWeight: 600,
   } satisfies CSSProperties,
   button: {
@@ -158,11 +161,11 @@ const S = {
     fontSize: "13px",
   } satisfies CSSProperties,
   primaryButton: {
-    border: "1px solid #1f883d",
+    border: "1px solid var(--primary, #0a64d6)",
     borderRadius: "6px",
     padding: "6px 12px",
-    background: "#1f883d",
-    color: "#ffffff",
+    background: "var(--primary, #0a64d6)",
+    color: "var(--primary-foreground, #ffffff)",
     cursor: "pointer",
     fontSize: "13px",
   } satisfies CSSProperties,
@@ -195,12 +198,12 @@ const S = {
   } satisfies CSSProperties,
   staleBadge: {
     display: "inline-block",
-    border: "1px solid #d4a72c",
-    borderRadius: "999px",
+    border: "1px solid color-mix(in srgb, var(--warning, #865600) 32%, var(--border, #dadada))",
+    borderRadius: "6px",
     padding: "1px 8px",
     fontSize: "12px",
-    background: "#fff8c5",
-    color: "#4d2d00",
+    background: "color-mix(in srgb, var(--warning, #865600) 8%, var(--card, #ffffff))",
+    color: "var(--warning, #865600)",
   } satisfies CSSProperties,
   grid: {
     display: "grid",
@@ -264,30 +267,31 @@ function Field({
 }
 
 function CapabilityList({ capabilities }: { capabilities: readonly CapabilityView[] }) {
+  const modes = [
+    { mode: "local" as const, title: "本机模型", description: "模型和材料都留在本机处理。" },
+    { mode: "platform" as const, title: "平台模型", description: "由已配置的平台处理方处理；使用前需要明确外发授权。" },
+    { mode: "byok" as const, title: "自带密钥", description: "使用者自行管理模型密钥；此浏览器版不保存密钥。" },
+  ];
+  const testMode = capabilities.find((capability) => capability.mode === "stub");
   return (
     <section style={S.section} data-testid="ai-capabilities">
-      <h2 style={S.sectionTitle}>模型能力</h2>
+      <h2 style={S.sectionTitle}>处理方式</h2>
       <p style={S.muted} data-testid="ai-current-mode">
-        当前模式：R1 本地浏览器版。只有测试处理方可用；平台真实外发关闭；本机模型与 BYOK 不可用。
+        当前版本：R1 本地浏览器版。只有测试处理方可用；它产生标记为「测试输出」的固定结果，不调用真实模型、不联网。平台真实外发门关闭。
       </p>
-      <div style={S.grid}>
-        {capabilities.map((capability) => (
-          <div
-            key={capability.key}
-            style={S.card}
-            data-testid={`ai-capability-${capability.mode}`}
-            data-state={capability.state}
-          >
-            <div style={S.cardHeader}>
-              <strong>{capability.label}</strong>
-              <span style={S.badge}>{capabilityStateText(capability.state)}</span>
-            </div>
-            <div style={S.muted}>{capability.reason ?? "当前没有额外说明。"}</div>
-            <div style={S.muted}>
-              依据版本：{capability.evidenceVersion ?? "无"}
-            </div>
-          </div>
-        ))}
+      <div className="v6-ai-methods">
+        {modes.map(({ mode, title, description }) => {
+          const capability = capabilities.find((item) => item.mode === mode);
+          return <div key={mode} className="v6-ai-method" style={S.card} data-testid={`ai-capability-${mode}`} data-state={capability?.state ?? "unavailable"}>
+            <div style={S.cardHeader}><strong>{title}</strong><span style={S.badge}>{capability ? capabilityStateText(capability.state) : "不可用"}</span></div>
+            <p style={S.muted}>{description}</p>
+            <p style={S.muted}>{capability?.reason ?? "当前没有能力记录。"}</p>
+          </div>;
+        })}
+      </div>
+      <div className="v6-ai-method-test" data-testid="ai-test-mode" data-state={testMode?.state ?? "unavailable"}>
+        <strong>本地测试处理</strong>
+        <p style={S.muted}>{testMode?.reason ?? "没有配置可用的测试处理方。"}</p>
       </div>
     </section>
   );
@@ -624,6 +628,8 @@ export function AiPanel({
   onGrant,
   onRevoke,
   onReload,
+  onOpenMatter,
+  onOpenDraft,
 }: AiPanelProps) {
   if (loading) {
     return (
@@ -687,11 +693,11 @@ export function AiPanel({
         <div style={S.empty} data-testid="ai-empty" data-reason={view.emptyReason}>
           <div>{view.message}</div>
           <div style={{ marginTop: "10px" }}>
-            <a href="/patent/v6/matters" data-testid="ai-manual-writing">
+            <button type="button" className="v6-ai-link-button" data-testid="ai-manual-writing" onClick={onOpenMatter}>
               前往案件页手工处理材料
-            </a>
+            </button>
             <div style={S.muted}>
-              本版本尚未开放草稿编辑器；AI 不可用不会阻止上传或查看案件材料。
+              草稿编辑器可在专业工作台使用；没有案件时可先创建案件。
             </div>
           </div>
         </div>
@@ -700,12 +706,10 @@ export function AiPanel({
           <div style={S.banner} data-testid="ai-matter" data-status={view.matter.status}>
             <strong>案件：{view.matter.title}</strong>{" "}
             <span style={S.badge}>{matterStatusText(view.matter.status)}</span>{" "}
-            <a
-              href={`/patent/v6/matters/${encodeURIComponent(view.matter.id)}/overview`}
-              data-testid="ai-matter-link"
-            >
+            <button type="button" className="v6-ai-link-button" data-testid="ai-matter-link" onClick={onOpenMatter}>
               返回案件页
-            </a>
+            </button>{" "}
+            {onOpenDraft ? <button type="button" className="v6-ai-link-button" data-testid="ai-draft-link" onClick={onOpenDraft}>打开草稿工作台</button> : null}
           </div>
           {matterArchived && (
             <div style={S.warning} data-testid="ai-matter-archived">
@@ -763,6 +767,13 @@ export function AiPanel({
       )}
     </div>
   );
+}
+
+function navigateToV6(path: string): void {
+  if (typeof window === "undefined") return;
+  const marker = window.location.pathname.indexOf("/v6");
+  const basePath = marker < 0 ? "" : window.location.pathname.slice(0, marker);
+  window.location.assign(`${basePath}${path}`);
 }
 
 function newRequestKey(): string {
@@ -845,6 +856,20 @@ export function AiPage({ repository, actor }: AiPageProps) {
     setRefreshToken((value) => value + 1);
   }, []);
 
+  const openMatter = useCallback(() => {
+    navigateToV6(v6Path(matterId === null
+      ? { kind: "matters" }
+      : { kind: "matter", matterId, targetId: null, tab: "overview" }));
+  }, [matterId]);
+  const openDraft = useCallback(() => {
+    if (matterId === null) {
+      navigateToV6(v6Path({ kind: "matters" }));
+      return;
+    }
+    const selectedTargetId = targetId ?? (view?.kind === "ready" ? view.targets[0]?.id ?? null : null);
+    navigateToV6(v6Path({ kind: "matter", matterId, targetId: selectedTargetId, tab: selectedTargetId === null ? "overview" : "draft" }));
+  }, [matterId, targetId, view]);
+
   const handleGrant = useCallback(
     async (providerProfileId: string) => {
       if (view === null || view.kind !== "ready" || busy) return;
@@ -912,7 +937,7 @@ export function AiPage({ repository, actor }: AiPageProps) {
   const targets = view !== null && view.kind === "ready" ? view.targets : [];
 
   return (
-    <main style={S.page} data-testid="ai-page">
+    <main className="v6-page v6-ai-page" style={S.page} data-testid="ai-page">
       <header>
         <h1 style={{ margin: "0 0 6px", fontSize: "22px" }}>AI 与数据</h1>
         <p style={S.muted}>
@@ -991,6 +1016,8 @@ export function AiPage({ repository, actor }: AiPageProps) {
           void handleRevoke(consentId);
         }}
         onReload={reload}
+        onOpenMatter={openMatter}
+        onOpenDraft={openDraft}
       />
     </main>
   );

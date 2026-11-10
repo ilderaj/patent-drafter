@@ -9,11 +9,10 @@ import {
   renameMatter,
   shouldRefreshMatterRows,
   unarchiveMatter,
-  type MatterFilters,
-  type MatterListRow,
-  type MatterRoute,
-  type MatterTargetRow,
 } from "./matters.ts";
+import type { MatterFilters, MatterListRow, MatterRoute, MatterTargetRow } from "./matters.ts";
+import type { NextActionKind } from "./actions.ts";
+import { v6Path, type MatterTab } from "../../routes/navigation.ts";
 
 export interface MattersPageProps {
   repository: LocalRepository;
@@ -157,15 +156,15 @@ export function MattersPage({ repository, actor, onCreate, onOpenUpload, initial
       <p className="muted">案件列表以本机保存的案件状态为准。超过 60 秒或窗口重新获得焦点时会刷新。</p>
       {notice ? <div role="status" className="notice">{notice}</div> : null}
       {error ? <div role="alert" className="notice" data-testid="matters-error"><strong>无法读取或保存。</strong><p>{error}</p><button className="btn btn-outline btn-sm" type="button" onClick={() => void refresh(true)}>重试</button></div> : null}
-      <div className="row-between" style={{ flexWrap: "wrap", gap: 8 }}>
+      <div className="v6-matters-filters">
         <label>状态 <select value={filters.status ?? "active"} onChange={(event) => setFilters({ ...filters, status: event.target.value as MatterFilters["status"], page: 1 })}>
           <option value="active">进行中</option><option value="archived">已归档</option><option value="all">全部</option>
         </select></label>
         <label>路线 <select value={filters.route ?? ""} onChange={(event) => setFilters({ ...filters, route: (event.target.value || null) as MatterRoute | null, page: 1 })}>
-          <option value="">全部路线</option><option value="cn_um">中国实用新型</option><option value="cn_invention">中国发明</option><option value="us_nonprovisional">美国非临时申请</option><option value="pct">PCT</option>
+          <option value="">全部路线</option><option value="cn_um">中国实用新型</option><option value="cn_invention">中国发明</option><option value="us_nonprovisional">美国非临时申请</option><option value="pct">PCT 国际申请</option>
         </select></label>
-        <label>下一动作 <select value={filters.nextAction ?? ""} onChange={(event) => setFilters({ ...filters, nextAction: (event.target.value || null) as MatterFilters["nextAction"], page: 1 })}>
-          <option value="">全部动作</option>{["add_sources", "resolve_conflict", "generate_draft", "refresh_inputs", "confirm_content", "run_check", "ack_risk", "approve", "export", "record_receipt", "none"].map((item) => <option key={item} value={item}>{item}</option>)}
+        <label>下一步 <select value={filters.nextAction ?? ""} onChange={(event) => setFilters({ ...filters, nextAction: (event.target.value || null) as MatterFilters["nextAction"], page: 1 })}>
+          <option value="">全部动作</option>{NEXT_ACTION_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
         </select></label>
         <label>标题 <input type="search" value={filters.title ?? ""} onChange={(event) => setFilters({ ...filters, title: event.target.value, page: 1 })} placeholder="只搜索案件标题" /></label>
       </div>
@@ -177,14 +176,22 @@ export function MattersPage({ repository, actor, onCreate, onOpenUpload, initial
           <button type="button" className="btn btn-outline" disabled={busy} onClick={() => void startFromUpload()}>从上传材料开始</button></div>
       </section> : <section className="card v6-empty" data-testid="matters-filter-empty"><p>没有符合筛选条件的案件。</p></section>) : null}
       {rows !== null && filtered && filtered.total > 0 ? <>
-        <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }} data-testid="matters-list">
-          <thead><tr><th>标题</th><th>路线与状态</th><th>下一动作</th><th>最近更新</th><th>创建人</th><th>操作</th></tr></thead>
-          <tbody>{filtered.items.map((row) => <tr key={row.matter.id} data-testid={`matter-row-${row.matter.id}`}>
-            <td>{titleEdit?.id === row.matter.id ? <><input aria-label="案件标题" value={titleEdit.title} onChange={(event) => setTitleEdit({ ...titleEdit, title: event.target.value })} /><button type="button" onClick={() => void saveTitle()}>保存</button><button type="button" onClick={() => setTitleEdit(null)}>取消</button></> : <><Link to={`/v6/matters/${encodeURIComponent(row.matter.id)}/overview`}>{row.matter.title}</Link>{row.matter.status === "active" ? <button type="button" className="btn btn-ghost btn-sm" onClick={() => setTitleEdit({ id: row.matter.id, title: row.matter.title })}>重命名</button> : <span className="muted">已归档，只读；保存返回 INVALID_TRANSITION。</span>}</>}</td>
-            <td>{row.targets.length ? row.targets.map((target) => <TargetLabel key={target.id} target={target} />) : <span className="muted">尚无目标</span>}</td>
-            <td>{row.nextAction}</td><td>{row.matter.updatedAt}</td><td>{row.matter.createdBy}</td>
-            <td>{row.matter.status === "archived" ? <button type="button" className="btn btn-outline btn-sm" onClick={() => void transition(row, "unarchive")}>取消归档</button> : <button type="button" className="btn btn-outline btn-sm" onClick={() => void transition(row, "archive")}>归档</button>}</td>
-          </tr>)}</tbody>
+        <div className="v6-matters-table-wrap"><table className="v6-matters-table" data-testid="matters-list">
+          <thead><tr><th>标题</th><th>路线与状态</th><th>下一步</th><th>最近更新</th><th>创建人</th><th>操作</th></tr></thead>
+          <tbody>{filtered.items.map((row) => {
+            const actionTab = matterActionTab(row.nextAction);
+            const actionTarget = row.targets.find((target) => target.status === "active") ?? row.targets[0] ?? null;
+            return <tr key={row.matter.id} data-testid={`matter-row-${row.matter.id}`}>
+              <td className="v6-matter-title-cell">{titleEdit?.id === row.matter.id ? <><input aria-label="案件标题" value={titleEdit.title} onChange={(event) => setTitleEdit({ ...titleEdit, title: event.target.value })} /><button type="button" onClick={() => void saveTitle()}>保存</button><button type="button" onClick={() => setTitleEdit(null)}>取消</button></> : <><Link to={v6Path({ kind: "matter", matterId: row.matter.id, targetId: null, tab: "overview" })}>{row.matter.title}</Link>{row.matter.status === "active" ? <button type="button" className="btn btn-ghost btn-sm" onClick={() => setTitleEdit({ id: row.matter.id, title: row.matter.title })}>重命名</button> : <span className="muted">已归档，只读</span>}</>}
+                <details className="v6-tech-details"><summary>案件 ID</summary><code>{row.matter.id}</code></details>
+              </td>
+              <td><div className="v6-matter-route-list">{row.targets.length ? row.targets.map((target) => <TargetLabel key={target.id} target={target} />) : <span className="muted">尚无目标</span>}</div></td>
+              <td>{actionTab ? <Link to={v6Path({ kind: "matter", matterId: row.matter.id, targetId: actionTarget?.id ?? null, tab: actionTab })}>{matterActionLabel(row.nextAction)}</Link> : <span>{matterActionLabel(row.nextAction)}</span>}</td>
+              <td><time dateTime={row.matter.updatedAt}>{formatMatterTime(row.matter.updatedAt)}</time></td>
+              <td>本机用户<details className="v6-tech-details"><summary>创建人 ID</summary><code>{row.matter.createdBy}</code></details></td>
+              <td>{row.matter.status === "archived" ? <button type="button" className="btn btn-outline btn-sm" onClick={() => void transition(row, "unarchive")}>取消归档</button> : <button type="button" className="btn btn-outline btn-sm" onClick={() => void transition(row, "archive")}>归档</button>}</td>
+            </tr>;
+          })}</tbody>
         </table></div>
         <div className="row-between"><span>共 {filtered.total} 个案件 · 第 {filtered.page} 页</span><div><button type="button" className="btn btn-outline btn-sm" disabled={filtered.page <= 1} onClick={() => setFilters({ ...filters, page: filtered.page - 1 })}>上一页</button> <button type="button" className="btn btn-outline btn-sm" disabled={filtered.page * filtered.pageSize >= filtered.total} onClick={() => setFilters({ ...filters, page: filtered.page + 1 })}>下一页</button></div></div>
       </> : null}
@@ -193,6 +200,54 @@ export function MattersPage({ repository, actor, onCreate, onOpenUpload, initial
 }
 
 function TargetLabel({ target }: { target: MatterTargetRow }) {
-  const route = target.route ?? "路线未配置";
-  return <div>{route} · {target.status === "active" ? "进行中" : "已归档"}</div>;
+  return <div>{matterRouteLabel(target.route)} · {target.status === "active" ? "进行中" : "已归档"}<details className="v6-tech-details"><summary>目标 ID</summary><code>{target.id}</code></details></div>;
+}
+
+const NEXT_ACTION_OPTIONS: readonly (readonly [NextActionKind, string])[] = [
+  ["add_sources", "补充材料或事实"],
+  ["resolve_conflict", "处理事实冲突"],
+  ["generate_draft", "生成或撰写草稿"],
+  ["refresh_inputs", "核对最新输入"],
+  ["confirm_content", "确认草稿内容"],
+  ["run_check", "运行检查"],
+  ["ack_risk", "处理检查风险"],
+  ["approve", "记录内部批准"],
+  ["export", "准备导出"],
+  ["record_receipt", "核对回执记录"],
+  ["none", "暂无待处理动作"],
+];
+
+function matterActionLabel(action: NextActionKind): string {
+  return NEXT_ACTION_OPTIONS.find(([value]) => value === action)?.[1] ?? "其他动作";
+}
+
+function matterActionTab(action: NextActionKind): MatterTab | null {
+  switch (action) {
+    case "add_sources": return "sources";
+    case "resolve_conflict": return "facts";
+    case "generate_draft": return "draft";
+    case "refresh_inputs": return "facts";
+    case "confirm_content": return "draft";
+    case "run_check":
+    case "ack_risk": return "check";
+    case "approve":
+    case "export": return "deliver";
+    case "record_receipt": return "filing";
+    case "none": return null;
+  }
+}
+
+function matterRouteLabel(route: MatterRoute | null): string {
+  switch (route) {
+    case "cn_um": return "中国实用新型";
+    case "cn_invention": return "中国发明";
+    case "us_nonprovisional": return "美国非临时申请";
+    case "pct": return "PCT 国际申请";
+    case null: return "路线未配置";
+  }
+}
+
+function formatMatterTime(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "时间未知" : date.toLocaleString("zh-CN", { hour12: false });
 }
