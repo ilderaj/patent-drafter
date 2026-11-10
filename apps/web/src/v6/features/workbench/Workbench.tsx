@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { Actor, LocalRepository } from "../../lib/repository.ts";
 import { Intake } from "../intake/Intake.tsx";
 import { DraftEditor } from "../draft/Editor.tsx";
-import { DraftReviewPanelView, DraftReviewSession } from "../draft/Review.tsx";
+import { DraftReviewSession } from "../draft/Review.tsx";
 import type { DraftReviewState } from "../draft/Review.tsx";
 import { currentConfirmations } from "../../../../../../packages/domain/src/v6/confirmation.ts";
 import { GenerationPanel } from "../generation/Generation.tsx";
@@ -14,8 +14,8 @@ import { Upload } from "../sources/Upload.tsx";
 import { TargetsPanel } from "../targets/Targets.tsx";
 import { ChecksWorkspace, DeliveryWorkspace } from "../delivery/Workspace.tsx";
 import type { CheckRulePack } from "@patent/domain";
-import { ActivityFeed } from "./ActivityFeed.tsx";
-import { TestOutputNotice } from "./TestOutputNotice.tsx";
+import { TestOutputNotice } from "../../components/TestOutputNotice.tsx";
+import { Body, Button, Callout, Group, Icon, Pane, Row, SectionHeader, Sheet, StatusShape, Tabs, Toolbar } from "../../components/ui/index.ts";
 import {
   loadWorkbenchOverview,
   type ApprovalValidity,
@@ -66,6 +66,7 @@ export function ProfessionalWorkbench(props: ProfessionalWorkbenchProps) {
   const navigate = useNavigate();
   const [state, setState] = useState<LoadState>({ phase: "loading" });
   const [attempt, setAttempt] = useState(0);
+  const [targetSheet, setTargetSheet] = useState(false);
   const request = useRef(0);
   const refresh = useCallback(async (retain = true) => {
     const serial = ++request.current;
@@ -112,82 +113,119 @@ export function ProfessionalWorkbench(props: ProfessionalWorkbenchProps) {
   const testOutput = selectedTarget?.testOutput ?? overview.targets.some((target) => target.testOutput);
   const onSettled = () => { void refresh(true); };
   const archivedReadOnlyTab = overview.matterStatus === "archived" && WRITE_TABS.has(props.tab);
+  const selectedIndex = selectedTarget === null ? -1 : overview.targets.indexOf(selectedTarget);
+  const targetLabel = selectedTarget === null
+    ? `整个案件 · ${overview.targets.length} 个目标`
+    : `目标 ${selectedIndex + 1} · ${routeLabel(selectedTarget.route)}`;
+  const factsPending = overview.targets.some((target) => target.nextAction === "resolve_conflict");
+  const tabItems = MATTER_TABS.map((item) => ({
+    key: item.key,
+    label: item.label,
+    dot: item.key === "facts" && factsPending,
+    to: v6Path({ kind: "matter", matterId: overview.matterId, targetId: props.targetId, tab: item.key }),
+  }));
 
-  return <main className="v6-page v6-professional" data-testid="professional-workbench" data-state={state.error ? "stale" : "ready"}
-    data-matter-id={overview.matterId} data-tab={props.tab}>
-    <header className="v6-workbench-header">
-      <div className="v6-workbench-heading">
-        <div>
-          <p className="muted">专业工作台 · {overview.matterStatus === "archived" ? "已归档，只读" : "本机案件"}</p>
-          <h1 className="v6-title">{overview.title}</h1>
-        </div>
-        <Link className="btn btn-outline btn-sm" to={professionalMatterPath(overview.matterId)}>打开同一案件概览</Link>
+  return <>
+    <Toolbar
+      title={overview.title}
+      subtitle={`${overview.matterStatus === "archived" ? "已归档，只读" : "进行中"} · ${targetLabel}`}
+      right={<>
+        <Button size="sm" icon="globe" onClick={() => setTargetSheet(true)}>
+          {selectedTarget === null ? "整个案件" : routeLabel(selectedTarget.route)}
+          <Icon name="down" size="sm" />
+        </Button>
+        <Button variant="primary" size="sm" to={v6Path({ kind: "matter", matterId: overview.matterId, targetId: selectedTarget?.id ?? null, tab: "deliver" })}>交付</Button>
+      </>}
+    />
+    <Tabs items={tabItems} active={props.tab} ariaLabel="案件工作台" />
+
+    {targetSheet ? <Sheet
+      title="选择目标"
+      subtitle="切换目标只改变视图；修改路线配置请到概览的「目标与路线设置」。"
+      onClose={() => setTargetSheet(false)}
+      wide
+      footer={<Button onClick={() => setTargetSheet(false)}>关闭</Button>}
+    >
+      <div className="optgrid">
+        <button type="button" className={`optcard${props.targetId === null ? " sel" : ""}`}
+          data-testid="target-sheet-matter"
+          onClick={() => {
+            setTargetSheet(false);
+            navigate(v6Path({ kind: "matter", matterId: overview.matterId, targetId: null, tab: props.tab }));
+          }}>
+          <span className={`radio${props.targetId === null ? " on" : ""}`} />
+          <span><span className="oc-t">整个案件</span><span className="oc-d" style={{ display: "block" }}>查看所有目标的汇总与下一步。</span></span>
+        </button>
+        {overview.targets.map((target, index) => <button key={target.id} type="button"
+          className={`optcard${target.id === props.targetId ? " sel" : ""}`}
+          data-testid={`target-sheet-${target.id}`}
+          onClick={() => {
+            setTargetSheet(false);
+            navigate(v6Path({ kind: "matter", matterId: overview.matterId, targetId: target.id, tab: props.tab }));
+          }}>
+          <span className={`radio${target.id === props.targetId ? " on" : ""}`} />
+          <span>
+            <span className="oc-t">目标 {index + 1} · {routeLabel(target.route)}</span>
+            <span className="oc-d" style={{ display: "block" }}>{target.status === "active" ? "进行中" : "已归档"} · {languageLabel(target.language)} · {approvalLabel(target.approval)}</span>
+          </span>
+        </button>)}
       </div>
-      <MatterTargetNav overview={overview} selectedTargetId={props.targetId} tab={props.tab} />
-      <nav className="v6-workbench-tabs" aria-label="专业工作台标签">
-        {MATTER_TABS.map((item) => <Link key={item.key}
-          to={v6Path({ kind: "matter", matterId: overview.matterId, targetId: props.targetId, tab: item.key })}
-          className="tabs-trigger" data-state={item.key === props.tab ? "active" : "inactive"}
-          aria-current={item.key === props.tab ? "page" : undefined}>
-          {item.key === "review" ? "客户审阅（R3）" : item.label}
-        </Link>)}
-      </nav>
-      {testOutput ? <TestOutputNotice revision={{ testOutput: true }} testId="workbench-test-output" /> : null}
-      {overview.matterStatus === "archived" ? <div className="notice" role="status" data-testid="workbench-archived">
-        案件已归档，现为只读。<Link to="/v6/matters">返回案件列表后可取消归档。</Link>
-      </div> : null}
-      {stale ? <div className="notice" role="status" data-testid="workbench-stale">工作台数据已陈旧，正在重新读取。</div> : null}
-      {state.error ? <div className="notice" role="alert" data-testid="workbench-refresh-error">
-        {state.error} <button type="button" className="btn btn-outline btn-sm" onClick={() => setAttempt((value) => value + 1)}>重试</button>
-      </div> : null}
-      {state.refreshing ? <p className="field-hint" aria-live="polite">正在读取最新状态…</p> : null}
-    </header>
+    </Sheet> : null}
 
-    {archivedReadOnlyTab ? <ArchivedReadOnlyTab />
-      : props.tab === "overview" ? <OverviewPanel overview={overview} repository={props.repository} actor={props.actor} onSettled={onSettled} />
-        : props.tab === "sources" ? <MaterialsPanel {...props} onSettled={onSettled} onOpenFacts={() => navigate(v6Path({ kind: "matter", matterId: overview.matterId, targetId: props.targetId, tab: "facts" }))} />
-          : props.tab === "facts" ? <Intake repository={props.repository} actor={props.actor} matterId={overview.matterId} />
-            : props.tab === "draft" ? <DraftPanel {...props} overview={overview} />
-              : props.tab === "check" ? <ChecksWorkspace repository={props.repository} actor={props.actor} matterId={overview.matterId} targetId={selectedTarget?.id ?? null} rulePack={props.rulePack} rulePackVersion={props.rulePackVersion} />
-                : props.tab === "review" ? <ReviewPanel matterId={overview.matterId} target={selectedTarget} />
-                  : props.tab === "deliver" ? <DeliveryWorkspace repository={props.repository} actor={props.actor} matterId={overview.matterId} targetId={selectedTarget?.id ?? null} rulePack={props.rulePack} rulePackVersion={props.rulePackVersion} onSettled={onSettled} />
-                    : <ApplicationPanel />}
-  </main>;
+    <Body><Pane width="default">
+      <div data-testid="professional-workbench" data-state={state.error ? "stale" : "ready"}
+        data-matter-id={overview.matterId} data-tab={props.tab}>
+        {testOutput ? <TestOutputNotice revision={{ testOutput: true }} testId="workbench-test-output" /> : null}
+        {overview.matterStatus === "archived" ? <Callout tone="warn" icon="alert" testId="workbench-archived">
+          案件已归档，现为只读。<Link to="/v6/matters">返回案件列表后可取消归档。</Link>
+        </Callout> : null}
+        {stale ? <Callout tone="info" icon="clock" testId="workbench-stale">工作台数据已陈旧，正在重新读取。</Callout> : null}
+        {state.error ? <Callout tone="risk" icon="alert" testId="workbench-refresh-error">
+          {state.error} <Button size="sm" onClick={() => setAttempt((value) => value + 1)}>重试</Button>
+        </Callout> : null}
+        {state.refreshing ? <p className="field-hint" aria-live="polite">正在读取最新状态…</p> : null}
+
+        {archivedReadOnlyTab ? <ArchivedReadOnlyTab />
+          : props.tab === "overview" ? <OverviewPanel overview={overview} repository={props.repository} actor={props.actor} onSettled={onSettled} />
+            : props.tab === "sources" ? <MaterialsPanel {...props} onSettled={onSettled} onOpenFacts={() => navigate(v6Path({ kind: "matter", matterId: overview.matterId, targetId: props.targetId, tab: "facts" }))} />
+              : props.tab === "facts" ? <Intake repository={props.repository} actor={props.actor} matterId={overview.matterId} />
+                : props.tab === "draft" ? <DraftPanel {...props} overview={overview} />
+                  : props.tab === "check" ? <ChecksWorkspace repository={props.repository} actor={props.actor} matterId={overview.matterId} targetId={selectedTarget?.id ?? null} rulePack={props.rulePack} rulePackVersion={props.rulePackVersion} />
+                    : props.tab === "review" ? <ReviewPanel matterId={overview.matterId} target={selectedTarget} />
+                      : props.tab === "deliver" ? <DeliveryWorkspace repository={props.repository} actor={props.actor} matterId={overview.matterId} targetId={selectedTarget?.id ?? null} rulePack={props.rulePack} rulePackVersion={props.rulePackVersion} onSettled={onSettled} />
+                        : <ApplicationPanel />}
+      </div>
+    </Pane></Body>
+  </>;
 }
 
 function WorkbenchLoading() {
-  return <main className="v6-page" data-testid="professional-workbench-loading" aria-busy="true">
-    <p className="muted">正在读取本机工作台…</p><div className="skeleton v6-skeleton" /><div className="skeleton v6-skeleton" />
-  </main>;
+  return <>
+    <Toolbar title="案件工作台" subtitle="正在读取本机案件" />
+    <Body><Pane><div aria-busy="true" data-testid="professional-workbench-loading">
+      <div className="skeleton v6-skeleton" /><div className="skeleton v6-skeleton" />
+    </div></Pane></Body>
+  </>;
 }
 
 function WorkbenchError({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return <main className="v6-page" data-testid="professional-workbench-error" data-state="error">
-    <div className="notice" role="alert"><strong>无法读取工作台</strong><p>{message}</p>
-      <button type="button" className="btn btn-outline btn-sm" onClick={onRetry}>重试</button>
-    </div>
-  </main>;
+  return <>
+    <Toolbar title="案件工作台" subtitle="无法读取" />
+    <Body><Pane><div data-testid="professional-workbench-error" data-state="error">
+      <Callout tone="risk" icon="alert">
+        <b>无法读取工作台</b><div>{message}</div>
+        <Button size="sm" onClick={onRetry}>重试</Button>
+      </Callout>
+    </div></Pane></Body>
+  </>;
 }
 
 function ArchivedReadOnlyTab() {
-  return <section className="card" data-testid="workbench-archived-readonly">
+  return <div className="card stack-3" data-testid="workbench-archived-readonly">
     <h2 className="card-title">案件已归档</h2>
     <p className="muted">材料、事实、草稿和审阅操作已停用。返回案件列表后可取消归档。</p>
-    <Link className="btn btn-outline btn-sm" to="/v6/matters">返回案件列表</Link>
-  </section>;
-}
-
-function MatterTargetNav({ overview, selectedTargetId, tab }: { overview: WorkbenchOverview; selectedTargetId: string | null; tab: MatterTab }) {
-  if (overview.targets.length === 0) return <p className="field-hint" data-testid="workbench-no-targets">本案还没有目标。可在概览中创建目标；案件与目标均来自同一份本机记录。</p>;
-  return <nav className="v6-targets" aria-label="目标">
-    <Link className={selectedTargetId === null ? "chip active" : "chip"}
-      to={v6Path({ kind: "matter", matterId: overview.matterId, targetId: null, tab })}>整个案件</Link>
-    {overview.targets.map((target, index) => <Link key={target.id}
-      className={selectedTargetId === target.id ? "chip active" : "chip"}
-      to={v6Path({ kind: "matter", matterId: overview.matterId, targetId: target.id, tab })}>
-      目标 {index + 1} · {routeLabel(target.route)}
-    </Link>)}
-  </nav>;
+    <Button size="sm" to="/v6/matters">返回案件列表</Button>
+  </div>;
 }
 
 function OverviewPanel({ overview, repository, actor, onSettled }: {
@@ -196,32 +234,52 @@ function OverviewPanel({ overview, repository, actor, onSettled }: {
   actor: Actor;
   onSettled: () => void;
 }) {
-  return <div className="stack-3 v6-overview-targets" data-testid="workbench-overview">
-    <section className="card stack-3">
-      <div className="row-between" style={{ flexWrap: "wrap" }}>
-        <h2 className="card-title">案件概览</h2>
-        <span className="field-hint">案件 v{overview.matterVersion} · 输入 v{overview.sourceVersion}</span>
-      </div>
-      {overview.targets.length === 0 ? <p className="muted">尚无目标。选择路线并保存后，可在这里查看进度和下一步。</p> : <TargetOverviewTable targets={overview.targets} matterId={overview.matterId} />}
-    </section>
-    {overview.targets.length > 0 ? <section className="card stack-3" data-testid="workbench-next-actions">
-      <h2 className="card-title">下一步</h2>
-      <ul className="v6-list">{overview.targets.map((target, index) => {
-        const next = nextActionPresentation(target.nextAction);
-        return <li className="v6-entry" key={target.id}>
-          <div className="row-between" style={{ flexWrap: "wrap" }}>
-            <strong>目标 {index + 1} · {routeLabel(target.route)}</strong>
-            {next.tab ? <Link className="btn btn-outline btn-sm" to={v6Path({ kind: "matter", matterId: overview.matterId, targetId: target.id, tab: next.tab })}>{next.linkLabel}</Link> : <span className="badge badge-ok">暂无待处理动作</span>}
-          </div>
-          <p className="muted">{next.description}</p>
-        </li>;
-      })}</ul>
-    </section> : null}
-    <details className="v6-overview-config" data-testid="workbench-target-settings">
-      <summary>目标与路线设置</summary>
-      <TargetsPanel repository={repository} actor={actor} matterId={overview.matterId} onSettled={onSettled} />
-    </details>
-    <ActivityFeed repository={repository} actor={actor} currentMatterId={overview.matterId} />
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  return <div className="stack-3" data-testid="workbench-overview">
+    <div className="casehead">
+      <h2>{overview.title}</h2>
+      <span className="tag plain">案件 v{overview.matterVersion}</span>
+      {overview.targets.some((target) => target.testOutput) ? <span className="tag ai">测试输出</span> : null}
+    </div>
+    <div className="small muted">发明人：待核实 · 一个案件可以对应多个法域目标</div>
+
+    {overview.targets.length === 0 ? <Callout tone="info" icon="globe">
+      尚无目标。选择路线并保存后，可在这里查看进度和下一步；没有示例目标或待办。
+    </Callout> : null}
+
+    <SectionHeader title="法域目标" right={`${overview.targets.length} 个目标 · 一个案件可以对应多个法域目标`} />
+    <div className="card pad0">
+      {overview.targets.length === 0 ? <p className="muted" style={{ padding: 16 }}>还没有目标。</p>
+        : <TargetOverviewTable targets={overview.targets} matterId={overview.matterId} />}
+    </div>
+    <p className="minihint">切换目标只改变视图；修改路线配置请在「目标与路线设置」中保存。旧批准是否仍然有效由当前快照和检查决定。</p>
+
+    <SectionHeader title="下一步" />
+    <div data-testid="workbench-next-actions">
+      {overview.targets.length === 0 ? <div className="empty"><h3>先添加一个法域目标</h3><p>目标建立后才能生成草稿、检查并准备交付。</p></div>
+        : <Group>{overview.targets.map((target, index) => {
+          const next = nextActionPresentation(target.nextAction);
+          return <Row key={target.id}
+            title={`目标 ${index + 1} · ${routeLabel(target.route)}`}
+            description={next.description}
+            right={next.tab
+              ? <Button size="sm" to={v6Path({ kind: "matter", matterId: overview.matterId, targetId: target.id, tab: next.tab })}>{next.linkLabel}</Button>
+              : <StatusShape tone="ok" label="暂无待处理" />} />;
+        })}</Group>}
+    </div>
+
+    <Callout tone="warn" icon="alert">
+      <b>提交前需要人工核实。</b>公开历史、优先权、代理要求、保密审查及文件格式取决于具体事实和适用规则。检查结果是提示，不确定法律结果。
+    </Callout>
+
+    <div className="row" data-testid="workbench-target-settings">
+      <div className="r-main"><div className="r-title">目标与路线设置</div><div className="r-sub">选择路线、申请语言、人员与优先权；保存后生成新的目标配置版本。</div></div>
+      <div className="r-right"><Button size="sm" icon="gear" onClick={() => setSettingsOpen(true)}>打开设置</Button></div>
+    </div>
+    {settingsOpen ? <Sheet title="目标与路线设置" subtitle="修改会写入本机目标配置；取消不会保存。" onClose={() => setSettingsOpen(false)} wide
+      footer={<Button onClick={() => setSettingsOpen(false)}>关闭</Button>}>
+      <TargetsPanel repository={repository} actor={actor} matterId={overview.matterId} onSettled={() => { onSettled(); }} />
+    </Sheet> : null}
   </div>;
 }
 
@@ -230,11 +288,11 @@ export interface TargetOverviewTableProps {
   matterId?: string;
 }
 
-/** Read-only target aggregate: route, language, versions, check, confirmation, approval and next action. */
+/** Read-only target aggregate: route, language, status, approval and next action. */
 export function TargetOverviewTable({ targets, matterId }: TargetOverviewTableProps) {
   return <div className="v6-overview-table-wrap">
-    <table className="table v6-target-summary" data-testid="workbench-target-summary">
-      <thead><tr><th>目标</th><th>路线 / 状态</th><th>语言</th><th>配置 / 修订</th><th>检查</th><th>AI 确认</th><th>内部批准</th><th>下一步</th></tr></thead>
+    <table className="tbl" data-testid="workbench-target-summary">
+      <thead><tr><th>目标</th><th>语言</th><th>状态</th><th>内部批准</th><th>下一步</th></tr></thead>
       <tbody>{targets.map((target, index) => <TargetSummaryRow key={target.id} target={target} index={index} matterId={matterId} />)}</tbody>
     </table>
   </div>;
@@ -243,14 +301,26 @@ export function TargetOverviewTable({ targets, matterId }: TargetOverviewTablePr
 function TargetSummaryRow({ target, index, matterId }: { target: WorkbenchTargetSummary; index: number; matterId?: string }) {
   const next = nextActionPresentation(target.nextAction);
   return <tr data-testid={`workbench-target-${target.id}`} data-check-state={target.check.state} data-approval-state={target.approval.state} data-language={target.language ?? ""}>
-    <td>目标 {index + 1}<details className="v6-tech-details"><summary>技术详情</summary><code>{target.id}</code></details></td>
-    <td>{routeLabel(target.route)}<div className="field-hint">{target.status === "active" ? "进行中" : "已归档"}</div></td>
+    <td>
+      <div className="r-title">目标 {index + 1} · {routeLabel(target.route)}</div>
+      <div className="sub">
+        {target.revisionId ? `配置 v${target.configVersion} · 已有修订` : `配置 v${target.configVersion} · 尚无修订`}
+        {target.inputStale ? " · 输入陈旧" : ""} · {checkLabel(target.check.state)} · AI 确认 {target.confirmations.confirmed}/{target.confirmations.required}
+      </div>
+      <details className="v6-tech-details">
+        <summary>技术详情</summary>
+        <div>目标 ID：<code>{target.id}</code></div>
+        {target.revisionId ? <div>修订 ID：<code>{target.revisionId}</code></div> : null}
+        {target.check.runId ? <div>检查 ID：<code>{target.check.runId}</code></div> : null}
+        {target.check.rulePackVersion ? <div>规则包：<code>{target.check.rulePackVersion}</code></div> : null}
+        {target.approval.approvalId ? <div>批准 ID：<code>{target.approval.approvalId}</code></div> : null}
+      </details>
+    </td>
     <td>{languageLabel(target.language)}</td>
-    <td>配置 v{target.configVersion}<div className="field-hint">{target.revisionId ? "已有当前修订" : "尚无修订"}{target.inputStale ? " · 输入陈旧" : ""}</div>{target.revisionId ? <details className="v6-tech-details"><summary>修订编号</summary><code>{target.revisionId}</code></details> : null}</td>
-    <td>{checkLabel(target.check.state)}<div className="field-hint">{target.check.rulePackVersion ? "已记录检查规则版本" : "无检查记录"}</div></td>
-    <td>{target.confirmations.confirmed}/{target.confirmations.required}<div className="field-hint">段落确认</div></td>
+    <td><StatusShape tone={target.status === "active" ? (target.check.state === "current" ? "ok" : "warn") : "idle"}
+      label={target.status === "active" ? (target.check.state === "current" ? "当前" : "进行中") : "已归档"} /></td>
     <td>{approvalLabel(target.approval)}</td>
-    <td className="v6-target-next">{matterId && next.tab ? <Link to={v6Path({ kind: "matter", matterId, targetId: target.id, tab: next.tab })}>{next.label}</Link> : next.label}</td>
+    <td className="v6-target-next">{matterId && next.tab ? <Link className="link" to={v6Path({ kind: "matter", matterId, targetId: target.id, tab: next.tab })}>{next.label}</Link> : <span className="muted">{next.label}</span>}</td>
   </tr>;
 }
 
@@ -272,9 +342,14 @@ function nextActionPresentation(action: WorkbenchTargetSummary["nextAction"]): {
 
 function MaterialsPanel(props: ProfessionalWorkbenchProps & { onSettled: () => void; onOpenFacts: () => void }) {
   return <div className="stack-3" data-testid="workbench-materials">
+    <SectionHeader title="示例材料与来源" right="文件只保存在本机，不会上传服务器" />
     <Upload repository={props.repository} actor={props.actor} matterId={props.matterId} onAnswerWithoutDocuments={props.onOpenFacts} onSettled={props.onSettled} />
+    <SectionHeader title="解析与附图" right="解析和尺寸校验都在本机完成" />
     <Parse repository={props.repository} actor={props.actor} matterId={props.matterId} />
     <Figures repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId} onSettled={props.onSettled} />
+    <Callout tone="info" icon="users">
+      <b>人员与来源。</b>发明人与申请人来自「事实」中的回答；请核对自然人身份、贡献与资料来源。此页不读取或上传实际文件之外的内容。
+    </Callout>
   </div>;
 }
 
@@ -282,10 +357,10 @@ function DraftPanel(props: ProfessionalWorkbenchProps & { overview: WorkbenchOve
   if (!props.targetId) return <TargetRequired />;
   const target = props.overview.targets.find((item) => item.id === props.targetId);
   if (!target) return <MatterUnavailable />;
-  return <DraftWorkspacePanel repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId} generation={props.generation} />;
+  return <DraftWorkspacePanel repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId} route={target.route} generation={props.generation} />;
 }
 
-function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository" | "actor" | "matterId" | "generation"> & { targetId: string }) {
+function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository" | "actor" | "matterId" | "generation"> & { targetId: string; route: string | null }) {
   const session = useMemo(() => new DraftReviewSession({
     repository: props.repository,
     actor: props.actor,
@@ -305,6 +380,8 @@ function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository
   const revealGeneration = useCallback(() => {
     const node = generationRef.current;
     if (!node) return;
+    const details = node.closest("details");
+    if (details) details.open = true;
     node.scrollIntoView?.({ block: "center", behavior: "smooth" });
     node.focus?.({ preventScroll: true });
   }, []);
@@ -317,6 +394,7 @@ function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository
     void session.refresh();
   }, [session]);
 
+  const [expandedFeature, setExpandedFeature] = useState<string | null>(null);
   const liveConfirmations = reviewState.currentSnapshot
     ? currentConfirmations(reviewState.ledger, reviewState.currentSnapshot)
     : [];
@@ -326,30 +404,110 @@ function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository
   const confirmationRevisionId = reviewState.isCurrent
     ? reviewState.currentSnapshot?.draftRevisionId ?? null
     : null;
+  const ast = reviewState.revision?.ast ?? null;
+  const allParagraphs = ast === null ? [] : [
+    ...ast.claims.flatMap((claim) => claim.paragraphs),
+    ...ast.sections.flatMap((section) => section.paragraphs),
+  ];
+  const requiredAi = allParagraphs.filter((paragraph) => paragraph.origin === "ai" || paragraph.origin === "mixed").length;
+  const confirmedCount = confirmedParagraphIds.length;
+  const paragraphNumbers = new Map<string, number>();
+  let paragraphIndex = 0;
+  for (const section of ast?.sections ?? []) {
+    for (const paragraph of section.paragraphs) {
+      paragraphIndex += 1;
+      paragraphNumbers.set(paragraph.id, paragraphIndex);
+    }
+  }
+  const viewSupport = (paragraphId: string) => {
+    const row = reviewState.supportRows.find((item) => item.supportParagraphIds.includes(paragraphId));
+    if (!row) return;
+    setExpandedFeature(row.featureId);
+    requestAnimationFrame(() => {
+      document.querySelector(`[data-testid="draft-support-${row.featureId}"]`)?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    });
+  };
+  const revisionLabel = reviewState.revision?.revision.id ? `修订 ${reviewState.revision.revision.id.slice(0, 8)}` : "尚无修订";
 
   return <div className="stack-3 v6-draft-workspace" data-testid="workbench-draft-workspace">
-    {props.generation ? <div ref={generationRef} tabIndex={-1} data-testid="workbench-generation-panel">
-      <GenerationPanel repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId}
-        engineOptions={props.generation} onAdopted={onAdopted} />
+    <div className="spread" style={{ flexWrap: "wrap" }}>
+      <div>
+        <h2 style={{ fontSize: 16 }}>草稿与要素支持</h2>
+        <div className="small muted">{routeLabel(props.route ?? null)} · {revisionLabel} · {confirmedCount}/{requiredAi} 段已确认</div>
+      </div>
+      <Button size="sm" to={v6Path({ kind: "matter", matterId: props.matterId, targetId: props.targetId, tab: "check" })}>查看检查</Button>
     </div>
+    <Callout tone="info" icon="spark">
+      <b>产品政策：</b>模拟导出前，需要人工确认当前修订的全部 AI 示例段落。确认是工作记录，不等于法律审查或认证。
+    </Callout>
+    {props.generation ? <details className="v6-generation-strip" data-testid="workbench-generation-panel" open={false}>
+      <summary>
+        <span>生成任务</span>
+        <span className="sh-r">使用配置的本地测试执行引擎 · 展开查看进度与结果</span>
+      </summary>
+      <div ref={generationRef} tabIndex={-1}>
+        <GenerationPanel repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId}
+          engineOptions={props.generation} onAdopted={onAdopted} />
+      </div>
+    </details>
       : <div className="notice" data-testid="workbench-generation-unavailable">本工作台没有配置可用的生成执行引擎。不会运行测试输出或联系外部处理方；可继续编辑已保存草稿。</div>}
     <div className="v6-draft-columns" data-testid="workbench-draft-columns">
       <DraftEditor repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId}
         confirmationRevisionId={confirmationRevisionId} confirmedParagraphIds={confirmedParagraphIds}
         onGenerateDraft={props.generation ? revealGeneration : undefined}
         generateEntryLabel={props.generation ? "查看生成面板" : undefined}
+        onConfirmParagraph={(paragraphId) => { void session.confirmParagraph(paragraphId); }}
+        onViewSupport={viewSupport}
         onSaved={onEditorSaved}
         refreshToken={editorRefreshToken} />
-      <div className="v6-draft-review">
-        <DraftReviewPanelView
-          state={reviewState}
-          onRefresh={() => session.refresh()}
-          onConfirm={(paragraphId) => session.confirmParagraph(paragraphId)}
-          onRevoke={(confirmationId, reason) => session.revokeParagraphConfirmation(confirmationId, reason)}
-        />
-      </div>
+      <section className="card stack-3 v6-support-card" data-testid="draft-support-card">
+        <div className="card-h">
+          <Icon name="eye" />
+          要素支持
+          <span className="grow" />
+          <span className="small muted">{revisionLabel}</span>
+        </div>
+        <details className="v6-tech-details"><summary>修订与确认详情</summary>
+          <div>修订 ID：<code>{reviewState.revision?.revision.id ?? "无"}</code></div>
+          <div>确认绑定：<code>{confirmationRevisionId ?? "当前不适用"}</code></div>
+          <div>已确认：{confirmedCount}/{requiredAi} 段</div>
+        </details>
+        {reviewState.supportRows.length === 0 ? <p className="muted">当前修订没有可展示的权利要求要素支持。</p> :
+          <table className="supporttbl" data-testid="draft-support-table">
+            <thead><tr><th>要素</th><th>说明书段落</th><th>事实</th><th>状态</th></tr></thead>
+            <tbody>
+              {reviewState.supportRows.map((row) => {
+                const expanded = expandedFeature === row.featureId;
+                return <Fragment key={row.featureId}>
+                  <tr data-testid={`draft-support-${row.featureId}`} data-expanded={expanded ? "true" : "false"}
+                    onClick={() => setExpandedFeature(expanded ? null : row.featureId)} style={{ cursor: "pointer" }}>
+                    <td>{row.claimNumber}. {row.featureText}</td>
+                    <td>{row.supportParagraphIds.length === 0 ? "未关联段落" : row.supportParagraphIds.map((id) => paragraphNumbers.has(id) ? `[${String(paragraphNumbers.get(id)).padStart(4, "0")}]` : "—").join(" ")}</td>
+                    <td>{row.factIds.length === 0 ? "未关联事实" : `${row.factIds.length} 条`}</td>
+                    <td><StatusShape tone={row.featureStatus === "supported" ? "ok" : row.featureStatus === "partial" ? "warn" : "risk"} label={supportStatusLabel(row.featureStatus)} /></td>
+                  </tr>
+                  {expanded ? <tr className="support-detail-row"><td colSpan={4}>
+                    {row.facts.length === 0 ? <div className="small muted">未关联事实</div> : <ul>
+                      {row.facts.map((fact) => <li key={fact.id}>{fact.statement ?? "事实不可用"} · {fact.status ?? "状态未知"}</li>)}
+                    </ul>}
+                    {row.sourceRefs.length === 0 ? <div className="small muted">没有来源引用。</div> : <ul>
+                      {row.sourceRefs.map((ref) => <li key={`${ref.sourceId}/${ref.chunkId}/${ref.start}`}>
+                        第 {ref.page ?? "?"} 页 · {ref.quote}
+                      </li>)}
+                    </ul>}
+                  </td></tr> : null}
+                </Fragment>;
+              })}
+            </tbody>
+          </table>}
+        <p className="small muted">支持映射只展示本机记录，不能证明权利要求得到充分支持；点击行查看来源。</p>
+      </section>
     </div>
   </div>;
+}
+
+function supportStatusLabel(status: "supported" | "partial" | "unsupported"): string {
+  return status === "supported" ? "已支持" : status === "partial" ? "部分支持" : "缺少支持";
 }
 
 function ReviewPanel({ matterId, target }: {
@@ -357,24 +515,30 @@ function ReviewPanel({ matterId, target }: {
   target: WorkbenchTargetSummary | null;
 }) {
   if (!target) return <TargetRequired />;
-  return <section className="card stack-3 v6-client-review" data-testid="workbench-client-review" data-release="R3">
-    <h2 className="card-title">客户审阅往返 · R3</h2>
-    <p>客户审阅包、外部回复和往返状态将在 R3 提供。此版本不会向客户发送材料，也不会把内部记录显示为客户意见。</p>
-    <div className="notice" role="status">
-      当前可在草稿页编辑修订并确认 AI/混合段落；内部批准和可用导出状态在交付页查看。
-    </div>
-    <div className="row" style={{ flexWrap: "wrap" }}>
-      <Link className="btn btn-outline btn-sm" to={v6Path({ kind: "matter", matterId, targetId: target.id, tab: "draft" })}>打开草稿</Link>
-    </div>
-  </section>;
+  return <div className="stack-3 v6-client-review" data-testid="workbench-client-review" data-release="R3">
+    <SectionHeader title="客户审阅往返 · R3" right="本机不发送材料" />
+    <Callout tone="info" icon="users">
+      <b>客户审阅包、外部回复和往返状态将在 R3 提供。</b>此版本不会向客户发送材料，也不会把内部记录显示为客户意见。
+    </Callout>
+    <Group>
+      <Row title="当前可在草稿页处理什么" description="编辑修订并逐段确认 AI/混合内容；确认是内部工作记录。" right={<Button size="sm" to={v6Path({ kind: "matter", matterId, targetId: target.id, tab: "draft" })}>打开草稿</Button>} />
+      <Row title="内部批准与导出" description="内部批准和可用导出状态在交付页查看。" right={<Button size="sm" to={v6Path({ kind: "matter", matterId, targetId: target.id, tab: "deliver" })}>打开交付</Button>} />
+    </Group>
+  </div>;
 }
 
 function ApplicationPanel() {
-  return <section className="card stack-3" data-testid="workbench-application">
-    <h2 className="card-title">申请记录</h2>
-    <p className="muted">此工作台尚未接入申请记录功能。没有示例申请、签名或提交状态。</p>
-    <div className="notice">本页面不表示已签署、已提交或已取得官方回执。</div>
-  </section>;
+  return <div className="stack-3" data-testid="workbench-application">
+    <SectionHeader title="申请、期限与现有技术" right="R3 能力" />
+    <Callout tone="warn" icon="alert">
+      <b>尚未实际提交。</b>本页不提供申请号、提交日期、官费或官方回执；内部批准和导出均不构成递交。
+    </Callout>
+    <Group>
+      <Row title="提交状态与基线" description="未实际递交；申请号、提交日期和官费均待确认。" right={<span className="tag plain">未接入</span>} />
+      <Row title="优先权与期限" description="基础申请、日期和适用规则需人工核实；不提供未经核实的时效计算。" />
+      <Row title="现有技术" description="需要真实检索和人工判断；本版本不提供检索结论。" />
+    </Group>
+  </div>;
 }
 
 function TargetRequired() {

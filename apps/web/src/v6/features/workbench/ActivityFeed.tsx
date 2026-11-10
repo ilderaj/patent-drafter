@@ -11,6 +11,8 @@ import {
   type ActivityFilters,
 } from "./workbench.ts";
 
+import { Body, Pane, Toolbar } from "../../components/ui/index.ts";
+
 const REFRESH_CHECK_MS = 15_000;
 const STALE_AFTER_MS = 60_000;
 
@@ -52,13 +54,18 @@ export function ActivityFeed({ repository, actor, currentMatterId }: ActivityFee
     return () => window.clearInterval(timer);
   }, [data, refresh]);
 
-  return <ActivityFeedView
+  const view = <ActivityFeedView
     data={data}
     error={error}
     refreshing={refreshing}
     currentMatterId={currentMatterId}
     onRetry={() => setAttempt((value) => value + 1)}
   />;
+  if (currentMatterId !== "") return view;
+  return <>
+    <Toolbar title="动态" subtitle="跨案件的本机追加记录；不包含草稿正文、密钥或提示词" />
+    <Body><Pane>{view}</Pane></Body>
+  </>;
 }
 
 export interface ActivityFeedViewProps {
@@ -95,7 +102,7 @@ export function ActivityFeedView({ data, error, refreshing, currentMatterId, onR
     .filter(Boolean).sort(), [data]);
   const state = data === null ? (error ? "error" : "loading") : error ? "stale" : "ready";
 
-  return <section className="card stack-3" data-testid="workbench-activity" data-state={state} aria-busy={refreshing}>
+  return <section className={currentMatterId === "" ? "stack-3" : "card stack-3"} data-testid="workbench-activity" data-state={state} aria-busy={refreshing}>
     <div className="row-between" style={{ flexWrap: "wrap" }}>
       <h2 className="card-title">案件动态</h2>
       {data ? <span className="field-hint">按发生时间倒序 · {data.events.length} 条</span> : null}
@@ -126,18 +133,18 @@ export function ActivityFeedView({ data, error, refreshing, currentMatterId, onR
           <option value="all">全部操作者</option><option value="user">本机用户（自报）</option><option value="worker">worker</option><option value="webhook">webhook</option>
         </select>
       </label>
-      <label className="field"><span className="field-label">动作类别</span>
-        <select className="select" value={filters.actionClass} onChange={(event) => setFilters({ ...filters, actionClass: event.target.value })}>
-          <option value="all">全部类别</option>{actionClasses.map((item) => <option key={item} value={item}>{item}</option>)}
-        </select>
-      </label>
+      <div className="seg" data-testid="activity-action-filter" role="group" aria-label="动作类别">
+        {["all", ...actionClasses].map((item) => <button key={item} type="button"
+          className={filters.actionClass === item ? "sel" : ""}
+          onClick={() => setFilters({ ...filters, actionClass: item })}>{item === "all" ? "全部" : actionClassLabel(item)}</button>)}
+      </div>
       <label className="row"><input type="checkbox" checked={filters.modelOnly} onChange={(event) => setFilters({ ...filters, modelOnly: event.target.checked })} />仅显示模型参与</label>
       <button type="button" className="btn btn-outline btn-sm" disabled={refreshing} onClick={onRetry}>刷新动态</button>
     </div> : null}
     {data && events.length === 0 && !error ? <p className="muted" data-testid="workbench-activity-empty">尚无记录</p> : null}
-    {events.length > 0 ? <ol className="v6-list" data-testid="workbench-activity-rows">
+    {events.length > 0 ? <div className="timeline" data-testid="workbench-activity-rows">
       {events.map((event) => <ActivityRow key={event.id} event={event} matterTitle={matterNames.get(event.matterId ?? "") ?? "案件"} />)}
-    </ol> : null}
+    </div> : null}
     {data ? <p className="field-hint">上次读取：{new Date(data.loadedAt).toLocaleString("zh-CN", { hour12: false })}</p> : null}
   </section>;
 }
@@ -151,7 +158,10 @@ function ActivityRow({ event, matterTitle }: { event: ActivityRecord; matterTitl
   const provider = safeMetadataString(event, "provider");
   const model = safeMetadataString(event, "model");
   const hasModel = hasModelParticipation(event);
-  return <li className="v6-entry stack-2" data-testid={`activity-${event.id}`} data-state={outcome} data-action={event.action}>
+  return <div className="tl-item" data-testid={`activity-${event.id}`} data-state={outcome} data-action={event.action}>
+    <span className={`tl-dot${outcome === "failed" ? " risk" : outcome === "succeeded" ? " ok" : ""}`} aria-hidden="true" />
+    <span className="tl-line" aria-hidden="true" />
+    <div>
     <div className="row-between" style={{ flexWrap: "wrap" }}>
       <strong>{activityActionLabel(event.action)}</strong>
       <time dateTime={event.occurredAt}>{formatActivityTime(event.occurredAt)}</time>
@@ -179,7 +189,18 @@ function ActivityRow({ event, matterTitle }: { event: ActivityRecord; matterTitl
       {errorCode ? <><div>失败 · {errorCode}</div><div>错误码：<code>{errorCode}</code></div></> : null}
       <div>发生时间：<code>{event.occurredAt}</code></div>
     </details>
-  </li>;
+    </div>
+  </div>;
+}
+
+function actionClassLabel(value: string): string {
+  const labels: Readonly<Record<string, string>> = {
+    matter: "案件", source: "材料", target: "目标", figures: "附图", revision: "修订",
+    job: "任务", consent: "外发授权", check: "检查", confirmation: "确认", approval: "批准",
+    export: "导出", review: "审阅", receipt: "回执", deadline: "期限", payment: "支付",
+    entitlement: "使用权", service: "服务", privacy: "隐私", member: "成员",
+  };
+  return labels[value] ?? "其他";
 }
 
 function formatActivityTime(value: string): string {

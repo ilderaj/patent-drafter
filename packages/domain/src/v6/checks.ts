@@ -67,6 +67,25 @@ export interface CheckRunResult {
   findings: readonly CheckFinding[];
   /** Rule ids with an explicit product-policy declaration for each gate action. */
   blockingPolicyRuleIds: Readonly<Record<CheckRuleAction, readonly string[]>>;
+  /** Honest execution coverage of the active pack; unexecuted rules produced no finding. */
+  ruleCoverage: CheckRuleCoverage;
+}
+
+/** Which rule-pack rows this release actually evaluates for a pack rule. */
+export interface CheckRuleCoverage {
+  /** Rows in the active pack after rule-id de-duplication. */
+  totalRules: number;
+  /** Rows whose deterministicCheck has an implementation branch. */
+  executedRules: number;
+  /** Executed rows that can emit a finding when their condition matches. */
+  rulesThatCanReport: number;
+  /** Executed rows that are deliberately no-ops in this release. */
+  handledWithoutFindingRules: number;
+  /** Rows whose deterministicCheck has no implementation branch. */
+  unexecutedRules: number;
+  executedRuleIds: readonly string[];
+  unexecutedRuleIds: readonly string[];
+  handledWithoutFindingRuleIds: readonly string[];
 }
 
 /** A rule record plus the user-facing text the existing Rule contract omits. */
@@ -116,6 +135,13 @@ export interface CheckPriorityClaim {
   verification: "unverified" | "human_confirmed";
 }
 
+export interface CheckParty {
+  id: string;
+  name: string;
+  kind: "person" | "organization";
+  roles: readonly ("inventor" | "applicant")[];
+}
+
 export interface CheckFigureEntry {
   figureId: string;
   number: number;
@@ -152,6 +178,7 @@ export interface CheckInput {
   conflicts?: readonly CheckFactConflict[];
   disclosure?: "none" | "private_showing" | "public_event" | "publication" | "sale" | "unsure" | null;
   priorityClaims?: readonly CheckPriorityClaim[];
+  parties?: readonly CheckParty[];
   route?: "cn_um" | "cn_invention" | "us_nonprovisional" | "pct";
   figureSet?: CheckFigureSet | null;
   assets?: readonly CheckAsset[];
@@ -338,7 +365,7 @@ const BUILTIN_CHECKS: readonly RegisteredCheck[] = Object.freeze([
             section: "claims",
             label: `权利要求 ${String(claim.number)} · ${String(feature.text ?? "特征")}`,
           }, [nodeId, ...unsupported.map((fact) => fact!.id)].filter(isUuid), {
-            explanation: `权利要求特征「${String(feature.text ?? "未命名特征")}」引用了 unsupported 事实：${unsupported.map((fact) => fact!.statement).join("；")}`,
+            explanation: `权利要求特征「${String(feature.text ?? "未命名特征")}」引用了未经支持的事实（缺少来源依据）：${unsupported.map((fact) => fact!.statement).join("；")}`,
           }));
         }
       }
@@ -502,6 +529,19 @@ const BUILTIN_CHECKS: readonly RegisteredCheck[] = Object.freeze([
       return findings;
     },
   ),
+  engineeringRule(
+    "inventor.natural_person",
+    "发明人必须为自然人",
+    "人员记录中有组织被勾选为发明人；AI 或组织不能作为发明人。",
+    "将发明人改为自然人，组织只能作为申请人。",
+    (input) => (input.parties ?? [])
+      .filter((party) => party.kind === "organization" && party.roles.includes("inventor"))
+      .map((party) => matches(`organization/${party.id}`, {
+        nodeId: isUuid(party.id) ? party.id : null,
+        section: null,
+        label: `发明人 ${party.name}`,
+      }, isUuid(party.id) ? [party.id] : [])),
+  ),
   riskRule(
     "fact.open_conflict",
     "存在尚未处理的事实冲突",
@@ -545,7 +585,7 @@ const BUILTIN_CHECKS: readonly RegisteredCheck[] = Object.freeze([
             section: "claims",
             label: `权利要求 ${String(claim.number)} · ${String(feature.text ?? "特征")}`,
           }, nodeId ? [nodeId] : [], {
-            explanation: `特征「${String(feature.text ?? "未命名特征")}」的支持状态为 ${String(feature.status)}。`,
+            explanation: `特征「${String(feature.text ?? "未命名特征")}」的支持状态为${supportStatusLabel(feature.status)}。`,
           }));
         }
       }
@@ -587,6 +627,36 @@ const BUILTIN_CHECKS: readonly RegisteredCheck[] = Object.freeze([
   ),
 ]);
 
+/** deterministicCheck values whose branch can emit a finding. */
+export const DETERMINISTIC_CHECKS_WITH_FINDINGS: ReadonlySet<string> = Object.freeze(new Set([
+  "always",
+  "figuresRequired",
+  "figureNumbersSequential",
+  "specSectionsComplete",
+  "titleLengthMax25",
+  "titleNoPromoWords",
+  "abstractMax300",
+  "abstractNoPromoNoNoise",
+  "noPromoNoiseContent",
+  "numeralBidirectionalMatch",
+  "atLeastOneIndependent",
+  "refsExistAndForward",
+  "multiDependentNotBaseOfMulti",
+  "noCircularRefs",
+  "aiDisclosureConfirmed",
+  "aiDisclosureComplete",
+  "aiEthicsStatement",
+  "aiInventiveContribution",
+  "inventorsNaturalPerson",
+  "inventorNaturalPerson",
+]));
+
+/** deterministicCheck values with an explicit branch that intentionally emits nothing yet. */
+export const DETERMINISTIC_CHECKS_WITHOUT_FINDINGS: ReadonlySet<string> = Object.freeze(new Set([
+  "inventorsNaturalPerson",
+  "inventorNaturalPerson",
+]));
+
 /** Deterministic registry; registration is immutable and rule ids cannot collide. */
 export class CheckRegistry {
   private readonly checks: readonly RegisteredCheck[];
@@ -621,6 +691,18 @@ export class CheckRegistry {
       const category = packRuleCategory(rule);
       const normalized = { ...rule, category, packVersion: pack.version };
       for (const match of ruleMatches) records.push({ finding: makeFinding(normalized, match, createdAt), key: match.key });
+      if (!deterministicCheckImplemented(rule.deterministicCheck)) {
+        // Honest coverage: an unimplemented rule is shown as "not checked", never
+        // as passing. It cannot require acknowledgement or block a gate.
+        const placeholder = makeFinding({ ...normalized, requiresAcknowledgement: false }, {
+          key: `coverage/${rule.id}`,
+          locator: { nodeId: null, section: null, label: `规则 ${rule.id}` },
+          title: rule.title,
+          explanation: "本版未自动检查这条规则，需人工核对。",
+          suggestedAction: "请人工核对规则依据与当前材料；该条目只作提示，不代表已通过。",
+        }, createdAt);
+        records.push({ finding: placeholder, key: `coverage/${rule.id}` });
+      }
     }
 
     const unique = new Map<string, { finding: CheckFinding; key: string }>();
@@ -652,8 +734,47 @@ export class CheckRegistry {
     for (const action of Object.keys(blockingPolicyRuleIds) as CheckRuleAction[]) {
       blockingPolicyRuleIds[action] = [...new Set(blockingPolicyRuleIds[action])].sort();
     }
-    return { checkRun, findings, blockingPolicyRuleIds };
+    return { checkRun, findings, blockingPolicyRuleIds, ruleCoverage: coverageOf(pack) };
   }
+}
+
+function supportStatusLabel(status: unknown): string {
+  if (status === "supported") return "已支持";
+  if (status === "partial") return "部分支持";
+  if (status === "unsupported") return "缺少支持";
+  return "待人工核实";
+}
+
+function deterministicCheckImplemented(check: string): boolean {
+  return DETERMINISTIC_CHECKS_WITH_FINDINGS.has(check) || DETERMINISTIC_CHECKS_WITHOUT_FINDINGS.has(check);
+}
+
+function coverageOf(pack: CheckRulePack): CheckRuleCoverage {
+  const executedRuleIds: string[] = [];
+  const unexecutedRuleIds: string[] = [];
+  const handledWithoutFindingRuleIds: string[] = [];
+  let rulesThatCanReport = 0;
+  for (const rule of pack.rules) {
+    if (DETERMINISTIC_CHECKS_WITH_FINDINGS.has(rule.deterministicCheck)) {
+      executedRuleIds.push(rule.id);
+      rulesThatCanReport += 1;
+    } else if (DETERMINISTIC_CHECKS_WITHOUT_FINDINGS.has(rule.deterministicCheck)) {
+      executedRuleIds.push(rule.id);
+      handledWithoutFindingRuleIds.push(rule.id);
+    } else {
+      unexecutedRuleIds.push(rule.id);
+    }
+  }
+  return {
+    totalRules: pack.rules.length,
+    executedRules: executedRuleIds.length,
+    rulesThatCanReport,
+    handledWithoutFindingRules: handledWithoutFindingRuleIds.length,
+    unexecutedRules: unexecutedRuleIds.length,
+    executedRuleIds,
+    unexecutedRuleIds,
+    handledWithoutFindingRuleIds,
+  };
 }
 
 export const CHECK_REGISTRY = Object.freeze(new CheckRegistry());
@@ -711,7 +832,9 @@ export function adaptCnRulePack(source: unknown): CheckRulePack {
         : "all";
     const sourceSection = typeof raw.sourceSection === "string" ? raw.sourceSection : "";
     const citation = [sourceDocument, sourceSection].filter(Boolean).join(" · ");
-    const action: CheckRuleAction = productRule && /aiAssistedReviewConfirmed/i.test(check) ? "export" : "prepare";
+    // The 2023 product policy has no implementation yet; keep it visible in the
+    // policy group but out of the export blocker list until its semantics exist.
+    const action: CheckRuleAction = "prepare";
     return [{
       id,
       packVersion: version,
@@ -728,7 +851,7 @@ export function adaptCnRulePack(source: unknown): CheckRulePack {
       verifiedBy: null,
       verifiedAt: null,
       title: typeof raw.userMessage === "string" ? raw.userMessage : id,
-      explanation: citation ? `规则包条目：${citation}。该法律条目仍受 G-RULES closed 限制。` : "该法律条目仍受 G-RULES closed 限制。",
+      explanation: citation ? `规则包条目：${citation}。该法律条目的依据尚未完成核实。` : "该法律条目的依据尚未完成核实。",
       suggestedAction: typeof raw.remediation === "string" ? raw.remediation : "请人工核实依据后再处理。",
       deterministicCheck: check,
       requiresAcknowledgement: false,
@@ -878,9 +1001,129 @@ function evaluatePackRule(rule: CheckRule, input: CheckInput): readonly RuleMatc
     case "inventorsNaturalPerson":
     case "inventorNaturalPerson":
       return [];
+    case "titleNoPromoWords": {
+      const title = typeof ast?.title === "string" ? ast.title : "";
+      const hit = promoOrNoiseWords(title);
+      return hit.length > 0
+        ? [matches(`title-promo/${hit.join("/")}`, { nodeId: null, section: null, label: "草稿标题" }, [], {
+          explanation: `标题包含限制使用的宣传用语：${hit.join("、")}。`,
+        })]
+        : [];
+    }
+    case "abstractNoPromoNoNoise": {
+      const sections = Array.isArray(ast?.sections) ? ast.sections.filter(isRecord) : [];
+      const abstract = sections.find((section) => section.kind === "abstract");
+      const text = Array.isArray(abstract?.paragraphs)
+        ? abstract.paragraphs.filter(isRecord).map((paragraph) => String(paragraph.text ?? "")).join("")
+        : "";
+      const hit = promoOrNoiseWords(text);
+      return hit.length > 0
+        ? [matches(`abstract-promo/${hit.join("/")}`, { nodeId: null, section: "abstract", label: "摘要" }, [], {
+          explanation: `摘要包含宣传或噪声用语：${hit.join("、")}。`,
+        })]
+        : [];
+    }
+    case "noPromoNoiseContent": {
+      const hit = promoOrNoiseWords(allParagraphs(input.ast).map((paragraph) => String(paragraph.text ?? "")).join("\n"));
+      return hit.length > 0
+        ? [matches(`body-promo/${hit.join("/")}`, { nodeId: null, section: null, label: "说明书与权利要求正文" }, [], {
+          explanation: `正文包含宣传或噪声用语：${hit.join("、")}。`,
+        })]
+        : [];
+    }
+    case "numeralBidirectionalMatch": {
+      const referenced = collectAstFigureIds(input.ast);
+      const entries = input.figureSet?.entries ?? [];
+      const known = new Set(entries.map((entry) => entry.figureId));
+      const missing = referenced.filter((figureId) => !known.has(figureId));
+      const unused = entries.filter((entry) => !referenced.includes(entry.figureId)).map((entry) => entry.figureId);
+      if (missing.length === 0 && unused.length === 0) return [];
+      return [matches(`${missing.join("/")}/unused:${unused.join("/")}`, {
+        nodeId: null,
+        section: "figures_description",
+        label: "附图标记双向匹配",
+      }, [], {
+        explanation: [
+          missing.length > 0 ? `正文引用了图集不存在的图（${missing.length} 张），请核对附图编号。` : null,
+          unused.length > 0 ? `图集中的图未被正文引用（${unused.length} 张），请核对附图说明。` : null,
+        ].filter(Boolean).join("；"),
+      })];
+    }
+    case "atLeastOneIndependent": {
+      const claims = Array.isArray(ast?.claims) ? ast.claims.filter(isRecord) : [];
+      if (claims.length === 0) return [matches("no-claims", { nodeId: null, section: "claims", label: "权利要求书" })];
+      return claims.some((claim) => strings(claim.dependsOn).length === 0)
+        ? []
+        : [matches("no-independent", { nodeId: null, section: "claims", label: "权利要求书" })];
+    }
+    case "refsExistAndForward": {
+      const claims = Array.isArray(ast?.claims) ? ast.claims.filter(isRecord) : [];
+      return claimReferenceIssues(claims).map((issue) => matches(issue.key, {
+        nodeId: issue.nodeId,
+        section: "claims",
+        label: issue.label,
+      }, issue.nodeId ? [issue.nodeId] : [], { explanation: issue.reason }));
+    }
+    case "multiDependentNotBaseOfMulti": {
+      const claims = Array.isArray(ast?.claims) ? ast.claims.filter(isRecord) : [];
+      const multi = new Set(claims.filter((claim) => strings(claim.dependsOn).length > 1).map((claim) => String(claim.id)));
+      const issues = claims.filter((claim) => strings(claim.dependsOn).some((parent) => multi.has(parent)));
+      return issues.map((claim) => {
+        const nodeId = isUuid(claim.id) ? claim.id : null;
+        return matches(`${String(claim.id)}/multi-base`, {
+          nodeId,
+          section: "claims",
+          label: `权利要求 ${String(claim.number)}`,
+        }, nodeId ? [nodeId] : [], {
+          explanation: "多项从属权利要求不能作为另一项多项从属权利要求的基础。",
+        });
+      });
+    }
+    case "noCircularRefs": {
+      const claims = Array.isArray(ast?.claims) ? ast.claims.filter(isRecord) : [];
+      return dependencyCycles(claims).map((cycle) => {
+        const nodeId = cycle.find(isUuid) ?? null;
+        return matches(`cycle/${cycle.join("/")}`, {
+          nodeId,
+          section: "claims",
+          label: `权利要求 ${cycle.map((id) => claimNumber(claims, id) ?? id).join("、")}`,
+        }, cycle.filter(isUuid));
+      });
+    }
     default:
       return [];
   }
+}
+
+const PROMO_OR_NOISE_TERMS: readonly string[] = Object.freeze([
+  "最佳", "最好", "最强", "最大", "最高", "第一品牌", "唯一", "国家级", "世界领先", "国际领先",
+  "包治", "根治", "纯天然", "待填充", "待补充", "TODO", "TBD", "？？？",
+]);
+
+function promoOrNoiseWords(text: string): string[] {
+  return PROMO_OR_NOISE_TERMS.filter((word) => text.includes(word));
+}
+
+function claimReferenceIssues(claims: readonly Record<string, unknown>[]): {
+  key: string;
+  nodeId: string | null;
+  label: string;
+  reason: string;
+}[] {
+  const numberById = new Map(claims.map((claim) => [String(claim.id), Number(claim.number)]));
+  const issues: { key: string; nodeId: string | null; label: string; reason: string }[] = [];
+  for (const claim of claims) {
+    const nodeId = isUuid(claim.id) ? claim.id : null;
+    for (const parent of strings(claim.dependsOn)) {
+      const parentNumber = numberById.get(parent);
+      if (parentNumber === undefined) {
+        issues.push({ key: `${String(claim.id)}/${parent}/missing`, nodeId, label: `权利要求 ${String(claim.number)}`, reason: `引用了不存在的权利要求 ${parent}。` });
+      } else if (parentNumber >= Number(claim.number)) {
+        issues.push({ key: `${String(claim.id)}/${parent}/forward`, nodeId, label: `权利要求 ${String(claim.number)}`, reason: `只能引用在前的权利要求，${parent} 不在其前。` });
+      }
+    }
+  }
+  return issues;
 }
 
 function basicAstIssues(astValue: unknown): CheckAstIssue[] {

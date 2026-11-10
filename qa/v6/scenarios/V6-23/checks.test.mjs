@@ -325,7 +325,7 @@ test("V6-23-A02 and S07-A01: a matched legal rule from the closed CN pack stays 
   ].map((path) => JSON.parse(readFileSync(new URL(`../../../../packages/rules-cn/${path}`, import.meta.url), "utf8")));
   const combined = checkModule.adaptCnRulePacks(sourceFiles);
   assert.equal(combined.version, "cnipa-2026-01-01");
-  assert.equal(combined.rules.length, 26, "later rules replace the two repeated rule ids from the baseline");
+  assert.equal(combined.rules.length, 28, "the baseline product rows now carry unique AI-POL ids");
   assert.ok(combined.rules.every((rule) => rule.packVersion === combined.version));
   assert.ok(combined.rules.filter((rule) => rule.authority !== "engineering").every((rule) => rule.verification === "unverified"));
   const combinedRun = checkModule.runChecks(makeInput({ inventionUsesAi: true }), combined, T0);
@@ -633,4 +633,18 @@ test("a stale policy version cannot add an action the active rule does not decla
     .checkRun.findings.some((item) => item.ruleId === "asset.bad_drawing"));
   assert.ok(checkModule.runChecks({ ...base, draftFigureSetMismatch: true }, EMPTY_PACK, T0)
     .checkRun.findings.some((item) => item.ruleId === "figure.draft_set_mismatch"));
+});
+
+test("V6-23 main view does not expose revision UUIDs or rule-pack version", () => {
+  const result = checkModule.runChecks(makeInput(), EMPTY_PACK, T0);
+  const markup = renderChecks({ result });
+  const start = markup.indexOf('data-testid="checks-footer"');
+  assert.ok(start >= 0);
+  const footer = markup.slice(start, markup.indexOf("</main>", start));
+  const visible = footer.split("<details")[0];
+  assert.match(visible, /检查结果对应当前修订/);
+  assert.doesNotMatch(visible, /[0-9a-f]{8}-[0-9a-f]{4}/i);
+  assert.doesNotMatch(visible, /synthetic-rules/);
+  assert.match(footer, /修订：/);
+  assert.match(footer, /规则包：/);
 });

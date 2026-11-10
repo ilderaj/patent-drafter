@@ -21,7 +21,14 @@ export const REGRESSION_COMMANDS = Object.freeze([
 ]);
 
 export function parseArgs(args) {
+  const flags = args.filter((arg) => arg.startsWith('-'));
+  const unknown = flags.filter((flag) => flag !== '--all');
+  if (unknown.length > 0) throw new Error(`Unknown option: ${unknown[0]}`);
   const positionals = args.filter((arg) => !arg.startsWith('-'));
+  if (flags.includes('--all')) {
+    if (positionals.length > 0) throw new Error('Usage: npm run test:v6 -- [V6-xx | --all]');
+    return { all: true };
+  }
   const ticket = positionals.at(-1);
   if (!ticket) throw new Error('Usage: npm run test:v6 -- V6-xx');
   if (!TICKET_SELECTOR.test(ticket)) throw new Error(`Invalid ticket selector: ${ticket}`);
@@ -77,8 +84,13 @@ export function parseTapSummary(stdout) {
  * Turn a completed test-runner invocation into an explicit pass/fail verdict.
  * A zero exit status alone is not sufficient: Node exits 0 when every test is
  * skipped, and a stale or misconfigured suite may report pass=0.
+ *
+ * `--all` passes `allowSkipped` for environment-gated suites (the V6-09
+ * headless-Chrome cases when no Chrome is installed). The skip count and its
+ * TAP `# SKIP` reasons are still printed; ticket runs keep the strict
+ * zero-skip rule.
  */
-export function evaluateTestRun({ status = null, stdout = '', error = null } = {}) {
+export function evaluateTestRun({ status = null, stdout = '', error = null, allowSkipped = false } = {}) {
   if (error) {
     return {
       ok: false,
@@ -110,7 +122,7 @@ export function evaluateTestRun({ status = null, stdout = '', error = null } = {
   if (summary.cancelled > 0) {
     return { ok: false, exitCode: 1, reason: `${summary.cancelled} test(s) cancelled`, summary };
   }
-  if (summary.skipped > 0) {
+  if (summary.skipped > 0 && !allowSkipped) {
     return {
       ok: false,
       exitCode: 1,
@@ -142,6 +154,20 @@ function discoverTickets(rootDir = ROOT) {
     .sort();
 }
 
+/**
+ * `--all` covers every scenario directory with tests, not only `V6-*` tickets:
+ * the `alignment-*` suites are part of the product acceptance too.
+ */
+export function discoverScenarios(rootDir = ROOT) {
+  const scenarios = path.join(rootDir, 'qa/v6/scenarios');
+  if (!existsSync(scenarios)) return [];
+  return readdirSync(scenarios, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .filter((entry) => readdirSync(path.join(scenarios, entry.name)).some((file) => file.endsWith('.test.mjs')))
+    .map((entry) => entry.name)
+    .sort();
+}
+
 function availableTests(rootDir, ticket) {
   const scenario = path.join(rootDir, 'qa/v6/scenarios', ticket);
   return readdirSync(scenario)
@@ -162,6 +188,7 @@ export function runNodeTests(files, options = {}) {
     stdout = process.stdout,
     stderr = process.stderr,
     env,
+    allowSkipped = false,
   } = options;
   // When the runner itself is launched from inside a Node test file, the
   // inherited NODE_TEST_CONTEXT makes the child skip all files. Start the
@@ -169,9 +196,12 @@ export function runNodeTests(files, options = {}) {
   // explicit environment.
   const childEnv = env ? { ...env } : { ...process.env };
   if (!env) delete childEnv.NODE_TEST_CONTEXT;
+  // Node 22 needs the explicit flag to import the suite's `.ts` sources; from
+  // Node 23 on type stripping is on by default.
+  const typeArgs = typeStrippingArgs();
   let result;
   try {
-    result = spawn(execPath, ['--test', '--test-reporter=tap', ...files], {
+    result = spawn(execPath, [...typeArgs, '--test', '--test-reporter=tap', ...files], {
       cwd,
       encoding: 'utf8',
       env: childEnv,
@@ -185,7 +215,14 @@ export function runNodeTests(files, options = {}) {
   return evaluateTestRun({
     status: result.status,
     stdout: result.stdout ?? '',
+    allowSkipped,
   });
+}
+
+/** Node 22 is the oldest supported runtime and needs `--experimental-strip-types`. */
+export function typeStrippingArgs(version = process.versions.node) {
+  const major = Number.parseInt(version, 10);
+  return Number.isFinite(major) && major === 22 ? ['--experimental-strip-types'] : [];
 }
 
 export function main(args = process.argv.slice(2), options = {}) {
@@ -196,9 +233,10 @@ export function main(args = process.argv.slice(2), options = {}) {
     stdout = process.stdout,
     stderr = process.stderr,
   } = options;
+  let parsed;
   let selection;
   try {
-    const { ticket } = parseArgs(args);
+    parsed = parseArgs(args);
     const baselineDir = path.join(rootDir, 'qa/v6/baseline');
     const manifestFile = path.join(baselineDir, 'manifest.json');
     const receiptFile = path.join(baselineDir, 'receipt.json');
@@ -209,11 +247,15 @@ export function main(args = process.argv.slice(2), options = {}) {
       manifest: JSON.parse(readFileSync(manifestFile, 'utf8')),
       receipt: JSON.parse(readFileSync(receiptFile, 'utf8')),
     });
-    selection = selectTicketTests(ticket, discoverTickets(rootDir));
+    selection = parsed.all
+      ? discoverScenarios(rootDir)
+      : selectTicketTests(parsed.ticket, discoverTickets(rootDir));
   } catch (error) {
     stderr.write(`V6 runner error: ${error.message}\n`);
     return 2;
   }
+
+  if (parsed.all) return runAllScenarios(selection, rootDir, { spawn, execPath, stdout, stderr });
 
   const files = selection.flatMap((ticket) => availableTests(rootDir, ticket));
   if (files.length === 0) {
@@ -223,6 +265,56 @@ export function main(args = process.argv.slice(2), options = {}) {
   const outcome = runNodeTests(files, { spawn, execPath, cwd: rootDir, stdout, stderr });
   if (!outcome.ok) stderr.write(`V6 runner error: ${outcome.reason}\n`);
   return outcome.exitCode;
+}
+
+/**
+ * Run every scenario directory one after another and aggregate the verdicts.
+ * Each directory's raw TAP goes to stdout, then a compact row with its real
+ * counts. An explicit `skip` is tolerated only here (environment-gated browser
+ * cases); its count is always printed, and the reason stays in the TAP `# SKIP`
+ * line and in the suite's own message, so nothing disappears silently.
+ */
+function runAllScenarios(selection, rootDir, { spawn, execPath, stdout, stderr }) {
+  const rows = [];
+  let failed = false;
+  for (const name of selection) {
+    const files = availableTests(rootDir, name);
+    if (files.length === 0) {
+      rows.push({ name, ok: false, error: 'no test files' });
+      failed = true;
+      stdout.write(`\n[${name}] FAILED: no test files\n`);
+      continue;
+    }
+    const outcome = runNodeTests(files, { spawn, execPath, cwd: rootDir, stdout, stderr, allowSkipped: true });
+    const summary = outcome.summary;
+    rows.push({ name, ok: outcome.ok, summary });
+    if (!outcome.ok) failed = true;
+    if (summary) {
+      stdout.write(
+        `[${name}] tests=${summary.total} pass=${summary.pass} fail=${summary.fail} cancelled=${summary.cancelled} skipped=${summary.skipped}` +
+          `${outcome.ok ? '' : ` FAILED: ${outcome.reason}`}\n`,
+      );
+    } else {
+      stdout.write(`[${name}] FAILED: ${outcome.reason}\n`);
+    }
+  }
+
+  const sum = (key) => rows.reduce((total, row) => total + (row.summary?.[key] ?? 0), 0);
+  const skippedRows = rows.filter((row) => (row.summary?.skipped ?? 0) > 0);
+  stdout.write(
+    `\nV6 runner --all: ${rows.length} 个场景目录 · tests=${sum('total')} pass=${sum('pass')} fail=${sum('fail')}` +
+      ` cancelled=${sum('cancelled')} skipped=${sum('skipped')}\n`,
+  );
+  for (const row of rows) {
+    stdout.write(`  ${row.ok ? 'PASS' : 'FAIL'} ${row.name}\n`);
+  }
+  if (skippedRows.length > 0) {
+    stdout.write(
+      `显式 skip：${skippedRows.map((row) => `${row.name}=${row.summary.skipped}`).join(', ')}（原因见各目录 TAP 的 # SKIP 行与套件消息）\n`,
+    );
+  }
+  if (failed) stderr.write('V6 runner error: one or more scenario directories failed\n');
+  return failed ? 1 : 0;
 }
 
 /**

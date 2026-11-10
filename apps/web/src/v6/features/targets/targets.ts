@@ -66,6 +66,7 @@ import {
   type Actor,
   type AssetRecord,
   type LocalRepository,
+  type MatterAggregate,
   type RepositoryError,
   type TargetRecord,
 } from "../../lib/repository.ts";
@@ -711,10 +712,14 @@ export async function loadTargetsView(
   actor: Actor,
   matterId: string,
   pack: RulePack = R1_RULE_PACK,
+  preloaded?: MatterAggregate,
 ): Promise<TargetsReadOutcome> {
-  const loaded = await repository.loadMatter(actor, matterId);
-  if (!loaded.ok) return { ok: false, error: mapRepositoryError(loaded.error) };
-  const aggregate = loaded.data.data;
+  let aggregate = preloaded ?? null;
+  if (aggregate === null) {
+    const loaded = await repository.loadMatter(actor, matterId);
+    if (!loaded.ok) return { ok: false, error: mapRepositoryError(loaded.error) };
+    aggregate = loaded.data.data;
+  }
   const snapshot = await readTargetSnapshot(repository, matterId, aggregate.matter.sourceVersion);
   if (!snapshot.ok) return snapshot;
 

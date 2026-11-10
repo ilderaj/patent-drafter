@@ -297,34 +297,34 @@ export function UploadPanel({
       </label>
 
       {view.rows.length > 0 ? (
-        <ul className="v6-upload-rows" role="list" data-testid="upload-rows">
+        <ul className="group v6-upload-rows" role="list" data-testid="upload-rows">
           {view.rows.map((row) => (
             <li
               key={row.fileId}
-              className="file-row"
+              className="filerow"
               data-testid={`upload-row-${row.fileId}`}
               data-file-id={row.fileId}
               data-stage={row.stage}
               data-saved={row.saved ? "true" : "false"}
             >
-              <span className="ficon" aria-hidden="true">
+              <span className="file-ic" aria-hidden="true">
                 ▤
               </span>
               <div className="v6-upload-file">
                 <span className="file-name">{row.name}</span>
                 <div
-                  className="progress-root"
+                  className="progress"
                   role="progressbar"
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-valuenow={Math.round(row.fraction * 100)}
                   aria-label={`${row.name}：${row.label}`}
                 >
-                  <div className="progress-indicator" style={{ width: `${Math.round(row.fraction * 100)}%` }} />
+                  <div className="bar" style={{ width: `${Math.round(row.fraction * 100)}%` }} />
                 </div>
               </div>
               <span
-                className={row.error !== null ? "badge badge-err" : row.saved ? "badge badge-ok" : "badge badge-outline"}
+                className={row.error !== null ? "tag risk" : row.saved ? "tag ok" : "tag plain"}
                 data-testid={`upload-status-${row.fileId}`}
               >
                 {row.label}
@@ -383,7 +383,7 @@ export function UploadPanel({
           没有现成文档，直接回答问题
         </button>
       </div>
-      <p className="field-hint">没有现成文档也可以直接回答问题；那不会生成任何虚拟附件。</p>
+      <p className="field-hint v6-upload-tail">没有现成文档也可以直接回答问题；那不会生成任何虚拟附件。</p>
     </section>
   );
 }

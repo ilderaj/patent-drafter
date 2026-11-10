@@ -383,17 +383,17 @@ function ConfigFields({
     <>
       <fieldset className="v6-field" data-testid={`${idPrefix}-route`}>
         <legend className="field-label">申请路线</legend>
-        <div className="v6-route-grid">
-          {view.routeCards.map((candidate) => <label key={candidate.route} className="v6-route-choice">
+        <div className="optgrid">
+          {view.routeCards.map((candidate) => <label key={candidate.route} className="optcard">
             <input type="radio" name={`${idPrefix}-route`} value={candidate.route} checked={form.route === candidate.route} disabled={busy}
               onChange={() => onChange({ ...form, route: candidate.route, language: candidate.defaultLanguage })} />
             <span className="v6-route-choice-body">
-              <span className="v6-route-choice-title">{candidate.label}{candidate.recommended ? " · 推荐" : ""}</span>
-              <span className="v6-route-choice-detail">保护对象：{candidate.protection}</span>
-              <span className="v6-route-choice-detail">审查方式：{candidate.examination}</span>
-              <span className="v6-route-choice-detail">能力：{candidate.limits.map((limit) => `${limit.reason}（${limit.state === "available" ? "可用" : "不可用"}）`).join("；")}</span>
+              <span className="oc-t">{candidate.label}{candidate.recommended ? " · 推荐" : ""}</span>
+              <span className="oc-d">保护对象：{candidate.protection}</span>
+              <span className="oc-d">审查方式：{candidate.examination}</span>
+              <span className="oc-d">能力：{candidate.limits.map((limit) => `${limit.reason}（${limit.state === "available" ? "可用" : "不可用"}）`).join("；")}</span>
               {candidate.excludedBy ? <span className="badge badge-warn">依据当前事实不推荐</span> : null}
-              <span className="v6-route-choice-detail">规则：{candidate.verificationLabel} · 周期 {gatedText(candidate.cycle)} · 费用 {gatedText(candidate.fee)} · 保护期 {gatedText(candidate.term)}</span>
+              <span className="oc-d">规则：{candidate.verificationLabel} · 周期 {gatedText(candidate.cycle)} · 费用 {gatedText(candidate.fee)} · 保护期 {gatedText(candidate.term)}</span>
             </span>
           </label>)}
         </div>

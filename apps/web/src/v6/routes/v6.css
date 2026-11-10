@@ -1,3 +1,5 @@
+@import "../styles/proto/index.css";
+
 /* V6 route layout and product surfaces. Native-specific overrides stay scoped to /v6. */
 .v6-shell .logo { text-decoration: none; color: inherit; }
 .v6-shell .side-nav a { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
@@ -51,7 +53,7 @@
 
 /* Draft and paragraph confirmation stay together in a two-column workspace. */
 .v6-draft-workspace { display: grid; gap: 14px; min-width: 0; }
-.v6-draft-columns { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.85fr); gap: 14px; align-items: start; min-width: 0; }
+.v6-draft-columns { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr); gap: 14px; align-items: start; min-width: 0; }
 .v6-draft-columns > * { min-width: 0; }
 .v6-draft-review { max-height: min(78vh, 1100px); overflow: auto; overscroll-behavior: contain; }
 .v6-draft-review table { min-width: 620px; }

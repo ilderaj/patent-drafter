@@ -74,18 +74,6 @@ export interface Capability {
 const unavailable = (reason: string): Capability => ({ state: "unavailable", reason });
 const AVAILABLE: Capability = { state: "available", reason: null };
 
-/** Each tab's capability in this build. Overview reads the matter; the rest arrive with later tickets. */
-export const TAB_CAPABILITIES: Readonly<Record<MatterTab, Capability>> = Object.freeze({
-  overview: AVAILABLE,
-  sources: AVAILABLE,
-  facts: AVAILABLE,
-  draft: unavailable("草稿尚未开放：本地版还不能生成或编辑申请文本。"),
-  check: unavailable("检查尚未开放：本地版还没有检查规则运行结果。"),
-  review: unavailable("审阅需要专业协作功能，本地版暂不提供。"),
-  deliver: unavailable("交付尚未开放：还没有可导出的草稿。"),
-  filing: unavailable("申请记录需要专业协作功能，本地版暂不提供。"),
-});
-
 /** S01 global navigation, in order. */
 export const GLOBAL_NAV = Object.freeze([
   { key: "inbox", label: "收件箱", capability: AVAILABLE },

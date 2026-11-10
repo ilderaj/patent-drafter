@@ -686,6 +686,8 @@ export function IntakePanel({
         </div>
       ) : null}
 
+      <details className="intake-questions" data-testid="intake-questions-details">
+        <summary className="section-h">补充信息（五题）<span className="sh-r">{view.questions.filter((item) => item.answered).length}/{view.questions.length} 已回答</span></summary>
       <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 12 }}>
         {INTAKE_QUESTIONS.map((definition, index) => {
           const question = view.questions.find((item) => item.key === definition.key);
@@ -911,6 +913,7 @@ export function IntakePanel({
           );
         })}
       </ol>
+      </details>
 
       <section data-testid="intake-parties" style={{ display: "grid", gap: 8 }}>
         <h3 className="card-title">人员</h3>
@@ -964,18 +967,20 @@ export function IntakePanel({
       <section data-testid="intake-facts" style={{ display: "grid", gap: 8 }}>
         <h3 className="card-title">事实</h3>
         {form.facts.length === 0 ? <p className="field-hint">还没有事实记录。</p> : null}
-        <ul data-testid="intake-fact-list" style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
-          {form.facts.map((fact) => {
+        <ul className="factsgrp" data-testid="intake-fact-list" style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
+          {form.facts.map((fact, factIndex) => {
             const factView = view.facts.find((item) => item.id === fact.id);
             return (
               <li
                 key={fact.id}
+                className="fact"
                 data-testid={`intake-fact-${fact.id}`}
                 data-source-changed={factView?.sourceChanged ? "true" : "false"}
-                style={{ border: "1px solid var(--line)", borderRadius: "var(--radius-s)", padding: 8 }}
               >
+                <span className="f-id">F-{String(factIndex + 1).padStart(2, "0")}</span>
+                <div className="f-b">
                 <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <span>{fact.statement}</span>
+                  <span className="f-t">{fact.statement}</span>
                   <button
                     type="button"
                     className="btn btn-ghost btn-sm"
@@ -985,7 +990,7 @@ export function IntakePanel({
                     移除
                   </button>
                 </div>
-                <p className="field-hint">
+                <p className="f-s">
                   {labelOf(FACT_KIND_OPTIONS, fact.kind)} · {labelOf(FACT_STATUS_OPTIONS, fact.status)}
                   {fact.refs.length > 0 ? ` · ${fact.refs.length} 段材料` : " · 无材料引用"}
                 </p>
@@ -1004,6 +1009,7 @@ export function IntakePanel({
                 {factView && factView.conflictIds.length > 0 ? (
                   <span className="field-hint"> · 属于 {factView.conflictIds.length} 个冲突</span>
                 ) : null}
+                </div>
               </li>
             );
           })}
@@ -1082,11 +1088,13 @@ export function IntakePanel({
             return (
               <li
                 key={conflict.id}
+                className="conflictbox"
                 data-testid={`intake-conflict-${conflict.id}`}
                 data-state={conflict.state}
                 data-fact-ids={conflict.factIds.join(",")}
-                style={{ border: "1px solid var(--line)", borderRadius: "var(--radius-s)", padding: 8 }}
               >
+                <div className="cb-t">冲突 · {conflict.state === "open" ? "待处理" : conflict.state === "resolved" ? "已选择" : "保留冲突"}</div>
+                <div className="cb-d">
                 <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 4 }}>
                   {statements.map((entry) => (
                     <li key={entry.id} data-testid={`intake-conflict-statement-${conflict.id}-${entry.id}`}>
@@ -1154,6 +1162,7 @@ export function IntakePanel({
                     }
                   />
                 ) : null}
+                </div>
               </li>
             );
           })}

@@ -29,6 +29,7 @@ import {
   type MediaQueryLike,
   type ThemeId,
 } from "../../styles/preferences.ts";
+import { Body, Button, Pane, StatusShape, Toolbar } from "../../components/ui/index.ts";
 
 function storageOrNull(): Storage | null {
   try {
@@ -162,7 +163,7 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
   return <AppearanceContext.Provider value={appearance}>{children}</AppearanceContext.Provider>;
 }
 
-export function AppearancePage() {
+export function AppearancePage({ children }: { children?: ReactNode } = {}) {
   const appearance = useContext(AppearanceContext);
   if (!appearance) throw new Error("AppearancePage requires AppearanceProvider");
   const { initial, preference, prefersDark, save, choose, persist } = appearance;
@@ -174,88 +175,94 @@ export function AppearancePage() {
         : null;
 
   return (
-    <div className="v6-page v6-settings-page" data-testid="appearance">
-      <h1 className="v6-title">设置</h1>
-      <p className="muted">外观保存在这台设备的浏览器里，不会上传。</p>
-      <div className="v6-settings-groups">
-      {readNote ? (
-        <div className="notice" data-testid="appearance-read-note">
-          {readNote}
+    <>
+      <Toolbar title="设置" subtitle="外观、通知与数据" />
+      <Body><Pane width="narrow"><div data-testid="appearance">
+        {readNote ? (
+          <div className="callout info" role="status" data-testid="appearance-read-note">
+            <span>{readNote}</span>
+          </div>
+        ) : null}
+
+        <div className="setsec">
+          <h3>外观</h3>
+          <div className="group">
+            <div className="row">
+              <div className="r-main"><div className="r-title">主题</div><div className="r-sub">选择配色。当前产品验收以「原生」为准。</div></div>
+              <div className="r-right">
+                <div className="seg" role="radiogroup" aria-label="主题">
+                  {THEME_IDS.map((id: ThemeId) => (
+                    <label key={id} className={preference.themeId === id ? "sel" : ""}>
+                      <input className="sr" type="radio" name="theme" value={id} checked={preference.themeId === id}
+                        onChange={() => choose({ ...preference, themeId: id })} />
+                      <span>{THEME_LABELS[id]}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="row">
+              <div className="r-main"><div className="r-title">颜色模式</div><div className="r-sub">跟随系统时，系统切换明暗会立即生效。</div></div>
+              <div className="r-right">
+                <div className="seg" role="radiogroup" aria-label="颜色模式">
+                  {COLOR_MODES.map((id: ColorMode) => (
+                    <label key={id} className={preference.colorMode === id ? "sel" : ""}>
+                      <input className="sr" type="radio" name="color-mode" value={id} checked={preference.colorMode === id}
+                        onChange={() => choose({ ...preference, colorMode: id })} />
+                      <span>{MODE_LABELS[id]}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="row">
+              <div className="r-main"><div className="r-title">当前外观</div><div className="r-sub">外观保存在这台设备的浏览器里，不会上传。</div></div>
+              <div className="r-right">
+                <span className="small muted" data-testid="appearance-status" role="status" aria-live="polite">
+                  {describeAppearance(preference, prefersDark)}
+                </span>
+              </div>
+            </div>
+            {save.state === "saved" ? (
+              <div className="row"><div className="r-main"><StatusShape tone="ok" label="已保存" /></div></div>
+            ) : null}
+            {save.state === "saved" ? <span className="sr" data-testid="appearance-save" data-state="saved">已保存。</span> : null}
+            {save.state === "failed" ? (
+              <div className="row" data-testid="appearance-save-failed">
+                <div className="r-main"><div className="r-title">尚未保存</div><div className="r-sub">{save.message}</div></div>
+                <div className="r-right"><Button size="sm" onClick={() => persist(preference)}>重试</Button></div>
+              </div>
+            ) : null}
+          </div>
         </div>
-      ) : null}
-      <section className="card v6-appearance v6-settings-group" aria-labelledby="appearance-title">
-        <h2 className="card-title" id="appearance-title">
-          外观
-        </h2>
-        <fieldset className="v6-field">
-          <legend>主题</legend>
-          <div className="v6-choices">
-            {THEME_IDS.map((id: ThemeId) => (
-              <label key={id} className="v6-choice">
-                <input
-                  type="radio"
-                  name="theme"
-                  value={id}
-                  checked={preference.themeId === id}
-                  onChange={() => choose({ ...preference, themeId: id })}
-                />
-                <span>{THEME_LABELS[id]}</span>
-              </label>
-            ))}
+
+        <div className="setsec" data-testid="notification-capability">
+          <h3>通知</h3>
+          <div className="group">
+            <div className="row"><div className="r-main"><div className="r-title">邮件与提醒</div>
+              <div className="r-sub">R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，后续版本提供。</div></div>
+              <div className="r-right"><span className="tag plain">未开放</span></div></div>
           </div>
-        </fieldset>
-        <fieldset className="v6-field">
-          <legend>颜色模式</legend>
-          <div className="v6-choices">
-            {COLOR_MODES.map((id: ColorMode) => (
-              <label key={id} className="v6-choice">
-                <input
-                  type="radio"
-                  name="color-mode"
-                  value={id}
-                  checked={preference.colorMode === id}
-                  onChange={() => choose({ ...preference, colorMode: id })}
-                />
-                <span>{MODE_LABELS[id]}</span>
-              </label>
-            ))}
+        </div>
+
+        <div className="setsec" data-testid="settings-data-privacy">
+          <h3>数据与隐私</h3>
+          <div className="group">
+            <div className="row"><div className="r-main"><div className="r-title">本机存储</div>
+              <div className="r-sub">案件与外观偏好保存在这台设备的本机存储中。恢复数据的工具在本页下方。</div></div></div>
+            {children ? <div className="row" style={{ alignItems: "flex-start" }}><div className="r-main">{children}</div></div> : null}
           </div>
-        </fieldset>
-        <p className="v6-appearance-status" data-testid="appearance-status" role="status" aria-live="polite">
-          当前外观：{describeAppearance(preference, prefersDark)}
-        </p>
-        {save.state === "saved" ? (
-          <p className="v6-save-state" data-testid="appearance-save" data-state="saved">
-            已保存。
-          </p>
-        ) : null}
-        {save.state === "failed" ? (
-          <div className="notice" role="alert" data-testid="appearance-save-failed">
-            <strong>尚未保存</strong>
-            <p>{save.message}</p>
-            <button type="button" className="btn btn-outline btn-sm" onClick={() => persist(preference)}>
-              重试
-            </button>
+        </div>
+
+        <div className="setsec" data-testid="settings-legacy">
+          <h3>旧版入口</h3>
+          <div className="group">
+            <div className="row"><div className="r-main"><div className="r-title">切换到旧版</div>
+              <div className="r-sub">需要使用旧版工作区时，从这里离开卷宗。</div></div>
+              <div className="r-right"><Link className="btn sm" to="/projects">切换到旧版</Link></div></div>
           </div>
-        ) : null}
-        <p className="field-hint">选择「跟随系统」时，系统切换浅色或深色会立即生效。这里只保存主题和颜色模式。</p>
-      </section>
-      <section className="card v6-settings-group" data-testid="notification-capability">
-        <h2 className="card-title">通知</h2>
-        <p className="card-description">
-          R1 不发送邮件，也不会出现模拟送达。云协作与邮件通知尚未配置，通知设置将在后续版本提供。
-        </p>
-      </section>
-      <section className="card v6-settings-group" data-testid="settings-data-privacy">
-        <h2 className="card-title">数据与隐私</h2>
-        <p className="card-description">案件与外观偏好保存在这台设备的本机存储中。恢复数据的工具在本页下方。</p>
-      </section>
-      <section className="card v6-settings-group" data-testid="settings-legacy">
-        <h2 className="card-title">旧版入口</h2>
-        <p className="card-description">需要使用旧版工作区时，可从这里切换。</p>
-        <div><Link className="btn btn-outline btn-sm" to="/projects">切换到旧版</Link></div>
-      </section>
-      </div>
-    </div>
+        </div>
+      </div></Pane></Body>
+    </>
   );
 }

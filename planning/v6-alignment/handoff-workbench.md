@@ -1,5 +1,34 @@
 # Workbench alignment handoff
 
+## 视觉重建（2026-11-10 第二轮）
+
+- `v6/styles/proto/`：tokens/layout/screens/polish/index 五份，三份原型 CSS 全部限定在 `.v6-shell`；native 明暗取原型令牌，其他主题回退；删除假浏览器栏/menubar/traffic/pctl/drawer/window/frame；生产胶水含 sticky 工具栏与侧栏、窄屏单列、`.pane.wide`=1120。入口在 `routes/v6.css` 首行 `@import`。
+- `v6/components/ui/`：Icon（P 全量）、Button、Toolbar、Tabs、Pane/Body、Group/Row、Callout、Tag、StatusShape、Stat/StatRow、SectionHeader、Sheet；`planning/v6-alignment/ui-kit.md` 记录 props/类名/示例。
+- `components/Shell.tsx`：专业侧栏按 core.js 重建（搜索、图标+真实计数、最近案件、底部入口、本机用户·本地网页版）；public/self_service 无侧栏；保留 V6App 的 mode/matterId/repository 契约。
+- `features/matters/Matters.tsx`：toolbar + body/pane + 过滤 subbar + `.group > .row` 列表；保留创建/上传、筛选、分页、重命名、归档和全部 testid。
+- `features/workbench/Workbench.tsx`：matter toolbar（目标 Sheet 切换 + 交付）、`.tabs` 八标签、pane 980；overview 改为 casehead 风格：法域目标 `.tbl`、下一步 `.group > .row`、风险 callout、目标设置折叠；移除概览里重复的动态面板；保存/采纳刷新接线保留。
+- `features/inbox/Inbox.tsx`：toolbar + `.work > .listpane/.detailpane`，保留分组/已读/解决状态与 testid。
+- `features/settings/Appearance.tsx`：toolbar + pane 720 + `.setsec/.group/.row`，主题与颜色模式改为 `.seg`；保留保存失败/重试提示与全部 testid。
+- `features/ai/Ai.tsx`：外层改 toolbar + body/pane，内部能力与授权面板保留。
+- `components/TestOutputNotice.tsx`：改为 `.callout.warn`（原型警示样式），testid 不变。
+- `features/sources/{Upload,Parse,Figures}.tsx`：文件行统一 `filerow`/`file-ic`，进度统一 `.progress > .bar`，列表用 `.group`；材料页加 `section-h` 与人员/来源 callout。
+- `features/intake/Intake.tsx`：五题收进可展开的「补充信息（五题）」；事实用 `.factsgrp > .fact`（F-01 编号、`.f-b/.f-t/.f-s`）；冲突用 `.conflictbox` 与 `.cb-t/.cb-d`。
+- `features/draft/Editor.tsx` + Workbench：生成面板收为顶部可展开状态条；段落改为 `.para[.ai] > .pno/.ptext`，操作在 `.para-actions` 内；编辑器根加 `.draft-paper`。
+- `features/targets/Targets.tsx`：路线选择改 `.optgrid > .optcard`；目标设置改为 overview 上的按钮 + `Sheet`。
+- `features/workbench/ActivityFeed.tsx`：全局动态外加 toolbar + pane；动作筛选改 `.seg`；记录改 `.timeline/.tl-item`。
+- `features/workbench/Workbench.tsx`：申请/审阅说明页改 `section-h + callout + group/row`。
+- `features/recovery/Recovery.tsx` + `routes/SettingsPage.tsx`：恢复面板改 setsec/group/row 呈现并嵌入设置页「数据与隐私」，未改 recovery.ts。
+
+**未完成**：targets 的完整 Sheet 内仍保留现有表单校验；Recovery 已并入设置 720 pane，但 recovery.ts 逻辑未动。
+**草稿返修（round-3）**：pane 980、左右列 572/394（≈1.45:1）；权利要求 pno 用编号、说明书用连续 [0001]；独立权利要求不显示从属控件，从属默认只读「引用权利要求 1」、点击后才出 210px 下拉；特征行从正文移除（只在右栏支持表）；AI tag/确认此段/查看支持常显，插入删除仍悬停；`.doc-title` 在默认「未命名案件」时回退发明名称，否则「（未填写发明名称）」。上传/解析：状态改 `tag ok/risk`（已解析绿色），解析完成后隐藏进度条，余「N 段 · N 页 · 已保存」；自助上传「没有现成文档」行与保密 callout 间距 16px。V6-11 解析 UI 测试按新结构更新（保留 chunk 数/已保存/不重复重试断言）。
+
+**验证**：typecheck 0；build 0；V6-08 12/12、V6-15 41/41、V6-21 29/29、V6-22 15/15、自建场景 11/11。1440 浏览器实测：侧栏 232px、正文 13px、matters 与 matter overview pane 980、settings pane 720、无 pageerror、documentWidth=1440。
+**全量**：`node qa/v6/runner.mjs --all` exit 0 —— 29 个场景目录，tests=635，pass=635，fail=0，cancelled=0，skipped=0。日志：`qa/v6/scenarios/alignment-workbench/all.log`。
+**宽度**：1440 与 390 扫 start、matters、matter 八标签、自助五步、inbox、activity、ai、settings；每个页面 `documentWidth == viewport`，无横向溢出、无 pageerror。日志：`qa/v6/scenarios/alignment-workbench/width-sweep.log`。
+**round-3 实测**：1440 浅色草稿 paneWidth=980，列 572/394；权利要求 pno=["1","2"]，说明书 [0001]/[0002]；独立权利要求无下拉，从属显示“引用权利要求 1”，编辑态下拉宽 210；确认按钮常显 3 个；特征行不在正文；上传解析行状态 `tag ok`（rgb(35,122,59)），解析进度条 0 个，保密 callout 与上一行间距 16px。截图：`draft-fixed-light.png`、`upload-fixed-light.png`；日志 `draft-upload-seed.log`。
+**已知外部失败**：`--all` 中 V6-25「DoneView renders real file size…」失败，原因是 runtime 已重做 Done 呈现（文件行文案变化）而该票测试仍断言旧文案；不在本写集。V6-09 全量时偶发 “Chrome exposed no page target” 取消，单独复跑 21/21。
+**V6-09 稳定性**：`qa/v6/scenarios/V6-09/appearance.test.mjs` 的 Chrome 启动改为有界重试（最多 3 次；DevToolsActivePort 15s / page target 10s 超时；失败收集 stderr 与每次尝试原因并抛错，不转 skip）。连续 5 次 V6-09 均为 21/21，日志 `qa/v6/scenarios/alignment-workbench/V6-09-run-1.log` … `V6-09-run-5.log`。
+
 ## 已完成
 
 - Native 明暗主题改用原型的系统字体、灰底和蓝色令牌；维持其他主题，并在 V6 样式范围内使用紧凑工具栏、6/10px 圆角和清晰焦点环。

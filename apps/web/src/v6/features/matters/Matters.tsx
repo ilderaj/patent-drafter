@@ -10,9 +10,10 @@ import {
   shouldRefreshMatterRows,
   unarchiveMatter,
 } from "./matters.ts";
-import type { MatterFilters, MatterListRow, MatterRoute, MatterTargetRow } from "./matters.ts";
+import type { MatterFilters, MatterListRow, MatterRoute } from "./matters.ts";
 import type { NextActionKind } from "./actions.ts";
 import { v6Path, type MatterTab } from "../../routes/navigation.ts";
+import { Button, Callout, Group, Icon, Pane, Toolbar, Body } from "../../components/ui/index.ts";
 
 export interface MattersPageProps {
   repository: LocalRepository;
@@ -147,60 +148,102 @@ export function MattersPage({ repository, actor, onCreate, onOpenUpload, initial
     await refresh();
   };
 
-  return (
-    <main className="v6-page" data-testid="matters-page" data-state={rows === null ? "loading" : error ? "error" : "ready"}>
-      <div className="row-between">
-        <h1 className="v6-title">案件</h1>
-        <button type="button" className="btn btn-default btn-sm" disabled={busy} onClick={() => void create()}>创建案件</button>
-      </div>
-      <p className="muted">案件列表以本机保存的案件状态为准。超过 60 秒或窗口重新获得焦点时会刷新。</p>
-      {notice ? <div role="status" className="notice">{notice}</div> : null}
-      {error ? <div role="alert" className="notice" data-testid="matters-error"><strong>无法读取或保存。</strong><p>{error}</p><button className="btn btn-outline btn-sm" type="button" onClick={() => void refresh(true)}>重试</button></div> : null}
-      <div className="v6-matters-filters">
-        <label>状态 <select value={filters.status ?? "active"} onChange={(event) => setFilters({ ...filters, status: event.target.value as MatterFilters["status"], page: 1 })}>
-          <option value="active">进行中</option><option value="archived">已归档</option><option value="all">全部</option>
-        </select></label>
-        <label>路线 <select value={filters.route ?? ""} onChange={(event) => setFilters({ ...filters, route: (event.target.value || null) as MatterRoute | null, page: 1 })}>
-          <option value="">全部路线</option><option value="cn_um">中国实用新型</option><option value="cn_invention">中国发明</option><option value="us_nonprovisional">美国非临时申请</option><option value="pct">PCT 国际申请</option>
-        </select></label>
-        <label>下一步 <select value={filters.nextAction ?? ""} onChange={(event) => setFilters({ ...filters, nextAction: (event.target.value || null) as MatterFilters["nextAction"], page: 1 })}>
-          <option value="">全部动作</option>{NEXT_ACTION_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-        </select></label>
-        <label>标题 <input type="search" value={filters.title ?? ""} onChange={(event) => setFilters({ ...filters, title: event.target.value, page: 1 })} placeholder="只搜索案件标题" /></label>
-      </div>
-      {rows === null && !error ? <div aria-busy="true" data-testid="matters-loading"><div className="skeleton v6-skeleton" /><div className="skeleton v6-skeleton" /></div> : null}
-      {rows !== null && busy ? <div aria-busy="true" data-testid="matters-refreshing"><div className="skeleton v6-skeleton" /></div> : null}
-      {rows !== null && filtered?.total === 0 && !error ? (rows.length === 0 ? <section className="card v6-empty" data-testid="matters-empty">
-        <p>还没有案件。</p>
-        <div className="v6-empty-actions"><button type="button" className="btn btn-default" disabled={busy} onClick={() => void create()}>创建案件</button>
-          <button type="button" className="btn btn-outline" disabled={busy} onClick={() => void startFromUpload()}>从上传材料开始</button></div>
-      </section> : <section className="card v6-empty" data-testid="matters-filter-empty"><p>没有符合筛选条件的案件。</p></section>) : null}
-      {rows !== null && filtered && filtered.total > 0 ? <>
-        <div className="v6-matters-table-wrap"><table className="v6-matters-table" data-testid="matters-list">
-          <thead><tr><th>标题</th><th>路线与状态</th><th>下一步</th><th>最近更新</th><th>创建人</th><th>操作</th></tr></thead>
-          <tbody>{filtered.items.map((row) => {
-            const actionTab = matterActionTab(row.nextAction);
-            const actionTarget = row.targets.find((target) => target.status === "active") ?? row.targets[0] ?? null;
-            return <tr key={row.matter.id} data-testid={`matter-row-${row.matter.id}`}>
-              <td className="v6-matter-title-cell">{titleEdit?.id === row.matter.id ? <><input aria-label="案件标题" value={titleEdit.title} onChange={(event) => setTitleEdit({ ...titleEdit, title: event.target.value })} /><button type="button" onClick={() => void saveTitle()}>保存</button><button type="button" onClick={() => setTitleEdit(null)}>取消</button></> : <><Link to={v6Path({ kind: "matter", matterId: row.matter.id, targetId: null, tab: "overview" })}>{row.matter.title}</Link>{row.matter.status === "active" ? <button type="button" className="btn btn-ghost btn-sm" onClick={() => setTitleEdit({ id: row.matter.id, title: row.matter.title })}>重命名</button> : <span className="muted">已归档，只读</span>}</>}
-                <details className="v6-tech-details"><summary>案件 ID</summary><code>{row.matter.id}</code></details>
-              </td>
-              <td><div className="v6-matter-route-list">{row.targets.length ? row.targets.map((target) => <TargetLabel key={target.id} target={target} />) : <span className="muted">尚无目标</span>}</div></td>
-              <td>{actionTab ? <Link to={v6Path({ kind: "matter", matterId: row.matter.id, targetId: actionTarget?.id ?? null, tab: actionTab })}>{matterActionLabel(row.nextAction)}</Link> : <span>{matterActionLabel(row.nextAction)}</span>}</td>
-              <td><time dateTime={row.matter.updatedAt}>{formatMatterTime(row.matter.updatedAt)}</time></td>
-              <td>本机用户<details className="v6-tech-details"><summary>创建人 ID</summary><code>{row.matter.createdBy}</code></details></td>
-              <td>{row.matter.status === "archived" ? <button type="button" className="btn btn-outline btn-sm" onClick={() => void transition(row, "unarchive")}>取消归档</button> : <button type="button" className="btn btn-outline btn-sm" onClick={() => void transition(row, "archive")}>归档</button>}</td>
-            </tr>;
-          })}</tbody>
-        </table></div>
-        <div className="row-between"><span>共 {filtered.total} 个案件 · 第 {filtered.page} 页</span><div><button type="button" className="btn btn-outline btn-sm" disabled={filtered.page <= 1} onClick={() => setFilters({ ...filters, page: filtered.page - 1 })}>上一页</button> <button type="button" className="btn btn-outline btn-sm" disabled={filtered.page * filtered.pageSize >= filtered.total} onClick={() => setFilters({ ...filters, page: filtered.page + 1 })}>下一页</button></div></div>
-      </> : null}
-    </main>
-  );
-}
+  const totalLabel = rows === null ? "正在读取本机案件" : `共 ${filtered?.total ?? 0} 个案件`;
 
-function TargetLabel({ target }: { target: MatterTargetRow }) {
-  return <div>{matterRouteLabel(target.route)} · {target.status === "active" ? "进行中" : "已归档"}<details className="v6-tech-details"><summary>目标 ID</summary><code>{target.id}</code></details></div>;
+  return (
+    <>
+      <Toolbar title="案件" subtitle={totalLabel} right={<>
+        <Button variant="primary" size="sm" disabled={busy} onClick={() => void create()}>创建案件</Button>
+        <Button size="sm" disabled={busy} onClick={() => void startFromUpload()}>从上传材料开始</Button>
+      </>} />
+      <Body><Pane><div data-testid="matters-page" data-state={rows === null ? "loading" : error ? "error" : "ready"}>
+        <Callout tone="info" icon="info">
+          案件保存在这台设备的浏览器里；超过 60 秒或窗口重新获得焦点时会刷新。没有示例数据，也不会自动补充材料。
+        </Callout>
+        {notice ? <Callout tone="ok">{notice}</Callout> : null}
+        {error ? <div className="callout warn" role="alert" data-testid="matters-error">
+          <Icon name="alert" />
+          <div><b>无法读取或保存。</b><div>{error}</div><Button size="sm" onClick={() => void refresh(true)}>重试</Button></div>
+        </div> : null}
+
+        <div className="subbar" aria-label="筛选案件">
+          <label className="rowgap">状态 <select className="select" value={filters.status ?? "active"} onChange={(event) => setFilters({ ...filters, status: event.target.value as MatterFilters["status"], page: 1 })}>
+            <option value="active">进行中</option><option value="archived">已归档</option><option value="all">全部</option>
+          </select></label>
+          <label className="rowgap">路线 <select className="select" value={filters.route ?? ""} onChange={(event) => setFilters({ ...filters, route: (event.target.value || null) as MatterRoute | null, page: 1 })}>
+            <option value="">全部路线</option><option value="cn_um">中国实用新型</option><option value="cn_invention">中国发明</option><option value="us_nonprovisional">美国非临时申请</option><option value="pct">PCT 国际申请</option>
+          </select></label>
+          <label className="rowgap">下一步 <select className="select" value={filters.nextAction ?? ""} onChange={(event) => setFilters({ ...filters, nextAction: (event.target.value || null) as MatterFilters["nextAction"], page: 1 })}>
+            <option value="">全部动作</option>{NEXT_ACTION_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select></label>
+          <label className="rowgap">标题 <input className="input" type="search" value={filters.title ?? ""} onChange={(event) => setFilters({ ...filters, title: event.target.value, page: 1 })} placeholder="只搜索案件标题" /></label>
+        </div>
+
+        {rows === null && !error ? <div aria-busy="true" data-testid="matters-loading"><div className="skeleton v6-skeleton" /><div className="skeleton v6-skeleton" /></div> : null}
+        {rows !== null && busy ? <div aria-busy="true" data-testid="matters-refreshing"><div className="skeleton v6-skeleton" /></div> : null}
+
+        {rows !== null && filtered?.total === 0 && !error ? (rows.length === 0 ? <div className="empty" data-testid="matters-empty">
+          <Icon name="folder" size="lg" />
+          <h3>还没有案件</h3>
+          <p>创建一个空案件后开始准备；没有材料也可以先回答问题。</p>
+          <div className="rowgap" style={{ justifyContent: "center", marginTop: 12, flexWrap: "wrap" }}>
+            <Button variant="primary" disabled={busy} onClick={() => void create()}>创建案件</Button>
+            <Button disabled={busy} onClick={() => void startFromUpload()}>从上传材料开始</Button>
+          </div>
+        </div> : <div className="empty" data-testid="matters-filter-empty"><h3>没有符合筛选条件的案件</h3><p>调整状态、路线或标题筛选后再试。</p></div>) : null}
+
+        {rows !== null && filtered && filtered.total > 0 ? <>
+          <div data-testid="matters-list">
+          <Group>
+            {filtered.items.map((row) => {
+              const actionTab = matterActionTab(row.nextAction);
+              const actionTarget = row.targets.find((target) => target.status === "active") ?? row.targets[0] ?? null;
+              const routes = row.targets.length > 0 ? row.targets.map((target) => matterRouteLabel(target.route)).join(" / ") : "尚无目标";
+              return <div className="row" key={row.matter.id} data-testid={`matter-row-${row.matter.id}`}>
+                <div className="r-main">
+                  <div className="r-title">
+                    {titleEdit?.id === row.matter.id ? <>
+                      <input className="input" aria-label="案件标题" value={titleEdit.title} onChange={(event) => setTitleEdit({ ...titleEdit, title: event.target.value })} />
+                      <Button size="sm" onClick={() => void saveTitle()}>保存</Button>
+                      <Button size="sm" variant="ghost" onClick={() => setTitleEdit(null)}>取消</Button>
+                    </> : <>
+                      <Link to={v6Path({ kind: "matter", matterId: row.matter.id, targetId: null, tab: "overview" })}>{row.matter.title}</Link>
+                      {row.matter.status === "archived" ? <span className="muted"> · 已归档，只读</span> : null}
+                    </>}
+                  </div>
+                  <div className="r-sub">
+                    {routes} · {row.matter.status === "active" ? "进行中" : "已归档"} · 更新 {formatMatterTime(row.matter.updatedAt)} · 本机用户
+                  </div>
+                  <details className="v6-tech-details">
+                    <summary>技术详情</summary>
+                    <div>案件 ID：<code>{row.matter.id}</code></div>
+                    <div>创建人 ID：<code>{row.matter.createdBy}</code></div>
+                    {row.targets.map((target) => <div key={target.id}>目标 ID：<code>{target.id}</code> · 配置 v{target.configVersion}</div>)}
+                  </details>
+                </div>
+                <div className="r-right">
+                  {actionTab ? <Link className="link" to={v6Path({ kind: "matter", matterId: row.matter.id, targetId: actionTarget?.id ?? null, tab: actionTab })}>{matterActionLabel(row.nextAction)}</Link> : <span className="muted">{matterActionLabel(row.nextAction)}</span>}
+                  <Button size="sm" to={v6Path({ kind: "matter", matterId: row.matter.id, targetId: null, tab: "overview" })}>打开工作台</Button>
+                  {row.matter.status === "active" ? <>
+                    <Button size="sm" variant="ghost" onClick={() => setTitleEdit({ id: row.matter.id, title: row.matter.title })}>重命名</Button>
+                    <Button size="sm" variant="ghost" onClick={() => void transition(row, "archive")}>归档</Button>
+                  </> : <Button size="sm" variant="ghost" onClick={() => void transition(row, "unarchive")}>取消归档</Button>}
+                </div>
+              </div>;
+            })}
+          </Group>
+          </div>
+          <div className="spread" style={{ marginTop: 10 }}>
+            <span className="small muted">共 {filtered.total} 个案件 · 第 {filtered.page} 页</span>
+            <div className="rowgap">
+              <Button size="sm" disabled={filtered.page <= 1} onClick={() => setFilters({ ...filters, page: filtered.page - 1 })}>上一页</Button>
+              <Button size="sm" disabled={filtered.page * filtered.pageSize >= filtered.total} onClick={() => setFilters({ ...filters, page: filtered.page + 1 })}>下一页</Button>
+            </div>
+          </div>
+        </> : null}
+      </div></Pane></Body>
+    </>
+  );
 }
 
 const NEXT_ACTION_OPTIONS: readonly (readonly [NextActionKind, string])[] = [

@@ -562,23 +562,23 @@ export function ParsePanel({
       ) : null}
 
       {view.rows.length > 0 ? (
-        <ul className="v6-upload-rows" role="list" data-testid="parse-rows">
+        <ul className="group v6-upload-rows" role="list" data-testid="parse-rows">
           {view.rows.map((row) => (
             <li
               key={row.assetId}
-              className="file-row"
+              className="filerow"
               data-testid={`parse-row-${row.assetId}`}
               data-state={row.state}
               data-stage={row.stage ?? ""}
             >
-              <span className="ficon" aria-hidden="true">
+              <span className="file-ic" aria-hidden="true">
                 ▤
               </span>
               <div className="v6-upload-file">
                 <span className="file-name" data-testid={`parse-name-${row.assetId}`}>
                   {row.name}
                 </span>
-                <ProgressLine row={row} live={liveStage[row.sourceId] ?? null} />
+                {row.state === "pending" || row.state === "running" ? <ProgressLine row={row} live={liveStage[row.sourceId] ?? null} /> : null}
                 <span className="field-hint" data-testid={`parse-detail-${row.assetId}`}>
                   {chunkSummary(row)}
                   {row.state === "parsed" || row.state === "partial" ? " · 已保存" : ""}
@@ -590,7 +590,7 @@ export function ParsePanel({
                 ) : null}
               </div>
               <span
-                className={`badge badge-${badgeTone(row)}`}
+                className={`tag ${badgeTone(row) === "ok" ? "ok" : badgeTone(row) === "err" ? "risk" : "plain"}`}
                 data-testid={`parse-status-${row.assetId}`}
               >
                 {parseStatusLabel(row)}
@@ -655,7 +655,7 @@ function ProgressLine({ row, live }: { row: ParseRow; live: ParseStage | null })
   return (
     <>
       <div
-        className="progress-root"
+        className="progress"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -663,7 +663,7 @@ function ProgressLine({ row, live }: { row: ParseRow; live: ParseStage | null })
         aria-label={`${row.name}：${running ? (live ? STAGE_LABELS[live] : (row.stageLabel ?? "解析中")) : parseStatusLabel(row)}`}
         data-testid={`parse-progress-${row.assetId}`}
       >
-        <div className="progress-indicator" style={{ width: `${percent}%` }} />
+        <div className="bar" style={{ width: `${percent}%` }} />
       </div>
       {running && counter ? (
         <span className="field-hint" data-testid={`parse-stage-${row.assetId}`}>

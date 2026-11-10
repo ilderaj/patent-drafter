@@ -34,7 +34,6 @@ import {
 } from "./ast-adapter.ts";
 import type { Actor, LocalRepository, StorageBackend } from "../../lib/repository.ts";
 import { STORES } from "../../lib/repository.ts";
-import { TestOutputNotice } from "../workbench/TestOutputNotice.tsx";
 
 const SECTION_LABELS: Readonly<Record<SectionKind, string>> = Object.freeze({
   technical_field: "技术领域",
@@ -744,6 +743,10 @@ export interface DraftEditorProps {
   /** Only IDs confirmed against `confirmationRevisionId` are treated as confirmed. */
   confirmationRevisionId?: string | null;
   confirmedParagraphIds?: readonly string[];
+  /** Confirm one AI/mixed paragraph through the owning review session. */
+  onConfirmParagraph?: (paragraphId: string) => void;
+  /** Reveal the support row for one paragraph. */
+  onViewSupport?: (paragraphId: string) => void;
 }
 
 /**
@@ -760,6 +763,7 @@ export function DraftEditor(props: DraftEditorProps) {
     revisions: props.revisions,
   }), [props.repository, props.actor, props.matterId, props.targetId, props.bufferStore, props.revisions]);
   const [state, setState] = useState(() => session.getSnapshot());
+  const [editingClaimId, setEditingClaimId] = useState<string | null>(null);
   const lastRefreshToken = useRef(props.refreshToken);
 
   useEffect(() => {
@@ -852,13 +856,23 @@ export function DraftEditor(props: DraftEditorProps) {
     }
   };
 
-  return <section className="card stack-3" data-testid="draft-editor" data-state={state.phase === "error" ? "error" : state.inputStale ? "stale" : "ready"}>
-    <div className="row-between" style={{ flexWrap: "wrap" }}>
-      <h2 className="card-title">专业草稿</h2>
-      <span className="field-hint" data-testid="draft-revision">{state.baseRevisionId ? `修订 ${state.baseRevisionId}` : "未保存的手工草稿"}</span>
-    </div>
-    {state.baseRevision ? <TestOutputNotice revision={state.baseRevision.revision} testId="draft-test-output" /> : null}
+  const sectionNumbers = new Map<string, number>();
+  let sectionParagraphIndex = 0;
+  for (const kind of SECTION_KINDS) {
+    const section = model.sections.find((item) => item.kind === kind);
+    for (const paragraph of section?.paragraphs ?? []) {
+      sectionParagraphIndex += 1;
+      sectionNumbers.set(paragraph.id, sectionParagraphIndex);
+    }
+  }
+  const titleValue = model.title.trim() !== "" && model.title.trim() !== "未命名案件"
+    ? model.title
+    : state.matterTitle.trim() !== "" && state.matterTitle.trim() !== "未命名案件"
+      ? state.matterTitle
+      : "（未填写发明名称）";
 
+  return <section className="card stack-3 draft-paper" data-testid="draft-editor" data-state={state.phase === "error" ? "error" : state.inputStale ? "stale" : "ready"}>
+    <span className="sr" data-testid="draft-revision">{state.baseRevisionId ? `修订 ${state.baseRevisionId.slice(0, 8)}` : "未保存的手工草稿"}</span>
     {state.inputStale ? <div className="notice" role="status" data-testid="draft-input-stale">
       草稿所依据的事实、目标配置或图集版本已变化。核对输入后再决定是否继续编辑。
     </div> : null}
@@ -882,70 +896,93 @@ export function DraftEditor(props: DraftEditorProps) {
       </li>)}</ul> : null}
     </div> : null}
 
-    <label className="field">
-      <span className="field-label">稿件标题</span>
-      <input className="input" value={model.title} disabled={state.saving} onChange={(event) => update({ ...model, title: event.currentTarget.value })} data-testid="draft-title" />
-    </label>
-
-    <div className="stack-3" data-testid="draft-claims">
-      <h3 className="card-title">权利要求</h3>
-      {model.claims.length === 0 ? <p className="muted">暂无权利要求。</p> : model.claims.map((claim) => {
-        const issue = state.error?.issues.find((item) => item.nodeId === claim.id);
-        return <article className="card stack-3" key={claim.id} id={`draft-node-${claim.id}`} tabIndex={-1} data-node-id={claim.id} data-invalid={issue ? "true" : undefined}>
-          <div className="row" style={{ flexWrap: "wrap" }}>
-            <strong>权利要求</strong>
-            <input aria-label={`权利要求 ${claim.number} 编号`} type="number" min={1} value={claim.number} disabled={state.saving} onChange={(event) => {
-              const number = Number(event.currentTarget.value);
-              update(editClaim(model, claim.id, { number: Number.isFinite(number) ? number : 0 }));
-            }} style={{ width: "7rem" }} />
-            <label className="field" style={{ minWidth: "14rem" }}>
-              <span className="field-label">前置权利要求 ID（逗号分隔）</span>
-              <input className="input" aria-label={`权利要求 ${claim.number} 依赖`} value={claim.dependsOn.join(", ")} disabled={state.saving} onChange={(event) => update(editClaim(model, claim.id, {
-                dependsOn: event.currentTarget.value.split(",").map((id) => id.trim()).filter(Boolean),
-              }))} />
-            </label>
+    <div className="doc">
+      <div className="doc-inner">
+        <div className="doc-head">
+          <div className="doc-kicker">
+            草稿 · {state.targetConfig?.language === "en-US" ? "英文准备稿" : "中文准备稿"} · {state.baseRevisionId ? state.baseRevisionId.slice(0, 8) : "未保存"}
           </div>
-          {claim.features.length ? <ul className="v6-list">{claim.features.map((feature) => <li key={feature.id} id={`draft-node-${feature.id}`} data-node-id={feature.id}>{feature.text}</li>)}</ul> : null}
-          <ParagraphList
-            paragraphs={claim.paragraphs}
-            location={{ claimId: claim.id }}
-            confirmedIds={confirmedIds}
-            disabled={state.saving}
-            onEdit={(index, text) => { void session.updateParagraph({ claimId: claim.id }, index, text); }}
-            onInsert={(index) => { void session.addParagraph({ claimId: claim.id }, index); }}
-            onDelete={(index) => { void session.removeParagraph({ claimId: claim.id }, index); }}
-            issues={state.error?.issues ?? []}
-          />
-        </article>;
-      })}
-    </div>
+          <input className="doc-title" aria-label="稿件标题" data-testid="draft-title" value={titleValue}
+            disabled={state.saving} onChange={(event) => update({ ...model, title: event.currentTarget.value })} />
+          <div className="doc-meta">
+            发明人：{state.targetConfig && state.targetConfig.inventorIds.length > 0 ? `${state.targetConfig.inventorIds.length} 位（待核实）` : "待补充"}
+            <span className="dotsep" />点击段落可就地修改；确认按钮只作用于当前修订
+          </div>
+        </div>
 
-    <div className="stack-3" data-testid="draft-sections">
-      <h3 className="card-title">说明书分区</h3>
-      {SECTION_KINDS.map((kind) => {
-        const section = model.sections.find((item) => item.kind === kind);
-        const paragraphs = section?.paragraphs ?? [];
-        return <section className="stack-3" key={kind} id={`draft-section-${kind}`} data-testid={`draft-section-${kind}`}>
-          <h4 className="card-title">{SECTION_LABELS[kind]}</h4>
-          <ParagraphList
-            paragraphs={paragraphs}
-            location={{ sectionKind: kind }}
-            confirmedIds={confirmedIds}
-            disabled={state.saving}
-            onEdit={(index, text) => { void session.updateParagraph({ sectionKind: kind }, index, text); }}
-            onInsert={(index) => { void session.addParagraph({ sectionKind: kind }, index); }}
-            onDelete={(index) => { void session.removeParagraph({ sectionKind: kind }, index); }}
-            issues={state.error?.issues ?? []}
-          />
-        </section>;
-      })}
-    </div>
+        <h3>权利要求</h3>
+        <div data-testid="draft-claims">
+          {model.claims.length === 0 ? <p className="muted">暂无权利要求。</p> : model.claims.map((claim) => {
+            const issue = state.error?.issues.find((item) => item.nodeId === claim.id);
+            const dependency = claim.dependsOn[0] ?? "";
+            const dependencyNumbers = claim.dependsOn
+              .map((id) => model.claims.find((candidate) => candidate.id === id)?.number)
+              .filter((number): number is number => typeof number === "number");
+            const editingDependency = editingClaimId === claim.id;
+            return <section className="doc-claim" key={claim.id} id={`draft-node-${claim.id}`} tabIndex={-1} data-node-id={claim.id} data-invalid={issue ? "true" : undefined}>
+              <div className="doc-claim-head">
+                <span className="doc-claim-title">权利要求 {claim.number}</span>
+                {claim.dependsOn.length === 0 ? null : editingDependency ? (
+                  <span className="doc-dep">引用权利要求
+                    <select className="select" value={dependency} disabled={state.saving} autoFocus
+                      aria-label={`权利要求 ${claim.number} 从属关系`}
+                      onChange={(event) => update(editClaim(model, claim.id, { dependsOn: event.currentTarget.value ? [event.currentTarget.value] : [] }))}>
+                      {model.claims.filter((candidate) => candidate.number < claim.number).map((candidate) => (
+                        <option key={candidate.id} value={candidate.id}>权利要求 {candidate.number}</option>
+                      ))}
+                    </select>
+                    <button type="button" className="link" onClick={() => setEditingClaimId(null)}>完成</button>
+                  </span>
+                ) : (
+                  <button type="button" className="link doc-dep-text" onClick={() => setEditingClaimId(claim.id)}>
+                    引用权利要求 {dependencyNumbers.join("、")}
+                  </button>
+                )}
+              </div>
+              <ParagraphList
+                paragraphs={claim.paragraphs}
+                location={{ claimId: claim.id }}
+                paragraphNumbers={claim.paragraphs.map(() => String(claim.number))}
+                confirmedIds={confirmedIds}
+                disabled={state.saving}
+                onEdit={(index, text) => { void session.updateParagraph({ claimId: claim.id }, index, text); }}
+                onInsert={(index) => { void session.addParagraph({ claimId: claim.id }, index); }}
+                onDelete={(index) => { void session.removeParagraph({ claimId: claim.id }, index); }}
+                onConfirmParagraph={props.onConfirmParagraph}
+                onViewSupport={props.onViewSupport}
+                issues={state.error?.issues ?? []}
+              />
+            </section>;
+          })}
+        </div>
 
-    {state.supportRows.length ? <section className="stack-3" data-testid="draft-support-table">
-      <h3 className="card-title">要素支持表</h3>
-      {state.supportRows.map((row) => <SupportRow key={row.featureId} row={row} onJump={jumpToParagraph} />)}
-    </section> : null}
-    {pendingAi > 0 ? <p className="field-hint" data-testid="draft-pending-ai">◇ {pendingAi} 段 AI/混合内容待确认</p> : null}
+        <h3>说明书</h3>
+        <div data-testid="draft-sections">
+          {SECTION_KINDS.map((kind) => {
+            const section = model.sections.find((item) => item.kind === kind);
+            const paragraphs = section?.paragraphs ?? [];
+            return <section key={kind} id={`draft-section-${kind}`} data-testid={`draft-section-${kind}`}>
+              <h4>{SECTION_LABELS[kind]}</h4>
+              {paragraphs.length === 0 ? <p className="muted">（本节尚未填写）</p> : null}
+              <ParagraphList
+                paragraphs={paragraphs}
+                location={{ sectionKind: kind }}
+                paragraphNumbers={paragraphs.map((paragraph) => `[${String(sectionNumbers.get(paragraph.id) ?? 0).padStart(4, "0")}]`)}
+                confirmedIds={confirmedIds}
+                disabled={state.saving}
+                onEdit={(index, text) => { void session.updateParagraph({ sectionKind: kind }, index, text); }}
+                onInsert={(index) => { void session.addParagraph({ sectionKind: kind }, index); }}
+                onDelete={(index) => { void session.removeParagraph({ sectionKind: kind }, index); }}
+                onConfirmParagraph={props.onConfirmParagraph}
+                onViewSupport={props.onViewSupport}
+                issues={state.error?.issues ?? []}
+              />
+            </section>;
+          })}
+        </div>
+        {pendingAi > 0 ? <p className="field-hint" data-testid="draft-pending-ai">◇ {pendingAi} 段 AI/混合内容待确认</p> : null}
+      </div>
+    </div>
 
     <div className="row" style={{ flexWrap: "wrap" }}>
       <button type="button" className="btn btn-default" data-testid="draft-save" disabled={!state.dirty || state.conflict || state.saving} onClick={() => void save()}>
@@ -968,59 +1005,57 @@ function modelToAst(model: DraftEditorModel): DraftAST {
 interface ParagraphListProps {
   paragraphs: readonly Paragraph[];
   location: ParagraphLocation;
+  paragraphNumbers?: readonly string[];
   confirmedIds: ReadonlySet<string>;
   disabled: boolean;
   onEdit: (index: number, text: string) => void;
   onInsert: (index: number) => void;
   onDelete: (index: number) => void;
+  onConfirmParagraph?: (paragraphId: string) => void;
+  onViewSupport?: (paragraphId: string) => void;
   issues: readonly DraftAstIssue[];
 }
 
 function ParagraphList(props: ParagraphListProps) {
-  const { paragraphs, location, confirmedIds, disabled, onEdit, onInsert, onDelete, issues } = props;
+  const { paragraphs, location, paragraphNumbers, confirmedIds, disabled, onEdit, onInsert, onDelete, onConfirmParagraph, onViewSupport, issues } = props;
+  const [editingId, setEditingId] = useState<string | null>(null);
   const labelPrefix = location.claimId ? "权利要求段落" : SECTION_LABELS[location.sectionKind as SectionKind];
-  return <div className="stack-3">
+  return <div className="doc-paras">
     {paragraphs.map((paragraph, index) => {
       const issue = issues.find((item) => item.nodeId === paragraph.id);
-      const needsConfirmation = (paragraph.origin === "ai" || paragraph.origin === "mixed") && !confirmedIds.has(paragraph.id);
-      return <div className="v6-entry stack-3" key={paragraph.id} id={`draft-node-${paragraph.id}`} data-node-id={paragraph.id} data-origin={paragraph.origin} data-invalid={issue ? "true" : undefined}>
-        <label className="field">
-          <span className="field-label">{labelPrefix} {index + 1} · {paragraph.origin}{needsConfirmation ? " · ◇ 待确认" : ""}</span>
-          <textarea className="textarea" rows={4} value={paragraph.text} disabled={disabled} aria-invalid={issue ? "true" : undefined}
-            aria-label={`${labelPrefix} ${index + 1}`} onChange={(event) => onEdit(index, event.currentTarget.value)} />
-        </label>
-        <div className="row" style={{ flexWrap: "wrap" }}>
-          <button type="button" className="btn btn-outline btn-sm" disabled={disabled} onClick={() => onInsert(index)} aria-label={`在${labelPrefix} ${index + 1} 后插入段落`}>插入段落</button>
-          <button type="button" className="btn btn-outline btn-sm" disabled={disabled} onClick={() => onDelete(index)} aria-label={`删除${labelPrefix} ${index + 1}`}>删除段落</button>
-          {needsConfirmation ? <span className="field-hint">◇ 待确认</span> : null}
+      const aiParagraph = paragraph.origin === "ai" || paragraph.origin === "mixed";
+      const confirmed = confirmedIds.has(paragraph.id);
+      const editing = editingId === paragraph.id;
+      return <div className={`para${aiParagraph ? " ai" : ""}`} key={paragraph.id} id={`draft-node-${paragraph.id}`} data-node-id={paragraph.id} data-origin={paragraph.origin} data-invalid={issue ? "true" : undefined}
+        onClick={() => { if (!disabled) setEditingId(paragraph.id); }}>
+        <span className="pno" aria-hidden="true">{paragraphNumbers?.[index] ?? String(index + 1)}</span>
+        <div className="ptext">
+          {editing ? (
+            <textarea className="para-edit" rows={3} autoFocus value={paragraph.text} disabled={disabled}
+              aria-label={`${labelPrefix} ${index + 1}`}
+              onFocus={(event) => event.currentTarget.setSelectionRange(event.currentTarget.value.length, event.currentTarget.value.length)}
+              onChange={(event) => onEdit(index, event.currentTarget.value)}
+              onBlur={() => setEditingId(null)}
+              onClick={(event) => event.stopPropagation()} />
+          ) : (
+            <p className="para-read" aria-label={`${labelPrefix} ${index + 1}`}>{paragraph.text || "（空段落，点击编辑）"}</p>
+          )}
+          <div className="para-actions">
+            {aiParagraph ? <span className={`tag ${confirmed ? "ok" : "ai"}`}>{confirmed ? "AI · 已确认" : "AI · 待确认"}</span> : null}
+            {aiParagraph && !confirmed && onConfirmParagraph ? <button type="button" className="link" disabled={disabled}
+              onClick={(event) => { event.stopPropagation(); onConfirmParagraph(paragraph.id); }}>确认此段</button> : null}
+            {onViewSupport ? <button type="button" className="link" onClick={(event) => { event.stopPropagation(); onViewSupport(paragraph.id); }}>查看支持</button> : null}
+            {editing ? <button type="button" className="link" onClick={(event) => { event.stopPropagation(); setEditingId(null); }}>完成</button> : null}
+            <span className="para-secondary">
+              <button type="button" className="link" disabled={disabled} onClick={(event) => { event.stopPropagation(); onInsert(index); }} aria-label={`在${labelPrefix} ${index + 1} 后插入段落`}>插入</button>
+              <button type="button" className="link" disabled={disabled} onClick={(event) => { event.stopPropagation(); onDelete(index); }} aria-label={`删除${labelPrefix} ${index + 1}`}>删除</button>
+            </span>
+          </div>
         </div>
       </div>;
     })}
-    <button type="button" className="btn btn-outline btn-sm" disabled={disabled} onClick={() => onInsert(paragraphs.length - 1)}>添加段落</button>
+    <button type="button" className="link add-para" disabled={disabled} onClick={() => onInsert(paragraphs.length - 1)}>添加段落</button>
   </div>;
-}
-
-function jumpToParagraph(nodeId: string): void {
-  if (typeof document === "undefined") return;
-  const node = document.getElementById(`draft-node-${nodeId}`);
-  node?.scrollIntoView?.({ behavior: "smooth", block: "center" });
-  node?.focus?.();
-}
-
-function SupportRow({ row, onJump }: { row: SupportTableRow; onJump: (nodeId: string) => void }) {
-  return <article className="v6-entry" data-testid={`draft-support-${row.featureId}`}>
-    <h4>权利要求 {row.claimNumber} · {row.featureText}</h4>
-    <p>状态：{row.featureStatus}</p>
-    <p>关联事实：{row.factIds.length ? row.factIds.join("、") : "无"}</p>
-    <p>支持段落：{row.supportParagraphIds.length ? row.supportParagraphIds.map((id) => <button key={id} type="button" className="btn btn-outline btn-sm" onClick={() => onJump(id)}>{id}</button>) : "无"}</p>
-    {row.facts.map((fact) => <div key={fact.id}>
-      <span>{fact.statement ?? `事实 ${fact.id}`} · {fact.status ?? "当前事实不可用"}</span>
-      {fact.sourceRefs.length ? <ul>{fact.sourceRefs.map((ref, index) => <li key={`${ref.chunkId}/${index}`}>
-        来源 {ref.sourceId} · chunk {ref.chunkId}{ref.page === null ? "" : ` · 第 ${ref.page} 页`} · {ref.quote}
-      </li>)}</ul> : <p>没有可用来源引用。</p>}
-    </div>)}
-    {row.priorityClaims.length ? <p>优先权核实：{row.priorityClaims.map((claim) => `${claim.country} ${claim.applicationNumber}（${claim.verification}）`).join("；")}</p> : <p>优先权：未配置</p>}
-  </article>;
 }
 
 export function DraftMergeView(props: { local: DraftEditorModel; latest: DraftAST; latestRevisionId: string }) {

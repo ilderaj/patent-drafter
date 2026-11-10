@@ -95,8 +95,11 @@ test("DoneView renders real file size, hash prefix and unavailable reason withou
     onDownload() {},
   }));
   assert.match(markup, /权利要求书.docx/);
-  assert.match(markup, /4096 bytes · SHA-256 0123456789ab · 可下载/);
-  assert.match(markup, /MISSING_BYTES · 合成附图/);
+  assert.match(markup, /DOCX，权利要求书 · 4\.0 KB · 可下载/);
+  assert.match(markup, /SHA-256：0123456789abcdef/);
+  assert.match(markup, /有引用的文件缺失/);
+  assert.match(markup, /MISSING_BYTES/);
+  assert.match(markup, /合成附图/);
   assert.match(markup, /FORMAT_UNAVAILABLE/);
   assert.match(markup, /xml/i);
   assert.doesNotMatch(markup, /将生成/);

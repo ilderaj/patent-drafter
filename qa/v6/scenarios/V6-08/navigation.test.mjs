@@ -22,7 +22,6 @@ import {
   MATTER_TABS,
   PAGE_ERROR_MESSAGES,
   RUNTIME_LABELS,
-  TAB_CAPABILITIES,
   createSelfServiceMatter,
   listMatterView,
   parseV6Path,
@@ -156,7 +155,9 @@ test("S01: the shell's fixed navigation, eight tabs and runtime labels", () => {
     MATTER_TABS.map((tab) => tab.label),
     ["概览", "材料", "事实", "草稿", "检查", "审阅", "交付", "申请"],
   );
-  for (const capability of [...GLOBAL_NAV.map((item) => item.capability), ...Object.values(TAB_CAPABILITIES)]) {
+  // TAB_CAPABILITIES was an unused parallel capability table; capabilities now
+  // live only on GLOBAL_NAV (tabs are always shown and enabled by the workbench).
+  for (const capability of GLOBAL_NAV.map((item) => item.capability)) {
     if (capability.state === "unavailable") assert.ok(capability.reason && capability.reason.length > 0);
     else assert.equal(capability.reason, null);
   }

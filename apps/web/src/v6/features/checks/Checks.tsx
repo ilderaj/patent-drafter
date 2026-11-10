@@ -13,6 +13,8 @@ import {
   type CheckRunResult,
 } from "../../../../../../packages/domain/src/v6/checks.js";
 import type { SnapshotRef } from "../../../../../../packages/domain/src/v6/revision.js";
+import { technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
+import { Callout, StatRow, StatusShape, Tag } from "../../components/ui/index.ts";
 
 export interface RiskAckRequest {
   snapshot: SnapshotRef;
@@ -136,57 +138,59 @@ function FindingCard({
   const location = [finding.locator.label, finding.locator.section ? `章节 ${finding.locator.section}` : null,
     finding.locator.nodeId ? `节点 ${finding.locator.nodeId}` : null].filter(Boolean).join(" · ");
   const actions = stale || busy ? [] : finding.actions;
+  const tone = finding.category === "blocker" ? "risk" : finding.category === "risk" ? "warn" : finding.category === "policy" ? "ai" : "idle";
   return (
-    <article className="card" data-testid={`check-finding-${finding.id}`} data-category={finding.category}>
-      <div className="row" style={{ flexWrap: "wrap" }}>
-        <span className="badge badge-outline">{LABELS[finding.category]}</span>
-        <span className="badge badge-outline">{stale ? "已过期" : finding.verificationLabel}</span>
-        <span className="field-hint">{finding.ruleId}</span>
+    <div className="checkrowline" data-testid={`check-finding-${finding.id}`} data-category={finding.category}>
+      <span style={{ paddingTop: 2 }}><StatusShape tone={tone} /></span>
+      <div className="cr-b">
+        <div className="cr-t">
+          <Tag tone={finding.category === "blocker" ? "risk" : finding.category === "risk" ? "warn" : finding.category === "policy" ? "ai" : "plain"}>{LABELS[finding.category]}</Tag>{" "}
+          <span data-testid={`check-state-${finding.id}`}>{stale ? "已过期" : finding.verificationLabel}</span>{" "}
+          {finding.title}
+        </div>
+        <div className="cr-d">{finding.explanation}</div>
+        <details className="tech">
+          <summary>依据与定位</summary>
+          <dl className="kv">
+            <dt>规则</dt><dd><code>{finding.ruleId}</code></dd>
+            <dt>依据</dt><dd>{basisText(finding).map((line, index) => <div key={`${finding.id}-basis-${index}`}>{line}</div>)}</dd>
+            <dt>定位</dt><dd data-testid={`check-locator-${finding.id}`}>{location || "案件输入"}</dd>
+            <dt>建议处理</dt><dd>{finding.suggestedAction}</dd>
+          </dl>
+          {finding.ruleId === "ast.invalid" ? <details data-testid={`check-raw-error-${finding.id}`}>
+            <summary>查看原始校验错误</summary>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{finding.locator.label}: {finding.explanation}</pre>
+          </details> : null}
+        </details>
       </div>
-      <h3 className="card-title">{finding.title}</h3>
-      <p>{finding.explanation}</p>
-      {finding.ruleId === "ast.invalid" ? <details data-testid={`check-raw-error-${finding.id}`}>
-        <summary>查看原始校验错误</summary>
-        <pre style={{ whiteSpace: "pre-wrap" }}>{finding.locator.label}: {finding.explanation}</pre>
-      </details> : null}
-      <dl className="kv">
-        <dt>依据</dt>
-        <dd>{basisText(finding).map((line, index) => <div key={`${finding.id}-basis-${index}`}>{line}</div>)}</dd>
-        <dt>定位</dt>
-        <dd data-testid={`check-locator-${finding.id}`}>{location || "案件输入"}</dd>
-        <dt>建议处理</dt>
-        <dd>{finding.suggestedAction}</dd>
-      </dl>
-      {actions.length > 0 ? (
-        <div className="row" style={{ flexWrap: "wrap" }}>
-          {actions.map((action) => action === "acknowledge_risk" ? (
-            acknowledged ? <span className="muted" key={action} data-testid={`check-acknowledged-${finding.id}`}>已确认</span> : (
-              <button
-                key={action}
-                type="button"
-                className="btn btn-outline btn-sm"
-                data-testid={`check-ack-${finding.id}`}
-                disabled={busy}
-                onClick={onRiskAck}
-              >
-                {ACTION_LABELS[action]}
-              </button>
-            )
-          ) : (
+      <div className="cr-r">
+        {actions.length > 0 ? actions.map((action) => action === "acknowledge_risk" ? (
+          acknowledged ? <span className="small muted" key={action} data-testid={`check-acknowledged-${finding.id}`}>已确认</span> : (
             <button
               key={action}
               type="button"
-              className="btn btn-outline btn-sm"
-              data-testid={`check-action-${finding.id}-${action}`}
+              className="btn sm"
+              data-testid={`check-ack-${finding.id}`}
               disabled={busy}
-              onClick={() => onAction(action)}
+              onClick={onRiskAck}
             >
               {ACTION_LABELS[action]}
             </button>
-          ))}
-        </div>
-      ) : null}
-    </article>
+          )
+        ) : (
+          <button
+            key={action}
+            type="button"
+            className="btn ghost sm"
+            data-testid={`check-action-${finding.id}-${action}`}
+            disabled={busy}
+            onClick={() => onAction(action)}
+          >
+            {ACTION_LABELS[action]}
+          </button>
+        )) : null}
+      </div>
+    </div>
   );
 }
 
@@ -304,14 +308,14 @@ export function ChecksPanel({
 
   return (
     <main className="v6-page" data-testid="checks-panel" data-state={initialLoading ? "loading" : viewError ? "error" : successfulResult ? stale ? "stale" : "ready" : "empty"}>
-      <div className="row-between" style={{ flexWrap: "wrap", gap: "0.75rem" }}>
+      <div className="spread" style={{ flexWrap: "wrap" }}>
         <div>
-          <h1 className="v6-title">检查与依据</h1>
-          <p className="muted">确定性检查会定位草稿和输入问题；未核实规则只作提示，不形成法律结论。</p>
+          <h2 style={{ fontSize: 16 }}>检查与人工核实</h2>
+          <div className="small muted" style={{ marginTop: 3 }}>确定性检查会定位草稿和输入问题；未核实规则只作提示，不形成法律结论。</div>
         </div>
         <button
           type="button"
-          className="btn btn-default"
+          className="btn primary"
           data-testid="checks-run"
           disabled={busy || initialLoading}
           onClick={() => void runAgain()}
@@ -320,24 +324,39 @@ export function ChecksPanel({
         </button>
       </div>
 
-      <section className="card" data-testid="checks-summary">
+      {successfulResult !== null ? <StatRow className="statrow" items={GROUPS.map(({ category, title }) => ({
+        label: category === "risk" ? "风险，需人工判断" : title,
+        value: (grouped.get(category) ?? []).length,
+        tone: category === "risk" ? "warn" : category === "blocker" ? "risk" : undefined,
+      }))} /> : null}
+      <Callout tone="info"><b>分级原则：</b>阻断只用于产品能确定的情形；风险给依据和转人工入口；待核实规则只作提示；产品政策是本产品的导出要求，不是法律结论。</Callout>
+
+      <section className="group" data-testid="checks-summary">
         {input.ast === null || input.ast === undefined ? <div className="notice" data-testid="checks-no-draft">
           尚无可检查的草稿。请先前往“草稿”创建或生成测试草稿，再返回运行检查。
         </div> : null}
-        <dl className="kv">
-          <dt>检查时间</dt><dd data-testid="checks-time">{time ? formatTimestamp(time) : "尚未检查"}</dd>
-          <dt>规则包版本</dt><dd data-testid="checks-rule-pack">{successfulResult?.checkRun.rulePackVersion ?? activeRulePackVersion}</dd>
-          <dt>绑定修订</dt><dd data-testid="checks-revision">{revision}</dd>
-          <dt>有效状态</dt><dd data-testid="checks-validity">{status}</dd>
-        </dl>
+        <div className="row"><div className="r-main"><div className="r-title">检查信息</div><div className="r-sub">有效状态：{status}</div></div>
+          <details className="tech"><summary>技术详情</summary>
+            <dl className="kv">
+              <dt>检查时间</dt><dd data-testid="checks-time">{time ? formatTimestamp(time) : "尚未检查"}</dd>
+              <dt>规则包版本</dt><dd data-testid="checks-rule-pack"><code>{successfulResult?.checkRun.rulePackVersion ?? activeRulePackVersion}</code></dd>
+              <dt>绑定修订</dt><dd data-testid="checks-revision"><code>{revision}</code></dd>
+              <dt>有效状态</dt><dd data-testid="checks-validity">{status}</dd>
+            </dl>
+          </details>
+          <span className="small muted" data-testid="checks-coverage">
+            本版执行 {successfulResult?.ruleCoverage.executedRules ?? 0}/{successfulResult?.ruleCoverage.totalRules ?? 0} 条规则
+          </span>
+        </div>
         {successfulResult === null ? <p className="field-hint">当前没有可用的检查结果；尚未检查不能表示没有风险。</p> : null}
         {stale ? <p className="notice" role="status" data-testid="checks-stale">检查已过期。请重新检查后再使用结果或确认风险。</p> : null}
         {busy && successfulResult ? <p className="notice" role="status" data-testid="checks-rerunning">正在重新检查；以下保留上次结果。</p> : null}
         {viewError ? (
-          <div className="notice" role="alert" data-testid="checks-error" data-code={viewError.code} style={STACK}>
-            <strong>检查失败（{viewError.code}）</strong>
+          <div className="callout warn" role="alert" data-testid="checks-error" data-code={viewError.code}>
+            <strong>{userMessageFor(viewError.code)}</strong>
             <p>{viewError.message}</p>
-            <button type="button" className="btn btn-outline btn-sm" data-testid="checks-retry" disabled={busy} onClick={() => void runAgain()}>
+            <details><summary>技术详情</summary><code>{technicalDetailLabel(viewError.code)}</code></details>
+            <button type="button" className="btn sm" data-testid="checks-retry" disabled={busy} onClick={() => void runAgain()}>
               重试检查
             </button>
           </div>
@@ -352,40 +371,41 @@ export function ChecksPanel({
         </section>
       ) : null}
       {successfulResult === null && !initialLoading && !viewError ? (
-        <section className="card v6-empty" data-testid="checks-empty">
-          <h2 className="card-title">尚未运行检查</h2>
-          <p>运行后会分别列出阻断、风险、待核实和产品政策；失败或过期结果不会显示为无问题。</p>
-        </section>
+        <div className="group" data-testid="checks-empty">
+          <div className="row"><div className="r-main"><div className="r-title">尚未运行检查</div><div className="r-sub">运行后会分别列出阻断、风险、待核实和产品政策；失败或过期结果不会显示为无问题。</div></div></div>
+        </div>
       ) : null}
 
       {successfulResult !== null ? GROUPS.map(({ category, title }) => {
         const items = grouped.get(category) ?? [];
         return (
-          <section className="card stack-3" key={category} data-testid={`checks-group-${category}`}>
-            <div className="row-between">
-              <h2 className="card-title">{title}</h2>
-              <span className="badge badge-outline" data-testid={`checks-count-${category}`}>{items.length}</span>
-            </div>
-            {items.length === 0 ? <p className="muted">本组无项目</p> : (
-              <div className="stack-3">
-                {items.map((finding) => (
-                  <FindingCard
-                    key={finding.id}
-                    finding={finding}
-                    stale={stale}
-                    busy={busy}
-                    acknowledged={acknowledged.has(finding.id)}
-                    onRiskAck={() => void acknowledge(finding)}
-                    onAction={(action) => handleAction(finding, action)}
-                  />
-                ))}
-              </div>
+          <div key={category}>
+          <div className="section-h" data-testid={`checks-group-${category}`}>
+            <span>{title}</span>
+            <span className="sh-r" data-testid={`checks-count-${category}`}>{items.length}</span>
+          </div>
+          <div className="group">
+            {items.length === 0 ? <div className="row"><div className="r-main"><div className="r-sub">本组无项目</div></div></div> : (
+              items.map((finding) => (
+                <FindingCard
+                  key={finding.id}
+                  finding={finding}
+                  stale={stale}
+                  busy={busy}
+                  acknowledged={acknowledged.has(finding.id)}
+                  onRiskAck={() => void acknowledge(finding)}
+                  onAction={(action) => handleAction(finding, action)}
+                />
+              ))
             )}
-          </section>
+          </div>
+          </div>
         );
       }) : null}
 
-      <p className="field-hint">检查结果绑定到修订 {revision} 和规则包 {activeRulePackVersion}。法律规则尚未通过 G-RULES 核实，不作法律结论。</p>
+      <p className="small muted" data-testid="checks-footer">检查结果对应当前修订；修订或规则变化后需重新检查。
+        <details className="tech"><summary>技术详情</summary><code>修订：{revision} · 规则包：{activeRulePackVersion}</code></details>
+      </p>
     </main>
   );
 }

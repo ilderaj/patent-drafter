@@ -24,6 +24,7 @@ import {
   type GenerationRevisionView,
 } from "../generation/generation.ts";
 import { readFigureLibrary } from "../sources/drawings.ts";
+import { technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
 import { migrateLegacyConfirmationLedger } from "../preview/preview.ts";
 import {
   ACTIVITY_METADATA_KEYS_BY_ACTION,
@@ -705,7 +706,8 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
   if (state.phase === "error") return <section className="card stack-3" data-testid="approval-panel" data-state="error">
     <h2 className="card-title">内部交付批准</h2>
     <div className="notice" role="alert" data-testid="approval-error" data-code={state.error?.code}>
-      <strong>批准数据读取失败（{state.error?.code}）</strong><p>{state.error?.message}</p>
+      <strong>{userMessageFor(state.error?.code)}</strong><p>{state.error?.message}</p>
+      {state.error?.code ? <details><summary>技术详情</summary><code>{technicalDetailLabel(state.error.code)}</code></details> : null}
       <button type="button" className="btn btn-outline btn-sm" onClick={() => void onRefresh()}>重试读取</button>
     </div>
   </section>;
@@ -716,7 +718,7 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
       {state.ledger.approvals.map((approval) => {
         const revocation = state.ledger.revocations.find((item) => item.objectId === approval.id);
         return <p key={approval.id} data-testid={`approval-record-${approval.id}`}>
-          {revocation ? `已撤销 · ${revocation.reason}` : "无当前草稿绑定 · STALE_BINDING"} · {approval.id}
+          {revocation ? `已撤销 · ${revocation.reason}` : "无当前草稿绑定"} · {approval.id}
         </p>;
       })}
     </div>}
@@ -741,57 +743,53 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
     setPending(null);
   };
 
-  return <section className="card stack-3" data-testid="approval-panel" data-state={state.phase}>
-    <header className="stack-2">
-      <div className="row-between" style={{ flexWrap: "wrap", gap: "0.75rem" }}>
-        <div><h2 className="card-title">内部交付批准</h2><p className="muted">仅记录团队内部放行决定，不生成签名凭证或递交回执。</p></div>
-        <button type="button" className="btn btn-outline btn-sm" data-testid="approval-refresh" onClick={() => void onRefresh()}>刷新状态</button>
-      </div>
-      <p className="notice" data-testid="approval-preparation-label">申请准备材料，非已提交文件</p>
-    </header>
+  return <div className="group" data-testid="approval-panel" data-state={state.phase}>
+    <div className="section-h"><span>内部批准</span>
+      <span className="sh-r"><button type="button" className="btn ghost sm" data-testid="approval-refresh" onClick={() => void onRefresh()}>刷新状态</button></span>
+    </div>
+    <div className="callout warn"><b data-testid="approval-preparation-label">申请准备材料，非已提交文件。</b>仅记录团队内部放行决定，不生成签名凭证或递交回执。</div>
 
     {state.phase === "stale" ? <div className="notice" role="status" data-testid="approval-stale">
       <strong>批准条件已陈旧</strong>
-      <p>{state.inputStale ? "草稿输入与当前案件、配置或附图版本不一致（INPUT_STALE）。" : "检查或快照已变化；现有批准会按当前门禁重新计算。"}</p>
+      <p>{state.inputStale ? "草稿依据的材料、配置或附图版本已变化，请刷新后重新检查。" : "检查或快照已变化；现有批准会按当前门禁重新计算。"}</p>
     </div> : null}
 
-    <section className="stack-2" data-testid="approval-snapshot">
-      <h3 className="card-title">当前 SnapshotRef</h3>
-      <dl className="kv">
-        <dt>matterId</dt><dd>{state.snapshot.matterId}</dd>
-        <dt>targetId</dt><dd>{state.snapshot.targetId}</dd>
-        <dt>sourceVersion</dt><dd>{state.snapshot.sourceVersion}</dd>
-        <dt>targetConfigVersion</dt><dd>{state.snapshot.targetConfigVersion}</dd>
-        <dt>draftRevisionId</dt><dd>{state.snapshot.draftRevisionId}</dd>
-        <dt>figureRevisionId</dt><dd>{state.snapshot.figureRevisionId}</dd>
-      </dl>
-    </section>
+    <details data-testid="approval-snapshot" className="tech">
+      <summary>当前版本快照（技术详情）</summary>
+      <code>SnapshotRef：{snapshotLabel(state.snapshot)}</code>
+    </details>
 
-    <section className="stack-2" data-testid="approval-prerequisites">
-      <h3 className="card-title">门禁前置条件</h3>
-      <dl className="kv">
-        <dt>当前检查</dt><dd data-testid="approval-check-validity">{model.checkStatus}</dd>
-        <dt>AI / 混合段落</dt><dd data-testid="approval-ai-coverage">{model.confirmedAiParagraphIds.length} / {model.aiParagraphIds.length} 已确认</dd>
-        <dt>通读确认</dt><dd data-testid="approval-full-read">{model.fullReadConfirmed ? "当前快照已确认" : "未确认"}</dd>
-        <dt>输入陈旧</dt><dd data-testid="approval-input-stale">{state.inputStale ? "是 · INPUT_STALE" : "否"}</dd>
-        <dt>引用文件</dt><dd data-testid="approval-files-available">{model.filesAvailable ? "当前可用" : "缺失或不可用 · MISSING_BYTES"}</dd>
-        <dt>附图集</dt><dd data-testid="approval-figure-set">{state.figureSet.id} · {state.figureSet.entries.length} 张</dd>
-        <dt>规则包</dt><dd data-testid="approval-rule-pack">{model.rulePackStatus}</dd>
-        <dt>当前角色</dt><dd data-testid="approval-role">{ROLE_LABELS[role]} · {model.roleCanApprove ? "可执行批准" : "不可批准（ACTION_FORBIDDEN）"}</dd>
-      </dl>
-      <div className="stack-2" data-testid="approval-risk-coverage">
-        <h4>风险确认</h4>
-        {model.risks.length === 0 ? <p className="muted">当前检查没有列出风险项目。</p> : model.risks.map((risk) => <p key={risk.id} data-testid={`approval-risk-${risk.id}`}>
-          {risk.title} · {risk.requiresAcknowledgement ? risk.acknowledged ? "当前检查已确认" : "待确认" : "无需确认"} · {risk.id}
-        </p>)}
+    <div className="exportcard" data-testid="approval-prerequisites">
+      <div className="ec-h"><span className="ec-t">门禁前置条件</span><span className="ec-r"><span className="tag plain">{model.roleCanApprove ? "当前角色可批准" : "当前角色不可批准"}</span></span></div>
+      <div className="gates">
+        <div className="gate"><span className="g-t" data-testid="approval-check-validity">当前检查：{model.checkStatus}</span></div>
+        <div className="gate"><span className="g-t" data-testid="approval-ai-coverage">AI / 混合段落：{model.confirmedAiParagraphIds.length} / {model.aiParagraphIds.length} 已确认</span></div>
+        <div className="gate"><span className="g-t" data-testid="approval-full-read">通读确认：{model.fullReadConfirmed ? "当前快照已确认" : "未确认"}</span></div>
+        <div className="gate"><span className="g-t" data-testid="approval-input-stale">输入陈旧：{state.inputStale ? "是" : "否"}</span></div>
+        <div className="gate"><span className="g-t" data-testid="approval-files-available">引用文件：{model.filesAvailable ? "当前可用" : "缺失或不可用"}</span></div>
+        <div className="gate"><span className="g-t" data-testid="approval-figure-set">附图集：{state.figureSet.entries.length} 张</span></div>
+        <div className="gate"><span className="g-t" data-testid="approval-rule-pack">{model.rulePackStatus}</span></div>
+        <div className="gate"><span className="g-t" data-testid="approval-role">{ROLE_LABELS[role]} · {model.roleCanApprove ? "可执行批准" : "不可批准"}
+          {model.roleCanApprove ? null : <details className="tech"><summary>技术详情</summary><code>ACTION_FORBIDDEN</code></details>}
+        </span></div>
       </div>
-    </section>
+      <div data-testid="approval-risk-coverage">
+        <div className="section-h"><span>风险确认</span><span className="sh-r">{model.risks.length} 条</span></div>
+        {model.risks.length === 0 ? <div className="row"><div className="r-main"><div className="r-sub">当前检查没有列出风险项目。</div></div></div> : model.risks.map((risk) => (
+          <div className="checkrowline" key={risk.id} data-testid={`approval-risk-${risk.id}`}>
+            <span className={`st ${risk.requiresAcknowledgement && !risk.acknowledged ? "st-warn" : "st-ok"}`} aria-hidden="true">{risk.requiresAcknowledgement && !risk.acknowledged ? "○" : "●"}</span>
+            <div className="cr-b"><div className="cr-t">{risk.title}</div>
+              <div className="cr-d">{risk.requiresAcknowledgement ? risk.acknowledged ? "当前检查已确认" : "待确认" : "无需确认"}</div></div>
+          </div>
+        ))}
+      </div>
+    </div>
 
     <DecisionPanel title="批准门禁" testId="approval-gate-approve" decision={model.approveDecision} />
     <DecisionPanel title="导出门禁" testId="approval-gate-export" decision={model.exportDecision} />
 
-    <section className="card stack-3" data-testid="approval-create">
-      <h3 className="card-title">创建内部批准记录</h3>
+    <div className="card" data-testid="approval-create">
+      <div className="section-h"><span>创建内部批准记录</span></div>
       <label className="field"><span className="field-label">内部备注</span>
         <textarea className="input" value={note} onChange={(event) => setNote(event.currentTarget.value)} rows={3} data-testid="approval-note" />
       </label>
@@ -799,21 +797,22 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
         {pending === "create" ? "正在保存…" : "记录内部批准"}
       </button>
       {!model.roleCanApprove ? <p className="field-hint">编辑角色不能自行提升为审批角色；请由当前已授权的负责人、管理员或审阅者处理。</p> : null}
-    </section>
+    </div>
 
     {actionError ? <div className="notice" role="alert" data-testid="approval-action-error" data-code={actionError.code}>
-      <strong>操作未完成（{actionError.code}）</strong><p>{actionError.message}</p>
+      <strong>{userMessageFor(actionError.code)}</strong><p>{actionError.message}</p>
+      <details><summary>技术详情</summary><code>{technicalDetailLabel(actionError.code)}</code></details>
     </div> : null}
 
-    <section className="stack-3" data-testid="approval-history">
-      <h3 className="card-title">批准记录与撤销</h3>
+    <div data-testid="approval-history">
+      <div className="section-h"><span>批准记录与撤销</span></div>
       {model.records.length === 0 ? <p className="muted">尚无内部批准记录。</p> : model.records.map(({ approval, revocation, decision }) => <article className="v6-entry stack-2" key={approval.id} data-testid={`approval-record-${approval.id}`}>
         <div className="row" style={{ flexWrap: "wrap" }}>
           <strong>{revocation ? "已撤销（追加记录）" : decision?.allowed ? "当前有效" : "当前无效"}</strong>
           {!revocation && decision && !decision.allowed ? <span>{describeReasons(decision.reasons)}</span> : null}
         </div>
         <p>内部记录 {approval.id} · 操作者 {approval.actorId} · {approval.createdAt}</p>
-        <p>SnapshotRef：{snapshotLabel(approval.snapshot)}</p>
+        <details><summary>技术详情</summary><code>SnapshotRef：{snapshotLabel(approval.snapshot)}</code></details>
         <p>检查：{approval.checkRunId} · 确认记录：{approval.confirmationIds.length}</p>
         {approval.note ? <p>备注：{approval.note}</p> : null}
         {revocation ? <p role="status" data-testid={`approval-revocation-${revocation.id}`}>撤销人 {revocation.actorId} · {revocation.createdAt} · 原因：{revocation.reason}</p> : !revocation ? <div className="row" style={{ flexWrap: "wrap", alignItems: "end" }}>
@@ -827,8 +826,8 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
             onClick={() => void revoke(approval.id)}>{pending === approval.id ? "正在保存…" : "撤销批准"}</button>
         </div> : null}
       </article>)}
-    </section>
-  </section>;
+    </div>
+  </div>;
 }
 
 function DecisionPanel({ title, testId, decision }: { title: string; testId: string; decision: GateDecision | null }) {
@@ -838,7 +837,8 @@ function DecisionPanel({ title, testId, decision }: { title: string; testId: str
       ? <p role="status">门禁允许 · {decision.evaluatedAt}</p>
       : <div className="notice" role="status"><strong>门禁阻止操作</strong>
         <ul>{decision.reasons.map((reason, index) => <li key={`${reason.code}-${reason.resourceId ?? ""}-${index}`}>
-          <code>{reason.code}</code>{reason.resourceId ? ` · ${reason.resourceId}` : ""} · {reasonText(reason.code)}
+          {reasonText(reason.code)}
+          <details><summary>技术详情</summary><code>{technicalDetailLabel(reason.code)}</code>{reason.resourceId ? <span> · {reason.resourceId}</span> : null}</details>
         </li>)}</ul>
       </div>}
   </section>;
@@ -849,10 +849,10 @@ function checkStatus(
   snapshot: SnapshotRef | null,
   activeRulePackVersion: string,
 ): string {
-  if (!checkRun) return "无当前结果 · CHECK_REQUIRED";
-  if (checkRun.state !== "succeeded") return `${checkRun.state} · CHECK_REQUIRED`;
-  if (!snapshot || !sameSnapshot(checkRun.snapshot, snapshot)) return "已过期 · STALE_BINDING";
-  if (!isCurrentCheckRun(checkRun, snapshot, activeRulePackVersion)) return "已过期 · CHECK_REQUIRED";
+  if (!checkRun) return "尚无当前检查";
+  if (checkRun.state !== "succeeded") return "检查未成功完成";
+  if (!snapshot || !sameSnapshot(checkRun.snapshot, snapshot)) return "检查已过期";
+  if (!isCurrentCheckRun(checkRun, snapshot, activeRulePackVersion)) return "检查已过期";
   return `有效 · ${checkRun.id}`;
 }
 

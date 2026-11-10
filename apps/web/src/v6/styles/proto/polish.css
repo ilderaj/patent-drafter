@@ -1,0 +1,52 @@
+/* Prototype polish.css, scoped to .v6-shell. */
+/* 原型收尾样式与窄屏兜底 */
+.v6-shell .start-intro{max-width:720px;padding:18px 0 6px}
+.v6-shell .start-symbol{width:44px;height:44px;border-radius:11px;background:var(--accent);color:var(--on-accent);
+  display:grid;place-items:center;margin-bottom:14px;box-shadow:0 8px 24px color-mix(in srgb,var(--accent) 28%,transparent)}
+.v6-shell .start-intro h1{font-size:34px;line-height:1.2;font-weight:600;letter-spacing:-.02em;margin:8px 0 10px}
+.v6-shell .start-intro p{font-size:14px;color:var(--text-2);line-height:1.65;max-width:560px}
+.v6-shell .dropzone .dz-1, .v6-shell .dropzone .dz-2{display:block}
+.v6-shell .card h2{line-height:1.35}
+.v6-shell .card > h2:first-child{margin-bottom:6px}
+.v6-shell .wiz-sec label{display:block;font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:5px}
+.v6-shell .wiz-sec .textarea, .v6-shell .wiz-sec .input, .v6-shell .wiz-sec .select{margin-bottom:0}
+.v6-shell .spread h2{margin:0}
+.v6-shell select#svc-jur, .v6-shell select#svc-time{max-width:280px}
+.v6-shell textarea#svc-need{min-height:110px}
+.v6-shell .svc-card .btn{margin-top:4px}
+.v6-shell .order-sum h3{font-size:14px;margin-bottom:8px}
+.v6-shell .order-sum .btn{width:100%;margin-top:10px}
+.v6-shell .doc-aside{position:relative;padding:0 16px 0 0}
+.v6-shell .doc-aside .an{position:absolute;left:0;right:16px;margin:0;padding:6px 8px;border-radius:6px;cursor:pointer;transition:top .18s ease,background .15s}
+.v6-shell .doc-aside .an:hover{background:var(--surface)}
+.v6-shell .doc-aside .an:hover .t{color:var(--accent)}
+.v6-shell .doc-aside .an.warn:hover .t{color:var(--warn)}
+.v6-shell .doc-lock.hl{box-shadow:0 0 0 3px var(--accent-weak);border-radius:6px}
+.v6-shell .inline-note{display:none;margin:-2px 0 14px 54px;padding:6px 10px;border-left:2px solid var(--accent);font-family:var(--latin);font-size:12px;line-height:1.55;color:var(--text-2);background:var(--surface-2);border-radius:0 6px 6px 0}
+.v6-shell .inline-note.warn{border-left-color:var(--warn)}
+.v6-shell .inline-note b{color:var(--text)}
+@media (max-width:1120px){.v6-shell .inline-note{display:block}}
+@media (max-width:1080px){.v6-shell .entry{grid-template-columns:1fr}
+.v6-shell .start-intro h1{font-size:29px}
+.v6-shell .price-grid{grid-template-columns:1fr}
+.v6-shell .svc-grid{grid-template-columns:1fr}
+.v6-shell .order-grid{grid-template-columns:1fr}
+.v6-shell .order-sum{position:static}
+.v6-shell .twocol{grid-template-columns:1fr}
+
+}
+@media (max-width:860px){.v6-shell .wiz-rail{display:none}
+.v6-shell .wiz-main{padding:22px 18px 40px}
+.v6-shell .preview-head{flex-direction:column}
+.v6-shell .preview-flag{margin-left:0!important}
+
+}
+@media (max-width:640px){.v6-shell .entry{grid-template-columns:1fr}
+.v6-shell .doc-inner{padding:0 18px}
+.v6-shell .docpane .doc-inner{padding:0 16px}
+.v6-shell .doc-aside{display:none}
+.v6-shell .sheet{width:100%}
+
+}
+
+

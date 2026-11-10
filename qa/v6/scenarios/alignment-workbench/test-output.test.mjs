@@ -9,7 +9,7 @@ import * as esbuild from "esbuild";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../../../..");
-const TEST_OUTPUT_NOTICE = join(ROOT, "apps/web/src/v6/features/workbench/TestOutputNotice.tsx");
+const TEST_OUTPUT_NOTICE = join(ROOT, "apps/web/src/v6/components/TestOutputNotice.tsx");
 let outdir;
 let ui;
 

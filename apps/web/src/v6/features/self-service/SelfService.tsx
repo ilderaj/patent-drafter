@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useReducer, useRef, useState, type MouseEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { DeliveryWorkspace, PreviewWorkspace } from "../delivery/Workspace.tsx";
-import { TestOutputNotice } from "../workbench/TestOutputNotice.tsx";
+import { DeliveryWorkspace } from "../delivery/Workspace.tsx";
+import { Preview } from "../preview/Preview.tsx";
+import { ErrorBoundary } from "../../components/ErrorBoundary.tsx";
 import { GenerationPanel } from "../generation/Generation.tsx";
-import { createGenerationRevisionStore } from "../generation/generation.ts";
 import { LOCAL_TEST_GENERATION_OPTIONS } from "../generation/local-runtime.ts";
 import { readIntake, type IntakeView } from "../intake/intake.ts";
 import { loadTargetsView, type TargetView, type TargetsView } from "../targets/targets.ts";
 import { describeUploadRows, ingestFiles, type IngestFile } from "../sources/ingest.ts";
 import { Parse } from "../sources/Parse.tsx";
 import {
-  UploadPanel,
   initialUploadState,
   newFileId,
   pendingForSave,
@@ -19,12 +18,16 @@ import {
 } from "../sources/Upload.tsx";
 import type { Actor, LocalRepository, MatterRecord, TargetRecord } from "../../lib/repository.ts";
 import { R1_ACTIVE_RULE_PACK_VERSION, R1_RULE_PACK } from "../checks/rule-pack.vite.ts";
+import { loadWorkspace } from "../delivery/workspace-data.ts";
+import { riskPresentation } from "../preview/preview.ts";
+import type { RiskDTO } from "../../../../../../packages/contracts/src/index.ts";
 import { v6Path, type SelfServiceStep } from "../../routes/navigation.ts";
 export type { SelfServiceStep };
 import { QuestionsStep } from "./QuestionsStep.tsx";
 import { RouteStep } from "./RouteStep.tsx";
 import { requiredSelfServiceStep, resolveQuestionIndex } from "./route-state.ts";
 import { selfServicePath } from "./paths.ts";
+import { Body, Button, Callout, Icon, Pane, Sheet, Tag, Toolbar } from "../../components/ui/index.ts";
 import "./self-service.css";
 
 interface LoadedSelfService {
@@ -33,25 +36,34 @@ interface LoadedSelfService {
   targets: TargetsView;
   target: TargetView | null;
   targetRecord: TargetRecord | null;
-  /** Whether the adopted head revision is a persisted local test revision. */
-  headTestOutput: boolean;
+  risks: readonly RiskDTO[];
 }
 
 type LoadState = { phase: "loading" } | { phase: "unavailable" } | { phase: "failed"; message: string } | { phase: "ready"; data: LoadedSelfService };
 
-const STEPS: readonly { key: SelfServiceStep; label: string }[] = [
-  { key: "upload", label: "上传材料" },
-  { key: "questions", label: "补充信息" },
-  { key: "route", label: "选择路线" },
-  { key: "generate", label: "生成材料" },
-  { key: "preview", label: "预览与下载" },
+const STEPS: readonly { key: SelfServiceStep; label: string; note: string }[] = [
+  { key: "upload", label: "上传材料", note: "约 2 分钟" },
+  { key: "questions", label: "补充信息", note: "5 个问题" },
+  { key: "route", label: "选择路线", note: "对照能力范围" },
+  { key: "generate", label: "生成材料", note: "本机测试引擎" },
+  { key: "preview", label: "预览与下载", note: "通读后导出" },
 ];
+
+const STEP_META: Readonly<Record<SelfServiceStep, { title: string; subtitle: string; number: number }>> = Object.freeze({
+  upload: { title: "新建申请", subtitle: "材料越多，生成的草稿越具体", number: 1 },
+  questions: { title: "补充信息", subtitle: "5 个问题，大多数可以点选", number: 2 },
+  route: { title: "选择申请路线", subtitle: "一个案件可以之后增加目标", number: 3 },
+  generate: { title: "生成材料", subtitle: "生成结果经你确认后才会进入导出", number: 4 },
+  preview: { title: "材料预览", subtitle: "通读确认后进入导出", number: 5 },
+  done: { title: "材料已生成", subtitle: "申请准备材料，不是递交回执", number: 5 },
+});
 
 async function loadSelfService(
   repository: LocalRepository,
   actor: Actor,
   matterId: string,
   requestedTargetId: string | null,
+  step: SelfServiceStep,
 ): Promise<{ ok: true; data: LoadedSelfService } | { ok: false; kind: "unavailable" | "failed"; message?: string }> {
   const loaded = await repository.loadMatter(actor, matterId);
   if (!loaded.ok || loaded.data.data.matter.status === "deletion_pending") return { ok: false, kind: "unavailable" };
@@ -68,20 +80,22 @@ async function loadSelfService(
   const targetRecord = target === null
     ? null
     : loaded.data.data.targets.find((candidate) => candidate.id === target.id) ?? null;
-  const head = target === null
-    ? null
-    : await createGenerationRevisionStore({ repository, actor }).loadHeadRevision(matterId, target.id);
-  const headTestOutput = head?.ok === true && head.data?.revision.testOutput === true;
+  let risks: readonly RiskDTO[] = [];
+  if (target !== null && step === "preview") {
+    const workspace = await loadWorkspace(
+      repository,
+      actor,
+      matterId,
+      target.id,
+      R1_RULE_PACK,
+      R1_ACTIVE_RULE_PACK_VERSION,
+      () => new Date().toISOString(),
+    );
+    if (workspace.ok) risks = workspace.data.risks;
+  }
   return {
     ok: true,
-    data: {
-      matter: loaded.data.data.matter,
-      intake: intake.view,
-      targets: targets.view,
-      target,
-      targetRecord,
-      headTestOutput,
-    },
+    data: { matter: loaded.data.data.matter, intake: intake.view, targets: targets.view, target, targetRecord, risks },
   };
 }
 
@@ -109,6 +123,7 @@ export function SelfService({
   // Bumped after a successful adoption so the wizard re-reads the target's head
   // revision without a full page reload; the guard then lets preview through.
   const [refreshToken, setRefreshToken] = useState(0);
+  const [riskSheetOpen, setRiskSheetOpen] = useState(false);
   const refreshAfterAdoption = useCallback(() => setRefreshToken((value) => value + 1), []);
   const targetIdRef = useRef<string | null>(null);
 
@@ -116,7 +131,7 @@ export function SelfService({
     let live = true;
     // A refresh keeps the current panel mounted; only the first load blanks it.
     setState((previous) => (previous.phase === "ready" ? previous : { phase: "loading" }));
-    void loadSelfService(repository, actor, matterId, requestedTargetId).then((result) => {
+    void loadSelfService(repository, actor, matterId, requestedTargetId, step).then((result) => {
       if (!live) return;
       if (result.ok) setState({ phase: "ready", data: result.data });
       else if (result.kind === "unavailable") setState({ phase: "unavailable" });
@@ -150,126 +165,112 @@ export function SelfService({
     navigate(`${selfServicePath(matterId, next)}${targetQuery(targetId)}`);
   }, [matterId, navigate, requestedTargetId]);
 
-  if (state.phase === "loading") return <SelfServiceLoading />;
+  if (state.phase === "loading") return <SelfServiceLoading message="正在读取本机案件和已保存进度…" />;
   if (state.phase === "unavailable") return <SelfServiceUnavailable />;
   if (state.phase === "failed") {
-    return <section className="v6-self-page"><div className="notice" role="alert"><strong>案件没有保存成功</strong><p>{state.message}</p></div></section>;
+    return (
+      <main className="main" data-testid="self-service-error">
+        <Body><Pane>
+          <Callout tone="warn" icon="alert"><b>案件没有保存成功</b><p>{state.message}</p></Callout>
+        </Pane></Body>
+      </main>
+    );
   }
 
   const { data } = state;
   const allowedStep = requiredSelfServiceStep(step, data);
   if (allowedStep !== step) {
     const next = `${selfServicePath(matterId, allowedStep)}${targetQuery(data.target?.id ?? null)}`;
-    return <SelfServiceLoading redirectTo={next} replace />;
+    return <SelfServiceLoading redirectTo={next} replace message="正在回到需要的步骤…" />;
   }
   const questionIndex = resolveQuestionIndex(data.intake, questionParam);
-  const currentStep = step === "done" ? "preview" : step;
+  const meta = STEP_META[step];
+  const routeLabel = data.target?.config
+    ? data.targets.routeCards.find((card) => card.route === data.target!.config!.route)?.label ?? "已选择路线"
+    : null;
 
-  return (
-    <div className="v6-self-page" data-testid="self-service" data-step={step} data-matter-id={matterId}>
-      <header className="v6-self-intro">
-        <div>
-          <p className="v6-self-kicker">自助准备 · 本机保存</p>
-          <h1>{data.matter.title}</h1>
-        </div>
-        <p>先整理材料和真实信息。路线、风险和导出状态会根据本案已保存的内容显示。</p>
-      </header>
-      <nav className="v6-self-steps" aria-label="自助申请步骤">
-        {STEPS.map((item, index) => {
-          const active = item.key === currentStep;
-          const to = `${selfServicePath(matterId, item.key)}${targetQuery(data.target?.id ?? requestedTargetId)}`;
-          return (
-            <Link key={item.key} to={to} aria-current={active ? "step" : undefined} data-active={active ? "true" : undefined}>
-              <span>{index + 1}</span>{item.label}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="v6-self-content" onClickCapture={(event) => interceptProductLink(event, navigate)}>
-        {step === "upload" ? (
-          <UploadStep
-            repository={repository}
-            actor={actor}
-            matterId={matterId}
-            parseRefresh={parseRefresh}
-            onSaved={refreshParse}
-            onQuestions={() => goToStep("questions", data.target?.id ?? null)}
-          />
-        ) : null}
-        {step === "questions" ? (
-          <QuestionsStep
-            key={questionIndex}
-            repository={repository}
-            actor={actor}
-            matterId={matterId}
-            initialIndex={questionIndex}
-            onNavigate={goToStep}
-            onQuestion={goToQuestion}
-          />
-        ) : null}
-        {step === "route" ? (
-          <RouteStep
-            repository={repository}
-            actor={actor}
-            matterId={matterId}
-            intake={data.intake}
-            targets={data.targets}
-            target={data.target}
-            onSaved={(targetId) => goToStep("generate", targetId)}
-            onBack={() => goToStep("questions", data.target?.id ?? null)}
-          />
-        ) : null}
-        {step === "generate" && data.target ? (
-          <section className="v6-self-step" data-testid="self-generation">
-            <div className="v6-self-step-heading">
-              <div><p className="v6-self-kicker">第 4 步</p><h2>生成材料</h2></div>
-              <Link className="btn btn-outline btn-sm" to={`${selfServicePath(matterId, "route")}${targetQuery(data.target.id)}`}>返回选择路线</Link>
-            </div>
-            <p className="notice" data-testid="self-test-output-label">本机固定测试引擎：任务不发送材料、不产生费用。测试结果可采纳为带标记的本地测试修订，用于演练流程，不代表真实 AI 起草能力或正式申请材料。</p>
-            <GenerationPanel
+  if (step === "preview" && data.target) {
+    const riskCount = data.risks.filter((risk) => risk.category === "risk" || risk.category === "blocker").length;
+    return (
+      <main className="main" data-testid="self-service" data-step="preview" data-matter-id={matterId}>
+        <Toolbar
+          title="材料预览"
+          subtitle={`${routeLabel ?? "未选择路线"} · 草稿修订`}
+          right={<>
+            <Button icon="alert" onClick={() => setRiskSheetOpen(true)} data-testid="self-preview-risks">
+              风险与建议{riskCount > 0 ? <span className="badge">{riskCount}</span> : null}
+            </Button>
+            <Button onClick={() => goToStep("questions", data.target!.id)} data-testid="self-preview-modify">
+              修改材料
+            </Button>
+            <Button to={v6Path({ kind: "matter", matterId, targetId: data.target.id, tab: "draft" })} data-testid="self-preview-draft">
+              进入专业草稿
+            </Button>
+            <Button variant="primary" icon="download" onClick={() => goToStep("done", data.target!.id)} data-testid="self-preview-download">
+              下载材料
+            </Button>
+          </>}
+        />
+        <Body><Pane width="wide">
+          <div data-testid="self-preview-step">
+          <ErrorBoundary area="预览" resetKey={`${matterId}/preview`}>
+            <Preview
               repository={repository}
               actor={actor}
               matterId={matterId}
               targetId={data.target.id}
-              engineOptions={LOCAL_TEST_GENERATION_OPTIONS}
-              onAdopted={refreshAfterAdoption}
+              access="local_unmetered"
+              risks={data.risks}
+              hideActions
+              onModifyMaterials={() => goToStep("questions", data.target!.id)}
+              onOpenDraft={() => navigate(v6Path({ kind: "matter", matterId, targetId: data.target!.id, tab: "draft" }))}
             />
-            <div className="v6-self-actions">
-              <span>{data.targetRecord?.draftRevisionId == null
-                ? "只有明确采纳的草稿修订才能进入预览。"
-                : "已采纳修订；预览和导出会使用这份修订，测试标记仍会保留。"}</span>
-              <button
-                type="button"
-                className="btn btn-default"
-                data-testid="self-view-draft"
-                disabled={data.targetRecord?.draftRevisionId == null}
-                onClick={() => goToStep("preview", data.target!.id)}
-              >
-                查看已采纳的草稿
-              </button>
-            </div>
-          </section>
+          </ErrorBoundary>
+          </div>
+        </Pane></Body>
+        {riskSheetOpen ? (
+          <Sheet
+            title="风险与建议"
+            subtitle={riskCount > 0 ? `当前 ${riskCount} 项，需要你判断；阻断只用于产品能确定的情形。` : "当前没有已记录风险。"}
+            onClose={() => setRiskSheetOpen(false)}
+            footer={<Button onClick={() => setRiskSheetOpen(false)}>知道了</Button>}
+          >
+            {riskCount === 0 ? <p className="muted">没有已记录的风险。</p> : (
+              <div className="risklist">
+                {data.risks.map((risk) => {
+                  const presentation = riskPresentation(risk.category);
+                  return (
+                    <div className="riskitem" key={risk.id} data-testid={`self-preview-risk-${risk.id}`}>
+                      <span className="stx"><span className={`st st-${riskTone(risk.category)}`} aria-hidden="true">{presentation.shape}</span></span>
+                      <div>
+                        <div className="ri-t">{presentation.label} · {risk.title}</div>
+                        <div className="ri-d">{risk.explanation}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Sheet>
         ) : null}
-        {step === "preview" && data.target ? (
-          <section className="v6-self-step" data-testid="self-preview-step">
-            <div className="v6-self-step-heading">
-              <div><p className="v6-self-kicker">第 5 步</p><h2>预览并通读</h2></div>
-              <Link className="btn btn-outline btn-sm" to={`${selfServicePath(matterId, "generate")}${targetQuery(data.target.id)}`}>返回生成</Link>
-            </div>
-            <TestOutputNotice revision={{ testOutput: data.headTestOutput }} testId="self-preview-test-output" />
-            {!data.headTestOutput ? <p className="notice" data-testid="self-preview-test-guidance">本机生成任务使用测试引擎；确认通读只记录你已查看，不会把测试输出转成正式申请材料。</p> : null}
-            <PreviewWorkspace repository={repository} actor={actor} matterId={matterId} targetId={data.target.id} rulePack={R1_RULE_PACK} rulePackVersion={R1_ACTIVE_RULE_PACK_VERSION} />
-            <div className="v6-self-actions">
-              <span>通读确认绑定当前草稿、事实和附图版本；内容变化后需要重新确认。</span>
-              <button type="button" className="btn btn-default" onClick={() => goToStep("done", data.target!.id)}>继续到导出</button>
-            </div>
-          </section>
-        ) : null}
-        {step === "done" && data.target?.config ? (
-          <section className="v6-self-step" data-testid="self-done-step">
-            <div className="v6-self-step-heading"><div><p className="v6-self-kicker">导出前确认</p><h2>生成与下载材料</h2></div></div>
-            <TestOutputNotice revision={{ testOutput: data.headTestOutput }} testId="self-done-test-output" />
-            {!data.headTestOutput ? <p className="notice" data-testid="self-done-test-guidance">本机生成任务使用测试引擎。若修订被标记为测试输出，标记会随修订保留；通读确认和导出都不会将其变为正式申请材料。</p> : null}
+      </main>
+    );
+  }
+
+  if (step === "done" && data.target?.config) {
+    return (
+      <main className="main" data-testid="self-service" data-step="done" data-matter-id={matterId}>
+        <Toolbar
+          title="材料已生成"
+          subtitle="准备下载"
+          right={<>
+            <Button to={`${selfServicePath(matterId, "preview")}${targetQuery(data.target.id)}`}>返回预览</Button>
+            <Button to={v6Path({ kind: "start" })}>回到首页</Button>
+          </>}
+        />
+        <Body><Pane width="narrow">
+          <div data-testid="self-done-step">
+          <ErrorBoundary area="完成" resetKey={`${matterId}/done`}>
             <DeliveryWorkspace
               repository={repository}
               actor={actor}
@@ -279,15 +280,110 @@ export function SelfService({
               rulePackVersion={R1_ACTIVE_RULE_PACK_VERSION}
               confirmationMode="self_read"
             />
-            <aside className="v6-self-next">
-              <h3>之后可以继续处理同一案件</h3>
-              <p>导出的是申请准备材料，不代表已递交。当前可回到专业工作台继续编辑、检查或处理其他目标。</p>
-              <Link className="btn btn-outline" to={selfServicePathForMatter(matterId)}>进入同一案件的专业工作台</Link>
-            </aside>
-          </section>
-        ) : null}
+          </ErrorBoundary>
+          </div>
+        </Pane></Body>
+      </main>
+    );
+  }
+
+  return (
+    <main className="main" data-testid="self-service" data-step={step} data-matter-id={matterId}>
+      <Toolbar
+        title={meta.title}
+        subtitle={meta.subtitle}
+        back={{ to: v6Path({ kind: "start" }), label: "返回首页" }}
+        right={<span className="small muted">第 {meta.number} 步，共 5 步</span>}
+      />
+      <div className="wizard">
+        <aside className="wiz-rail" aria-label="自助申请步骤">
+          <div className="wr-title">自助申请</div>
+          {STEPS.map((item, index) => {
+            const number = index + 1;
+            const className = number < meta.number ? "wiz-step done" : number === meta.number ? "wiz-step cur" : "wiz-step";
+            return (
+              <div key={item.key} className={className} aria-current={number === meta.number ? "step" : undefined}>
+                <span className="n">{number < meta.number ? "✓" : number}</span>
+                <div>{item.label}<div className="small muted">{item.note}</div></div>
+              </div>
+            );
+          })}
+          <div className="wr-case">
+            <b>正在准备</b>
+            {data.matter.title}
+            <br />
+            {routeLabel ?? "尚未选择路线"}
+          </div>
+        </aside>
+        <div className="wiz-main">
+          <div className="wiz-card" onClickCapture={(event) => interceptProductLink(event, navigate)}>
+            <ErrorBoundary area="自助步骤" resetKey={`${matterId}/${step}/${questionIndex}`}>
+              {step === "upload" ? (
+                <UploadStep
+                  repository={repository}
+                  actor={actor}
+                  matterId={matterId}
+                  intake={data.intake}
+                  parseRefresh={parseRefresh}
+                  onSaved={refreshParse}
+                  onQuestions={() => goToStep("questions", data.target?.id ?? null)}
+                />
+              ) : null}
+              {step === "questions" ? (
+                <QuestionsStep
+                  key={questionIndex}
+                  repository={repository}
+                  actor={actor}
+                  matterId={matterId}
+                  initialIndex={questionIndex}
+                  onNavigate={goToStep}
+                  onQuestion={goToQuestion}
+                />
+              ) : null}
+              {step === "route" ? (
+                <RouteStep
+                  repository={repository}
+                  actor={actor}
+                  matterId={matterId}
+                  intake={data.intake}
+                  targets={data.targets}
+                  target={data.target}
+                  onSaved={(targetId) => goToStep("generate", targetId)}
+                  onBack={() => goToStep("questions", data.target?.id ?? null)}
+                />
+              ) : null}
+              {step === "generate" && data.target ? (
+                <section className="gen-wrap" data-testid="self-generation">
+                  <GenerationPanel
+                    repository={repository}
+                    actor={actor}
+                    matterId={matterId}
+                    targetId={data.target.id}
+                    engineOptions={LOCAL_TEST_GENERATION_OPTIONS}
+                    onAdopted={refreshAfterAdoption}
+                  />
+                  <div className="wiz-foot">
+                    <Button to={`${selfServicePath(matterId, "route")}${targetQuery(data.target.id)}`}>上一步</Button>
+                    <span className="hint">{data.targetRecord?.draftRevisionId == null
+                      ? "只有采纳草稿修订后才能查看材料。"
+                      : "已采纳修订；预览和导出会使用这份修订。"}</span>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      disabled={data.targetRecord?.draftRevisionId == null}
+                      onClick={() => goToStep("preview", data.target!.id)}
+                      data-testid="self-view-draft"
+                    >
+                      查看材料<Icon name="arrow" size="sm" />
+                    </Button>
+                  </div>
+                </section>
+              ) : null}
+            </ErrorBoundary>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -295,6 +391,7 @@ function UploadStep({
   repository,
   actor,
   matterId,
+  intake,
   parseRefresh,
   onSaved,
   onQuestions,
@@ -302,6 +399,7 @@ function UploadStep({
   repository: LocalRepository;
   actor: Actor;
   matterId: string;
+  intake: IntakeView;
   parseRefresh: number;
   onSaved: () => void;
   onQuestions: () => void;
@@ -311,6 +409,7 @@ function UploadStep({
   const abortRef = useRef<AbortController | null>(null);
   const busy = state.phase === "saving";
   const pendingCount = pendingForSave(state).length;
+  const view = describeUploadRows(rowsFromItems(state.items));
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -354,59 +453,179 @@ function UploadStep({
   const answerWithoutDocuments = async () => {
     setNoDocumentNotice(null);
     if (state.items.length > 0) {
-      setNoDocumentNotice("已选择文件。先保存文件，或使用下方「继续补充信息」保留当前案件材料。");
+      setNoDocumentNotice("已选择文件。先保存文件，或使用下方主按钮保留当前案件材料。");
       return;
     }
     const loaded = await repository.loadMatter(actor, matterId);
     if (!loaded.ok) {
-      setNoDocumentNotice("无法确认本案材料状态。请重试读取，或使用下方「继续补充信息」。");
+      setNoDocumentNotice("无法确认本案材料状态。请重试读取，或使用下方主按钮。");
       return;
     }
     if (loaded.data.data.assets.some((asset) => asset.purpose === "source")) {
-      setNoDocumentNotice("本案已有材料。使用下方「继续补充信息」进入问答；已有文件会保留，不会生成虚拟附件。");
+      setNoDocumentNotice("本案已有材料。使用下方主按钮进入问答；已有文件会保留，不会生成虚拟附件。");
       return;
     }
     onQuestions();
   };
 
   return (
-    <section className="v6-self-step" data-testid="self-upload-step">
-      <div className="v6-self-step-heading"><div><p className="v6-self-kicker">第 1 步</p><h2>先放入已有材料</h2></div></div>
-      <p className="v6-self-copy">可以上传技术说明、图纸、照片或实验记录。文件与解析都在本机处理；没有文档也能继续，不会自动生成附件。</p>
-      <UploadPanel
-        view={describeUploadRows(rowsFromItems(state.items))}
-        busy={busy}
-        pendingCount={pendingCount}
-        batchError={state.batchError}
-        onFiles={addFiles}
-        onRemove={(fileId) => dispatch({ type: "remove", fileId })}
-        onSave={() => void save()}
-        onCancel={() => abortRef.current?.abort()}
-        onAnswerWithoutDocuments={() => void answerWithoutDocuments()}
-      />
-      {noDocumentNotice ? <div className="notice" role="status">{noDocumentNotice}</div> : null}
-      <section className="v6-self-parse" aria-labelledby="self-parse-title">
-        <div><p className="v6-self-kicker">材料解析</p><h3 id="self-parse-title">检查真实提取状态</h3></div>
-        <Parse repository={repository} actor={actor} matterId={matterId} refreshToken={parseRefresh} onAddDocuments={() => document.querySelector<HTMLInputElement>("[data-testid='upload-input']")?.click()} />
-      </section>
-      <div className="v6-self-actions">
-        <span>{pendingCount > 0 ? "先保存已选择的文件，再继续。" : "解析没有写入的内容不会成为事实来源。你可以继续逐题补充。"}</span>
-        <button type="button" className="btn btn-default" disabled={busy || pendingCount > 0} onClick={onQuestions}>继续补充信息</button>
+    <div data-testid="self-upload-step">
+      <h1 className="wiz-h1">先把资料放进来</h1>
+      <p className="wiz-sub">有什么传什么：技术交底、产品说明、图纸、照片、实验记录都行。缺的部分后面用问题补。</p>
+      <div className="wiz-sec">
+        <label
+          className="dropzone"
+          data-testid="upload-dropzone"
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={(event) => {
+            event.preventDefault();
+            addFiles(Array.from(event.dataTransfer?.files ?? []));
+          }}
+        >
+          <input
+            type="file"
+            multiple
+            data-testid="upload-input"
+            style={{ position: "absolute", width: 1, height: 1, opacity: 0, overflow: "hidden" }}
+            onChange={(event) => {
+              const picked = Array.from(event.currentTarget.files ?? []);
+              event.currentTarget.value = "";
+              addFiles(picked);
+            }}
+          />
+          <span className="dz-i"><Icon name="upload" size="lg" /></span>
+          <span className="dz-1">拖入文件，或点击选择</span>
+          <span className="dz-2">PDF、Word、图片、表格、纯文本，单个不超过 50 MB</span>
+          <span className="dz-3">
+            <span><Icon name="lock" size="sm" /> 文件只在本机保存</span>
+            <span><Icon name="spark" size="sm" /> 扫描件会先检查文字层</span>
+          </span>
+        </label>
+        <div className="rowgap" style={{ marginTop: 10 }}>
+          <button type="button" className="link small" data-testid="answer-without-documents" onClick={() => void answerWithoutDocuments()}>
+            没有现成文档，直接回答问题
+          </button>
+          <span className="small muted">或先保存已选择的文件</span>
+        </div>
+
+        {view.rows.length > 0 ? (
+          <div className="card pad0" style={{ marginTop: 12 }} data-testid="upload-rows">
+            <div style={{ padding: "4px 14px" }}>
+              {view.rows.map((row) => (
+                <div className="filerow" key={row.fileId} data-testid={`upload-row-${row.fileId}`} data-stage={row.stage} data-saved={row.saved ? "true" : "false"}>
+                  <span className="file-ic"><Icon name={fileIcon(row.name)} /></span>
+                  <div className="grow">
+                    <div className="fr-n">{row.name}</div>
+                    <div className="fr-m">{row.label}</div>
+                    {!row.saved ? (
+                      <div className="progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(row.fraction * 100)} aria-label={`${row.name}：${row.label}`}>
+                        <div className="bar" style={{ width: `${Math.round(row.fraction * 100)}%` }} />
+                      </div>
+                    ) : null}
+                  </div>
+                  <span data-testid={`upload-status-${row.fileId}`} className={row.error !== null ? "tag risk" : row.saved ? "tag ok" : "tag plain"}>
+                    {row.label}
+                  </span>
+                  {row.canRemove ? (
+                    <span className="fr-x">
+                      <button
+                        type="button"
+                        className="btn ghost icon"
+                        data-testid={`upload-remove-${row.fileId}`}
+                        disabled={busy}
+                        aria-label={`移除 ${row.name}`}
+                        onClick={() => dispatch({ type: "remove", fileId: row.fileId })}
+                      >
+                        <Icon name="x" size="sm" />
+                      </button>
+                    </span>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+        {view.hasProblems ? (
+          <Callout tone="warn" icon="alert" testId="upload-problems">
+            有文件没有保存，它们不会成为案件材料；请移除后换一个文件。
+          </Callout>
+        ) : null}
+        {state.batchError ? <Callout tone="warn" icon="alert" testId="upload-batch-error">{state.batchError}</Callout> : null}
+        {view.allSaved ? <p className="small muted" role="status" aria-live="polite" data-testid="upload-all-saved">材料已保存在本机。可以继续添加，或进入下一步整理。</p> : null}
       </div>
-    </section>
+
+      <Callout tone="info" icon="shield">
+        <b>关于保密。</b>文件只保存在这台设备，不会上传到服务器；解析也在本机完成。
+      </Callout>
+
+      <div className="wiz-sec">
+        <Parse repository={repository} actor={actor} matterId={matterId} refreshToken={parseRefresh} onAddDocuments={() => document.querySelector<HTMLInputElement>("[data-testid='upload-input']")?.click()} />
+      </div>
+
+      {intake.chunks.length > 0 ? (
+        <div className="extract" data-testid="upload-extract">
+          <div className="ex"><div className="n">{intake.chunks.length}</div><div className="l">材料段落</div><div className="d">本机解析出的可引用段落</div></div>
+          <div className="ex"><div className="n">{intake.facts.length}</div><div className="l">已保存事实</div><div className="d">答案和确认会写入事实版本</div></div>
+          <div className="ex"><div className="n">{intake.missing.length}</div><div className="l">待补充</div><div className="d">五题中还缺的回答</div></div>
+        </div>
+      ) : null}
+
+      {noDocumentNotice ? <Callout tone="info" icon="info">{noDocumentNotice}</Callout> : null}
+
+      <div className="wiz-foot">
+        <span className="hint">{pendingCount > 0 ? `已添加 ${view.rows.length} 个文件，先保存再继续` : view.rows.length > 0 ? `已保存 ${view.rows.length} 个文件` : "没有文档也可以直接回答问题"}</span>
+        {pendingCount > 0 ? (
+          <button type="button" className="btn primary lg" data-testid="upload-save" disabled={busy} onClick={() => void save()}>
+            {busy ? "正在保存…" : `保存 ${pendingCount} 个文件`}
+          </button>
+        ) : (
+          <button type="button" className="btn primary lg" data-testid="upload-continue" disabled={busy} onClick={onQuestions}>
+            回答问题<Icon name="arrow" size="sm" />
+          </button>
+        )}
+        {busy ? (
+          <button type="button" className="btn ghost" data-testid="upload-cancel" onClick={() => abortRef.current?.abort()}>取消</button>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
-function SelfServiceLoading({ redirectTo, replace = false }: { redirectTo?: string; replace?: boolean }) {
+function fileIcon(name: string): "doc" | "img" {
+  return /\.(png|jpe?g|webp)$/i.test(name) ? "img" : "doc";
+}
+
+function SelfServiceLoading({ message, redirectTo, replace = false }: { message: string; redirectTo?: string; replace?: boolean }) {
   const navigate = useNavigate();
   useEffect(() => {
     if (redirectTo) navigate(redirectTo, { replace });
   }, [navigate, redirectTo, replace]);
-  return <section className="v6-self-page" aria-busy="true"><p className="muted">正在读取本机案件和已保存进度…</p><div className="skeleton v6-skeleton" /></section>;
+  return (
+    <main className="main" aria-busy="true" data-testid="self-service-loading">
+      <Body><Pane>
+        <p className="muted">{message}</p>
+        <div className="skeleton v6-skeleton" />
+      </Pane></Body>
+    </main>
+  );
 }
 
 function SelfServiceUnavailable() {
-  return <section className="v6-self-page"><div className="notice" role="alert"><strong>案件不可用</strong><p>案件不存在，或当前本机用户无权查看。</p><Link className="btn btn-outline" to={v6Path({ kind: "matters" })}>返回案件列表</Link></div></section>;
+  return (
+    <main className="main" data-testid="self-service-unavailable">
+      <Body><Pane>
+        <Callout tone="warn" icon="alert">
+          <b>案件不可用</b>
+          <p>案件不存在，或当前本机用户无权查看。</p>
+          <Button to={v6Path({ kind: "matters" })}>返回案件列表</Button>
+        </Callout>
+      </Pane></Body>
+    </main>
+  );
+}
+
+function riskTone(category: RiskDTO["category"]): "risk" | "warn" | "idle" | "ai" {
+  return category === "blocker" ? "risk" : category === "risk" ? "warn" : category === "unverified" ? "idle" : "ai";
 }
 
 function selfServicePathForMatter(matterId: string): string {
@@ -423,4 +642,3 @@ function interceptProductLink(event: MouseEvent<HTMLDivElement>, navigate: Retur
   event.preventDefault();
   navigate(`${url.pathname}${url.search}${url.hash}`);
 }
-

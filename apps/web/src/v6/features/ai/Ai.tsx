@@ -14,6 +14,7 @@
  */
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { v6Path } from "../../routes/navigation.ts";
+import { Body, Pane, Toolbar } from "../../components/ui/index.ts";
 
 import type { Actor, LocalRepository, MatterRecord } from "../../lib/repository.ts";
 import {
@@ -937,13 +938,10 @@ export function AiPage({ repository, actor }: AiPageProps) {
   const targets = view !== null && view.kind === "ready" ? view.targets : [];
 
   return (
-    <main className="v6-page v6-ai-page" style={S.page} data-testid="ai-page">
-      <header>
-        <h1 style={{ margin: "0 0 6px", fontSize: "22px" }}>AI 与数据</h1>
-        <p style={S.muted}>
-          查看可用的模型模式、处理方信息与将外发的材料。外发授权只覆盖清单内的内容；保存授权不等于允许本构建真实调用。
-        </p>
-      </header>
+    <>
+      <Toolbar title="AI 与数据" subtitle="处理方式、外发授权与本机记录" />
+      <Body><Pane>
+      <div style={{ ...S.page, padding: 0 }} data-testid="ai-page">
 
       {matters.length > 0 && (
         <div style={S.row} data-testid="ai-selectors">
@@ -1019,6 +1017,7 @@ export function AiPage({ repository, actor }: AiPageProps) {
         onOpenMatter={openMatter}
         onOpenDraft={openDraft}
       />
-    </main>
+      </div></Pane></Body>
+    </>
   );
 }

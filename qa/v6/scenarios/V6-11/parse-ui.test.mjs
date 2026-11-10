@@ -432,7 +432,8 @@ test("V6-11 a parsed source shows its chunk count and 已保存 only after the c
   assert.match(html, new RegExp(`data-state="parsed"`));
   assert.match(html, /4 段 · 2 页 · 已保存/);
   assert.match(html, /已解析/);
-  assert.match(html, /aria-valuenow="100"/);
+  assert.match(html, /class="tag ok"/);
+  assert.doesNotMatch(html, new RegExp(`data-testid="parse-progress-${id}"`));
   assert.doesNotMatch(html, new RegExp(`parse-retry-${id}|parse-resume-${id}`));
 });
 

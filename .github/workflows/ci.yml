@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    env:
+      # The scenario suites and the export tests import TypeScript sources
+      # directly; Node 22 needs the explicit flag (Node 23+ enables it by default).
+      NODE_OPTIONS: --experimental-strip-types
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install from lockfile
+        run: npm ci
+
+      - name: Typecheck all workspaces
+        run: npm run typecheck
+
+      - name: Build the web app
+        run: npm run build -w @patent/web
+
+      # Every scenario directory, including alignment-*. The V6-09 headless
+      # Chrome cases skip explicitly (with the reason and count printed) only
+      # when no Chrome binary exists; the runner never treats a skip silently.
+      - name: Run all V6 scenarios
+        run: npm run test:v6 -- --all
+
+      - name: Export builder tests
+        run: npm test -w packages/export

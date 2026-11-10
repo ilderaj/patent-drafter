@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import type { Actor, LocalRepository } from "../../lib/repository.ts";
 import { loadInbox, markInboxItemRead, type InboxGroup, type InboxItem, type InboxKind } from "./inbox.ts";
+import { Button, Callout, Icon, StatusShape, Toolbar } from "../../components/ui/index.ts";
 
 export interface InboxPageProps {
   repository: LocalRepository;
@@ -67,50 +67,51 @@ export function InboxPage({ repository, actor, initialItems = null, initialLoadE
   const openCount = items?.filter((item) => item.state === "open").length ?? 0;
 
   return (
-    <main className="v6-page v6-inbox-page" data-testid="inbox-page" data-state={error ? "error" : items === null ? "loading" : "ready"}>
-      <div className="row-between" style={{ flexWrap: "wrap" }}>
-        <h1 className="v6-title">收件箱</h1>
-        {items ? <span className="field-hint">待处理 {openCount} 项 · 全部 {items.length} 项</span> : null}
-      </div>
-      <p className="muted">待办从案件当前状态派生。已读只记录本人的阅读游标，不会完成业务事项；已解决状态由底层条件决定。</p>
-      {error ? <div className="notice" role="alert" data-testid="inbox-error"><strong>无法读取待办。</strong><p>{error}</p><button className="btn btn-outline btn-sm" type="button" onClick={() => void refresh(true)}>重试</button></div> : null}
-      {items === null && !error && !refreshing ? <div aria-busy="true" data-testid="inbox-loading"><div className="skeleton v6-skeleton" /><div className="skeleton v6-skeleton" /></div> : null}
-      {items !== null && refreshing ? <div aria-busy="true" data-testid="inbox-refreshing"><div className="skeleton v6-skeleton" /></div> : null}
-      {items !== null && items.length === 0 && !error ? <section className="card v6-empty" data-testid="inbox-empty"><p>暂无待办</p></section> : null}
-      {items !== null && items.length > 0 ? <div className="v6-inbox-layout" data-testid="inbox-layout">
-        <aside className="v6-inbox-list" aria-label="待办列表">
-          <div className="v6-inbox-list-heading">选择一项查看详情</div>
-          {GROUPS.map((group) => {
+    <>
+      <Toolbar title="收件箱" subtitle={items === null ? "正在读取本机待办" : `${openCount} 项待处理 · 全部 ${items.length} 项`} />
+      <div className="work page-work" data-testid="inbox-page" data-state={error ? "error" : items === null ? "loading" : "ready"}>
+        <div className="listpane">
+          <div className="list-h">待处理 {openCount} 项</div>
+          {error ? <div style={{ padding: 12 }}><Callout tone="risk" icon="alert" testId="inbox-error">
+            <b>无法读取待办。</b><div>{error}</div>
+            <Button size="sm" onClick={() => void refresh(true)}>重试</Button>
+          </Callout></div> : null}
+          {items === null && !error && !refreshing ? <div aria-busy="true" data-testid="inbox-loading" style={{ padding: 12 }}><div className="skeleton v6-skeleton" /><div className="skeleton v6-skeleton" /></div> : null}
+          {items !== null && refreshing ? <div aria-busy="true" data-testid="inbox-refreshing" style={{ padding: 12 }}><div className="skeleton v6-skeleton" /></div> : null}
+          {items !== null && items.length === 0 && !error ? <div className="empty" data-testid="inbox-empty"><Icon name="inbox" size="lg" /><h3>暂无待办</h3><p>案件状态变化后，这里会出现需要处理的事项。</p></div> : null}
+          {items !== null && items.length > 0 ? GROUPS.map((group) => {
             const groupItems = items.filter((item) => item.group === group);
             if (groupItems.length === 0) return null;
             return <section key={group} data-testid={`inbox-group-${group}`}>
-              <h2 className="v6-inbox-group-heading">{group}</h2>
+              <div className="list-h">{group}</div>
               {groupItems.map((item) => <InboxRow key={item.id} item={item} selected={selected?.id === item.id} onSelect={() => setSelectedId(item.id)} />)}
             </section>;
-          })}
-        </aside>
-        <section className="v6-inbox-detail" aria-live="polite" data-testid="inbox-detail">
-          {selected ? <div className="v6-inbox-detail-inner">
-            <div className="row" style={{ flexWrap: "wrap" }}>
-              <span className={selected.state === "resolved" ? "badge badge-ok" : "badge badge-warn"}>{selected.state === "resolved" ? "已解决" : "待处理"}</span>
-              <span className="badge badge-outline">{selected.readAt === null ? "未读" : "已读"}</span>
-              <span className="muted">{selected.group}</span>
+          }) : null}
+        </div>
+        <div className="detailpane" aria-live="polite" data-testid="inbox-detail">
+          {selected ? <div style={{ maxWidth: 640 }}>
+            <div className="casehead">
+              <h2>{selected.title}</h2>
+              <StatusShape tone={selected.state === "resolved" ? "ok" : "warn"} label={selected.state === "resolved" ? "已解决" : "待处理"} />
+              <span className={`tag ${selected.readAt === null ? "plain" : ""}`}>{selected.readAt === null ? "未读" : "已读"}</span>
             </div>
-            <h2 style={{ marginTop: 12 }}>{selected.title}</h2>
-            <p className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+            <p className="small muted" style={{ margin: "8px 0 16px", lineHeight: 1.65 }}>
               {selected.state === "resolved" ? "对应业务条件当前已满足。" : "此事项仍待处理；标记已读不会改变处理状态。"}
             </p>
-            <dl className="v6-overview" style={{ marginTop: 16 }}>
-              <dt>案件</dt><dd>本机案件</dd>
+            <Callout tone="warn" icon="alert">
+              <b>这只是本机待办。</b>不代表真实期限、审核结果或法律结论；处理去向会打开同一案件与目标。
+            </Callout>
+            <dl className="kv" style={{ marginTop: 16 }}>
+              <dt>分组</dt><dd>{selected.group}</dd>
               <dt>目标</dt><dd>{selected.targetId === null ? "整个案件" : "目标记录"}</dd>
               <dt>发生时间</dt><dd>{formatInboxTime(selected.createdAt)}</dd>
               {selected.dueAt ? <><dt>记录日期</dt><dd>{formatInboxTime(selected.dueAt)}</dd></> : null}
             </dl>
-            <div className="v6-inbox-actions">
-              <Link className="btn btn-default btn-sm" to={selected.actionPath}>查看并处理</Link>
-              {selected.readAt === null ? <button type="button" className="btn btn-outline btn-sm" disabled={busyId === selected.id} onClick={() => void markRead(selected)}>
+            <div className="rowgap" style={{ marginTop: 16, flexWrap: "wrap" }}>
+              <Button variant="primary" size="sm" to={selected.actionPath}>查看并处理</Button>
+              {selected.readAt === null ? <Button size="sm" disabled={busyId === selected.id} onClick={() => void markRead(selected)}>
                 {busyId === selected.id ? "正在保存…" : "标记已读"}
-              </button> : <span className="field-hint">已记录为已读</span>}
+              </Button> : <span className="field-hint">已记录为已读</span>}
             </div>
             <details className="v6-tech-details" style={{ marginTop: 16 }}>
               <summary>技术标识</summary>
@@ -119,19 +120,19 @@ export function InboxPage({ repository, actor, initialItems = null, initialLoadE
               <div>资源 ID：<code>{selected.resourceId}</code></div>
               <div>动作类型：<code>{selected.actionKind}</code></div>
             </details>
-          </div> : null}
-        </section>
-      </div> : null}
-      {lastLoadedAt !== null ? <p className="field-hint">上次读取：{new Date(lastLoadedAt).toLocaleString("zh-CN", { hour12: false })}</p> : null}
-    </main>
+            {lastLoadedAt !== null ? <p className="field-hint">上次读取：{new Date(lastLoadedAt).toLocaleString("zh-CN", { hour12: false })}</p> : null}
+          </div> : <div className="empty"><Icon name="inbox" size="lg" /><h3>选择一项待办</h3></div>}
+        </div>
+      </div>
+    </>
   );
 }
 
 function InboxRow({ item, selected, onSelect }: { item: InboxItem; selected: boolean; onSelect: () => void }) {
-  return <button type="button" className="v6-inbox-item" aria-current={selected ? "true" : undefined}
+  return <button type="button" className={`inbox-item${selected ? " sel" : ""}`} aria-current={selected ? "true" : undefined}
     data-testid={`inbox-item-${item.id}`} data-state={item.state} data-kind={item.kind as InboxKind} onClick={onSelect}>
-    <span className="v6-inbox-item-title">{item.state === "open" ? "○ " : "✓ "}{item.title}</span>
-    <span className="v6-inbox-item-meta">{item.state === "resolved" ? "已解决" : "待处理"} · {item.readAt === null ? "未读" : "已读"}{item.dueAt ? ` · ${formatInboxTime(item.dueAt)}` : ""}</span>
+    <span className="ii-t"><StatusShape tone={item.state === "resolved" ? "ok" : "warn"} /> {item.title}</span>
+    <span className="ii-d" style={{ display: "block" }}>{item.state === "resolved" ? "已解决" : "待处理"} · {item.readAt === null ? "未读" : "已读"}{item.dueAt ? ` · ${formatInboxTime(item.dueAt)}` : ""}</span>
   </button>;
 }
 

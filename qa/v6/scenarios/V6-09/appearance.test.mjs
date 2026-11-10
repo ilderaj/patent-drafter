@@ -15,7 +15,7 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as esbuild from "esbuild";
 
@@ -342,9 +342,127 @@ test("S01-A03: the status text names the theme and the resolved mode", () => {
 });
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const DEFAULT_CHROME_CANDIDATES = [
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/usr/bin/google-chrome",
+  "/usr/bin/google-chrome-stable",
+  "/opt/google/chrome/chrome",
+  "/usr/bin/chromium",
+  "/usr/bin/chromium-browser",
+];
+const CHROME = process.env.CHROME_PATH
+  || DEFAULT_CHROME_CANDIDATES.find((candidate) => existsSync(candidate))
+  || DEFAULT_CHROME_CANDIDATES[0];
+const CHROME_AVAILABLE = existsSync(CHROME);
 const KEY = JSON.stringify(APPEARANCE_STORAGE_KEY);
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
+
+const CHROME_LAUNCH_ATTEMPTS = 3;
+const CHROME_PORT_TIMEOUT_MS = 15_000;
+const CHROME_TARGET_TIMEOUT_MS = 10_000;
+
+/**
+ * Launch headless Chrome and return a live DevTools page target. Chrome can win
+ * the launch race before it exposes DevToolsActivePort or the first page target;
+ * retry the whole launch a bounded number of times and fail with the collected
+ * diagnostics. A failed launch is never turned into a skip or a pass.
+ */
+async function launchChromeWithPageTarget() {
+  const failures = [];
+  for (let attempt = 1; attempt <= CHROME_LAUNCH_ATTEMPTS; attempt += 1) {
+    const profile = mkdtempSync(join(tmpdir(), "v6-09-chrome-"));
+    let stderr = "";
+    const child = spawn(CHROME, [
+      "--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`,
+      "--no-first-run", "--no-default-browser-check", "--window-size=1280,860", "about:blank",
+    ], { stdio: ["ignore", "ignore", "pipe"] });
+    child.stderr?.on("data", (chunk) => {
+      stderr = (stderr + String(chunk)).slice(-2000);
+    });
+    try {
+      const portFile = join(profile, "DevToolsActivePort");
+      const portDeadline = Date.now() + CHROME_PORT_TIMEOUT_MS;
+      while (Date.now() < portDeadline) {
+        if (child.exitCode !== null) {
+          throw new Error(`Chrome exited with code ${child.exitCode} before DevToolsActivePort${stderr ? `: ${stderr.trim()}` : ""}`);
+        }
+        if (existsSync(portFile)) break;
+        await sleep(100);
+      }
+      if (!existsSync(portFile)) {
+        throw new Error(`Chrome did not write DevToolsActivePort within ${CHROME_PORT_TIMEOUT_MS}ms${stderr ? `: ${stderr.trim()}` : ""}`);
+      }
+      const [port] = readFileSync(portFile, "utf8").split("\n");
+      if (!port) throw new Error("DevToolsActivePort was empty");
+
+      const targetDeadline = Date.now() + CHROME_TARGET_TIMEOUT_MS;
+      let lastFetchError = "";
+      while (Date.now() < targetDeadline) {
+        if (child.exitCode !== null) {
+          throw new Error(`Chrome exited with code ${child.exitCode} while waiting for a page target${stderr ? `: ${stderr.trim()}` : ""}`);
+        }
+        try {
+          const targets = await (await fetch(`http://127.0.0.1:${port}/json`, {
+            signal: AbortSignal.timeout(Math.min(1000, Math.max(100, targetDeadline - Date.now()))),
+          })).json();
+          const page = Array.isArray(targets) ? targets.find((target) => target.type === "page") : null;
+          if (page?.webSocketDebuggerUrl) return { child, page, profile };
+        } catch (error) {
+          lastFetchError = error instanceof Error ? error.message : String(error);
+        }
+        await sleep(100);
+      }
+      throw new Error(`Chrome exposed no page target on DevTools port ${port} within ${CHROME_TARGET_TIMEOUT_MS}ms${lastFetchError ? ` (last error: ${lastFetchError})` : ""}`);
+    } catch (error) {
+      failures.push(`attempt ${attempt}: ${error instanceof Error ? error.message : String(error)}`);
+      child.kill("SIGKILL");
+      await sleep(200);
+    }
+  }
+  throw new Error(`V6-09 could not launch headless Chrome after ${CHROME_LAUNCH_ATTEMPTS} attempts:\n${failures.join("\n")}`);
+}
+
+/**
+ * The lifecycle fixture is a browser bundle, but `V6App` transitively imports
+ * `@patent/pipeline`'s runner, whose only Node-only imports are reading prompt
+ * files. Those functions never run in this fixture; stub the two builtins so the
+ * browser bundle can be produced without changing the pipeline runtime.
+ */
+const nodeBuiltinShim = {
+  name: "node-builtin-shim",
+  setup(build) {
+    build.onResolve({ filter: /^node:(fs\/promises|path)$/ }, (args) => ({ path: args.path, namespace: "node-builtin-shim" }));
+    build.onLoad({ filter: /.*/, namespace: "node-builtin-shim" }, (args) => ({
+      loader: "js",
+      contents: args.path === "node:fs/promises"
+        ? "export async function readFile() { throw new Error('文件系统在 V6-09 浏览器 fixture 中不可用'); }\nexport default { readFile };"
+        : "export function join(...parts) { return parts.join('/'); }\nexport default { join };",
+    }));
+  },
+};
+
+/** Vite's `?raw` suffix returns the file text; esbuild needs the same rule for the rule pack. */
+const rawTextPlugin = {
+  name: "vite-raw-text",
+  setup(build) {
+    build.onResolve({ filter: /\?raw$/ }, (args) => ({
+      path: resolve(args.resolveDir, args.path.replace(/\?raw$/, "")),
+      namespace: "raw-text",
+    }));
+    build.onLoad({ filter: /.*/, namespace: "raw-text" }, (args) => ({
+      loader: "text",
+      contents: readFileSync(args.path, "utf8"),
+    }));
+  },
+};
+
+if (!CHROME_AVAILABLE) {
+  console.error(
+    `V6-09: 未找到 Chrome（${CHROME}），显式跳过 3 个 headless Chrome 生命周期用例；可用 CHROME_PATH 指定浏览器后重跑。`,
+  );
+}
+const chromeSkipReason = `未找到 Chrome（${CHROME}），headless 生命周期用例显式跳过`;
+const chromeIt = (name, fn) => (CHROME_AVAILABLE ? it(name, fn) : it(name, { skip: chromeSkipReason }, fn));
 
 /**
  * The React regressions below run the real provider, page, shell and
@@ -365,7 +483,7 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
   let emulateScheme;
   const errors = [];
 
-  before(async () => {
+  if (CHROME_AVAILABLE) before(async () => {
     const dir = mkdtempSync(join(tmpdir(), "v6-09-lifecycle-"));
     const outfile = join(dir, "app.js");
     await esbuild.build({
@@ -377,6 +495,7 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
       jsx: "automatic",
       define: { "process.env.NODE_ENV": '"production"' },
       loader: { ".css": "empty" },
+      plugins: [nodeBuiltinShim, rawTextPlugin],
       logLevel: "silent",
     });
     const bundle = readFileSync(outfile, "utf8");
@@ -397,26 +516,9 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
     await new Promise((done) => server.listen(0, "127.0.0.1", done));
     const base = `http://127.0.0.1:${server.address().port}`;
 
-    const profile = mkdtempSync(join(tmpdir(), "v6-09-chrome-"));
-    chrome = spawn(CHROME, [
-      "--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`,
-      "--no-first-run", "--no-default-browser-check", "--window-size=1280,860", "about:blank",
-    ], { stdio: "ignore" });
-    const portFile = join(profile, "DevToolsActivePort");
-    for (let i = 0; i < 100 && !existsSync(portFile); i++) await sleep(100);
-    assert.ok(existsSync(portFile), "Chrome did not expose a DevTools port");
-    const [port] = readFileSync(portFile, "utf8").split("\n");
-
-    let targets;
-    for (let i = 0; i < 50; i++) {
-      try {
-        targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
-        if (targets.some((target) => target.type === "page")) break;
-      } catch {}
-      await sleep(100);
-    }
-    const page = targets?.find((target) => target.type === "page");
-    assert.ok(page, "Chrome exposed no page target");
+    const launched = await launchChromeWithPageTarget();
+    chrome = launched.child;
+    const page = launched.page;
     ws = new WebSocket(page.webSocketDebuggerUrl);
     await new Promise((done, fail) => {
       ws.addEventListener("open", done, { once: true });
@@ -437,7 +539,10 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
         pending.delete(message.id);
         return;
       }
-      if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
+      if (message.method === "Runtime.exceptionThrown") {
+        const details = message.params.exceptionDetails;
+        errors.push(`${details.text}${details.exception?.description ? `: ${details.exception.description}` : ""}`);
+      }
       if (message.method === "Runtime.consoleAPICalled" && message.params.type === "error") {
         errors.push(message.params.args.map((arg) => arg.value ?? arg.description).join(" "));
       }
@@ -456,7 +561,9 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
         if (await evaluate(expression)) return;
         await sleep(100);
       }
-      throw new Error(`timeout waiting for ${label}`);
+      throw new Error(
+        `timeout waiting for ${label}${errors.length > 0 ? `; browser errors: ${errors.join(" | ")}` : ""}`,
+      );
     };
     click = (selector) => evaluate(`(() => {
       const element = document.querySelector(${JSON.stringify(selector)});
@@ -503,7 +610,7 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
     if (server) await new Promise((done) => server.close(done));
   });
 
-  it("keeps a saved preference across navigation and runtime OS changes", async () => {
+  chromeIt("keeps a saved preference across navigation and runtime OS changes", async () => {
     await reset("/patent/v6/settings");
     await waitFor(`!!document.querySelector("[data-testid=appearance]")`, "appearance panel");
     await click("input[name=theme][value=celadon]");
@@ -512,7 +619,7 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
       "celadon saved",
     );
 
-    await click('[aria-label="全局导航"] a[href="/patent/v6/matters"]');
+    await click('a[href="/patent/v6/matters"]');
     await waitFor(`location.pathname === "/patent/v6/matters" && !document.querySelector("[data-testid=appearance]")`, "matters page");
     assert.equal((await documentAttributes()).theme, "celadon", "the saved theme survives leaving settings");
 
@@ -523,7 +630,7 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
     await emulateScheme("light");
     await waitFor(`document.documentElement.dataset.mode === "light" && document.documentElement.dataset.theme === "celadon"`, "OS light with celadon");
 
-    await click('[aria-label="全局导航"] a[href="/patent/v6/settings"]');
+    await click('a[href="/patent/v6/settings"]');
     await waitFor(`!!document.querySelector("[data-testid=appearance]")`, "settings again");
     assert.deepEqual(await evaluate(`({
       theme: document.querySelector("input[name=theme]:checked")?.value ?? null,
@@ -537,12 +644,12 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
     assert.deepEqual(errors, [], "no console errors");
   });
 
-  it("keeps a failed save until the user explicitly discards it", async () => {
+  chromeIt("keeps a failed save until the user explicitly discards it", async () => {
     await reset("/patent/v6/settings");
     await waitFor(`!!document.querySelector("[data-testid=appearance]")`, "appearance panel");
-    await click('[aria-label="全局导航"] a[href="/patent/v6/matters"]');
+    await click('a[href="/patent/v6/matters"]');
     await waitFor(`location.pathname === "/patent/v6/matters"`, "matters before failure");
-    await click('[aria-label="全局导航"] a[href="/patent/v6/settings"]');
+    await click('a[href="/patent/v6/settings"]');
     await waitFor(`!!document.querySelector("[data-testid=appearance]")`, "settings before failure");
 
     await evaluate(`window.__v6FailWrites = true`);
@@ -555,7 +662,7 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
     assert.equal(unloadAllowed, false, "unload is blocked while the save failed");
 
     await evaluate(`window.__v6ConfirmAnswer = false`);
-    await click('[aria-label="全局导航"] a[href="/patent/v6/matters"]');
+    await click('a[href="/patent/v6/matters"]');
     await sleep(250);
     assert.equal(await evaluate(`location.pathname`), "/patent/v6/settings", "Stay keeps the link on settings");
     assert.ok(await evaluate(`!!document.querySelector("[data-testid=appearance-save-failed]")`), "failure notice remains");
@@ -567,9 +674,9 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
     assert.equal(await evaluate(`document.querySelector("input[name=color-mode]:checked")?.value`), "dark", "unsaved choice remains after Back");
 
     await evaluate(`window.__v6ConfirmAnswer = true`);
-    await click('[aria-label="全局导航"] a[href="/patent/v6/matters"]');
+    await click('a[href="/patent/v6/matters"]');
     await waitFor(`location.pathname === "/patent/v6/matters"`, "discard leaves settings");
-    await click('[aria-label="全局导航"] a[href="/patent/v6/settings"]');
+    await click('a[href="/patent/v6/settings"]');
     await waitFor(`!!document.querySelector("[data-testid=appearance]")`, "settings after discard");
     assert.deepEqual(await evaluate(`({
       failed: !!document.querySelector("[data-testid=appearance-save-failed]"),
@@ -585,7 +692,7 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
     assert.deepEqual(errors, [], "no console errors");
   });
 
-  it("restores the previous document attributes when V6 unmounts", async () => {
+  chromeIt("restores the previous document attributes when V6 unmounts", async () => {
     await reset("/patent/projects");
     await waitFor(`!!document.querySelector("[data-testid=legacy]")`, "legacy page");
     await evaluate(`document.documentElement.setAttribute("data-theme", "legacy-orange"); document.documentElement.setAttribute("data-mode", "dark"); true`);

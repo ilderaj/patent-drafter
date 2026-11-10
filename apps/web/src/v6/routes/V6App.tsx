@@ -6,19 +6,14 @@
  * again and shows the same view. Nothing here writes except the self-service
  * entry, and nothing is filled in with demo content.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Shell } from "../components/Shell.tsx";
-import { AppearancePage, AppearanceProvider } from "../features/settings/Appearance.tsx";
-import { Recovery } from "../features/recovery/Recovery.tsx";
-import { AiPage } from "../features/ai/Ai.tsx";
-import { ProfessionalWorkbench } from "../features/workbench/Workbench.tsx";
-import { ActivityFeed } from "../features/workbench/ActivityFeed.tsx";
+import { ErrorBoundary } from "../components/ErrorBoundary.tsx";
+import { AppearanceProvider } from "../features/settings/Appearance.tsx";
 import { LOCAL_TEST_GENERATION_OPTIONS } from "../features/generation/local-runtime.ts";
-import { SelfService } from "../features/self-service/SelfService.tsx";
 import { R1_RULE_PACK, R1_ACTIVE_RULE_PACK_VERSION } from "../features/checks/rule-pack.vite.ts";
-import { MattersPage as MattersFeaturePage } from "../features/matters/Matters.tsx";
-import { InboxPage } from "../features/inbox/Inbox.tsx";
+import { Body, Button, Callout, Icon, Pane, SectionHeader, Tag, Toolbar } from "../components/ui/index.ts";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
 import { openLocalRepository, type LocalRepository } from "../lib/repository.ts";
 import {
@@ -34,7 +29,25 @@ import {
   type V6Route,
 } from "./navigation.ts";
 import "../styles/theme.css";
+import "../features/self-service/self-service.css";
 import "./v6.css";
+
+// Route-level code splitting: the shell, repository and start page stay in the
+// V6App chunk; each feature page loads on first visit behind Suspense. PDF and
+// export assembly remain their own on-demand chunks.
+const SelfServicePage = lazy(() =>
+  import("../features/self-service/SelfService.tsx").then((module) => ({ default: module.SelfService })),
+);
+const ProfessionalWorkbench = lazy(() =>
+  import("../features/workbench/Workbench.tsx").then((module) => ({ default: module.ProfessionalWorkbench })),
+);
+const AiPage = lazy(() => import("../features/ai/Ai.tsx").then((module) => ({ default: module.AiPage })));
+const InboxPage = lazy(() => import("../features/inbox/Inbox.tsx").then((module) => ({ default: module.InboxPage })));
+const MattersFeaturePage = lazy(() => import("../features/matters/Matters.tsx").then((module) => ({ default: module.MattersPage })));
+const ActivityFeedPage = lazy(() =>
+  import("../features/workbench/ActivityFeed.tsx").then((module) => ({ default: module.ActivityFeed })),
+);
+const SettingsPage = lazy(() => import("./SettingsPage.tsx"));
 
 type RepositoryState =
   | { state: "loading" }
@@ -104,7 +117,11 @@ function V6Pages() {
       ) : repo.state === "failed" ? (
         <StorageUnavailable message={PAGE_ERROR_MESSAGES.STORAGE_UNAVAILABLE} onRetry={retry} />
       ) : (
-        <Page route={route} repository={repo.repository} />
+        <ErrorBoundary area="页面" resetKey={pathname}>
+          <Suspense fallback={<RouteSkeleton />}>
+            <Page route={route} repository={repo.repository} />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </Shell>
   );
@@ -119,7 +136,7 @@ function Page({ route, repository }: { route: V6Route; repository: LocalReposito
     case "upload":
       return <Navigate to={v6Path({ kind: "self_service", matterId: route.matterId, step: "upload" })} replace />;
     case "self_service":
-      return <SelfService key={`${route.matterId}/${route.step}`} repository={repository} actor={LOCAL_ACTOR} matterId={route.matterId} step={route.step} />;
+      return <SelfServicePage key={`${route.matterId}/${route.step}`} repository={repository} actor={LOCAL_ACTOR} matterId={route.matterId} step={route.step} />;
     case "matter":
       return <MatterPage repository={repository} matterId={route.matterId} targetId={route.targetId} tab={route.tab} />;
     case "section":
@@ -129,6 +146,17 @@ function Page({ route, repository }: { route: V6Route; repository: LocalReposito
     case "not_found":
       return <UnavailablePage />;
   }
+}
+
+/** Placeholder while a route chunk downloads; the shell and navigation stay usable. */
+function RouteSkeleton() {
+  return (
+    <div className="v6-page" aria-busy="true" data-testid="route-skeleton">
+      <p className="muted">正在读取页面…</p>
+      <div className="skeleton v6-skeleton" />
+      <div className="skeleton v6-skeleton" />
+    </div>
+  );
 }
 
 function Loading() {
@@ -191,59 +219,66 @@ function useSelfServiceCreate(repository: LocalRepository) {
   return { ...state, create };
 }
 
-function CreateError({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <div className="notice" role="alert">
-      <strong>尚未保存</strong>
-      <p>{message}</p>
-      <button type="button" className="btn btn-outline btn-sm" onClick={onRetry}>
-        重试
-      </button>
-    </div>
-  );
-}
-
 function StartPage({ repository }: { repository: LocalRepository }) {
   const { busy, error, create } = useSelfServiceCreate(repository);
   return (
-    <div className="v6-page v6-start-page" data-testid="start-page">
-      <header className="v6-start-intro">
-        <p className="v6-self-kicker">专利材料准备</p>
-        <h1 className="v6-title">把你的技术整理成申请准备材料</h1>
-        <p className="muted">从已有材料或几个真实回答开始。先整理事实，再选择路线；案件和文件保存在本机浏览器。</p>
-      </header>
-      {error ? <CreateError message={error} onRetry={create} /> : null}
-      <div className="v6-entries">
-        <section className="card v6-entry" data-testid="entry-self">
-          <h2 className="card-title">自助准备</h2>
-          <p className="card-description">新建一个空案件，上传材料或直接回答问题。没有现成文档也能开始，不会自动补造材料。</p>
-          <button type="button" className="btn btn-default" disabled={busy} onClick={create}>
-            {busy ? "正在创建…" : "开始准备"}
+    <main className="main" data-testid="start-page">
+      <Toolbar title="卷宗" subtitle="申请材料，从这里开始" right={<Tag tone="plain">本机预览</Tag>} />
+      <Body><Pane>
+        <div className="start-intro">
+          <div className="start-symbol"><Icon name="folder" size="lg" /></div>
+          <div className="small muted">卷宗 · 专利材料工作室</div>
+          <h1>把你的技术，写成申请材料</h1>
+          <p>从一份图纸、一段说明开始。先把事实整理清楚，再决定怎么申请。</p>
+        </div>
+        {error ? (
+          <Callout tone="warn" icon="alert" testId="start-create-error">
+            <b>案件没有创建成功</b>
+            <p>{error}</p>
+            <button type="button" className="btn sm" onClick={create}>重试</button>
+          </Callout>
+        ) : null}
+        <div className="entry">
+          <button type="button" className="entry-card" data-testid="entry-self" disabled={busy} onClick={create}>
+            <span className="ec-i"><Icon name="doc" /></span>
+            <span className="ec-t">准备我的第一份申请</span>
+            <span className="ec-d">上传资料，回答几个问题，查看和修改材料。没有专利经验也可以开始。</span>
+            <span className="ec-m">本机保存 · 不收费</span>
+            <span className="ec-go">{busy ? "正在创建…" : "开始准备"} <Icon name="arrow" size="sm" /></span>
           </button>
-        </section>
-        <section className="card v6-entry" data-testid="entry-pro">
-          <h2 className="card-title">专业工作台</h2>
-          <p className="card-description">在同一个案件中处理材料、事实、目标、草稿、检查和版本。</p>
-          <Link className="btn btn-outline" to={v6Path({ kind: "matters" })}>打开案件列表</Link>
-        </section>
-        <section className="card v6-entry" data-testid="entry-service">
-          <h2 className="card-title">人工服务</h2>
-          <p className="card-description">了解咨询、材料复核和代理对接的范围与当前开放状态。</p>
-          <Link className="btn btn-outline" to={v6Path({ kind: "section", key: "services" })}>查看服务范围</Link>
-          <p className="field-hint">当前未开放预约、资料分享或付款。</p>
-        </section>
-      </div>
-      <section className="v6-start-data">
-        <strong>AI 与数据</strong>
-        <span>当前自助流程使用本机测试引擎；不会把案件材料发送到模型服务。</span>
-        <Link to={v6Path({ kind: "section", key: "ai" })}>查看处理能力</Link>
-      </section>
-      <footer className="v6-start-footer">
-        <span>当前为本地准备功能，不收费、不自动递交。</span>
-        <Link to={v6Path({ kind: "section", key: "pricing" })}>套餐与价格</Link>
-        <Link to={v6Path({ kind: "section", key: "settings" })}>设置</Link>
-      </footer>
-    </div>
+          <Link className="entry-card" to={v6Path({ kind: "matters" })} data-testid="entry-pro">
+            <span className="ec-i"><Icon name="folder" /></span>
+            <span className="ec-t">进入专业工作台</span>
+            <span className="ec-d">在同一个案件中控制目标、事实、草稿、版本、检查和交付。</span>
+            <span className="ec-m">同一案件，可继续处理</span>
+            <span className="ec-go">打开案件列表 <Icon name="arrow" size="sm" /></span>
+          </Link>
+          <Link className="entry-card" to={v6Path({ kind: "section", key: "services" })} data-testid="entry-service">
+            <span className="ec-i"><Icon name="users" /></span>
+            <span className="ec-t">我想先问专业人员</span>
+            <span className="ec-d">申请路线拿不准、已经公开过，或需要人工复核？先说清问题，再确定委托。</span>
+            <span className="ec-m">咨询 · 复核 · 代理对接（暂未开放）</span>
+            <span className="ec-go">查看服务范围 <Icon name="arrow" size="sm" /></span>
+          </Link>
+        </div>
+        <div className="recent">
+          <span className="rc-i"><Icon name="shield" /></span>
+          <div className="grow">
+            <div className="rc-t">你决定哪些内容可以交给 AI</div>
+            <div className="rc-d">当前自助流程使用本机测试引擎，不发送材料；真实模型外发门保持关闭。</div>
+          </div>
+          <Link className="btn" to={v6Path({ kind: "section", key: "ai" })}>了解 AI 设置</Link>
+        </div>
+        <div className="start-bottom">
+          <Link to={v6Path({ kind: "section", key: "pricing" })}>查看套餐</Link>
+          <span>自助与专业共用同一案件和本机存储</span>
+          <Link to={v6Path({ kind: "section", key: "settings" })}>设置</Link>
+        </div>
+        <Callout tone="info" icon="info">
+          当前为本地准备功能：不收费、不自动递交。测试生成结果仅用于验证流程，不能作为正式申请材料。
+        </Callout>
+      </Pane></Body>
+    </main>
   );
 }
 
@@ -271,35 +306,151 @@ function MatterPage({
 }
 
 function SectionPage({ sectionKey, repository }: { sectionKey: SectionKey; repository: LocalRepository }) {
-  if (sectionKey === "settings") return <><AppearancePage /><Recovery repository={repository} actor={LOCAL_ACTOR} /></>;
-  if (sectionKey === "activity") return <ActivityFeed repository={repository} actor={LOCAL_ACTOR} currentMatterId="" />;
-  if (sectionKey === "services") return (
-    <div className="v6-page" data-testid="section-services">
-      <p className="v6-self-kicker">能力范围</p><h1 className="v6-title">人工服务</h1>
-      <div className="notice"><strong>当前未开放预约</strong><p>本地版不匹配服务人员，不展示已核验资质或报价，也不接收预约、付款或资料分享。</p></div>
-      <section className="card stack-3"><h2 className="card-title">未来服务范围</h2><ul><li>申请路线咨询：核对目标、公开历史与准备事项。</li><li>材料复核：由确认了资格、法域、保密条款和报价的专业人员查看指定版本。</li><li>代理对接：确认服务范围和委托关系后，再单独授权材料。</li></ul><p className="field-hint">这些服务当前都不可预约；页面说明不代表已建立委托或提供法律意见。</p></section>
-    </div>
-  );
-  if (sectionKey === "pricing") return (
-    <div className="v6-page" data-testid="section-pricing">
-      <p className="v6-self-kicker">本地版本</p><h1 className="v6-title">套餐与价格</h1>
-      <div className="notice"><strong>当前不收费</strong><p>本地准备功能没有套餐、单案解锁、平台额度或支付流程。未来收费范围尚未开放，也没有已确认的价格。</p></div>
-      <p className="muted">人工咨询、材料复核和代理对接与软件功能分开；这些服务当前也未开放预约。</p>
-    </div>
-  );
-  if (sectionKey === "billing") return (
-    <div className="v6-page" data-testid="section-billing">
-      <p className="v6-self-kicker">账户状态</p><h1 className="v6-title">账单</h1>
-      <div className="notice"><strong>本地版没有账单</strong><p>当前没有账户套餐、订单、额度账本或真实扣款。这里不会生成模拟付款或续费状态。</p></div>
-      <Link className="link-button" to={v6Path({ kind: "section", key: "pricing" })}>查看套餐与价格范围</Link>
-    </div>
-  );
+  if (sectionKey === "settings") return <SettingsPage repository={repository} />;
+  if (sectionKey === "activity") return <ActivityFeedPage repository={repository} actor={LOCAL_ACTOR} currentMatterId="" />;
+  if (sectionKey === "services") return <ServicesPage />;
+  if (sectionKey === "pricing") return <PricingPage />;
+  if (sectionKey === "billing") return <BillingPage />;
   const item = GLOBAL_NAV.find((candidate) => candidate.key === sectionKey)!;
   return (
-    <div className="v6-page" data-testid="section">
-      <h1 className="v6-title">{item.label}</h1>
-      <div className="notice">{item.capability.reason ?? "本地版本的能力范围有限。"}</div>
-    </div>
+    <main className="main" data-testid="section">
+      <Toolbar title={item.label} subtitle="本地版能力范围" />
+      <Body><Pane>
+        <Callout tone="info" icon="info">{item.capability.reason ?? "本地版本的能力范围有限。"}</Callout>
+      </Pane></Body>
+    </main>
+  );
+}
+
+function ServicesPage() {
+  const services = [
+    { key: "consult", icon: "chat" as const, title: "申请路线咨询", description: "梳理申请目标、公开历史与申请路线，约定咨询时间。", output: "30 分钟咨询 + 书面要点", scope: "提供路线建议，不包含文件起草或代理递交" },
+    { key: "review", icon: "eye" as const, title: "申请材料复核", description: "由拟匹配的专业人员复核权利要求、说明书支持和已知风险。", output: "带批注的审阅稿 + 问题清单", scope: "先确认法域、资质、利益冲突和报价，再成立委托" },
+    { key: "agent", icon: "scale" as const, title: "联系申请代理", description: "将准备好的材料交给适格代理人员，确认手续与服务范围。", output: "需求确认与正式报价", scope: "代理递交和官费另行约定，不包含在软件套餐里" },
+  ];
+  return (
+    <main className="main" data-testid="section-services">
+      <Toolbar title="人工服务" subtitle="软件套餐之外，可单独选择" back={{ to: v6Path({ kind: "start" }), label: "返回首页" }} />
+      <Body><Pane>
+        <h1 className="wiz-h1">需要时，请专业人员一起看</h1>
+        <p className="wiz-sub">从一个问题开始，或把准备好的材料交给对方复核。先确认人、范围和费用，再分享材料。</p>
+        <div className="svc-grid">
+          {services.map((service) => (
+            <article className="svc-card" key={service.key} data-testid={`service-${service.key}`}>
+              <span className="sc-i"><Icon name={service.icon} /></span>
+              <h2 className="sc-t">{service.title}</h2>
+              <p className="sc-d">{service.description}</p>
+              <div className="sc-p">暂未开放 <small>/ 当前不报价</small></div>
+              <div className="sc-m">当前无法预约、分享材料或付款</div>
+              <button type="button" className="btn" disabled>暂未开放</button>
+            </article>
+          ))}
+        </div>
+        <SectionHeader title="一次清楚的服务流程" />
+        <div className="svc-flow">
+          <div className="sf"><b>描述需求</b>选择法域和希望解决的问题</div>
+          <div className="sf"><b>确认服务</b>核对人员资格、利益冲突、范围与报价</div>
+          <div className="sf"><b>授权材料</b>选择最少必要的文件和版本</div>
+          <div className="sf"><b>收取结果</b>查看咨询要点或带批注材料</div>
+        </div>
+        <Callout tone="info" icon="shield">
+          <b>服务边界。</b>平台会员不代表已建立律师或代理委托关系；当前本地版未开放预约、报价、付款或资料分享，页面说明不构成法律意见。
+        </Callout>
+      </Pane></Body>
+    </main>
+  );
+}
+
+function PricingPage() {
+  const plans = [
+    {
+      key: "free",
+      name: "免费体验",
+      description: "了解材料准备过程",
+      price: "未定价",
+      unit: "当前本地版不收费",
+      features: ["本机保存材料与答案", "本机测试生成与预览", "风险提示与人工确认"],
+      action: <Button to={v6Path({ kind: "start" })}>免费开始</Button>,
+    },
+    {
+      key: "self",
+      name: "单案解锁",
+      description: "只准备这一件申请",
+      price: "未定价",
+      unit: "未来能力，尚未开放",
+      features: ["完整材料查看与下载", "重新生成（未来）", "材料与导出清单"],
+      action: <Button disabled>尚未开放</Button>,
+    },
+    {
+      key: "pro",
+      name: "专业版",
+      description: "面向持续撰写与审阅",
+      price: "未定价",
+      unit: "未来能力，尚未开放",
+      features: ["多法域目标", "修订、检查与审阅", "平台额度（未开放）"],
+      action: <Button disabled>尚未开放</Button>,
+    },
+  ];
+  return (
+    <main className="main" data-testid="section-pricing">
+      <Toolbar title="套餐与价格" subtitle="金额与套餐尚未形成商业报价" back={{ to: v6Path({ kind: "start" }), label: "返回首页" }} />
+      <Body><Pane>
+        <h1 className="wiz-h1">按当前需要选择</h1>
+        <p className="wiz-sub">先试材料准备；复杂案件再使用完整工作台。风险提示、资料权限和内容确认不因套餐而改变。</p>
+        <div className="price-grid">
+          {plans.map((plan) => (
+            <article className="price-card" key={plan.key} data-testid={`price-${plan.key}`}>
+              <div className="pc-name">{plan.name}</div>
+              <p className="pc-desc">{plan.description}</p>
+              <div className="pc-price">{plan.price}</div>
+              <div className="pc-unit">{plan.unit}</div>
+              <ul>{plan.features.map((feature) => <li key={feature}><Icon name="check" size="sm" />{feature}</li>)}</ul>
+              {plan.action}
+            </article>
+          ))}
+        </div>
+        <SectionHeader title="服务和使用边界" />
+        <div className="group">
+          <div className="row"><span className="grow">人工咨询、复核与代理对接</span><span className="small muted">当前未开放</span><Link className="btn sm" to={v6Path({ kind: "section", key: "services" })}>查看</Link></div>
+          <div className="row"><span className="grow">官费、代理费</span><span className="small muted">不包含在软件费中</span></div>
+          <div className="row"><span className="grow">本机测试引擎</span><span className="small muted">不消耗平台额度，也不发送材料</span></div>
+        </div>
+        <Callout tone="info" icon="info">
+          本地版不收费，也不提供套餐、解锁、平台额度或支付流程。未来收费范围尚未开放，页面不展示未确认的价格。
+        </Callout>
+      </Pane></Body>
+    </main>
+  );
+}
+
+function BillingPage() {
+  return (
+    <main className="main" data-testid="section-billing">
+      <Toolbar title="套餐与账单" subtitle="本地版没有账户套餐、订单或额度" back={{ to: v6Path({ kind: "start" }), label: "返回首页" }} />
+      <Body><Pane>
+        <div className="card">
+          <div className="spread">
+            <div>
+              <h2 style={{ fontSize: 20 }}>本地版</h2>
+              <p className="q-help">可以随时使用本机准备功能；人工服务独立于软件，当前未开放。</p>
+            </div>
+            <Button to={v6Path({ kind: "section", key: "pricing" })}>管理套餐</Button>
+          </div>
+          <div className="divider" />
+          <div className="kv"><span>真实扣款</span><span>¥0</span></div>
+          <div className="kv"><span>自动续费</span><span>未开启</span></div>
+          <div className="kv"><span>本案解锁</span><span>不适用（本地版不收费）</span></div>
+        </div>
+        <SectionHeader title="平台 AI 额度" />
+        <div className="card">
+          <p className="muted">当前自助流程使用本机测试引擎，不使用平台额度；真实模型外发门保持关闭。</p>
+        </div>
+        <SectionHeader title="账单记录" />
+        <div className="card">
+          <p className="muted">没有真实账单。本地版不生成模拟付款、续费或额度记录。</p>
+        </div>
+      </Pane></Body>
+    </main>
   );
 }
 

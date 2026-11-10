@@ -76,7 +76,7 @@ test("overview gives the next step a translated label and opens the matching wor
   const html = ui.renderOverview({ targets: [targetSummary()], matterId: MATTER_ID });
   assert.match(html, /生成或撰写草稿/);
   assert.match(html, new RegExp(`/v6/matters/${MATTER_ID}/targets/${TARGET_ID}/draft`));
-  assert.match(html, /修订编号/);
+  assert.match(html, /修订 ID/);
   assert.match(html, new RegExp(`<details[^>]*>[\\s\\S]*?${TARGET_ID}`));
 });
 
@@ -137,7 +137,7 @@ test("matter list translates route and next action while placing IDs under discl
   });
   assert.match(html, /中国实用新型/);
   assert.match(html, /生成或撰写草稿/);
-  assert.match(html, /最近更新/);
+  assert.match(html, /更新 2026/);
   assert.match(html, /本机用户/);
   assert.match(html, /案件 ID/);
   assert.match(html, new RegExp(`<details[^>]*>[\\s\\S]*?${MATTER_ID}`));
@@ -162,11 +162,16 @@ test("inbox separates selection, reading and resolution states", () => {
   };
   const resolved = { ...open, id: "resolved-item", title: "检查已完成", state: "resolved", readAt: "2026-11-10T11:00:00.000Z" };
   const html = ui.renderInbox({ repository: {}, actor: ACTOR, initialItems: [open, resolved] });
-  assert.match(html, /v6-inbox-layout/);
+  assert.match(html, /class="work page-work"/);
+  assert.match(html, /class="listpane"/);
+  assert.match(html, /class="detailpane"/);
+  assert.match(html, /data-testid="inbox-detail"/);
   assert.match(html, /待处理 · 未读/);
   assert.match(html, /已解决 · 已读/);
+  assert.match(html, /data-state="open"/);
+  assert.match(html, /data-state="resolved"/);
   assert.match(html, /标记已读/);
-  assert.match(html, /已读只记录本人的阅读游标/);
+  assert.match(html, /标记已读不会改变处理状态/);
   assert.match(html, /技术标识/);
 });
 

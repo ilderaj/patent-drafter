@@ -171,24 +171,28 @@ const STACK = { flexDirection: "column", alignItems: "flex-start" } as const;
 
 function StageRow({ stage }: { stage: GenerationStageView }) {
   const label = STAGE_LABELS[stage.stage];
+  const done = stage.state === "completed";
+  const current = stage.state === "running";
   return (
     <li
-      className="v6-entry"
+      className={`gen-item${done ? " done" : current ? " cur" : ""}`}
       data-testid={`generation-stage-${stage.stage}`}
       data-state={stage.state}
       data-error-code={stage.errorCode ?? undefined}
     >
-      <div className="row" style={{ flexWrap: "wrap" }}>
-        <strong>{label}</strong>
-        <span className="badge badge-outline" data-testid={`generation-stage-state-${stage.stage}`}>
-          {STAGE_STATE_LABELS[stage.state]}
-        </span>
-        {stage.errorCode !== null ? <code data-testid={`generation-stage-error-${stage.stage}`}>{stage.errorCode}</code> : null}
-      </div>
+      <span className="gi-ic" aria-hidden="true">{done ? "✓" : current ? <span className="spin" /> : ""}</span>
+      <span>{label}</span>
+      <span className="gi-note" data-testid={`generation-stage-state-${stage.stage}`}>
+        {STAGE_STATE_LABELS[stage.state]}
+        {stage.errorCode !== null ? <code data-testid={`generation-stage-error-${stage.stage}`}> {stage.errorCode}</code> : null}
+      </span>
       {stage.outputMeta !== null ? (
-        <span className="field-hint" data-testid={`generation-stage-meta-${stage.stage}`}>
-          检查点 {stage.outputMeta.outputHash.slice(0, 12)}… · 完成于 {stage.outputMeta.completedAt}
-        </span>
+        <details className="tech">
+          <summary>技术详情</summary>
+          <span data-testid={`generation-stage-meta-${stage.stage}`}>
+            检查点 {stage.outputMeta.outputHash.slice(0, 12)}… · 完成于 {stage.outputMeta.completedAt}
+          </span>
+        </details>
       ) : null}
     </li>
   );
@@ -198,8 +202,9 @@ function CandidatePreview({ view, actions }: { view: GenerationView; actions: Ge
   if (view.job?.result === null || view.job?.result === undefined) return null;
   const ast = view.job.result.ast;
   return (
-    <div className="stack-3" data-testid="generation-result" data-test-output={view.job.result.testOutput}>
-      <h3 className="card-title">候选结果</h3>
+    <div className="gen-live" data-testid="generation-result" data-test-output={view.job.result.testOutput}>
+      <div className="gl-h">候选结果<span style={{ marginLeft: "auto" }}>{view.job.job.state === "succeeded" ? "已完成" : "生成中"}</span></div>
+      <div className="gl-b">
       {view.job.support != null ? (
         <p className="field-hint" data-testid="generation-support">
           依据索引：{view.job.support.facts.length} 条确认事实，未解析 {view.job.support.unresolvedFactIds.length} 条
@@ -214,26 +219,24 @@ function CandidatePreview({ view, actions }: { view: GenerationView; actions: Ge
         </p>
       ) : null}
       {ast.claims.map((claim) => (
-        <article key={claim.id} className="card" data-testid={`generation-claim-${claim.number}`}>
-          <h4 className="card-title">权利要求 {claim.number}</h4>
-          {claim.paragraphs.map((paragraph) => (
-            <p key={paragraph.id}>{paragraph.text}</p>
-          ))}
+        <article key={claim.id} data-testid={`generation-claim-${claim.number}`}>
+          <b>{claim.number}.</b> {claim.paragraphs.map((paragraph) => <span key={paragraph.id}>{paragraph.text}</span>)}
         </article>
       ))}
       {ast.sections.map((section) => (
-        <section key={section.kind} className="stack-3" data-testid={`generation-section-${section.kind}`}>
-          <h4 className="card-title">{SECTION_LABELS[section.kind] ?? section.kind}</h4>
+        <section key={section.kind} data-testid={`generation-section-${section.kind}`}>
+          <h4>{SECTION_LABELS[section.kind] ?? section.kind}</h4>
           {section.paragraphs.map((paragraph) => (
             <p key={paragraph.id}>{paragraph.text}</p>
           ))}
         </section>
       ))}
+      </div>
       {view.inputStale ? (
         <div className="notice" role="alert" data-testid="generation-input-stale" style={STACK}>
           <strong>输入已变化，结果未采纳</strong>
           <p>生成期间事实、草稿或基础修订发生变化。请比较当前稿与本候选后再人工合并。</p>
-          <button type="button" className="btn btn-outline btn-sm" data-testid="generation-compare" onClick={() => void actions.compare?.()}>
+          <button type="button" className="btn ghost sm" data-testid="generation-compare" onClick={() => void actions.compare?.()}>
             比较当前稿
           </button>
         </div>
@@ -258,63 +261,65 @@ export function GenerationViewPanel(props: GenerationViewProps) {
   const { view, loading, loadError, busy, notice, actionError, actions } = props;
   if (loading) {
     return (
-      <section className="card" data-testid="generation" data-state="loading" aria-busy="true">
-        <h2 className="card-title">生成任务</h2>
-        <p className="muted" data-testid="generation-loading">正在读取本机生成任务…</p>
+      <div className="gen-wrap" data-testid="generation" data-state="loading" aria-busy="true">
+        <h1 className="wiz-h1">生成任务</h1>
+        <p className="wiz-sub" data-testid="generation-loading">正在读取本机生成任务…</p>
         <div className="skeleton v6-skeleton" />
-      </section>
+      </div>
     );
   }
   if (loadError !== null) {
     return (
-      <section className="card" data-testid="generation" data-state="error">
-        <h2 className="card-title">生成任务</h2>
-        <div className="notice" role="alert" data-testid="generation-load-error" data-code={loadError.code} style={STACK}>
+      <div className="gen-wrap" data-testid="generation" data-state="error">
+        <h1 className="wiz-h1">生成任务</h1>
+        <div className="callout warn" role="alert" data-testid="generation-load-error" data-code={loadError.code}>
           <strong>读取失败</strong>
           <p>{loadError.message}</p>
-          <button type="button" className="btn btn-outline btn-sm" data-testid="generation-refresh" onClick={() => void actions.refresh()}>
+          <button type="button" className="btn sm" data-testid="generation-refresh" onClick={() => void actions.refresh()}>
             重试
           </button>
         </div>
-      </section>
+      </div>
     );
   }
   if (view === null || view.job === null) {
     return (
-      <section className="card" data-testid="generation" data-state="empty">
-        <h2 className="card-title">生成任务</h2>
-        <p className="muted" data-testid="generation-empty">
+      <div className="gen-wrap" data-testid="generation" data-state="empty">
+        <h1 className="wiz-h1">准备生成材料</h1>
+        <p className="wiz-sub" data-testid="generation-empty">
           本案还没有生成任务。启动后会按五个阶段写入本机检查点；刷新或关闭页面会标为中断。
         </p>
-        <button
-          type="button"
-          className="btn btn-default"
-          data-testid="generation-start"
-          disabled={busy || !view?.canStart}
-          onClick={() => void actions.start()}
-        >
-          {busy ? "正在启动…" : "开始生成"}
-        </button>
-      </section>
+        <div className="wiz-foot">
+          <button
+            type="button"
+            className="btn primary lg"
+            data-testid="generation-start"
+            disabled={busy || !view?.canStart}
+            onClick={() => void actions.start()}
+          >
+            {busy ? "正在启动…" : "开始生成"}
+          </button>
+        </div>
+      </div>
     );
   }
   const job = view.job;
   const state = job.job.state;
   const failed = job.stages.find((stage) => stage.state === "failed") ?? null;
   return (
-    <section className="card stack-3" data-testid="generation" data-state="ready" data-job-state={state}>
-      <div className="row-between">
-        <h2 className="card-title">生成任务</h2>
-        <span className="field-hint" data-testid="generation-job-state">{JOB_STATE_LABELS[state]}</span>
+    <div className="gen-wrap" data-testid="generation" data-state="ready" data-job-state={state}>
+      <h1 className="wiz-h1">{state === "succeeded" ? "材料写完了" : "正在写申请材料"}</h1>
+      <p className="wiz-sub">按你确认的事实起草权利要求和说明书；每一步都可以在专业工作台重新生成。</p>
+      <div className="wiz-sec">
+      <div className="progress"><div className="bar" style={{ width: `${Math.round((view.progress.completed / (view.progress.total || 1)) * 100)}%` }} /></div>
+      <div className="small muted" data-testid="generation-progress" data-completed={view.progress.completed} data-total={view.progress.total ?? ""}>
+        第 {Math.min(view.progress.completed + 1, view.progress.total ?? 5)} 步，共 {view.progress.total ?? "?"} 步 · <span data-testid="generation-job-state">{JOB_STATE_LABELS[state]}</span>
       </div>
-      <p className="field-hint" data-testid="generation-progress" data-completed={view.progress.completed} data-total={view.progress.total ?? ""}>
-        进度 {view.progress.completed}/{view.progress.total ?? "?"} 阶段
-      </p>
       {view.inputStale ? (
         <div className="notice" role="alert" data-testid="generation-input-stale" style={STACK}>
           <strong>输入已变化，结果未采纳</strong>
           <p>生成期间事实、草稿或基础修订发生变化。请比较当前稿与本候选后再人工合并。</p>
-          <button type="button" className="btn btn-outline btn-sm" data-testid="generation-compare" onClick={() => void actions.compare?.()}>
+          <button type="button" className="btn ghost sm" data-testid="generation-compare" onClick={() => void actions.compare?.()}>
             比较当前稿
           </button>
         </div>
@@ -332,36 +337,36 @@ export function GenerationViewPanel(props: GenerationViewProps) {
           <p className="field-hint">{job.errorMessage}</p>
         </div>
       ) : null}
-      <ol className="v6-list" data-testid="generation-stages">
+      <ol className="gen-list" data-testid="generation-stages">
         {view.stages.map((stage) => <StageRow key={stage.stage} stage={stage} />)}
       </ol>
-      <div className="row" style={{ flexWrap: "wrap" }}>
+      <div className="wiz-foot">
         {view.canStart ? (
-          <button type="button" className="btn btn-default btn-sm" data-testid="generation-start" disabled={busy} onClick={() => void actions.start()}>
+          <button type="button" className="btn sm" data-testid="generation-start" disabled={busy} onClick={() => void actions.start()}>
             新建任务
           </button>
         ) : null}
         {view.canCancel ? (
-          <button type="button" className="btn btn-outline btn-sm" data-testid="generation-cancel" disabled={busy} onClick={() => void actions.cancel()}>
+          <button type="button" className="btn ghost sm" data-testid="generation-cancel" disabled={busy} onClick={() => void actions.cancel()}>
             取消
           </button>
         ) : null}
         {view.canResume ? (
-          <button type="button" className="btn btn-default btn-sm" data-testid="generation-resume" disabled={busy} onClick={() => void actions.resume()}>
+          <button type="button" className="btn sm" data-testid="generation-resume" disabled={busy} onClick={() => void actions.resume()}>
             从已保存阶段继续
           </button>
         ) : null}
         {view.canRetry ? (
-          <button type="button" className="btn btn-default btn-sm" data-testid="generation-retry" disabled={busy} onClick={() => void actions.retry()}>
+          <button type="button" className="btn sm" data-testid="generation-retry" disabled={busy} onClick={() => void actions.retry()}>
             重试为新任务
           </button>
         ) : null}
         {view.canDiscard ? (
-          <button type="button" className="btn btn-outline btn-sm" data-testid="generation-discard" disabled={busy} onClick={() => void actions.discard()}>
+          <button type="button" className="btn ghost sm" data-testid="generation-discard" disabled={busy} onClick={() => void actions.discard()}>
             放弃
           </button>
         ) : null}
-        <button type="button" className="btn btn-outline btn-sm" data-testid="generation-refresh" disabled={busy} onClick={() => void actions.refresh()}>
+        <button type="button" className="btn ghost sm" data-testid="generation-refresh" disabled={busy} onClick={() => void actions.refresh()}>
           刷新
         </button>
       </div>
@@ -371,8 +376,9 @@ export function GenerationViewPanel(props: GenerationViewProps) {
           <p>{actionError.message}</p>
         </div>
       ) : null}
-      <p className="field-hint" role="status" aria-live="polite" data-testid="generation-notice">{notice ?? ""}</p>
-    </section>
+      <p className="small muted" role="status" aria-live="polite" data-testid="generation-notice">{notice ?? ""}</p>
+      </div>
+    </div>
   );
 }
 

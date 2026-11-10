@@ -315,10 +315,10 @@ export function FiguresPanel({
       ) : null}
 
       {data && data.drawings.length > 0 ? (
-        <ul className="v6-upload-rows" role="list" data-testid="figures-library">
+        <ul className="group v6-upload-rows" role="list" data-testid="figures-library">
           {data.drawings.map((item) => (
-            <li key={item.drawing.id} className="file-row" data-testid={`figure-row-${item.drawing.id}`}>
-              <span className="ficon" aria-hidden="true">
+            <li key={item.drawing.id} className="filerow" data-testid={`figure-row-${item.drawing.id}`}>
+              <span className="file-ic" aria-hidden="true">
                 ▣
               </span>
               <div className="v6-upload-file">
@@ -377,11 +377,11 @@ export function FiguresPanel({
               图集为空。正文里引用的图号会在导出时被拦下。
             </p>
           ) : (
-            <ol className="v6-upload-rows" data-testid="figures-set-entries">
+            <ol className="group v6-upload-rows" data-testid="figures-set-entries">
               {current.entries.map((entry) => {
                 const drawing = entry.drawingId === null ? null : (drawingsById.get(entry.drawingId) ?? null);
                 return (
-                  <li key={entry.figureId} className="file-row" data-testid={`figure-entry-${entry.number}`}>
+                  <li key={entry.figureId} className="filerow" data-testid={`figure-entry-${entry.number}`}>
                     <span className="file-name">
                       图{entry.number} {entry.title === `图${entry.number}` ? "" : entry.title}
                     </span>

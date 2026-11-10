@@ -177,91 +177,98 @@ export function Recovery({ repository, actor, sourceMatterId = null, initialPass
   };
 
   if (phase === "loading") {
-    return <main className="v6-page" data-testid="recovery-page" data-state="loading" aria-busy="true">
-      <h1 className="v6-title">加密备份与恢复</h1>
-      <p className="muted">正在本机解密、校验或写入恢复包；不会调用网络或外部服务。</p>
+    return <div data-testid="recovery-page" data-state="loading" aria-busy="true">
+      <p className="small muted">正在本机解密、校验或写入恢复包；不会调用网络或外部服务。</p>
       <div className="skeleton v6-skeleton" />
-    </main>;
+    </div>;
   }
 
-  return <main className="v6-page" data-testid="recovery-page" data-state={phase}>
-    <header className="stack-2">
-      <h1 className="v6-title">加密备份与恢复</h1>
-      <p className="muted">恢复包使用口令在本机加密；导入会创建一个新案件并重映射全部 ID。</p>
-      <p className="field-hint">不恢复批准、登录身份、使用权、支付、服务授权或分享授权。旧本地审阅记录只标为 legacy_unverified。</p>
-    </header>
+  return <div className="stack-3" data-testid="recovery-page" data-state={phase}>
+    <p className="small muted">恢复包使用口令在本机加密；导入会创建一个新案件并重映射全部 ID。不恢复批准、登录身份、使用权、支付、服务授权或分享授权。旧本地审阅记录只标为 legacy_unverified。</p>
 
-    {error ? <section className="notice stack-2" role="alert" data-testid="recovery-error" data-code={error.code}>
+    {error ? <div className="callout risk" role="alert" data-testid="recovery-error" data-code={error.code}>
       <strong>操作未完成（{error.code}）</strong>
       <p>{error.message}</p>
       <button type="button" className="btn btn-outline btn-sm" onClick={() => void refresh()}>刷新持久状态</button>
-    </section> : null}
+    </div> : null}
 
-    {committedMatterId ? <section className="notice stack-2" role="status" data-testid="recovery-committed" data-matter-id={committedMatterId}>
+    {committedMatterId ? <div className="callout ok" role="status" data-testid="recovery-committed" data-matter-id={committedMatterId}>
       <strong>恢复完成</strong>
-      <p>已在新的案件 <code>{committedMatterId}</code> 中导入。未恢复任何批准、身份、权益或分享。</p>
-    </section> : null}
+      <p>已在新的案件中导入。未恢复任何批准、身份、权益或分享。</p>
+      <details className="v6-tech-details"><summary>新案件 ID</summary><code>{committedMatterId}</code></details>
+    </div> : null}
 
-    <section className="stack-2" data-testid="recovery-export">
-      <h2 className="card-title">生成恢复包</h2>
-      {sourceMatterId
-        ? <p className="muted">来源案件：<code>{sourceMatterId}</code></p>
-        : <p className="notice">没有可导出的来源案件；仍可导入已有恢复包。</p>}
-      <label className="field">
-        <span className="field-label">恢复包口令</span>
-        <input className="input" type="password" autoComplete="new-password" value={passphrase}
-          onChange={(event) => setPassphrase(event.currentTarget.value)} data-testid="recovery-passphrase" />
-        <span className="field-hint">口令只在本页内存中使用，不保存、不写日志。</span>
-      </label>
-      <label className="field">
-        <span className="field-label">生成内容范围</span>
-        <select className="input" value={access} onChange={(event) => setAccess(event.currentTarget.value as RecoveryAccess)} data-testid="recovery-access">
-          <option value="local_unmetered">本机完整内容（local_unmetered）</option>
-          <option value="preview">仅预览节点（C10 裁剪）</option>
-          <option value="full">已授权完整内容（full）</option>
-        </select>
-      </label>
-      <div className="row">
-        <button type="button" className="btn btn-default" data-testid="recovery-generate"
-          disabled={busy || !sourceMatterId || passphrase.trim().length === 0} onClick={() => void generate()}>
-          生成加密恢复包
-        </button>
-        {exported ? <button type="button" className="btn btn-outline" data-testid="recovery-download" onClick={downloadGenerated}>下载 {exported.name}</button> : null}
+    <section className="setsec" data-testid="recovery-export">
+      <h3>生成恢复包</h3>
+      <div className="group">
+        <div className="row"><div className="r-main"><div className="r-title">来源案件</div>
+          <div className="r-sub">{sourceMatterId ? "导出只读取本机加密记录，不访问网络。" : "没有可导出的来源案件；仍可导入已有恢复包。"}</div></div>
+          <div className="r-right">{sourceMatterId ? <span className="tag plain">本机</span> : <span className="tag warn">无来源</span>}</div></div>
+        <div className="row" style={{ alignItems: "flex-start" }}>
+          <div className="r-main stack-2">
+            <label className="field"><span className="field-label">恢复包口令</span>
+              <input className="input" type="password" autoComplete="new-password" value={passphrase}
+                onChange={(event) => setPassphrase(event.currentTarget.value)} data-testid="recovery-passphrase" />
+              <span className="field-hint">口令只在本页内存中使用，不保存、不写日志。</span>
+            </label>
+            <label className="field"><span className="field-label">生成内容范围</span>
+              <select className="input" value={access} onChange={(event) => setAccess(event.currentTarget.value as RecoveryAccess)} data-testid="recovery-access">
+                <option value="local_unmetered">本机完整内容（local_unmetered）</option>
+                <option value="preview">仅预览节点（C10 裁剪）</option>
+                <option value="full">已授权完整内容（full）</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div className="row" style={{ justifyContent: "flex-end", flexWrap: "wrap" }}>
+          <button type="button" className="btn primary" data-testid="recovery-generate"
+            disabled={busy || !sourceMatterId || passphrase.trim().length === 0} onClick={() => void generate()}>
+            生成加密恢复包
+          </button>
+          {exported ? <button type="button" className="btn" data-testid="recovery-download" onClick={downloadGenerated}>下载 {exported.name}</button> : null}
+        </div>
+        {exported ? <div className="row"><span className="small muted" data-testid="recovery-export-hash">
+          {exported.bytes} bytes · SHA-256 {exported.sha256.slice(0, 24)}…
+        </span></div> : null}
       </div>
-      {exported ? <p className="field-hint" data-testid="recovery-export-hash">
-        {exported.bytes} bytes · SHA-256 {exported.sha256}
-      </p> : null}
     </section>
 
-    <section className="stack-2" data-testid="recovery-import">
-      <h2 className="card-title">校验并导入恢复包</h2>
-      <label className="field">
-        <span className="field-label">加密恢复包</span>
-        <input className="input" type="file" accept=".patentpack,application/json,application/octet-stream"
-          onChange={(event) => void selectFile(event.currentTarget.files?.[0] ?? null)} data-testid="recovery-file" />
-        {selectedName ? <span className="field-hint">已选择：{selectedName}</span> : <span className="field-hint">选择 .patentpack 文件；校验前不会写入任何案件。</span>}
-      </label>
-      <button type="button" className="btn btn-default" data-testid="recovery-validate"
-        disabled={busy || !selectedBytes || passphrase.trim().length === 0} onClick={() => void validate()}>
-        预览校验结果
-      </button>
-      <p className="field-hint">校验结果（含解密包）在本机最多保留 15 分钟；提交后会删除解密包，只留不含内容的提交标记。</p>
-      {report ? <RecoveryReport report={report} /> : <p className="muted">尚未校验。校验是 dry-run，不会创建案件。</p>}
-      {report ? <label className="field">
-        <span className="field-label">
-          <input type="checkbox" checked={reviewed} onChange={(event) => setReviewed(event.currentTarget.checked)} data-testid="recovery-reviewed" />{" "}
-          我已核对上述映射、缺字节、未知版本和无法转换项
-        </span>
-      </label> : null}
-      <button type="button" className="btn btn-default" data-testid="recovery-commit"
-        disabled={busy || !validation || !validation.canCommit || !reviewed || Boolean(persisted?.status === "committed")}
-        onClick={() => void commit()}>
-        {persisted?.status === "committed" ? "已导入（同一校验不会重复创建）" : "确认导入为新案件"}
-      </button>
-      {(validation || persisted) ? <button type="button" className="btn btn-outline btn-sm" data-testid="recovery-refresh"
-        onClick={() => void refresh()}>刷新持久状态</button> : null}
+    <section className="setsec" data-testid="recovery-import">
+      <h3>校验并导入恢复包</h3>
+      <div className="group">
+        <div className="row" style={{ alignItems: "flex-start" }}>
+          <div className="r-main stack-2">
+            <label className="field"><span className="field-label">加密恢复包</span>
+              <input className="input" type="file" accept=".patentpack,application/json,application/octet-stream"
+                onChange={(event) => void selectFile(event.currentTarget.files?.[0] ?? null)} data-testid="recovery-file" />
+              {selectedName ? <span className="field-hint">已选择：{selectedName}</span> : <span className="field-hint">选择 .patentpack 文件；校验前不会写入任何案件。</span>}
+            </label>
+          </div>
+        </div>
+        <div className="row" style={{ justifyContent: "flex-end" }}>
+          <button type="button" className="btn" data-testid="recovery-validate"
+            disabled={busy || !selectedBytes || passphrase.trim().length === 0} onClick={() => void validate()}>
+            预览校验结果
+          </button>
+        </div>
+        <div className="row"><span className="small muted">校验结果（含解密包）在本机最多保留 15 分钟；提交后会删除解密包，只留不含内容的提交标记。</span></div>
+        {report ? <RecoveryReport report={report} /> : <div className="row"><span className="small muted">尚未校验。校验是 dry-run，不会创建案件。</span></div>}
+        {report ? <div className="row">
+          <label className="rowgap"><input type="checkbox" checked={reviewed} onChange={(event) => setReviewed(event.currentTarget.checked)} data-testid="recovery-reviewed" />
+            <span className="small">我已核对上述映射、缺字节、未知版本和无法转换项</span></label>
+        </div> : null}
+        <div className="row" style={{ justifyContent: "flex-end", flexWrap: "wrap" }}>
+          <button type="button" className="btn primary" data-testid="recovery-commit"
+            disabled={busy || !validation || !validation.canCommit || !reviewed || Boolean(persisted?.status === "committed")}
+            onClick={() => void commit()}>
+            {persisted?.status === "committed" ? "已导入（同一校验不会重复创建）" : "确认导入为新案件"}
+          </button>
+          {(validation || persisted) ? <button type="button" className="btn btn-sm" data-testid="recovery-refresh"
+            onClick={() => void refresh()}>刷新持久状态</button> : null}
+        </div>
+      </div>
     </section>
-  </main>;
+  </div>;
 }
 
 export function RecoveryReport({ report }: { report: MigrationReport }) {
