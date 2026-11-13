@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: CHROME_PATH selects exactly the requested binary and a bad override cannot silently fall back
+ok 1 - CHROME_PATH selects exactly the requested binary and a bad override cannot silently fall back
+  ---
+  duration_ms: 1.302
+  type: 'test'
+  ...
+# Subtest: Chrome discovery covers Linux, macOS and executable names on PATH
+ok 2 - Chrome discovery covers Linux, macOS and executable names on PATH
+  ---
+  duration_ms: 0.12475
+  type: 'test'
+  ...
+# Subtest: browser discovery requires execute permission, not just an existing file
+ok 3 - browser discovery requires execute permission, not just an existing file
+  ---
+  duration_ms: 0.8955
+  type: 'test'
+  ...
+# Subtest: Linux browser arguments handle sandbox and shared-memory constraints without affecting macOS
+ok 4 - Linux browser arguments handle sandbox and shared-memory constraints without affecting macOS
+  ---
+  duration_ms: 0.087208
+  type: 'test'
+  ...
+# Subtest: early browser exit is retried a bounded number of times with diagnostics and profiles cleaned up
+ok 5 - early browser exit is retried a bounded number of times with diagnostics and profiles cleaned up
+  ---
+  duration_ms: 207.734833
+  type: 'test'
+  ...
+# Subtest: missing browser executable is reported and cleaned up without an unhandled spawn error
+ok 6 - missing browser executable is reported and cleaned up without an unhandled spawn error
+  ---
+  duration_ms: 104.087667
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 359.071791

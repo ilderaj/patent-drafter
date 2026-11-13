@@ -3,14 +3,12 @@
 // Real MattersPage + real repository on the in-memory backend; no network.
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { createServer } from "node:http";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
+import { launchChromeWithPageTarget } from "../../helpers/chrome.mjs";
 import * as esbuild from "esbuild";
 
-let chrome, profile, server, ws, send;
+let browser, server, ws, send;
 const pending = new Map();
 const errors = [];
 let messageId = 0;
@@ -73,18 +71,8 @@ before(async () => {
     response.end(request.url === "/fixture.js" ? build.outputFiles[0].contents : '<div id="root"></div><script src="/fixture.js"></script>');
   });
   await new Promise((done) => server.listen(0, "127.0.0.1", done));
-  const executable = process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-  assert.ok(existsSync(executable), `Chrome required for the rename conflict test: ${executable}`);
-  profile = mkdtempSync(join(tmpdir(), "v6-matters-conflict-"));
-  chrome = spawn(executable, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "--no-first-run", "--no-default-browser-check", "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
-  const endpoint = await new Promise((ok, fail) => {
-    const timer = setTimeout(() => fail(new Error("Chrome debugging endpoint unavailable")), 10000);
-    chrome.stderr.on("data", (chunk) => { const match = String(chunk).match(/DevTools listening on (ws:\/\/[^\s]+)/); if (match) { clearTimeout(timer); ok(match[1]); } });
-    chrome.once("error", fail);
-  });
-  const targets = await (await fetch(`http://${new URL(endpoint).host}/json`)).json();
-  ws = new WebSocket(targets.find((target) => target.type === "page").webSocketDebuggerUrl);
-  await new Promise((done) => ws.addEventListener("open", done, { once: true }));
+  browser = await launchChromeWithPageTarget({ profilePrefix: "v6-matters-conflict-" });
+  ws = browser.socket;
   ws.addEventListener("message", (event) => {
     const message = JSON.parse(event.data);
     if (message.id) {
@@ -100,9 +88,8 @@ before(async () => {
   await waitFor("!!window.fixture", "fixture loaded");
 });
 after(async () => {
-  ws?.close(); chrome?.kill();
+  await browser?.close();
   if (server) await new Promise((done) => server.close(done));
-  if (profile) rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 });
 
 test("a conflicting rename names the conflict, refreshes the list and the retry then succeeds", async () => {

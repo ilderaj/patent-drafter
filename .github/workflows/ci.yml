@@ -21,6 +21,13 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Install Chrome for headless tests
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+          install-dependencies: true
+
       - name: Install from lockfile
         run: npm ci
 
@@ -30,11 +37,23 @@ jobs:
       - name: Build the web app
         run: npm run build -w @patent/web
 
-      # Every scenario directory, including alignment-*. The V6-09 headless
-      # Chrome cases skip explicitly (with the reason and count printed) only
-      # when no Chrome binary exists; the runner never treats a skip silently.
+      # Require the installed browser: missing Chrome must fail, never skip tests.
       - name: Run all V6 scenarios
-        run: npm run test:v6 -- --all
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        run: |
+          set -o pipefail
+          test -x "$CHROME_PATH"
+          "$CHROME_PATH" --version
+          npm run test:v6 -- --all | tee qa/v6/scenarios/alignment-self/ci-portability-ci.log
+
+      - name: Preserve V6 scenario log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v6-node22-browser-tests
+          path: qa/v6/scenarios/alignment-self/ci-portability-ci.log
+          if-no-files-found: ignore
 
       - name: Export builder tests
         run: npm test -w packages/export

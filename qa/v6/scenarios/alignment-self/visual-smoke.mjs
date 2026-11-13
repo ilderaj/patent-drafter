@@ -1,30 +1,13 @@
 // Structural smoke for the rebuilt self-service shell. Usage: node visual-smoke.mjs <outDir> <baseUrl>
-import { spawn } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { launchChromeWithPageTarget } from "../../helpers/chrome.mjs";
 
 const [outDir, base] = process.argv.slice(2);
-const CHROME = process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const profile = mkdtempSync(join(tmpdir(), "v6-self-smoke-"));
-const port = 9400 + Math.floor(Math.random() * 200);
-const chrome = spawn(CHROME, [
-  "--headless=new", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`,
-  "--no-first-run", "--no-default-browser-check", "--window-size=1440,900", "about:blank",
-], { stdio: "ignore" });
-
+const browser = await launchChromeWithPageTarget({ profilePrefix: "v6-self-smoke-" });
+const ws = browser.socket;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-let targets;
-for (let i = 0; i < 60; i++) {
-  try {
-    targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
-    if (targets.some((target) => target.type === "page")) break;
-  } catch {}
-  await sleep(150);
-}
-const page = targets.find((target) => target.type === "page");
-const ws = new WebSocket(page.webSocketDebuggerUrl);
-await new Promise((resolve) => ws.addEventListener("open", resolve, { once: true }));
+try {
 let id = 0;
 const pending = new Map();
 const errors = [];
@@ -250,5 +233,6 @@ for (const [page, path, testId] of [
 
 console.log(JSON.stringify({ log, errors }, null, 2));
 await send("Page.close").catch(() => {});
-ws.close();
-chrome.kill();
+} finally {
+  await browser.close();
+}
