@@ -1,0 +1,52 @@
+{
+  "scenario": "C",
+  "checks": 9,
+  "failures": [],
+  "results": [
+    {
+      "name": "setup-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "c-failed",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "c-no-consent-updated",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "c-retry-present",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "c-input-stale",
+      "ok": true,
+      "detail": "code=INPUT_STALE text=材料已变化，请开始新任务。"
+    },
+    {
+      "name": "c-chat-zero",
+      "ok": true,
+      "detail": "chat=1"
+    },
+    {
+      "name": "c-start-offered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "c-new-task-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "c-new-job-succeeds",
+      "ok": true,
+      "detail": "state=succeeded"
+    }
+  ]
+}

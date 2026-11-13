@@ -1,6 +1,6 @@
 import test, { after, before } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { createRequire } from "node:module";
@@ -43,6 +43,21 @@ before(async () => {
     jsx: "automatic",
     define: { "process.env.NODE_ENV": '"production"' },
     logLevel: "silent",
+    // The workbench now reaches the generation runtime, whose prompts are
+    // imported with Vite's `?raw` suffix; esbuild needs that handled here.
+    plugins: [{
+      name: "vite-raw",
+      setup(build) {
+        build.onResolve({ filter: /\?raw$/ }, (args) => ({
+          path: resolve(args.resolveDir, args.path.replace(/\?raw$/, "")),
+          namespace: "vite-raw",
+        }));
+        build.onLoad({ filter: /.*/, namespace: "vite-raw" }, (args) => ({
+          contents: `export default ${JSON.stringify(readFileSync(args.path, "utf8"))}`,
+          loader: "js",
+        }));
+      },
+    }],
   });
   ui = createRequire(outfile)(outfile);
 });

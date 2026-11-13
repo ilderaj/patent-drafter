@@ -2197,6 +2197,8 @@ async function remapAst(value: unknown, maps: ImportMaps, validationId: string):
     for (const feature of claim.features) featureIds.set(feature.id, await derivedId(`v6/recovery/${validationId}/feature/${feature.id}`));
   }
   const remapRef = (ref: DraftAST["claims"][number]["paragraphs"][number]["sourceRefs"][number]) => {
+    // A reference into the user's own answer has content-derived ids that are identical in the new matter.
+    if (ref.origin === "user_answer") return { ...ref };
     const mapped = maps.chunk.get(ref.chunkId);
     if (!mapped) return null;
     return { ...ref, sourceId: maps.source.get(ref.sourceId) ?? ref.sourceId, chunkId: mapped.id, chunkHash: mapped.hash };

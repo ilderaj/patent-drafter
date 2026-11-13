@@ -991,6 +991,10 @@ test("V6-15 engine: the invocation view model projects contract metadata only", 
     "stage",
     "status",
     "usageUnknown",
-  ]);
+    "at",
+    "errorCode",
+    "execution",
+    "executionLocation",
+  ].sort());
   assert.equal(toSafeInvocationRow({ ...invocation, id: "not-a-uuid" }), null);
 });

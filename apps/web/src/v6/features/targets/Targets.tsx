@@ -26,11 +26,13 @@ import {
   type TargetConfigInput,
   type TargetFailure,
   type TargetFieldError,
+  type RouteCard,
   type TargetsView,
   type TargetView,
   type UpdateTargetConfigResult,
 } from "./targets.ts";
 import type { Actor, LocalRepository } from "../../lib/repository.ts";
+import { Tag } from "../../components/ui/index.ts";
 
 // ---------------------------------------------------------------------------
 // Form state
@@ -45,10 +47,11 @@ export interface ConfigFormState {
 }
 
 function defaultRoute(view: TargetsView): Route {
-  const recommended = view.routeCards.find((card) => card.recommended);
-  if (recommended !== undefined) return recommended.route;
-  const excludesUm = view.recommendation.excluded.some((item) => item.route === "cn_um");
-  return excludesUm ? "cn_invention" : "cn_um";
+  // A new target can only start on a domestic route: the foreign routes have no
+  // translation, route-file verification or agency filing yet. Keep using the
+  // recommendation when it names a domestic route.
+  const recommended = view.routeCards.find((card) => card.recommended && !card.foreign);
+  return recommended?.route ?? "cn_um";
 }
 
 function initialForm(view: TargetsView): ConfigFormState {
@@ -349,6 +352,17 @@ function gatedText(gate: { value: string | null; verified: boolean }): string {
   return gate.value;
 }
 
+/** Route capabilities as the catalogue states them; never an inferred promise. */
+function capabilityLine(card: RouteCard): string {
+  const parts = card.limits.map((limit) =>
+    `${limit.state === "available" ? "" : "不可用："}${limit.reason.replace(/。$/, "")}`);
+  return `${parts.join("；")}。`;
+}
+
+/** The handoff sentence for routes that cannot be chosen as a new target. */
+const FOREIGN_COMING_SOON = "尚未提供英文翻译、该路线申请文件核验或代理递交。";
+const INVENTION_LIMIT = "可整理中文准备稿；规则依据尚待核实，需专业人员复核。";
+
 function FieldErrors({ fields, id }: { fields: readonly TargetFieldError[]; id: string }) {
   return (
     <ul className="field-hint" data-testid={id} style={{ margin: 0, paddingLeft: 18 }}>
@@ -367,12 +381,15 @@ function ConfigFields({
   view,
   busy,
   onChange,
+  existingRoute = null,
 }: {
   idPrefix: string;
   form: ConfigFormState;
   view: TargetsView;
   busy: boolean;
   onChange: (next: ConfigFormState) => void;
+  /** Route already saved on the target being edited; null when creating. */
+  existingRoute?: Route | null;
 }) {
   const card = view.routeCards.find((candidate) => candidate.route === form.route) ?? null;
   const languageProblem =
@@ -384,18 +401,34 @@ function ConfigFields({
       <fieldset className="v6-field" data-testid={`${idPrefix}-route`}>
         <legend className="field-label">申请路线</legend>
         <div className="optgrid">
-          {view.routeCards.map((candidate) => <label key={candidate.route} className="optcard">
-            <input type="radio" name={`${idPrefix}-route`} value={candidate.route} checked={form.route === candidate.route} disabled={busy}
-              onChange={() => onChange({ ...form, route: candidate.route, language: candidate.defaultLanguage })} />
-            <span className="v6-route-choice-body">
-              <span className="oc-t">{candidate.label}{candidate.recommended ? " · 推荐" : ""}</span>
-              <span className="oc-d">保护对象：{candidate.protection}</span>
-              <span className="oc-d">审查方式：{candidate.examination}</span>
-              <span className="oc-d">能力：{candidate.limits.map((limit) => `${limit.reason}（${limit.state === "available" ? "可用" : "不可用"}）`).join("；")}</span>
-              {candidate.excludedBy ? <span className="badge badge-warn">依据当前事实不推荐</span> : null}
-              <span className="oc-d">规则：{candidate.verificationLabel} · 周期 {gatedText(candidate.cycle)} · 费用 {gatedText(candidate.fee)} · 保护期 {gatedText(candidate.term)}</span>
-            </span>
-          </label>)}
+          {view.routeCards.map((candidate) => {
+            // An existing foreign target stays usable and editable in place, but a
+            // new one is not offered until translation, route files and filing exist.
+            const preserved = existingRoute !== null && candidate.route === existingRoute;
+            const comingSoon = candidate.foreign && !preserved;
+            return <label key={candidate.route}
+              className={`optcard${form.route === candidate.route ? " sel" : ""}${comingSoon ? " off" : ""}`}
+              data-testid={`${idPrefix}-route-card-${candidate.route}`}
+              data-disabled-reason={comingSoon ? FOREIGN_COMING_SOON : undefined}>
+              <input type="radio" name={`${idPrefix}-route`} value={candidate.route} checked={form.route === candidate.route} disabled={busy || comingSoon}
+                onChange={() => onChange({ ...form, route: candidate.route, language: candidate.defaultLanguage })} />
+              <span className="v6-route-choice-body">
+                <span className="oc-t">{candidate.label}{candidate.recommended ? " · 推荐" : ""}
+                  {candidate.route === "cn_um" ? <Tag tone="plain">当前主路线</Tag> : null}
+                  {comingSoon ? <Tag tone="plain">即将支持</Tag> : null}
+                  {candidate.route === "cn_invention" ? <Tag tone="warn">仅中文准备稿</Tag> : null}
+                </span>
+                <span className="oc-d">保护对象：{candidate.protection}</span>
+                <span className="oc-d">审查方式：{candidate.examination}</span>
+                <span className="oc-d">能力：{capabilityLine(candidate)}</span>
+                {comingSoon ? <span className="oc-d">{FOREIGN_COMING_SOON}</span> : null}
+                {candidate.route === "cn_invention" ? <span className="oc-d">{INVENTION_LIMIT}</span> : null}
+                {preserved && candidate.foreign ? <span className="oc-d">本案已有目标保留此路线，可以继续保存现有配置；不能新建其他海外路线。</span> : null}
+                {candidate.excludedBy ? <span className="badge badge-warn">依据当前事实不推荐</span> : null}
+                <span className="oc-d">规则：{candidate.verificationLabel} · 周期 {gatedText(candidate.cycle)} · 费用 {gatedText(candidate.fee)} · 保护期 {gatedText(candidate.term)}</span>
+              </span>
+            </label>;
+          })}
         </div>
       </fieldset>
       <fieldset className="v6-field" data-testid={`${idPrefix}-language`}>
@@ -499,7 +532,9 @@ function CreateForm({ view, busy, onSave }: { view: TargetsView; busy: boolean; 
       ? "案件已归档，不能新增目标。"
       : card === null
         ? "不支持的申请路线，尚未保存。"
-        : languageProblem;
+        : card.foreign
+          ? `海外路线即将支持：${FOREIGN_COMING_SOON}`
+          : languageProblem;
   return (
     <div className="stack-3" data-testid="targets-create">
       <h3 className="card-title">新建目标</h3>
@@ -547,7 +582,8 @@ function UpdateForm({
           修改尚未保存；切换目标不会保存这些改动。
         </p>
       ) : null}
-      <ConfigFields idPrefix="targets-update" form={form} view={view} busy={busy} onChange={setForm} />
+      <ConfigFields idPrefix="targets-update" form={form} view={view} busy={busy} onChange={setForm}
+        existingRoute={target.config?.route ?? null} />
       <div className="row" style={{ flexWrap: "wrap" }}>
         <button
           type="button"
@@ -770,6 +806,8 @@ export function TargetsViewPanel(props: TargetsViewProps) {
           >
             <div className="row" style={{ flexWrap: "wrap" }}>
               <h4 className="card-title">{card.label}</h4>
+              {card.foreign ? <Tag tone="plain">即将支持</Tag> : null}
+              {card.route === "cn_invention" ? <Tag tone="warn">仅中文准备稿</Tag> : null}
               {card.recommended ? <span className="badge badge-ok">推荐</span> : null}
               {card.excludedBy !== null ? (
                 <span className="badge badge-warn" data-testid={`targets-excluded-${card.route}`}>
@@ -798,6 +836,14 @@ export function TargetsViewPanel(props: TargetsViewProps) {
               <dt>保护期</dt>
               <dd data-testid={`targets-term-${card.route}`}>{gatedText(card.term)}</dd>
             </dl>
+            {card.foreign ? (
+              <p className="field-hint" data-testid={`targets-coming-soon-${card.route}`}>
+                {FOREIGN_COMING_SOON}不能作为新目标保存；已有目标保留原配置。
+              </p>
+            ) : null}
+            {card.route === "cn_invention" ? (
+              <p className="field-hint" data-testid="targets-invention-limit">{INVENTION_LIMIT}</p>
+            ) : null}
             {card.foreignWarning !== null ? (
               <p className="field-hint" data-testid={`targets-foreign-warning-${card.route}`}>
                 {card.foreignWarning}

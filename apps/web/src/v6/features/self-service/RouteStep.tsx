@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { v6Path } from "../../routes/navigation.ts";
 import type { Party } from "../../../../../../packages/contracts/src/matter.ts";
 import type { Actor, LocalRepository } from "../../lib/repository.ts";
 import { DISCLOSURE_OPTIONS, readIntake, saveIntake, type IntakeView } from "../intake/intake.ts";
@@ -32,7 +34,9 @@ export function RouteStep({
   onSaved: (targetId: string) => void;
   onBack: () => void;
 }) {
-  const initialRoute = target?.config?.route ?? targets.routeCards.find((card) => card.recommended)?.route ?? "cn_um";
+  // Keep saved targets as-is. New self-service matters start with the supported
+  // Chinese utility-model flow, regardless of the broader workbench recommendation.
+  const initialRoute = target?.config?.route ?? "cn_um";
   const [route, setRoute] = useState<Route>(initialRoute);
   const [parties, setParties] = useState<Party[]>(intake.parties);
   const [newParties, setNewParties] = useState<Party[]>([]);
@@ -68,6 +72,10 @@ export function RouteStep({
 
   const save = async () => {
     if (busy) return;
+    if (route === "us_nonprovisional" || route === "pct") {
+      setError("海外路线即将支持，当前不能在自助流程中保存。已有目标和材料会保留，请到专业工作台查看。");
+      return;
+    }
     if (target !== null && target.config === null) {
       setError("当前目标配置无法读取。请在专业工作台检查后再继续。");
       return;
@@ -167,15 +175,16 @@ export function RouteStep({
     onSaved(created.data.target.id);
   };
 
-  const weekly = route === "us_nonprovisional" || route === "pct";
+  const foreignRoute = route === "us_nonprovisional" || route === "pct";
 
   return (
     <div data-testid="self-route-step">
-      <h1 className="wiz-h1">在哪里申请，用哪种类型</h1>
-      <p className="wiz-sub">根据你的回答，先给一个建议。之后可以在专业工作台里增加更多法域目标。</p>
+      <h1 className="wiz-h1">准备中国实用新型申请</h1>
+      <p className="wiz-sub">面向中国研发团队和个人发明人，当前自助流程以中国实用新型为主。其他路线请先看清能力限制。</p>
       <div className="route-grid" role="radiogroup" aria-label="申请路线">
         {targets.routeCards.map((candidate) => {
           const selected = candidate.route === route;
+          const comingSoon = candidate.foreign;
           return (
             <button
               key={candidate.route}
@@ -183,12 +192,14 @@ export function RouteStep({
               className={selected ? "route-card sel" : "route-card"}
               role="radio"
               aria-checked={selected}
+              disabled={busy || comingSoon}
               data-testid={`self-route-${candidate.route}`}
               onClick={() => { setRoute(candidate.route); targetRequestKey.current = null; setError(null); }}
             >
-              {candidate.recommended ? <span className="rc-rec rc-badge">建议</span> : null}
-              <span className="rc-h"><span className="rc-t">{candidate.label}</span>{candidate.excludedBy ? <Tag tone="warn">规则提示</Tag> : null}</span>
+              {candidate.route === "cn_um" ? <span className="rc-rec rc-badge">当前主路线</span> : null}
+              <span className="rc-h"><span className="rc-t">{candidate.label}</span>{comingSoon ? <Tag tone="plain">即将支持</Tag> : candidate.route === "cn_invention" ? <Tag tone="warn">仅中文准备稿</Tag> : null}{candidate.excludedBy ? <Tag tone="warn">规则提示</Tag> : null}</span>
               <span className="rc-d">{candidate.protection}</span>
+              {comingSoon ? <span className="rc-d">尚未提供英文翻译、该路线申请文件核验或代理递交。</span> : candidate.route === "cn_invention" ? <span className="rc-d">可整理中文准备稿；规则依据尚待核实，需专业人员复核。</span> : null}
               <span className="rc-m">
                 <span><b>审查</b> {candidate.examination}</span>
                 <span><b>周期</b> {candidate.cycle.verified ? candidate.cycle.value ?? "已核实" : "未核实"}</span>
@@ -202,6 +213,10 @@ export function RouteStep({
         <Icon name="info" size="sm" /> 能力范围：{card.limits.map((limit) => `${limit.state === "available" ? "可用" : "未开放"}：${limit.reason}`).join("；")}
       </div>
       {card.foreignWarning ? <div className="route-extra"><Icon name="info" size="sm" /> {card.foreignWarning}</div> : null}
+      {foreignRoute ? <div className="route-extra" data-testid="self-route-existing-foreign">
+        <Icon name="info" size="sm" /> 已有海外目标和材料会保留，当前不能在自助流程中保存此路线。
+        <Link to={v6Path({ kind: "matter", matterId, targetId: target?.id ?? null, tab: "overview" })}>到专业工作台查看</Link>
+      </div> : null}
 
       {intake.answers.disclosure !== null && intake.answers.disclosure !== "none" ? (
         <Callout tone="warn" icon="alert" testId="self-route-disclosure-warning">
@@ -213,7 +228,7 @@ export function RouteStep({
       <div className="costsum">
         <div className="cs">官费<b>按提交日标准</b></div>
         <div className="cs">平台服务费<b>未开放</b></div>
-        <div className="cs">预计完成<b>{weekly ? "需专业人员接手" : "本机测试生成"}</b></div>
+        <div className="cs">准备方式<b>{foreignRoute ? "即将支持" : route === "cn_invention" ? "中文稿，需专业复核" : "中文申请材料准备"}</b></div>
         <div className="cs" style={{ marginLeft: "auto", textAlign: "right" }}><Tag tone="plain">本地版不收费</Tag></div>
       </div>
 
@@ -252,7 +267,7 @@ export function RouteStep({
           <Icon name="chevL" size="sm" />上一步
         </button>
         <span className="hint">人员与路线在保存后写入本案；未核实的数值不显示估算。</span>
-        <button type="button" className="btn primary lg" disabled={busy || (target !== null && target.config === null)} onClick={() => void save()}>
+        <button type="button" className="btn primary lg" disabled={busy || foreignRoute || (target !== null && target.config === null)} onClick={() => void save()}>
           {busy ? "正在保存…" : "生成材料"}<Icon name="arrow" size="sm" />
         </button>
       </div>

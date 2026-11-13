@@ -6,8 +6,7 @@ import { DraftEditor } from "../draft/Editor.tsx";
 import { DraftReviewSession } from "../draft/Review.tsx";
 import type { DraftReviewState } from "../draft/Review.tsx";
 import { currentConfirmations } from "../../../../../../packages/domain/src/v6/confirmation.ts";
-import { GenerationPanel } from "../generation/Generation.tsx";
-import type { GenerationEngineOptions } from "../generation/generation.ts";
+import { WorkbenchGenerationStrip } from "./GenerationRuntime.tsx";
 import { Figures } from "../sources/Figures.tsx";
 import { Parse } from "../sources/Parse.tsx";
 import { Upload } from "../sources/Upload.tsx";
@@ -33,9 +32,8 @@ const WRITE_TABS: ReadonlySet<MatterTab> = new Set(["sources", "facts", "draft",
 /**
  * A read/write composition surface over one existing `LocalRepository` matter.
  * It expects the V6 router, keeps selection in the supplied route ids, and never
- * creates or copies a matter. `generation` is omitted unless the host has a
- * configured engine; the workbench never enables test output or calls a provider
- * on its own.
+ * creates or copies a matter. Generation resolves its own consent-aware runtime;
+ * the workbench never enables test output or calls a provider on its own.
  */
 export interface ProfessionalWorkbenchProps {
   repository: LocalRepository;
@@ -45,8 +43,6 @@ export interface ProfessionalWorkbenchProps {
   tab: MatterTab;
   /** Active check rule version from the host registry, when available. */
   activeRulePackVersion?: string | null;
-  /** Optional V6-17 engine configuration supplied by the owning application. */
-  generation?: Omit<GenerationEngineOptions, "repository" | "actor">;
   /** Host-loaded V6-23 rule pack; omitted in tests/synthetic mounts. */
   rulePack?: CheckRulePack;
   rulePackVersion?: string;
@@ -181,7 +177,7 @@ export function ProfessionalWorkbench(props: ProfessionalWorkbenchProps) {
         </Callout> : null}
         {stale ? <Callout tone="info" icon="clock" testId="workbench-stale">工作台数据已陈旧，正在重新读取。</Callout> : null}
         {state.error ? <Callout tone="risk" icon="alert" testId="workbench-refresh-error">
-          {state.error} <Button size="sm" onClick={() => setAttempt((value) => value + 1)}>重试</Button>
+          {state.error} <Button size="sm" onClick={() => void refresh(true)}>重试</Button>
         </Callout> : null}
         {state.refreshing ? <p className="field-hint" aria-live="polite">正在读取最新状态…</p> : null}
 
@@ -357,10 +353,10 @@ function DraftPanel(props: ProfessionalWorkbenchProps & { overview: WorkbenchOve
   if (!props.targetId) return <TargetRequired />;
   const target = props.overview.targets.find((item) => item.id === props.targetId);
   if (!target) return <MatterUnavailable />;
-  return <DraftWorkspacePanel repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId} route={target.route} generation={props.generation} />;
+  return <DraftWorkspacePanel repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId} route={target.route} />;
 }
 
-function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository" | "actor" | "matterId" | "generation"> & { targetId: string; route: string | null }) {
+function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository" | "actor" | "matterId"> & { targetId: string; route: string | null }) {
   const session = useMemo(() => new DraftReviewSession({
     repository: props.repository,
     actor: props.actor,
@@ -369,7 +365,7 @@ function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository
   }), [props.repository, props.actor, props.matterId, props.targetId]);
   const [reviewState, setReviewState] = useState<DraftReviewState>(() => session.getSnapshot());
   const [editorRefreshToken, setEditorRefreshToken] = useState(0);
-  const generationRef = useRef<HTMLDivElement | null>(null);
+  const [revealToken, setRevealToken] = useState(0);
 
   useEffect(() => {
     const unsubscribe = session.subscribe(setReviewState);
@@ -377,14 +373,8 @@ function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository
     return unsubscribe;
   }, [session]);
 
-  const revealGeneration = useCallback(() => {
-    const node = generationRef.current;
-    if (!node) return;
-    const details = node.closest("details");
-    if (details) details.open = true;
-    node.scrollIntoView?.({ block: "center", behavior: "smooth" });
-    node.focus?.({ preventScroll: true });
-  }, []);
+  // The strip owns its expanded state; the editor only asks it to open.
+  const revealGeneration = useCallback(() => setRevealToken((value) => value + 1), []);
   const onAdopted = useCallback(() => {
     // Load the adopted head in the editor; an unsaved local buffer stays in conflict view.
     setEditorRefreshToken((value) => value + 1);
@@ -440,22 +430,14 @@ function DraftWorkspacePanel(props: Pick<ProfessionalWorkbenchProps, "repository
     <Callout tone="info" icon="spark">
       <b>产品政策：</b>模拟导出前，需要人工确认当前修订的全部 AI 示例段落。确认是工作记录，不等于法律审查或认证。
     </Callout>
-    {props.generation ? <details className="v6-generation-strip" data-testid="workbench-generation-panel" open={false}>
-      <summary>
-        <span>生成任务</span>
-        <span className="sh-r">使用配置的本地测试执行引擎 · 展开查看进度与结果</span>
-      </summary>
-      <div ref={generationRef} tabIndex={-1}>
-        <GenerationPanel repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId}
-          engineOptions={props.generation} onAdopted={onAdopted} />
-      </div>
-    </details>
-      : <div className="notice" data-testid="workbench-generation-unavailable">本工作台没有配置可用的生成执行引擎。不会运行测试输出或联系外部处理方；可继续编辑已保存草稿。</div>}
+    <WorkbenchGenerationStrip repository={props.repository} actor={props.actor} matterId={props.matterId}
+      targetId={props.targetId} onAdopted={onAdopted} revealToken={revealToken}
+      answerHref={`${v6Path({ kind: "self_service", matterId: props.matterId, step: "questions" })}?target=${encodeURIComponent(props.targetId)}`} />
     <div className="v6-draft-columns" data-testid="workbench-draft-columns">
       <DraftEditor repository={props.repository} actor={props.actor} matterId={props.matterId} targetId={props.targetId}
         confirmationRevisionId={confirmationRevisionId} confirmedParagraphIds={confirmedParagraphIds}
-        onGenerateDraft={props.generation ? revealGeneration : undefined}
-        generateEntryLabel={props.generation ? "查看生成面板" : undefined}
+        onGenerateDraft={revealGeneration}
+        generateEntryLabel="查看生成面板"
         onConfirmParagraph={(paragraphId) => { void session.confirmParagraph(paragraphId); }}
         onViewSupport={viewSupport}
         onSaved={onEditorSaved}

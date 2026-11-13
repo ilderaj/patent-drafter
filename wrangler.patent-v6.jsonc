@@ -1,14 +1,19 @@
 {
-  // Standalone R1 web app for patent.paymond.me. This is a separate Worker from
-  // the legacy patent-drafter worker; it serves only the V6 static build and
-  // contains no model proxy, no secrets and no stored customer material.
+  // V6 app and same-origin model relay; independent of the legacy worker.
+  // Configure MODEL_API_KEY, ACCESS_CODE and SESSION_SECRET through deployment secrets.
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "patent-v6",
+  "main": "apps/worker-v6/src/index.ts",
   "compatibility_date": "2026-08-01",
   "assets": {
     "directory": "./apps/web/dist/v6",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/v6/*", "/"],
     "not_found_handling": "single-page-application"
   },
+  // Existing counter namespace; V6 uses distinct v6:session/v6:chat keys.
+  "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "632acafdeea74f2ca9cc8a4fa22a4ead" }],
+  "vars": { "RATE_LIMIT_PER_DAY": "60" },
   "routes": [
     { "pattern": "patent.paymond.me", "custom_domain": true },
     // Kept as the pre-release verification host.

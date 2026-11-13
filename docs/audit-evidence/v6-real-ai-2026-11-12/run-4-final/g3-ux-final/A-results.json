@@ -1,0 +1,32 @@
+{
+  "scenario": "A",
+  "checks": 5,
+  "failures": [],
+  "results": [
+    {
+      "name": "setup-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "a-failed",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "a-retry-present",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a-no-consent-updated",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a-retry-succeeds",
+      "ok": true,
+      "detail": "state=succeeded"
+    }
+  ]
+}

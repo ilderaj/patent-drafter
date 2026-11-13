@@ -492,11 +492,15 @@ export async function seedInvocation(backend, overrides = {}) {
     ...overrides,
   };
   await backend.transaction("readwrite", async (tx) => {
-    await tx.put(STORES.blobs, `ai/invocation/${TENANT_A}/${MATTER_A}/${id}`, {
-      kind: "ai.invocation",
+    // The generation engine is the only writer of invocations: they live in its job record.
+    await tx.put(STORES.blobs, `generation/${TENANT_A}/${USER_A}/job/${JOB_ID}`, {
+      kind: "generation.job",
       tenantId: TENANT_A,
+      actorId: USER_A,
       matterId: MATTER_A,
-      invocation,
+      targetId: TARGET_A,
+      context: { chunks: [{ text: `${CASE_MARKER} synthetic case body` }] },
+      invocations: [invocation],
     });
   });
   return invocation;

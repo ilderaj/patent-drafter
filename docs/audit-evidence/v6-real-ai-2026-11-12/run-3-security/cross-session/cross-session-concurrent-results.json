@@ -1,0 +1,23 @@
+{
+  "checks": 3,
+  "failures": [],
+  "results": [
+    {
+      "name": "four-sessions-created",
+      "ok": true,
+      "detail": "statuses=[200, 200, 200, 200] elapsed=0.03s"
+    },
+    {
+      "name": "all-status-read",
+      "ok": true,
+      "detail": "digests=['0173b99f47df', 'd19d33d302e1', '2e153c00eaa2', '05070946b9d2']"
+    },
+    {
+      "name": "four-concurrent-sessions-all-different",
+      "ok": true,
+      "detail": "sessions=4 unique=4 duplicateGroups=0"
+    }
+  ],
+  "elapsedSeconds": 0.03,
+  "build": "85f1d738100cce87ca08023b373a407b74f54c77bd8bebb120465faa022fc084"
+}

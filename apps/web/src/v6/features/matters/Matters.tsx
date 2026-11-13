@@ -121,7 +121,14 @@ export function MattersPage({ repository, actor, onCreate, onOpenUpload, initial
       title: titleEdit.title,
     });
     if (!result.ok) {
-      setError(result.error.code === "INVALID_TRANSITION" ? "案件已归档，只读。可取消归档后再保存。" : "标题尚未保存。请重试。");
+      if (result.error.code === "VERSION_CONFLICT") {
+        // Another window saved first: refresh the list so the next save uses the new
+        // version, then say exactly that instead of a generic retry message.
+        await refresh();
+        setError("标题已在其他窗口修改，请刷新后重试。");
+      } else {
+        setError(result.error.code === "INVALID_TRANSITION" ? "案件已归档，只读。可取消归档后再保存。" : "标题尚未保存。请重试。");
+      }
       return;
     }
     setTitleEdit(null);

@@ -6,6 +6,7 @@
  * progress, cancellation, retry, interrupted resume/discard, the candidate
  * preview and explicit adoption. It never invents a stage, a timer or a result.
  */
+import { providerRecoveryFor, technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   GENERATE_STAGES,
@@ -46,13 +47,10 @@ const JOB_STATE_LABELS: Readonly<Record<GenerationJobView["job"]["state"], strin
 });
 
 const RECOVERY: Readonly<Record<string, string>> = Object.freeze({
-  PROVIDER_SCHEMA_INVALID: "处理方输出不符合约定结构。检查处理方配置后重试；不会自动重试。",
   CONSENT_REVOKED: "外发授权已撤回，下次调用不会发出。已发出的调用无法撤回；需要重新授权。",
   CONSENT_REQUIRED: "生成前需要有效的外发授权；请先在 AI 页授权当前材料。",
   QUOTA_EXCEEDED: "额度不足，不能自动切换处理方；请充值、手工编辑或改用其他处理方（需新授权）。",
   JOB_LIMIT_EXCEEDED: "任务超过输入、输出、费用或时长限制；调整限制配置后再启动。",
-  PROVIDER_TIMEOUT: "处理方超时；这属于可重试的临时错误，重试会新建任务。",
-  RATE_LIMITED: "处理方限流；稍后重试会新建任务，不会自动换处理方。",
   RELEASE_GATE_CLOSED: "真实外发门已关闭；没有发出请求。",
   INVALID_TRANSITION: "任务状态已变化；请刷新后查看当前状态。",
   INPUT_STALE: "输入已变化，结果未采纳；请比较后再人工合并。",
@@ -61,7 +59,8 @@ const RECOVERY: Readonly<Record<string, string>> = Object.freeze({
 });
 
 export function recoveryFor(code: GenerationErrorCode | null): string | null {
-  return code === null ? null : RECOVERY[code] ?? "发生错误；请按错误码检查配置后重试。";
+  if (code === null) return null;
+  return RECOVERY[code] ?? providerRecoveryFor(code) ?? "这一步没有完成。可以稍后重试；如反复出现，请把技术详情里的错误码告知部署者。";
 }
 
 export interface GenerationView {
@@ -132,6 +131,11 @@ export interface GenerationActions {
   compare?: () => Promise<void> | void;
 }
 
+/** Only these codes mean "the user must look at the outbound scope again"; other errors stay local. */
+export function requiresConsentRecovery(code: string | null | undefined): boolean {
+  return code === "CONSENT_REQUIRED" || code === "CONSENT_REVOKED";
+}
+
 export interface GenerationPanelProps {
   repository?: LocalRepository;
   actor?: Actor;
@@ -146,6 +150,29 @@ export interface GenerationPanelProps {
   pollMs?: number;
   /** Called after a successful adoption so the owning editor/review can reload. */
   onAdopted?: () => void;
+  /**
+   * Start/retry reported CONSENT_REQUIRED or CONSENT_REVOKED. The owner should drop its
+   * runtime snapshot and re-resolve so the outbound consent sheet can be shown again.
+   * This never issues a credential by itself and never resends the request.
+   */
+  onConsentRequired?: () => void;
+}
+
+/**
+ * The failed job was authorized under a different consent than the one the engine now holds.
+ * Retrying it would reuse a stale binding, so the panel offers an explicit new task instead.
+ * No consent id is ever rendered: this only decides which control to show.
+ */
+export function shouldOfferNewAuthorization(
+  job: GenerationJobView | null,
+  engineOptions: GenerationPanelProps["engineOptions"],
+): boolean {
+  if (!job || !engineOptions || engineOptions.execution === "stub") return false;
+  if (job.job.state !== "failed") return false;
+  const current = engineOptions.consentId ?? null;
+  // Without an explicit grant there is no executable action to offer.
+  if (current === null) return false;
+  return current !== (job.job.consentId ?? null);
 }
 
 export interface GenerationViewProps {
@@ -156,6 +183,8 @@ export interface GenerationViewProps {
   notice: string | null;
   actionError: { code: string; message: string } | null;
   actions: GenerationActions;
+  /** Show the "authorization updated" notice and the new-task control instead of retry. */
+  consentUpdated?: boolean;
 }
 
 const SECTION_LABELS: Readonly<Record<string, string>> = Object.freeze({
@@ -184,7 +213,7 @@ function StageRow({ stage }: { stage: GenerationStageView }) {
       <span>{label}</span>
       <span className="gi-note" data-testid={`generation-stage-state-${stage.stage}`}>
         {STAGE_STATE_LABELS[stage.state]}
-        {stage.errorCode !== null ? <code data-testid={`generation-stage-error-${stage.stage}`}> {stage.errorCode}</code> : null}
+        {stage.errorCode !== null ? <span data-testid={`generation-stage-error-${stage.stage}`}> {userMessageFor(stage.errorCode)}</span> : null}
       </span>
       {stage.outputMeta !== null ? (
         <details className="tech">
@@ -258,7 +287,7 @@ function CandidatePreview({ view, actions }: { view: GenerationView; actions: Ge
 }
 
 export function GenerationViewPanel(props: GenerationViewProps) {
-  const { view, loading, loadError, busy, notice, actionError, actions } = props;
+  const { view, loading, loadError, busy, notice, actionError, actions, consentUpdated = false } = props;
   if (loading) {
     return (
       <div className="gen-wrap" data-testid="generation" data-state="loading" aria-busy="true">
@@ -332,18 +361,29 @@ export function GenerationViewPanel(props: GenerationViewProps) {
       ) : null}
       {failed !== null ? (
         <div className="notice" role="alert" data-testid="generation-error" data-code={failed.errorCode} style={STACK}>
-          <strong>阶段失败：{STAGE_LABELS[failed.stage]}（{failed.errorCode}）</strong>
+          <strong>阶段失败：{STAGE_LABELS[failed.stage]}（{userMessageFor(failed.errorCode)}）</strong>
           <p data-testid="generation-recovery">{recoveryFor(failed.errorCode)}</p>
-          <p className="field-hint">{job.errorMessage}</p>
+          <details className="tech"><summary>技术详情</summary><code data-testid="generation-error-code">{technicalDetailLabel(failed.errorCode ?? "")}</code><p className="field-hint">{job.errorMessage}</p></details>
         </div>
       ) : null}
       <ol className="gen-list" data-testid="generation-stages">
         {view.stages.map((stage) => <StageRow key={stage.stage} stage={stage} />)}
       </ol>
+      {consentUpdated ? (
+        <div className="notice" role="status" data-testid="generation-consent-updated" style={STACK}>
+          <strong>授权已更新，请以新授权开始新任务。</strong>
+          <p>旧的失败任务保留在记录里，不会按旧授权重试。</p>
+        </div>
+      ) : null}
       <div className="wiz-foot">
-        {view.canStart ? (
+        {view.canStart && !consentUpdated ? (
           <button type="button" className="btn sm" data-testid="generation-start" disabled={busy} onClick={() => void actions.start()}>
             新建任务
+          </button>
+        ) : null}
+        {consentUpdated ? (
+          <button type="button" className="btn primary sm" data-testid="generation-start-new-authorization" disabled={busy} onClick={() => void actions.start()}>
+            以新授权开始任务
           </button>
         ) : null}
         {view.canCancel ? (
@@ -356,7 +396,7 @@ export function GenerationViewPanel(props: GenerationViewProps) {
             从已保存阶段继续
           </button>
         ) : null}
-        {view.canRetry ? (
+        {view.canRetry && !consentUpdated ? (
           <button type="button" className="btn sm" data-testid="generation-retry" disabled={busy} onClick={() => void actions.retry()}>
             重试为新任务
           </button>
@@ -450,8 +490,10 @@ export function GenerationPanel(props: GenerationPanelProps) {
     try {
       if (operation === "start") {
         const result = await engine.start(props.matterId, props.targetId);
-        if (!result.ok) setActionError(result.error);
-        else setView(viewFor(result.data));
+        if (!result.ok) {
+          setActionError(result.error);
+          if (requiresConsentRecovery(result.error.code)) props.onConsentRequired?.();
+        } else setView(viewFor(result.data));
         return;
       }
       const jobId = view?.job?.job.id;
@@ -473,13 +515,15 @@ export function GenerationPanel(props: GenerationPanelProps) {
         return;
       }
       const result = await engine[operation](jobId);
-      if (!result.ok) setActionError(result.error);
-      else setView(viewFor(result.data));
+      if (!result.ok) {
+        setActionError(result.error);
+        if (operation === "retry" && requiresConsentRecovery(result.error.code)) props.onConsentRequired?.();
+      } else setView(viewFor(result.data));
     } finally {
       busyRef.current = false;
       setBusy(false);
     }
-  }, [engine, props.matterId, props.targetId, props.onAdopted, view, viewFor]);
+  }, [engine, props.matterId, props.targetId, props.onAdopted, props.onConsentRequired, view, viewFor]);
 
   const actions = useMemo<GenerationActions>(() => ({
     start: () => act("start"),
@@ -495,14 +539,16 @@ export function GenerationPanel(props: GenerationPanelProps) {
     },
   }), [act, refresh, view]);
 
+  const shownView = injected ? (props.initialView ?? null) : view;
   return (
     <GenerationViewPanel
-      view={injected ? (props.initialView ?? null) : view}
+      view={shownView}
       loading={injected ? (props.loading ?? false) : loading}
       loadError={injected ? (props.loadError ?? null) : loadError}
       busy={busy}
       notice={notice}
       actionError={actionError}
+      consentUpdated={shouldOfferNewAuthorization(shownView?.job ?? null, props.engineOptions)}
       actions={injected ? { ...NOOP_ACTIONS, ...(props.engineOptions ? actions : {}) } : actions}
     />
   );

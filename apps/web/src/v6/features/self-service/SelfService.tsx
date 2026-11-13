@@ -3,8 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DeliveryWorkspace } from "../delivery/Workspace.tsx";
 import { Preview } from "../preview/Preview.tsx";
 import { ErrorBoundary } from "../../components/ErrorBoundary.tsx";
-import { GenerationPanel } from "../generation/Generation.tsx";
-import { LOCAL_TEST_GENERATION_OPTIONS } from "../generation/local-runtime.ts";
+import { SelfGeneration } from "./SelfGeneration.tsx";
 import { readIntake, type IntakeView } from "../intake/intake.ts";
 import { loadTargetsView, type TargetView, type TargetsView } from "../targets/targets.ts";
 import { describeUploadRows, ingestFiles, type IngestFile } from "../sources/ingest.ts";
@@ -45,14 +44,14 @@ const STEPS: readonly { key: SelfServiceStep; label: string; note: string }[] = 
   { key: "upload", label: "上传材料", note: "约 2 分钟" },
   { key: "questions", label: "补充信息", note: "5 个问题" },
   { key: "route", label: "选择路线", note: "对照能力范围" },
-  { key: "generate", label: "生成材料", note: "本机测试引擎" },
+  { key: "generate", label: "生成材料", note: "外发前先确认" },
   { key: "preview", label: "预览与下载", note: "通读后导出" },
 ];
 
 const STEP_META: Readonly<Record<SelfServiceStep, { title: string; subtitle: string; number: number }>> = Object.freeze({
-  upload: { title: "新建申请", subtitle: "材料越多，生成的草稿越具体", number: 1 },
+  upload: { title: "新建中国实用新型申请", subtitle: "从产品结构、图纸和真实说明开始", number: 1 },
   questions: { title: "补充信息", subtitle: "5 个问题，大多数可以点选", number: 2 },
-  route: { title: "选择申请路线", subtitle: "一个案件可以之后增加目标", number: 3 },
+  route: { title: "选择申请路线", subtitle: "当前以中国实用新型为主", number: 3 },
   generate: { title: "生成材料", subtitle: "生成结果经你确认后才会进入导出", number: 4 },
   preview: { title: "材料预览", subtitle: "通读确认后进入导出", number: 5 },
   done: { title: "材料已生成", subtitle: "申请准备材料，不是递交回执", number: 5 },
@@ -354,12 +353,12 @@ export function SelfService({
               ) : null}
               {step === "generate" && data.target ? (
                 <section className="gen-wrap" data-testid="self-generation">
-                  <GenerationPanel
+                  <SelfGeneration
                     repository={repository}
                     actor={actor}
                     matterId={matterId}
                     targetId={data.target.id}
-                    engineOptions={LOCAL_TEST_GENERATION_OPTIONS}
+                    answerHref={`${selfServicePath(matterId, "questions")}${targetQuery(data.target.id)}`}
                     onAdopted={refreshAfterAdoption}
                   />
                   <div className="wiz-foot">
@@ -471,7 +470,7 @@ function UploadStep({
   return (
     <div data-testid="self-upload-step">
       <h1 className="wiz-h1">先把资料放进来</h1>
-      <p className="wiz-sub">有什么传什么：技术交底、产品说明、图纸、照片、实验记录都行。缺的部分后面用问题补。</p>
+      <p className="wiz-sub">为中国实用新型准备材料：上传产品结构说明、技术交底、图纸或照片，缺的部分后面用问题补。</p>
       <div className="wiz-sec">
         <label
           className="dropzone"
@@ -495,7 +494,7 @@ function UploadStep({
           />
           <span className="dz-i"><Icon name="upload" size="lg" /></span>
           <span className="dz-1">拖入文件，或点击选择</span>
-          <span className="dz-2">PDF、Word、图片、表格、纯文本，单个不超过 50 MB</span>
+          <span className="dz-2">PDF、DOCX、TXT、MD 最大 50 MiB；PNG、JPEG 最大 8 MiB，且不超过 16 MP</span>
           <span className="dz-3">
             <span><Icon name="lock" size="sm" /> 文件只在本机保存</span>
             <span><Icon name="spark" size="sm" /> 扫描件会先检查文字层</span>
@@ -555,7 +554,7 @@ function UploadStep({
       </div>
 
       <Callout tone="info" icon="shield">
-        <b>关于保密。</b>文件只保存在这台设备，不会上传到服务器；解析也在本机完成。
+        <b>关于保密。</b>上传和解析在本机完成。选择真实 AI 起草时，会另行显示处理方、区域、保留政策和材料清单，经你确认后才外发。
       </Callout>
 
       <div className="wiz-sec">

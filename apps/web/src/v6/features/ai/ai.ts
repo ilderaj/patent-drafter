@@ -70,6 +70,14 @@ import {
   type TargetRecord,
 } from "../../lib/repository.ts";
 
+import {
+  answerManifestSummary,
+  buildAnswerSources,
+  readSnapshotAnswerInput,
+  type AnswerManifestSummary,
+  type AnswerSourceInput,
+} from "../intake/answer-sources.ts";
+
 // ---------------------------------------------------------------------------
 // Public vocabulary
 // ---------------------------------------------------------------------------
@@ -106,11 +114,16 @@ export type AiResult<T> = { ok: true; data: T; replayed: boolean } | { ok: false
 export interface ProviderProfileConfig {
   configVersion: string;
   profiles: readonly ProviderProfile[];
+  /** Set only by the status-backed runtime; synthetic/default configurations remain closed. */
+  releaseGate?: "open" | "closed";
 }
 
 export const AI_RUNTIME = "local_web" as const;
-/** This build is R1; real outbound stays closed regardless of configuration. */
-export const AI_RELEASE_GATE = "closed" as const;
+export type AiReleaseGate = "open" | "closed";
+/** Resolve from the same-origin status-backed configuration; omitted/synthetic configuration stays closed. */
+export function AI_RELEASE_GATE(config?: ProviderProfileConfig): AiReleaseGate {
+  return config?.releaseGate === "open" ? "open" : "closed";
+}
 
 /** Synthetic processors only. No vendor name, endpoint or credential appears here. */
 export const DEFAULT_AI_CONFIG: ProviderProfileConfig = Object.freeze({
@@ -467,6 +480,10 @@ export interface PayloadManifest {
   matterId: string;
   targetId: string | null;
   sourceVersion: number;
+  /** The exact title available to the pipeline's subject fallback; null when empty. */
+  title: string | null;
+  /** Potentially sent as subject context when extracted facts have no subject. */
+  titleSent: boolean;
   files: readonly ManifestFile[];
   factCount: number;
   factIds: readonly string[];
@@ -475,6 +492,12 @@ export interface PayloadManifest {
   figureRevisionIds: readonly string[];
   scope: ConsentScope;
   payloadManifestHash: string;
+  /**
+   * The user's saved intake answers: counts and labels only (no text). `sentCount`
+   * answers are part of the outbound payload and are included in chunkIds/factIds,
+   * so changing an answer changes the manifest hash and invalidates older consent.
+   */
+  answers: AnswerManifestSummary;
 }
 
 export interface AiTargetOption {
@@ -530,12 +553,20 @@ export interface SafeInvocationRow {
   currency: string | null;
   usageUnknown: boolean;
   status: ModelInvocation["status"];
+  /** When the call was recorded (ISO); null for rows written by older builds. */
+  at: string | null;
+  /** "stub" = on-device test output, "provider" = a real outbound call; null when not recorded. */
+  execution: "stub" | "provider" | null;
+  /** Where the call ran: the processor's region, or "device:stub". */
+  executionLocation: string | null;
+  /** Failure code of a failed call; null otherwise. Never a message or any text of the exchange. */
+  errorCode: string | null;
 }
 
 interface AiShellView {
   configVersion: string;
   runtime: typeof AI_RUNTIME;
-  releaseGate: typeof AI_RELEASE_GATE;
+  releaseGate: AiReleaseGate;
   capabilities: readonly AiCapability[];
   profiles: readonly ProviderProfileView[];
 }
@@ -569,8 +600,11 @@ interface StoredConsent {
   consent: Consent;
 }
 
+/**
+ * One model call, derived from the generation job record that owns it. The
+ * generation engine is the only writer; there is no second invocation row.
+ */
 interface StoredInvocation {
-  kind: "ai.invocation";
   tenantId: string;
   matterId: string;
   invocation: unknown;
@@ -628,6 +662,8 @@ interface AiRows {
   chunkSets: ChunkSetRow[];
   /** null when no current intake snapshot exists; then the matter has no saved facts. */
   snapshotFactIds: readonly string[] | null;
+  /** The current snapshot's saved answers; null when there is no current snapshot. */
+  answerInput: AnswerSourceInput | null;
   consents: StoredConsent[];
   invocations: StoredInvocation[];
 }
@@ -765,16 +801,14 @@ function asStoredConsent(value: unknown): StoredConsent | null {
   };
 }
 
-function asStoredInvocation(value: unknown): StoredInvocation | null {
-  if (
-    !isRecord(value) ||
-    value.kind !== "ai.invocation" ||
-    !isText(value.tenantId) ||
-    !isText(value.matterId)
-  ) {
-    return null;
-  }
-  return value as unknown as StoredInvocation;
+/** The calls recorded by one generation job of this actor, or null when the row is not a job. */
+function asJobInvocations(value: unknown, actor: Actor): StoredInvocation[] | null {
+  if (!isRecord(value) || value.kind !== "generation.job") return null;
+  if (!isText(value.tenantId) || !isText(value.matterId) || !isText(value.actorId)) return null;
+  if (value.tenantId !== actor.tenantId || value.actorId !== actor.userId) return [];
+  if (!Array.isArray(value.invocations)) return [];
+  const { tenantId, matterId } = value;
+  return value.invocations.map((invocation) => ({ tenantId, matterId, invocation }));
 }
 
 function asIdempotencyRecord(value: unknown): IdempotencyRecord | null {
@@ -869,6 +903,7 @@ async function readAiRows(
   const consents: StoredConsent[] = [];
   const invocations: StoredInvocation[] = [];
   let snapshotFactIds: readonly string[] | null = null;
+  let answerInput: AnswerSourceInput | null = null;
   for (const value of rows) {
     const source = asParseSourceRow(value);
     if (source) {
@@ -891,15 +926,18 @@ async function readAiRows(
       }
       continue;
     }
-    const invocation = asStoredInvocation(value);
-    if (invocation) {
-      if (invocation.tenantId === actor.tenantId && invocation.matterId === matterId) invocations.push(invocation);
+    const jobInvocations = asJobInvocations(value, actor);
+    if (jobInvocations) {
+      for (const item of jobInvocations) if (item.matterId === matterId) invocations.push(item);
       continue;
     }
     const facts = readSnapshotFacts(value, matterId, sourceVersion);
-    if (facts !== null) snapshotFactIds = facts;
+    if (facts !== null) {
+      snapshotFactIds = facts;
+      answerInput = readSnapshotAnswerInput(value, matterId, sourceVersion);
+    }
   }
-  return success({ sources, chunkSets, snapshotFactIds, consents, invocations });
+  return success({ sources, chunkSets, snapshotFactIds, answerInput, consents, invocations });
 }
 
 async function readConsentEvents(
@@ -977,12 +1015,18 @@ async function buildManifest(
   }
   files.sort((a, b) => a.assetId.localeCompare(b.assetId));
 
-  const chunkIds = sortedUnique(
-    rows.chunkSets
+  // The user's own saved answers are outbound material too (labelled as such, never as files).
+  const answerSources = await buildAnswerSources(rows.answerInput);
+  const chunkIds = sortedUnique([
+    ...rows.chunkSets
       .filter((set) => sourceIds.has(set.sourceId))
       .flatMap((set) => set.chunks.map((chunk) => chunk.id)),
-  );
-  const factIds = rows.snapshotFactIds === null ? [] : sortedUnique(rows.snapshotFactIds);
+    ...answerSources.chunks.map((chunk) => chunk.id),
+  ]);
+  const factIds = sortedUnique([
+    ...(rows.snapshotFactIds === null ? [] : rows.snapshotFactIds),
+    ...answerSources.facts.map((fact) => fact.id),
+  ]);
   const draftRevisionIds = sortedUnique(
     selected.data.map((target) => target.draftRevisionId).filter((id): id is string => id !== null),
   );
@@ -990,11 +1034,15 @@ async function buildManifest(
     selected.data.map((target) => target.figureRevisionId).filter((id): id is string => isText(id)),
   );
 
+  const title = matter.title.length > 0 ? matter.title : null;
+  const titleSent = title !== null;
   const hashInput = {
-    version: 1,
+    version: 2,
     matterId: matter.id,
     targetId,
     sourceVersion: matter.sourceVersion,
+    title,
+    titleSent,
     files: files.map((file) => ({
       assetId: file.assetId,
       name: file.name,
@@ -1036,6 +1084,9 @@ async function buildManifest(
     figureRevisionIds,
     scope: parsedScope.data,
     payloadManifestHash,
+    title,
+    titleSent,
+    answers: answerManifestSummary(answerSources),
   });
 }
 
@@ -1053,7 +1104,7 @@ function shell(config: ProviderProfileConfig): AiShellView {
   return {
     configVersion: config.configVersion,
     runtime: AI_RUNTIME,
-    releaseGate: AI_RELEASE_GATE,
+    releaseGate: AI_RELEASE_GATE(config),
     capabilities: buildCapabilities(config),
     profiles: config.profiles.map(providerProfileView),
   };
@@ -1143,6 +1194,10 @@ export function toSafeInvocationRow(value: unknown): SafeInvocationRow | null {
     currency: parsed.data.currency,
     usageUnknown: parsed.data.usageUnknown,
     status: parsed.data.status,
+    at: typeof value.at === "string" && value.at.length > 0 ? value.at : null,
+    execution: value.execution === "stub" || value.execution === "provider" ? value.execution : null,
+    executionLocation: typeof value.executionLocation === "string" ? value.executionLocation : null,
+    errorCode: typeof value.errorCode === "string" && /^[A-Z][A-Z0-9_]{1,63}$/.test(value.errorCode) ? value.errorCode : null,
   };
 }
 
@@ -1234,7 +1289,7 @@ export async function loadAiView(
   const invocations = rows.data.invocations
     .map((stored) => toSafeInvocationRow(stored.invocation))
     .filter((row): row is SafeInvocationRow => row !== null)
-    .sort((a, b) => a.id.localeCompare(b.id));
+    .sort((a, b) => (a.at ?? "").localeCompare(b.at ?? "") || a.id.localeCompare(b.id));
 
   const targets = aggregate.targets
     .filter((target) => target.status === "active")
@@ -2664,18 +2719,26 @@ export interface RealInvocationRequest {
   targetId: string | null;
 }
 
-/**
- * This build has no real model adapter and no outbound transport. The gate is
- * checked before storage or network: no request is made and nothing is written.
- */
+/** Validate the status-backed release gate and current stored consent; this function never invokes a model. */
 export async function requestRealInvocation(
-  _repository: LocalRepository,
-  _actor: Actor,
-  _matterId: string,
-  _input: RealInvocationRequest,
-): Promise<AiResult<never>> {
-  return failure(
+  repository: LocalRepository,
+  actor: Actor,
+  matterId: string,
+  input: RealInvocationRequest,
+  options: { config?: ProviderProfileConfig; now?: () => string } = {},
+): Promise<AiResult<ConsentAuthorization>> {
+  if (AI_RELEASE_GATE(options.config) !== "open") return failure(
     "RELEASE_GATE_CLOSED",
-    "真实模型外发在本构建中关闭（RELEASE_GATE_CLOSED）；没有发出任何网络请求。",
+    "真实模型服务尚未启用；没有发出任何模型请求。",
   );
+  if (!input.consentId) return failure("CONSENT_REQUIRED", "请先查看并确认当前外发清单。");
+  const checked = await validateConsentForUse(repository, actor, matterId, {
+    consentId: input.consentId, purpose: input.purpose, targetId: input.targetId,
+  }, options);
+  if (!checked.ok) return checked;
+  if (checked.data.consent.providerProfileId !== input.providerProfileId
+    || checked.data.consent.providerProfileVersion !== input.providerProfileVersion) {
+    return failure("CONSENT_REQUIRED", "处理方或版本已变化，需要重新授权。");
+  }
+  return checked;
 }

@@ -17,6 +17,9 @@ import { v6Path } from "../../routes/navigation.ts";
 import { Body, Pane, Toolbar } from "../../components/ui/index.ts";
 
 import type { Actor, LocalRepository, MatterRecord } from "../../lib/repository.ts";
+import { readGenerationStatus, type GenerationStatus } from "../generation/remote-provider.ts";
+import { endGenerationSession } from "../generation/runtime.ts";
+import { technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
 import {
   AI_PURPOSES,
   grantConsent,
@@ -50,6 +53,16 @@ export interface AiPanelProps {
   onReload?: () => void;
   onOpenMatter?: () => void;
   onOpenDraft?: () => void;
+  /**
+   * Live platform status from `GET /api/v6/status`. `undefined` means it was not
+   * read (pure render/tests), `null` means the read failed.
+   */
+  status?: GenerationStatus | null;
+  onRefreshStatus?: () => void;
+  /** Ends only this browser's drafting session; cases and records stay untouched. */
+  onEndSession?: () => void;
+  endingSession?: boolean;
+  sessionError?: string | null;
 }
 
 const UNKNOWN = "未知";
@@ -149,6 +162,11 @@ const S = {
     color: "var(--muted-foreground, #6f6a60)",
     marginRight: "6px",
   } satisfies CSSProperties,
+  tech: {
+    marginTop: "4px",
+    fontSize: "12px",
+    color: "var(--muted-foreground, #6f6a60)",
+  } satisfies CSSProperties,
   unknown: {
     color: "var(--warning, #865600)",
     fontWeight: 600,
@@ -243,6 +261,144 @@ function capabilityStateText(state: CapabilityView["state"]): string {
   return state === "available" ? "可用" : "不可用";
 }
 
+type ServiceState = "unknown" | "unreachable" | "unconfigured" | "unavailable" | "auth_required" | "ready";
+
+/** Everything shown here comes from the status endpoint; nothing is assumed. */
+function servicePresentation(status: GenerationStatus | null | undefined): { state: ServiceState; title: string; body: string } {
+  if (status === undefined) return {
+    state: "unknown",
+    title: "平台起草服务：正在读取状态",
+    body: "读取完成之前不声称真实外发可用。",
+  };
+  if (status === null) return {
+    state: "unreachable",
+    title: "平台起草服务：无法读取状态",
+    body: "状态接口没有返回结果；真实起草不可用。稍后可以重试。",
+  };
+  if (!status.configured) return {
+    state: "unconfigured",
+    title: "平台起草服务：未配置",
+    body: status.unavailableReason ?? "服务端配置不完整，真实起草不可用。",
+  };
+  if (!status.available) return {
+    state: "unavailable",
+    title: "平台起草服务：当前不可用",
+    body: status.unavailableReason ?? "限流存储或处理方披露不满足要求，真实起草不可用。",
+  };
+  if (!status.authenticated) return {
+    state: "auth_required",
+    title: "平台起草服务：可用，需要访问码",
+    body: "服务端配置与处理方披露完整；在起草页建立访问会话后才能选择真实起草。",
+  };
+  return {
+    state: "ready",
+    title: "平台起草服务：可用",
+    body: "访问会话已建立。真实起草目前只覆盖中国实用新型中文准备稿，且每次调用前都会重新核对授权与材料范围。",
+  };
+}
+
+function knownValue(value: string | null | undefined): string | null {
+  const text = value?.trim();
+  return text && text !== "unknown" && text !== "未知" ? text : null;
+}
+
+function ServiceStatus({
+  status,
+  onRefresh,
+  onEndSession,
+  endingSession = false,
+  sessionError = null,
+}: {
+  status: GenerationStatus | null | undefined;
+  onRefresh?: () => void;
+  onEndSession?: () => void;
+  endingSession?: boolean;
+  sessionError?: string | null;
+}) {
+  const presentation = servicePresentation(status);
+  const fields: readonly { label: string; value: string | null; testId: string }[] = status ? [
+    { label: "处理方", value: knownValue(status.processor.name), testId: "ai-service-processor" },
+    { label: "区域", value: knownValue(status.processor.region), testId: "ai-service-region" },
+    { label: "保留", value: knownValue(status.processor.retention), testId: "ai-service-retention" },
+    {
+      label: "训练用途",
+      value: status.processor.trainingPolicy === "no_training"
+        ? "不用于训练"
+        : status.processor.trainingPolicy === "allowed" ? "处理方政策允许训练用途" : null,
+      testId: "ai-service-training",
+    },
+    { label: "模型", value: knownValue(status.model), testId: "ai-service-model" },
+  ] : [];
+  const tone = presentation.state === "ready" ? S.banner : S.warning;
+  return (
+    <div style={tone} data-testid="ai-service-status" data-state={presentation.state}>
+      <strong>{presentation.title}</strong>
+      <div>{presentation.body}</div>
+      {fields.length > 0 && (
+        <div style={{ ...S.fields, marginTop: "8px" }}>
+          {fields.map((field) => (
+            <div key={field.testId} data-testid={field.testId} data-known={field.value === null ? "false" : "true"}>
+              <span style={S.fieldLabel}>{field.label}</span>
+              <span style={field.value === null ? S.unknown : undefined}>{field.value === null ? `「${UNKNOWN}」` : field.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "8px" }}>
+        {onRefresh && (
+          <button type="button" style={S.button} data-testid="ai-service-refresh" onClick={onRefresh}>
+            重新读取服务状态
+          </button>
+        )}
+        {onEndSession && status?.authenticated === true && (
+          <button type="button" style={S.button} data-testid="ai-service-end-session"
+            disabled={endingSession} onClick={onEndSession}>
+            {endingSession ? "正在退出…" : "退出起草会话"}
+          </button>
+        )}
+      </div>
+      {status?.authenticated === true ? (
+        <div style={S.muted} data-testid="ai-session-scope">
+          退出只清除当前浏览器中的起草会话，不删除案件、草稿或授权记录。已复制到其他位置的访问凭证无法在这里吊销。
+        </div>
+      ) : null}
+      {sessionError !== null ? (
+        <div style={{ ...S.error, marginTop: "8px" }} role="alert" data-testid="ai-session-error">{sessionError}</div>
+      ) : null}
+    </div>
+  );
+}
+
+/** The platform capability is reported from the live status, not from configuration defaults. */
+function platformCapability(
+  status: GenerationStatus | null | undefined,
+): { state: CapabilityView["state"]; reason: string } {
+  if (status === undefined) return { state: "unavailable", reason: "正在读取平台服务状态；读取完成前不声称真实外发可用。" };
+  if (status === null) return { state: "unavailable", reason: "无法读取平台服务状态；真实起草不可用。" };
+  if (!status.configured) return { state: "unavailable", reason: status.unavailableReason ?? "平台起草服务未配置。" };
+  if (!status.available) return { state: "unavailable", reason: status.unavailableReason ?? "平台起草服务当前不可用。" };
+  if (!status.authenticated) return { state: "available", reason: "平台处理方已配置；需要访问码建立会话后才能发起真实起草。" };
+  return { state: "available", reason: "平台处理方已配置，访问会话已建立；真实起草只在中国实用新型中文准备稿上使用本次授权的材料。" };
+}
+
+const EXECUTION_LABELS: Readonly<Record<"stub" | "provider", string>> = Object.freeze({
+  stub: "测试",
+  provider: "真实",
+});
+
+/** ISO time in the viewer's locale; null (rows from older builds) is shown as 「—」. */
+export function invocationTimeText(at: string | null): string {
+  if (at === null || at.trim().length === 0) return "—";
+  const parsed = new Date(at);
+  if (Number.isNaN(parsed.getTime())) return at;
+  return parsed.toLocaleString("zh-CN", { hour12: false });
+}
+
+export function invocationExecutionText(row: Pick<SafeInvocationRow, "execution" | "executionLocation">): string {
+  if (row.execution === null) return "—";
+  return EXECUTION_LABELS[row.execution];
+}
+
 function invocationStatusText(status: SafeInvocationRow["status"]): string {
   if (status === "started") return "进行中";
   if (status === "succeeded") return "成功";
@@ -267,26 +423,36 @@ function Field({
   );
 }
 
-function CapabilityList({ capabilities }: { capabilities: readonly CapabilityView[] }) {
+function CapabilityList({ capabilities, status }: { capabilities: readonly CapabilityView[]; status: GenerationStatus | null | undefined }) {
   const modes = [
     { mode: "local" as const, title: "本机模型", description: "模型和材料都留在本机处理。" },
     { mode: "platform" as const, title: "平台模型", description: "由已配置的平台处理方处理；使用前需要明确外发授权。" },
     { mode: "byok" as const, title: "自带密钥", description: "使用者自行管理模型密钥；此浏览器版不保存密钥。" },
   ];
   const testMode = capabilities.find((capability) => capability.mode === "stub");
+  const platform = servicePresentation(status);
   return (
     <section style={S.section} data-testid="ai-capabilities">
       <h2 style={S.sectionTitle}>处理方式</h2>
       <p style={S.muted} data-testid="ai-current-mode">
-        当前版本：R1 本地浏览器版。只有测试处理方可用；它产生标记为「测试输出」的固定结果，不调用真实模型、不联网。平台真实外发门关闭。
+        当前版本：R1 本地浏览器版。测试处理方产生标记为「测试输出」的固定结果，不调用真实模型。平台起草服务{platform.state === "ready"
+          ? "可用，但只覆盖中国实用新型中文准备稿"
+          : platform.state === "auth_required" ? "可用，需要访问码建立会话"
+            : platform.state === "unavailable" ? "当前不可用"
+              : platform.state === "unconfigured" ? "尚未配置"
+                : platform.state === "unreachable" ? "状态无法读取，真实外发不可用"
+                  : "状态正在读取"}。
       </p>
       <div className="v6-ai-methods">
         {modes.map(({ mode, title, description }) => {
           const capability = capabilities.find((item) => item.mode === mode);
-          return <div key={mode} className="v6-ai-method" style={S.card} data-testid={`ai-capability-${mode}`} data-state={capability?.state ?? "unavailable"}>
-            <div style={S.cardHeader}><strong>{title}</strong><span style={S.badge}>{capability ? capabilityStateText(capability.state) : "不可用"}</span></div>
+          const shown = mode === "platform" ? platformCapability(status) : null;
+          const state = shown?.state ?? capability?.state ?? "unavailable";
+          const reason = shown?.reason ?? capability?.reason ?? "当前没有能力记录。";
+          return <div key={mode} className="v6-ai-method" style={S.card} data-testid={`ai-capability-${mode}`} data-state={state}>
+            <div style={S.cardHeader}><strong>{title}</strong><span style={S.badge}>{capabilityStateText(state)}</span></div>
             <p style={S.muted}>{description}</p>
-            <p style={S.muted}>{capability?.reason ?? "当前没有能力记录。"}</p>
+            <p style={S.muted}>{reason}</p>
           </div>;
         })}
       </div>
@@ -524,8 +690,8 @@ function InvocationSection({ rows }: { rows: readonly SafeInvocationRow[] }) {
     <section style={S.section} data-testid="ai-invocations">
       <h2 style={S.sectionTitle}>模型调用记录</h2>
       <p style={S.muted}>
-        本表只列当前案件的调用元数据，不含提示词、案件正文或密钥。本构建没有真实调用，因此通常为空。合同
-        ModelInvocation 没有调用时间字段，界面不臆造时间。
+        本表只列当前案件的调用元数据，不含提示词、案件正文或密钥。本机测试输出与真实外发分开标记；失败原因
+        以中文显示，英文错误码放在「技术详情」里。
       </p>
       {rows.length === 0 ? (
         <div style={S.empty} data-testid="ai-invocations-empty">
@@ -535,6 +701,8 @@ function InvocationSection({ rows }: { rows: readonly SafeInvocationRow[] }) {
         <table style={S.table}>
           <thead>
             <tr>
+              <th style={S.th}>时间</th>
+              <th style={S.th}>测试 / 真实</th>
               <th style={S.th}>阶段</th>
               <th style={S.th}>作业 / 尝试</th>
               <th style={S.th}>处理方</th>
@@ -549,6 +717,11 @@ function InvocationSection({ rows }: { rows: readonly SafeInvocationRow[] }) {
           <tbody>
             {rows.map((row) => (
               <tr key={row.id} data-testid={`ai-invocation-${row.id}`}>
+                <td style={S.td} data-testid={`ai-invocation-time-${row.id}`}>{invocationTimeText(row.at)}</td>
+                <td style={S.td} data-testid={`ai-invocation-execution-${row.id}`}>
+                  {invocationExecutionText(row)}
+                  {row.executionLocation !== null ? <div style={S.tech}>{row.executionLocation}</div> : null}
+                </td>
                 <td style={S.td}>{row.stage}</td>
                 <td style={{ ...S.td, ...S.hash }}>
                   {row.jobId.slice(0, 8)}… / {row.attempt}
@@ -556,7 +729,20 @@ function InvocationSection({ rows }: { rows: readonly SafeInvocationRow[] }) {
                 <td style={S.td}>{row.providerProfileId}</td>
                 <td style={S.td}>{row.modelId}</td>
                 <td style={{ ...S.td, ...S.hash }}>{row.consentId ?? "无"}</td>
-                <td style={S.td}>{invocationStatusText(row.status)}</td>
+                <td style={S.td} data-testid={`ai-invocation-status-${row.id}`}>
+                  {invocationStatusText(row.status)}
+                  {row.status === "failed" ? (
+                    <>
+                      <span> · {userMessageFor(row.errorCode)}</span>
+                      {row.errorCode !== null ? (
+                        <details style={S.tech}>
+                          <summary>技术详情</summary>
+                          <code>{technicalDetailLabel(row.errorCode)}</code>
+                        </details>
+                      ) : null}
+                    </>
+                  ) : null}
+                </td>
                 <td style={S.td}>
                   {row.usageUnknown
                     ? "用量未知"
@@ -577,6 +763,7 @@ function InvocationSection({ rows }: { rows: readonly SafeInvocationRow[] }) {
 
 function ShellSections({
   view,
+  status,
   purpose,
   busy,
   hasManifest,
@@ -584,6 +771,7 @@ function ShellSections({
   onGrant,
 }: {
   view: AiView;
+  status: GenerationStatus | null | undefined;
   purpose: ProviderPurpose;
   busy: boolean;
   hasManifest: boolean;
@@ -592,7 +780,7 @@ function ShellSections({
 }) {
   return (
     <>
-      <CapabilityList capabilities={view.capabilities} />
+      <CapabilityList capabilities={view.capabilities} status={status} />
       <section style={S.section} data-testid="ai-profiles">
         <h2 style={S.sectionTitle}>处理方与授权</h2>
         <p style={S.muted}>
@@ -631,6 +819,11 @@ export function AiPanel({
   onReload,
   onOpenMatter,
   onOpenDraft,
+  status,
+  onRefreshStatus,
+  onEndSession,
+  endingSession,
+  sessionError,
 }: AiPanelProps) {
   if (loading) {
     return (
@@ -673,10 +866,8 @@ export function AiPanel({
 
   return (
     <div style={S.panel} data-testid="ai-panel" data-ai-state={view.kind}>
-      <div style={S.warning} data-testid="ai-release-gate" data-state={view.releaseGate}>
-        <strong>真实外发门：关闭（RELEASE_GATE_CLOSED）。</strong>
-        <div>保存授权不会发起模型调用、不会联网、不会产生费用；浏览器版不声称已有本机模型。</div>
-      </div>
+      <ServiceStatus status={status} onRefresh={onRefreshStatus} onEndSession={onEndSession}
+        endingSession={endingSession} sessionError={sessionError} />
 
       {actionError !== null && (
         <div style={S.error} data-testid="ai-action-error" data-code={actionError.code}>
@@ -748,6 +939,7 @@ export function AiPanel({
 
       <ShellSections
         view={view}
+        status={status}
         purpose={purpose}
         busy={busy}
         hasManifest={hasManifest}
@@ -805,6 +997,22 @@ export function AiPage({ repository, actor }: AiPageProps) {
   const [busy, setBusy] = useState(false);
   const [purpose, setPurpose] = useState<ProviderPurpose>("extract");
   const [refreshToken, setRefreshToken] = useState(0);
+  // `undefined` until the first read finishes; `null` when the status endpoint failed.
+  const [service, setService] = useState<GenerationStatus | null | undefined>(undefined);
+  const [endingSession, setEndingSession] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10_000);
+    setService(undefined);
+    readGenerationStatus(undefined, controller.signal)
+      .then((value) => { if (!cancelled) setService(value); })
+      .catch(() => { if (!cancelled) setService(null); })
+      .finally(() => clearTimeout(timer));
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [refreshToken]);
 
   useEffect(() => {
     let cancelled = false;
@@ -903,12 +1111,14 @@ export function AiPage({ repository, actor }: AiPageProps) {
       }
       setNotice(
         result.data.created
-          ? "已保存外发授权。本构建不会发起真实调用。"
+          ? service?.available && service.authenticated
+            ? "已保存外发授权。真实起草只在本次授权范围内使用材料，每次调用前都会核对。"
+            : "已保存外发授权。平台起草服务当前不可用，不会发起真实调用。"
           : "已存在覆盖当前材料的同类授权，未重复保存。",
       );
       reload();
     },
-    [repository, actor, view, busy, purpose, reload],
+    [repository, actor, view, busy, purpose, reload, service],
   );
 
   const handleRevoke = useCallback(
@@ -934,6 +1144,26 @@ export function AiPage({ repository, actor }: AiPageProps) {
     },
     [repository, actor, view, busy, reload],
   );
+
+  const handleEndSession = useCallback(async () => {
+    if (endingSession) return;
+    setEndingSession(true);
+    setSessionError(null);
+    setNotice(null);
+    try {
+      await endGenerationSession();
+      // Re-read the status: this browser no longer holds an authenticated session.
+      // Cases, drafts and saved consents are untouched.
+      setNotice("已退出当前浏览器的起草会话。案件、草稿和授权记录都保留；再次真实起草需要重新输入访问码。");
+      reload();
+    } catch (error) {
+      setSessionError(error instanceof Error && error.message
+        ? error.message
+        : "退出未完成，请重试。该操作仅清除当前浏览器会话。");
+    } finally {
+      setEndingSession(false);
+    }
+  }, [endingSession, reload]);
 
   const targets = view !== null && view.kind === "ready" ? view.targets : [];
 
@@ -998,6 +1228,11 @@ export function AiPage({ repository, actor }: AiPageProps) {
         view={view}
         loading={loading}
         loadError={loadError}
+        status={service}
+        onRefreshStatus={reload}
+        onEndSession={() => { void handleEndSession(); }}
+        endingSession={endingSession}
+        sessionError={sessionError}
         purpose={purpose}
         busy={busy}
         actionError={actionError}

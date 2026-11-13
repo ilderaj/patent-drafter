@@ -45,6 +45,7 @@ import {
   type StorageBackend,
 } from "../../lib/repository.ts";
 import { loadTargetsView } from "../targets/targets.ts";
+import { buildAnswerSources } from "../intake/answer-sources.ts";
 
 export const GENERATE_STAGES = ["facts", "support", "claims", "specification", "checks"] as const;
 export type GenerateStage = (typeof GENERATE_STAGES)[number];
@@ -121,6 +122,10 @@ export interface GenerationInvocation extends ModelInvocation {
   at: string;
   /** Per-call cost settlement; pending calls are not yet counted against the cap. */
   costState?: "pending" | "known" | "unknown";
+  /** "stub" = on-device test output; "provider" = a real outbound call. Absent on rows from older builds. */
+  execution?: "stub" | "provider";
+  /** Failure code of a failed call; never a message or any request/response text. */
+  errorCode?: string | null;
 }
 
 export interface GenerationJobView {
@@ -146,8 +151,10 @@ export type GenerationOutcome<T> =
 export interface GenerationLimits {
   maxInputTokens: number;
   maxOutputTokens: number;
-  /** Whole-job cost cap; unknown-cost calls consume the remaining budget. */
+  /** Whole-job cost cap; unknown-cost calls consume the remaining budget unless explicitly count-bounded below. */
   maxCostMinor: number;
+  /** Explicit call-count budget for relays that cannot report money. Costs remain unknown; no price is fabricated. */
+  maxUnknownCostCalls?: number;
   /** Whole-job elapsed cap, measured from the running segment start. */
   maxDurationSeconds: number;
 }
@@ -213,6 +220,15 @@ interface StoredInput {
   supportIndex: SupportIndex;
   supportHash: string;
   promptVersion: string;
+  /** Why a real (provider) run has too little material to start; null when it can start. */
+  insufficientReason: string | null;
+  /**
+   * Identity of the material actually sent: title, source files/chunks, fact statements and
+   * statuses, the saved answers, target config, figure and base revision. It deliberately
+   * excludes session, provider profile, consent and pipeline settings, so an authorization
+   * change alone never looks like a content change.
+   */
+  contentFingerprint: string;
 }
 
 interface StoredStage {
@@ -254,6 +270,8 @@ interface StoredGenerationJob {
   invocations: GenerationInvocation[];
   adoptionCandidate: AdoptionCandidate | null;
   revisionState: MatterRevisions<DraftAST> | null;
+  /** Absent on jobs created before content identity was recorded; retry must then be conservative. */
+  inputContentFingerprint?: string;
 }
 
 interface StoredRevision {
@@ -343,7 +361,9 @@ function ownerPrefix(actor: Actor): string {
 
 function validateLimits(limits: GenerationLimits): boolean {
   return [limits.maxInputTokens, limits.maxOutputTokens, limits.maxCostMinor, limits.maxDurationSeconds]
-    .every((value) => Number.isSafeInteger(value) && value > 0);
+    .every((value) => Number.isSafeInteger(value) && value > 0)
+    && (limits.maxUnknownCostCalls === undefined || (Number.isSafeInteger(limits.maxUnknownCostCalls)
+      && limits.maxUnknownCostCalls > 0 && limits.maxUnknownCostCalls <= 64));
 }
 
 function makeJobId(options: GenerationEngineOptions): string {
@@ -743,6 +763,7 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
   const provider = options.provider ?? (execution === "stub" ? new MockProvider() : null);
   if (!provider) throw new TypeError("Provider execution requires an injected provider adapter.");
   const activeProvider: LLMProvider = provider;
+  const activeRequests = new Map<string, Set<string>>();
   const storage = options.storage ?? new IndexedDbGenerationStore(options.repository.backend, options.actor);
   const now = options.now ?? (() => new Date());
   const newId = options.newId ?? randomId;
@@ -828,8 +849,10 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     if (!targetsView.ok) throw Object.assign(new Error(targetsView.error.message), { code: targetsView.error.code });
     const targetView = targetsView.view.targets.find((item) => item.id === targetId);
     const sourceRows = new Map<string, Record<string, unknown>>();
+    const availableSourceAssets = new Set(aggregate.assets.filter(asset => asset.purpose === "source" && asset.state === "available").map(asset => asset.id));
     for (const row of rows) {
       if (isRecord(row) && row.kind === "parse.source" && isRecord(row.source) && row.source.matterId === matterId) {
+        if (config.releaseGate === "open" && !availableSourceAssets.has(String(row.source.assetId))) continue;
         sourceRows.set(String(row.source.id), row.source);
       }
     }
@@ -872,8 +895,52 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
         if (parsed.success) facts.push(parsed.data);
       }
     }
+    // Real (provider) drafting may also cite the user's own saved answers. They are labelled
+    // "用户直接回答 · 第 N 题", appended after document chunks, and never carry a page or file.
+    const answerSources = execution === "provider"
+      ? await buildAnswerSources(snapshot && typeof snapshot.createdBy === "string" && typeof snapshot.createdAt === "string"
+        ? { answers: snapshot.answers, confirmedBy: snapshot.createdBy, confirmedAt: snapshot.createdAt }
+        : null)
+      : null;
+    const documentChunkCount = chunks.length;
+    if (answerSources) {
+      for (const answer of answerSources.chunks) {
+        chunks.push({
+          id: answer.id,
+          assetId: answer.sourceId,
+          chunkIndex: chunks.length,
+          kind: "paragraph",
+          text: answer.text,
+          contentHash: answer.hash,
+        });
+        liveChunks.push({ id: answer.id, sourceId: answer.sourceId, text: answer.text, hash: answer.hash, page: null });
+      }
+      const known = new Set(facts.map((fact) => fact.id));
+      for (const fact of answerSources.facts) if (!known.has(fact.id)) facts.push(fact);
+    }
     const supportIndex = buildSupportIndex(facts, liveChunks);
     const supportHash = await sha256Hex(new TextEncoder().encode(canonicalJson({ facts, liveChunks })));
+    // Content identity for retry. Version numbers alone can miss a newly parsed source
+    // (the ingest command bumps the matter version, not the fact snapshot version).
+    const contentFingerprint = await sha256Hex(new TextEncoder().encode(canonicalJson({
+      version: 1,
+      title: aggregate.matter.title,
+      assets: aggregate.assets
+        .filter((asset) => asset.purpose === "source" && asset.state === "available")
+        .map((asset) => ({ id: asset.id, name: asset.originalName, sha256: asset.sha256, byteLength: asset.byteLength }))
+        .sort((left, right) => left.id.localeCompare(right.id)),
+      sources: [...sourceRows.values()]
+        .map((source) => ({ id: String(source.id), assetId: String(source.assetId), parserVersion: source.parserVersion ?? null, retiredAt: source.retiredAt ?? null }))
+        .sort((left, right) => left.id.localeCompare(right.id)),
+      chunks: liveChunks.map((chunk) => ({ id: chunk.id, sourceId: chunk.sourceId, hash: chunk.hash, page: chunk.page }))
+        .sort((left, right) => left.id.localeCompare(right.id)),
+      facts: facts.map((fact) => ({ id: fact.id, status: fact.status, statement: fact.statement }))
+        .sort((left, right) => left.id.localeCompare(right.id)),
+      answers: snapshot?.answers ?? null,
+      targetConfig: targetView?.config ?? null,
+      figureRevisionId: target.figureRevisionId,
+      baseDraftRevisionId: target.draftRevisionId,
+    })));
     const promptVersion = `${pipeline.promptVersion}+support.${supportHash.slice(0, 12)}`;
     const userAnswers: Record<string, string> = {};
     if (snapshot && isRecord(snapshot.answers)) {
@@ -937,6 +1004,12 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
       supportIndex,
       supportHash,
       promptVersion,
+      contentFingerprint,
+      insufficientReason: execution === "provider" && config.releaseGate === "open" && documentChunkCount === 0 && !answerSources?.complete
+        ? (answerSources && answerSources.answered > 0
+          ? `没有已解析的文档；五个问题还没答完，缺：${answerSources.missing.join("、")}。`
+          : "没有已解析的文档，也没有已保存的五题回答，无法真实起草。")
+        : null,
     };
   }
 
@@ -965,6 +1038,8 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
       targetId: record.targetId,
     }, { config, now: nowIso });
     if (!consent.ok) {
+      // Real relay calls must never continue with expired or changed consent.
+      if (config.releaseGate === "open") return { allowed: false as const, code: consent.error.code, message: consent.error.message };
       // Material/scope drift mid-run is recorded as a stale result rather than
       // silently switching to a new scope or dropping the job. Revocation and
       // profile/purpose changes remain terminal (S04-A02/A08).
@@ -1026,6 +1101,8 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
       executionLocation: selectedProfile.processingRegion ?? "unknown",
       at: nowIso(),
       costState: "pending",
+      execution: "provider",
+      errorCode: null,
     };
     const contract = {
       id: invocation.id,
@@ -1075,6 +1152,8 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
       executionLocation: "device:stub",
       at: nowIso(),
       costState: "known",
+      execution: "stub",
+      errorCode: null,
     };
     await updateRecord(jobId, (current) => {
       if (current.fence !== fence || current.job.state !== "running" || current.ownerPageId !== pageId) return;
@@ -1083,12 +1162,18 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     });
   }
 
-  async function closeStartedInvocations(jobId: string, fence: number, status: "succeeded" | "failed" | "cancelled"): Promise<void> {
+  async function closeStartedInvocations(
+    jobId: string,
+    fence: number,
+    status: "succeeded" | "failed" | "cancelled",
+    errorCode: string | null = null,
+  ): Promise<void> {
     await updateRecord(jobId, (record) => {
       if (record.fence !== fence) return;
       for (const invocation of record.invocations) {
         if (invocation.status !== "started") continue;
         invocation.status = status;
+        invocation.errorCode = status === "failed" ? errorCode : null;
         if (invocation.costState === undefined || invocation.costState === "pending") invocation.costState = "unknown";
         invocation.usageUnknown = invocation.costState !== "known";
       }
@@ -1122,6 +1207,11 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     // An unknown-cost call consumes the remaining budget: only one unknown
     // call may run under a cap, and the next call is refused.
     const unknown = settled.some((invocation) => (invocation.costState ?? "unknown") === "unknown");
+    const unknownCap = options.limits.maxUnknownCostCalls;
+    if (unknownCap !== undefined) {
+      const unknownOrPending = record.invocations.filter(invocation => invocation.costState !== "known").length;
+      return spent >= options.limits.maxCostMinor || unknownOrPending >= unknownCap;
+    }
     return spent >= options.limits.maxCostMinor || unknown;
   }
 
@@ -1132,7 +1222,7 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     code: GenerationErrorCode,
     message: string,
   ): Promise<void> {
-    await closeStartedInvocations(jobId, fence, "failed");
+    await closeStartedInvocations(jobId, fence, "failed", code);
     await updateRecord(jobId, (current) => {
       if (current.fence !== fence || current.job.state !== "running" || current.ownerPageId !== pageId) return;
       const item = current.stages.find((candidate) => candidate.stage === stage)!;
@@ -1173,22 +1263,30 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
       getCapabilities: () => target.getCapabilities(),
       listModels: () => target.listModels(),
       generateStructured: async (request, schema) => {
-        const response = await target.generateStructured(request, schema);
-        const metadata = isRecord(response) && isRecord(response.metadata) ? response.metadata : null;
-        const cost = metadata && Number.isSafeInteger(metadata.costMinor) && (metadata.costMinor as number) >= 0
-          ? metadata.costMinor as number
-          : null;
-        // Apply each call's cost before the next authorization, so a single
-        // logical stage cannot run past the job budget between boundaries.
-        await applyInvocationCosts(jobId, fence, [{ stage: request.stage ?? "unknown", costMinor: cost }]);
-        const latest = await readRecord(jobId);
-        if (!latest || latest.fence !== fence || latest.job.state !== "running" || latest.ownerPageId !== pageId) {
-          throw Object.assign(new Error("任务已取消或由其他页面接管。"), { code: "INVALID_TRANSITION" });
+        const requests = activeRequests.get(jobId) ?? new Set<string>();
+        activeRequests.set(jobId, requests);
+        requests.add(request.requestId);
+        try {
+          const response = await target.generateStructured(request, schema);
+          const metadata = isRecord(response) && isRecord(response.metadata) ? response.metadata : null;
+          const cost = metadata && Number.isSafeInteger(metadata.costMinor) && (metadata.costMinor as number) >= 0
+            ? metadata.costMinor as number
+            : null;
+          // Apply each call's cost before the next authorization, so a single
+          // logical stage cannot run past the job budget between boundaries.
+          await applyInvocationCosts(jobId, fence, [{ stage: request.stage ?? "unknown", costMinor: cost }]);
+          const latest = await readRecord(jobId);
+          if (!latest || latest.fence !== fence || latest.job.state !== "running" || latest.ownerPageId !== pageId) {
+            throw Object.assign(new Error("任务已取消或由其他页面接管。"), { code: "INVALID_TRANSITION" });
+          }
+          if (elapsedLimitExceeded(latest)) {
+            throw Object.assign(new Error("任务超过配置的最长运行时间。"), { code: "JOB_LIMIT_EXCEEDED" });
+          }
+          return response;
+        } finally {
+          requests.delete(request.requestId);
+          if (requests.size === 0) activeRequests.delete(jobId);
         }
-        if (elapsedLimitExceeded(latest)) {
-          throw Object.assign(new Error("任务超过配置的最长运行时间。"), { code: "JOB_LIMIT_EXCEEDED" });
-        }
-        return response;
       },
       streamText: (request) => target.streamText(request),
       cancel: (requestId) => target.cancel(requestId),
@@ -1201,6 +1299,17 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     const suffix = supportPromptSuffix(record.supportIndex);
     const prompts: Record<string, string> = { ...base };
     let injected = false;
+    const answerChunks = new Map<string, string>();
+    for (const fact of record.supportIndex.facts) {
+      for (const ref of fact.refs) {
+        if (ref.origin === "user_answer" && ref.questionNo !== undefined) answerChunks.set(ref.chunkId, `用户直接回答 · 第 ${ref.questionNo} 题`);
+      }
+    }
+    // Tell the extractor which input chunks are the user's own typed answers (not files, no pages).
+    if (answerChunks.size > 0 && typeof prompts["extract-facts.md"] === "string") {
+      prompts["extract-facts.md"] = `${prompts["extract-facts.md"]}\n\n## 用户直接回答（不是文件，没有页码）\n下列 chunk 是用户直接键入的回答，来源标注如下；引用时只写 chunkId，不要写 page：\n${JSON.stringify([...answerChunks].map(([chunkId, label]) => ({ chunkId, label })), null, 2)}`;
+      injected = true;
+    }
     for (const name of ["draft-claims.md", "draft-specification.md"]) {
       if (typeof prompts[name] === "string" && prompts[name].length > 0) {
         prompts[name] = `${prompts[name]}${suffix}`;
@@ -1424,6 +1533,7 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     if (!consentCheck.ok) return consentCheck;
     const input = await currentInput(matterId, targetId);
     if (!input) return fail("RESOURCE_NOT_FOUND", "目标不可用。");
+    if (input.insufficientReason) return fail("INVALID_INPUT", input.insufficientReason);
     const inputBytes = new TextEncoder().encode(canonicalJson({ assets: input.context.assets, chunks: input.context.chunks })).length;
     if (Math.ceil(inputBytes / 4) > options.limits.maxInputTokens) return fail("JOB_LIMIT_EXCEEDED", "生成输入超过配置的输入上限。");
     const id = makeJobId(options);
@@ -1504,6 +1614,7 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
       invocations: [],
       adoptionCandidate: null,
       revisionState: null,
+      inputContentFingerprint: input.contentFingerprint,
     };
     await storage.transaction(async (tx) => {
       const rawIndex = await tx.get(indexKey(matterId, targetId));
@@ -1559,6 +1670,8 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
       generationStage: invocation.generationStage,
       executionLocation: invocation.executionLocation,
       at: invocation.at,
+      ...(invocation.execution === undefined ? {} : { execution: invocation.execution }),
+      ...(invocation.errorCode === undefined ? {} : { errorCode: invocation.errorCode }),
     })));
   }
 
@@ -1607,6 +1720,10 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
         return true;
       });
       if (changed !== true) return fail("INVALID_TRANSITION", "任务已结束，不能取消。");
+      // Persist cancellation/fence first; abort is best-effort and cannot undo a completed upstream call.
+      const pendingRequests = [...activeRequests.get(jobId) ?? []];
+      // Even a queued job has a runtime credential to clear. Empty id invalidates it without aborting another job's fetch.
+      await Promise.allSettled((pendingRequests.length > 0 ? pendingRequests : [""]).map(requestId => activeProvider.cancel(requestId)));
       const record = await readRecord(jobId);
       return record ? ok(viewOf(record)) : fail("RESOURCE_NOT_FOUND", "任务不可用。");
     } catch (error) {
@@ -1619,8 +1736,34 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     const previous = await readRecord(jobId);
     if (!previous) return fail("RESOURCE_NOT_FOUND", "任务不可用。");
     if (previous.job.state !== "failed") return fail("INVALID_TRANSITION", "只有失败任务可以重试。");
-    if (previous.job.providerProfileId !== selectedProfile.id || previous.job.providerProfileVersion !== selectedProfile.version || previous.job.consentId !== (execution === "stub" ? null : options.consentId ?? null)) {
-      return fail("CONSENT_REQUIRED", "重试必须继续使用原处理方和授权配置。");
+    // Content identity comes first: a material change must never be reported as an
+    // authorization problem (that would send the user back to consent for no reason).
+    const previousFingerprint = previous.inputContentFingerprint;
+    if (previousFingerprint !== undefined) {
+      let input: StoredInput | null;
+      try {
+        input = await currentInput(previous.matterId, previous.targetId);
+      } catch (error) {
+        const failure = normalizeError(error);
+        return fail(failure.code, failure.message);
+      }
+      if (!input) return fail("RESOURCE_NOT_FOUND", "目标不可用。");
+      if (input.contentFingerprint !== previousFingerprint) {
+        return fail("INPUT_STALE", "材料已变化，请开始新任务。");
+      }
+    }
+    // A different processor is a different authorization: re-consent, never silently switch.
+    if (previous.job.providerProfileId !== selectedProfile.id || previous.job.providerProfileVersion !== selectedProfile.version) {
+      return fail("CONSENT_REQUIRED", "处理方配置已变化，请重新确认后再重试。");
+    }
+    const expectedConsentId = execution === "stub" ? null : options.consentId ?? null;
+    if (previous.job.consentId !== expectedConsentId) {
+      // Older jobs carry no content identity. Do not guess that their material is unchanged.
+      if (previousFingerprint === undefined) {
+        return fail("INPUT_STALE", "无法确认材料未变化，请核对当前材料或开始新任务。");
+      }
+      // Material is identical; only the consent row/session changed.
+      return fail("CONSENT_REQUIRED", "外发授权已变化，请重新确认后再重试。");
     }
     return prepareNewJob(previous.matterId, previous.targetId, previous);
   }
@@ -1830,6 +1973,7 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
         ast: record.resultAst,
         astHash,
         reason: "generated",
+        generationExecution: record.testOutput ? "stub" : "provider",
         input: input.input,
         ...(record.testOutput ? { testOutput: true } : {}),
       }, revisionContext);
@@ -2092,7 +2236,13 @@ function buildSupportIndex(
         .map((ref) => (typeof ref.chunkId === "string" ? ref.chunkId : ""))
         .filter((chunkId) => chunkId.length > 0)
       : [];
-    const match = bestFactMatch(statement, supportFacts);
+    // A fact the provider grounded in the user's own answer maps to that answer even when the
+    // wording differs: its support is "用户直接回答 · 第 N 题", never an invented file or page.
+    const match = bestFactMatch(statement, supportFacts)
+      ?? supportFacts.find((fact) => fact.resolved && fact.refs.length > 0
+        && fact.refs.every((ref) => ref.origin === "user_answer")
+        && fact.chunkIds.some((chunkId) => providerChunkIds.includes(chunkId)))
+      ?? null;
     pipelineMap.push({
       pipelineFactId,
       statement,
@@ -2120,7 +2270,10 @@ function supportPromptSuffix(support: SupportIndex): string {
     statement: fact.statement,
     kind: fact.kind,
     status: fact.status,
-    refs: fact.refs.map((ref) => ({ chunkId: ref.chunkId, page: ref.page, start: ref.start, end: ref.end, quote: ref.quote })),
+    refs: fact.refs.map((ref) => ({
+      chunkId: ref.chunkId, page: ref.page, start: ref.start, end: ref.end, quote: ref.quote,
+      ...(ref.origin === "user_answer" ? { source: `用户直接回答 · 第 ${ref.questionNo} 题` } : {}),
+    })),
   }));
   return [
     "",

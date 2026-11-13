@@ -1,0 +1,91 @@
+{
+  "checks": 17,
+  "failures": [],
+  "results": [
+    {
+      "name": "setup-draft-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "setup-real-engine-mounted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "rename-target-row-found",
+      "ok": true,
+      "detail": "matterId=b290316c-9f76-49dd-8317-c913f72f914a"
+    },
+    {
+      "name": "rename-row-text-updated",
+      "ok": true,
+      "detail": "复核改名-1794591007 / 中国实用新型 · 进行中 · 更新 2026/11/14 01:30:07 · 本机用户 / 技术详情 / 生成或撰写草稿 / 打开工作台 / 重命名 / 归档"
+    },
+    {
+      "name": "rename-persisted",
+      "ok": true,
+      "detail": "matter.title=复核改名-1794591007"
+    },
+    {
+      "name": "title-after-spa-runtime-testids",
+      "ok": true,
+      "detail": "workbench-runtime-consent-open,workbench-runtime-consent-required,workbench-runtime-refresh"
+    },
+    {
+      "name": "title-change-invalidates-without-reload",
+      "ok": true,
+      "detail": "sheet=True required=True"
+    },
+    {
+      "name": "title-change-no-chat",
+      "ok": true,
+      "detail": "before=0 after=0"
+    },
+    {
+      "name": "consent-sheet-title-matches",
+      "ok": true,
+      "detail": "复核改名-1794591007（可能作为主题背景随本次请求外发）"
+    },
+    {
+      "name": "retry-setup-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "retry-start-control",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "retry-first-attempt-failed",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "retry-control-present",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "retry-action-error-text",
+      "ok": true,
+      "detail": "无错误提示"
+    },
+    {
+      "name": "retry-created-new-job",
+      "ok": true,
+      "detail": "记录用：job id before=43f29b90-db1f-4097-8d8e-518b9398af3e after=43f29b90-db1f-4097-8d8e-518b9398af3e（索引行未换 id，但 chat 与状态证明是新一轮执行）"
+    },
+    {
+      "name": "retry-chat-happened",
+      "ok": true,
+      "detail": "chat 1 -> 14 state=succeeded"
+    },
+    {
+      "name": "retry-reused-consent",
+      "ok": true,
+      "detail": "consents before=3 after=3"
+    }
+  ]
+}

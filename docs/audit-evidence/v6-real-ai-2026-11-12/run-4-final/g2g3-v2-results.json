@@ -1,0 +1,72 @@
+{
+  "checks": 12,
+  "failures": [
+    {
+      "name": "g3-failed-job",
+      "ok": false,
+      "detail": "state=succeeded"
+    }
+  ],
+  "results": [
+    {
+      "name": "setup-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "g2-failed-job",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "job-has-inputContentFingerprint",
+      "ok": true,
+      "detail": "fingerprint=c961cef373e5（最新 job 记录）"
+    },
+    {
+      "name": "g2-reconsent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "g2-retry-control",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "g2-retry-input-stale",
+      "ok": true,
+      "detail": "code=INPUT_STALE text=材料已变化，请开始新任务。"
+    },
+    {
+      "name": "g2-message-says-new-task",
+      "ok": true,
+      "detail": "材料已变化，请开始新任务。"
+    },
+    {
+      "name": "g2-retry-no-chat",
+      "ok": true,
+      "detail": "chat=2"
+    },
+    {
+      "name": "g2-no-consent-sheet-for-content-change",
+      "ok": true,
+      "detail": "内容变化不重开 Sheet，提示新建任务"
+    },
+    {
+      "name": "g2-new-task-offered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "g2-new-job-succeeds",
+      "ok": true,
+      "detail": "state=succeeded"
+    },
+    {
+      "name": "g3-failed-job",
+      "ok": false,
+      "detail": "state=succeeded"
+    }
+  ]
+}

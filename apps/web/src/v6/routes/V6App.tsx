@@ -11,7 +11,6 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Shell } from "../components/Shell.tsx";
 import { ErrorBoundary } from "../components/ErrorBoundary.tsx";
 import { AppearanceProvider } from "../features/settings/Appearance.tsx";
-import { LOCAL_TEST_GENERATION_OPTIONS } from "../features/generation/local-runtime.ts";
 import { R1_RULE_PACK, R1_ACTIVE_RULE_PACK_VERSION } from "../features/checks/rule-pack.vite.ts";
 import { Body, Button, Callout, Icon, Pane, SectionHeader, Tag, Toolbar } from "../components/ui/index.ts";
 import { openIndexedDbBackend } from "../lib/indexeddb-repository.ts";
@@ -228,8 +227,8 @@ function StartPage({ repository }: { repository: LocalRepository }) {
         <div className="start-intro">
           <div className="start-symbol"><Icon name="folder" size="lg" /></div>
           <div className="small muted">卷宗 · 专利材料工作室</div>
-          <h1>把你的技术，写成申请材料</h1>
-          <p>从一份图纸、一段说明开始。先把事实整理清楚，再决定怎么申请。</p>
+          <h1>把你的技术，写成中国实用新型申请材料</h1>
+          <p>面向中国研发团队和个人发明人。从一份图纸、一段产品结构说明开始，先把事实整理清楚。</p>
         </div>
         {error ? (
           <Callout tone="warn" icon="alert" testId="start-create-error">
@@ -241,8 +240,8 @@ function StartPage({ repository }: { repository: LocalRepository }) {
         <div className="entry">
           <button type="button" className="entry-card" data-testid="entry-self" disabled={busy} onClick={create}>
             <span className="ec-i"><Icon name="doc" /></span>
-            <span className="ec-t">准备我的第一份申请</span>
-            <span className="ec-d">上传资料，回答几个问题，查看和修改材料。没有专利经验也可以开始。</span>
+            <span className="ec-t">准备我的中国实用新型申请</span>
+            <span className="ec-d">上传产品资料，回答五个问题，查看和修改中文准备材料。没有专利经验也可以开始。</span>
             <span className="ec-m">本机保存 · 不收费</span>
             <span className="ec-go">{busy ? "正在创建…" : "开始准备"} <Icon name="arrow" size="sm" /></span>
           </button>
@@ -265,7 +264,7 @@ function StartPage({ repository }: { repository: LocalRepository }) {
           <span className="rc-i"><Icon name="shield" /></span>
           <div className="grow">
             <div className="rc-t">你决定哪些内容可以交给 AI</div>
-            <div className="rc-d">当前自助流程使用本机测试引擎，不发送材料；真实模型外发门保持关闭。</div>
+            <div className="rc-d">生成前查看实际处理方、区域与材料范围，由你确认后才外发；服务不可用时会说明原因。</div>
           </div>
           <Link className="btn" to={v6Path({ kind: "section", key: "ai" })}>了解 AI 设置</Link>
         </div>
@@ -275,7 +274,7 @@ function StartPage({ repository }: { repository: LocalRepository }) {
           <Link to={v6Path({ kind: "section", key: "settings" })}>设置</Link>
         </div>
         <Callout tone="info" icon="info">
-          当前为本地准备功能：不收费、不自动递交。测试生成结果仅用于验证流程，不能作为正式申请材料。
+          当前为本地材料准备功能：不收费、不自动递交。真实 AI 草稿需人工核对；标有「测试输出」的结果仅用于验证流程。
         </Callout>
       </Pane></Body>
     </main>
@@ -302,7 +301,7 @@ function MatterPage({
   targetId: string | null;
   tab: MatterTab;
 }) {
-  return <ProfessionalWorkbench repository={repository} actor={LOCAL_ACTOR} matterId={matterId} targetId={targetId} tab={tab} generation={LOCAL_TEST_GENERATION_OPTIONS} rulePack={R1_RULE_PACK} rulePackVersion={R1_ACTIVE_RULE_PACK_VERSION} />;
+  return <ProfessionalWorkbench repository={repository} actor={LOCAL_ACTOR} matterId={matterId} targetId={targetId} tab={tab} rulePack={R1_RULE_PACK} rulePackVersion={R1_ACTIVE_RULE_PACK_VERSION} />;
 }
 
 function SectionPage({ sectionKey, repository }: { sectionKey: SectionKey; repository: LocalRepository }) {

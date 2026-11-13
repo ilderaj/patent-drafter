@@ -146,8 +146,10 @@ export interface SaveRevisionCommand<Ast> {
   ast: Ast;
   astHash: string;
   reason: SaveReason;
-  /** Marks initial local test output; descendants inherit the marker. */
+  /** Marks initial local test output; edits/restores/input adoption inherit the marker. */
   testOutput?: boolean;
+  /** Only a full generated replacement from a provider can start fresh provenance. Never used for editing. */
+  generationExecution?: "provider" | "stub";
   /** Defaults to the base revision's input; may not point past the matter sourceVersion. */
   input?: DraftInputRef;
 }
@@ -267,7 +269,8 @@ export function saveRevision<Ast, Figure = unknown>(
     ]);
   }
 
-  const testOutput = command.testOutput === true || base?.testOutput === true;
+  const freshProviderDraft = command.reason === "generated" && command.generationExecution === "provider";
+  const testOutput = command.testOutput === true || (!freshProviderDraft && base?.testOutput === true);
   const revision: RevisionRecord<Ast> = {
     id: context.newId("draft-revision"),
     matterId: state.matterId,

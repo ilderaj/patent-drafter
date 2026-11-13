@@ -197,6 +197,11 @@ function implicitStageInput(stage: PipelineStage, context: PipelineContext): unk
   }
 }
 
+/**
+ * UPSTREAM_ERROR splits on `retryable`: a transient failure (5xx, network) is "unavailable";
+ * a non-retryable one (the service refused the request, or the endpoint is misconfigured)
+ * is "rejected". The two need different next steps for the user.
+ */
 function providerErrorCode(error: ProviderError): string {
   switch (error.code) {
     case "NOT_CONFIGURED":
@@ -212,7 +217,7 @@ function providerErrorCode(error: ProviderError): string {
     case "INVALID_SCHEMA":
       return "PROVIDER_SCHEMA_INVALID";
     case "UPSTREAM_ERROR":
-      return "PROVIDER_REJECTED";
+      return error.retryable ? "PROVIDER_UNAVAILABLE" : "PROVIDER_REJECTED";
   }
 }
 

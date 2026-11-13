@@ -533,7 +533,7 @@ async function referencedSourceAvailability(
   aggregate: MatterAggregate,
   ast: GenerationRevisionView["ast"],
 ): Promise<ExportGateReason[]> {
-  const sourceIds = [...new Set(allParagraphs(ast).flatMap((paragraph) => paragraph.sourceRefs.map((reference) => reference.sourceId)))];
+  const sourceIds = [...new Set(allParagraphs(ast).flatMap((paragraph) => paragraph.sourceRefs.filter((reference) => reference.origin !== "user_answer").map((reference) => reference.sourceId)))];
   if (sourceIds.length === 0) return [];
   const result: ExportGateReason[] = [];
   for (const sourceId of sourceIds) {

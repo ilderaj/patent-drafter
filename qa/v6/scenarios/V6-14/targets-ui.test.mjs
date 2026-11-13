@@ -224,6 +224,49 @@ test("S03-A08 US and PCT cards show the exact handoff sentence; en-US is disable
   assert.match(textOf(html, "targets-create-language-reason-en-US"), /英文/);
 });
 
+/** One route card is one `<label>`; slicing keeps assertions inside the card. */
+function cardSlice(html, testid) {
+  const start = html.indexOf(`data-testid="${testid}"`);
+  assert.ok(start >= 0, `missing ${testid}`);
+  return html.slice(start, html.indexOf("</label>", start));
+}
+
+test("S03-A10 a new target cannot start on US/PCT and Chinese invention states its real limits", async () => {
+  const { repository } = await seed({ facts: ["structure", "method"], maturity: "tested_sample" });
+  const view = await readyView(repository);
+  const html = ui.renderView(viewProps(view));
+
+  for (const route of ["us_nonprovisional", "pct"]) {
+    const card = cardSlice(html, `targets-create-route-card-${route}`);
+    assert.match(card, /即将支持/);
+    assert.match(card, /disabled=""/);
+    assert.match(card, /尚未提供英文翻译/);
+  }
+  const invention = cardSlice(html, "targets-create-route-card-cn_invention");
+  assert.doesNotMatch(invention, /disabled=""/);
+  assert.match(invention, /仅中文准备稿/);
+  // The capability text is the catalogue's own statement, not a new promise.
+  assert.match(invention, /R1 本地浏览器版只生成中文准备稿/);
+  assert.match(invention, /规则依据尚待核实，需专业人员复核/);
+  const um = cardSlice(html, "targets-create-route-card-cn_um");
+  assert.doesNotMatch(um, /disabled=""/);
+  assert.match(um, /当前主路线/);
+});
+
+test("S03-A10 an existing overseas target keeps its route openable; it is not migrated or deleted", async () => {
+  const { repository } = await twoTargets();
+  const view = await readyView(repository);
+  const pct = view.targets.find((target) => target.config?.route === "pct");
+  assert.ok(pct);
+  const html = ui.renderView(viewProps(view, { selectedTargetId: pct.id }));
+  const kept = cardSlice(html, "targets-update-route-card-pct");
+  assert.doesNotMatch(kept, /disabled=""/);
+  assert.match(kept, /本案已有目标保留此路线/);
+  const other = cardSlice(html, "targets-update-route-card-us_nonprovisional");
+  assert.match(other, /disabled=""/);
+  assert.doesNotMatch(/<button[^>]*data-testid="targets-update-save"[^>]*>/.exec(html)[0], /disabled=""/);
+});
+
 test("S03-A09 the method rule and its triggering fact are shown on the trace and the cn_um card", async () => {
   const { repository } = await seed({ facts: ["structure", "method"], maturity: "tested_sample" });
   const view = await readyView(repository);

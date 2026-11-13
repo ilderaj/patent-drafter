@@ -123,10 +123,21 @@ export const sourceRefSchema = z
     start: z.number().int().min(0),
     end: z.number().int().min(0),
     quote: z.string().min(1),
+    /**
+     * Optional, backward compatible. Absent means an uploaded document. "user_answer"
+     * marks a reference into the user's own saved intake answer (never a file or page).
+     */
+    origin: z.literal("user_answer").optional(),
+    /** 1-based intake question number; required with origin "user_answer". */
+    questionNo: z.number().int().min(1).max(5).optional(),
   })
   .strict()
   // Half-open Unicode code point range over NFC text.
-  .refine((ref) => ref.end > ref.start, { message: "end must be greater than start", path: ["end"] });
+  .refine((ref) => ref.end > ref.start, { message: "end must be greater than start", path: ["end"] })
+  .refine(
+    (ref) => (ref.origin === "user_answer" ? ref.questionNo !== undefined && ref.page === null : ref.questionNo === undefined),
+    { message: "user_answer references need questionNo and no page; document references must not carry questionNo", path: ["origin"] },
+  );
 
 export const chunkKindSchema = z.enum(["paragraph", "table", "image", "ocr_page"]);
 

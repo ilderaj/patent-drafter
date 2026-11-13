@@ -1,0 +1,31 @@
+{
+  "checks": 5,
+  "failures": [],
+  "results": [
+    {
+      "name": "setup-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "timeout-control",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "timeout-failed",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "timeout-chinese",
+      "ok": true,
+      "detail": "阶段失败：事实（真实起草服务响应超时）  模型响应超时，属于临时问题。已完成的阶段会保留；请稍后重试，重试会新建任务。  技术详情"
+    },
+    {
+      "name": "timeout-no-candidate",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

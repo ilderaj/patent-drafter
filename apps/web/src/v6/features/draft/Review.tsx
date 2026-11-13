@@ -35,6 +35,7 @@ import {
   type GenerationRevisionStore,
   type GenerationRevisionView,
 } from "../generation/generation.ts";
+import { answerSourceLabel, buildAnswerSources, readSnapshotAnswerInput, type AnswerSources } from "../intake/answer-sources.ts";
 import { readChunkSets, readMatterSources, sourceIdFor, type ChunkSet, type ParseSourceRecord } from "../sources/parse.ts";
 import { sha256Hex, STORES, type Actor, type ActivityRecord, type LocalRepository } from "../../lib/repository.ts";
 
@@ -297,12 +298,13 @@ export class DraftReviewSession {
         figureRevisionId: target.figureRevisionId,
       };
       const current = target.draftRevisionId === revision.revision.id && isCurrent(projection.snapshot, currentSnapshot);
-      const facts = await this.readFacts(revision.revision.input.sourceVersion);
+      const answers = await this.readAnswerSources(revision.revision.input.sourceVersion);
+      const facts = [...(await this.readFacts(revision.revision.input.sourceVersion)), ...answers.facts];
       const supportRows = buildSupportTable(revision.ast, facts);
       const locatorInputIsCurrent = revision.revision.input.sourceVersion === aggregate.matter.sourceVersion
         && revision.revision.input.targetConfigVersion === target.configVersion
         && revision.revision.input.figureRevisionId === target.figureRevisionId;
-      const locators = await this.readLocators(revision.ast, facts, aggregate.assets, locatorInputIsCurrent);
+      const locators = await this.readLocators(revision.ast, facts, aggregate.assets, locatorInputIsCurrent, answers);
       const hasOlderConfirmation = ledger.confirmations.some((item) => item.kind === "ai_paragraph"
         && item.snapshot.matterId === this.matterId
         && item.snapshot.targetId === this.targetId
@@ -340,11 +342,20 @@ export class DraftReviewSession {
     return parsed.data.facts;
   }
 
+  /** The user's saved answers at that source version, as citable “用户直接回答” sources. */
+  private async readAnswerSources(sourceVersion: number): Promise<AnswerSources> {
+    const raw = await this.repository.backend.transaction("readonly", (tx) =>
+      tx.get(STORES.blobs, `intake/snapshot/${this.matterId}/${sourceVersion}`),
+    );
+    return buildAnswerSources(readSnapshotAnswerInput(raw, this.matterId, sourceVersion));
+  }
+
   private async readLocators(
     ast: DraftAST,
     facts: readonly Fact[],
     assets: readonly { id: string; originalName: string; matterId: string | null; tenantId: string; purpose: "source" | "drawing" | "receipt" | "review_attachment" | "service_attachment" | "export" }[],
     revisionSourceIsCurrent: boolean,
+    answers: AnswerSources,
   ): Promise<DraftReviewLocator[]> {
     const refs = collectSourceRefs(ast, facts);
     if (refs.length === 0) return [];
@@ -367,6 +378,22 @@ export class DraftReviewSession {
       const key = sourceRefKey(ref);
       if (!revisionSourceIsCurrent) {
         locators.push(unlocatable(ref, key, "草稿基于旧事实版本；来源不可定位。", null));
+        continue;
+      }
+      if (ref.origin === "user_answer") {
+        const label = ref.questionNo !== undefined ? answerSourceLabel(ref.questionNo) : "用户直接回答";
+        const answer = answers.chunks.find((item) => item.id === ref.chunkId);
+        if (!answer) {
+          locators.push(unlocatable(ref, key, "这条回答已被修改或删除，无法定位。", label));
+          continue;
+        }
+        const points = Array.from(answer.text.normalize("NFC"));
+        const matches = answer.sourceId === ref.sourceId && answer.hash === ref.chunkHash
+          && ref.end > ref.start && ref.end <= points.length
+          && points.slice(ref.start, ref.end).join("") === ref.quote.normalize("NFC");
+        locators.push(matches
+          ? { key, ref: structuredClone(ref), status: "located", reason: null, sourceName: label, chunkText: answer.text }
+          : unlocatable(ref, key, "回答原文与引用不一致。", label));
         continue;
       }
       const source = sourceById.get(ref.sourceId);
@@ -614,7 +641,9 @@ export function DraftReviewPanelView(props: DraftReviewPanelViewProps) {
             const locator = locatorByKey.get(sourceRefKey(ref));
             return <button key={sourceRefKey(ref)} type="button" className="btn btn-outline btn-sm"
               onClick={() => locator && setSelectedLocatorKey(locator.key)}>
-              来源标记 · {ref.sourceId} / {ref.chunkId}
+              {ref.origin === "user_answer" && ref.questionNo !== undefined
+                ? answerSourceLabel(ref.questionNo)
+                : <>来源标记 · {ref.sourceId} / {ref.chunkId}</>}
             </button>;
           })}
           {!confirmed && !revokedForCurrentRevision ? <button type="button" className="btn btn-default btn-sm" disabled={!state.isCurrent}
@@ -650,7 +679,10 @@ function SourceRefTable(props: {
         const locator = props.locatorByKey.get(sourceRefKey(ref));
         const key = sourceRefKey(ref);
         return <tr key={key}>
-          <td>{ref.sourceId}</td><td>{ref.chunkId}</td><td>{ref.page ?? "—"}</td><td>{ref.start}</td><td>{ref.end}</td><td>{ref.quote}</td>
+          {ref.origin === "user_answer" && ref.questionNo !== undefined
+            ? <><td>{answerSourceLabel(ref.questionNo)}</td><td>—</td><td>—</td></>
+            : <><td>{ref.sourceId}</td><td>{ref.chunkId}</td><td>{ref.page ?? "—"}</td></>}
+          <td>{ref.start}</td><td>{ref.end}</td><td>{ref.quote}</td>
           <td>{locator?.status === "located"
             ? <button type="button" className="btn btn-outline btn-sm" onClick={() => props.onLocate(locator)}>定位来源片段</button>
             : <span role="status" data-testid={`draft-review-unlocatable-${ref.chunkId}`}>不可定位 · {locator?.reason ?? "定位记录不可用"}；原引用：{ref.quote}</span>}</td>

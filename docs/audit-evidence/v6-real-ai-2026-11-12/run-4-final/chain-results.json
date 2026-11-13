@@ -1,0 +1,122 @@
+{
+  "segment": "chain",
+  "checks": 23,
+  "failures": [],
+  "results": [
+    {
+      "name": "setup-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "chain-job-succeeds",
+      "ok": true,
+      "detail": "state=succeeded"
+    },
+    {
+      "name": "chain-13-stages",
+      "ok": true,
+      "detail": "chat delta=13"
+    },
+    {
+      "name": "chain-adopted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "chain-no-test-notice",
+      "ok": true,
+      "detail": "{\"preview-test-output\": 0, \"done-test-output-label\": 0, \"delivery-test-output-label\": 0, \"workbench-test-output\": 0, \"generation-test-output\": 0, \"total\": 0, \"flagged\": 0}"
+    },
+    {
+      "name": "chain-paragraphs-confirmed",
+      "ok": true,
+      "detail": "confirmed=8"
+    },
+    {
+      "name": "chain-self-read",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "chain-approved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "chain-downloads-ready",
+      "ok": true,
+      "detail": "ready=7"
+    },
+    {
+      "name": "chain-done-no-test-notice",
+      "ok": true,
+      "detail": "{\"preview-test-output\": 0, \"done-test-output-label\": 0, \"delivery-test-output-label\": 0, \"workbench-test-output\": 0, \"generation-test-output\": 0, \"total\": 0, \"flagged\": 0}"
+    },
+    {
+      "name": "download-1",
+      "ok": true,
+      "detail": "权利要求书.docx kind=docx valid=True marker=False"
+    },
+    {
+      "name": "download-2",
+      "ok": true,
+      "detail": "说明书.docx kind=docx valid=True marker=False"
+    },
+    {
+      "name": "download-3",
+      "ok": true,
+      "detail": "说明书摘要.docx kind=docx valid=True marker=False"
+    },
+    {
+      "name": "download-4",
+      "ok": true,
+      "detail": "synthetic-acceptance-figure.png kind=png valid=True marker=False"
+    },
+    {
+      "name": "download-5",
+      "ok": true,
+      "detail": "提交检查清单.pdf kind=pdf valid=True marker=False"
+    },
+    {
+      "name": "download-6",
+      "ok": true,
+      "detail": "项目备份.patentpack kind=patentpack-envelope valid=True marker=False"
+    },
+    {
+      "name": "download-7",
+      "ok": true,
+      "detail": "导出清单.json kind=export-manifest valid=True marker=False"
+    },
+    {
+      "name": "chain-downloads-valid-count",
+      "ok": true,
+      "detail": "valid=7"
+    },
+    {
+      "name": "ai-rows",
+      "ok": true,
+      "detail": "rows=13 engine-chat=13"
+    },
+    {
+      "name": "ai-rows-equal-engine-chat",
+      "ok": true,
+      "detail": "rows=13 chat=13"
+    },
+    {
+      "name": "ai-time",
+      "ok": true,
+      "detail": "sample=['2026/11/14 02:50:24', '2026/11/14 02:50:24']"
+    },
+    {
+      "name": "ai-type",
+      "ok": true,
+      "detail": "sample=['真实\\n本机回环（合成验收）', '真实\\n本机回环（合成验收）']"
+    },
+    {
+      "name": "ai-no-body",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

@@ -13,7 +13,7 @@ import {
   type QuestionSource,
 } from "../intake/intake.ts";
 import { decodeSourceValue, encodeSourceValue, SOURCE_DIRECT, SOURCE_NOT_FOUND, SOURCE_STORED } from "../intake/Intake.tsx";
-import type { SelfServiceStep } from "./SelfService.tsx";
+import type { SelfServiceStep } from "../../routes/navigation.ts";
 import { intakeSaveInput } from "./persistence.ts";
 import { Callout, Icon } from "../../components/ui/index.ts";
 

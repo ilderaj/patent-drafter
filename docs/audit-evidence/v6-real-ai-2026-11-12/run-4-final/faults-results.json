@@ -1,0 +1,98 @@
+{
+  "segment": "faults",
+  "checks": 17,
+  "failures": [
+    {
+      "name": "step-aborted",
+      "ok": false,
+      "detail": "TimeoutError: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_test_id(\"generation-start\").first\n"
+    }
+  ],
+  "results": [
+    {
+      "name": "setup-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "fault-unavailable-failed",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "fault-unavailable-chinese",
+      "ok": true,
+      "detail": "阶段失败：事实（真实起草服务暂时不可用）  真实起草服务暂时不可用（服务中断或网络不通）。已完成的阶段会保留；请稍后重试，重试会新建任务。  技术详情"
+    },
+    {
+      "name": "fault-unavailable-no-candidate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fault-unauthorized-failed",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "fault-unauthorized-chinese",
+      "ok": true,
+      "detail": "阶段失败：事实（模型服务或访问会话未被接受）  访问会话或模型服务凭据未被接受。请先重新输入访问码；仍失败说明服务端凭据有误，请联系部署者检查，不要反复重试。  技术详情"
+    },
+    {
+      "name": "fault-unauthorized-no-candidate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fault-invalid_json-failed",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "fault-invalid_json-chinese",
+      "ok": true,
+      "detail": "阶段失败：事实（模型输出无法解析）  模型返回的内容无法按约定结构解析，本次结果没有被使用。可以重试；如反复出现，请联系部署者检查模型配置。不会自动重试。  技术详情"
+    },
+    {
+      "name": "fault-invalid_json-no-candidate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fault-redirect-failed",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "fault-redirect-chinese",
+      "ok": true,
+      "detail": "阶段失败：事实（模型服务拒绝了请求）  模型服务拒绝了这次请求，或服务地址、模型配置有误。重试通常无效，请联系部署者检查服务配置。  技术详情"
+    },
+    {
+      "name": "fault-redirect-no-candidate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fault-rate_limit-failed",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "fault-rate_limit-chinese",
+      "ok": true,
+      "detail": "阶段失败：事实（真实起草请求过多）  请求过多，已被限流。请等几分钟后再试，不会自动更换处理方。  技术详情"
+    },
+    {
+      "name": "fault-rate_limit-no-candidate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "step-aborted",
+      "ok": false,
+      "detail": "TimeoutError: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_test_id(\"generation-start\").first\n"
+    }
+  ]
+}
