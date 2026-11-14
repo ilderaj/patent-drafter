@@ -1,0 +1,76 @@
+TAP version 13
+# Subtest: real mode exposes the exact disclosure and mounts no generation engine before consent
+ok 1 - real mode exposes the exact disclosure and mounts no generation engine before consent
+  ---
+  duration_ms: 1308.783084
+  type: 'test'
+  ...
+# Subtest: a title that is not sent is disclosed as staying on the device, never hidden or implied sent
+ok 2 - a title that is not sent is disclosed as staying on the device, never hidden or implied sent
+  ---
+  duration_ms: 3.771959
+  type: 'test'
+  ...
+# Subtest: answer-only disclosure has no empty file row and explains the actual outbound answers
+ok 3 - answer-only disclosure has no empty file row and explains the actual outbound answers
+  ---
+  duration_ms: 2.190334
+  type: 'test'
+  ...
+# Subtest: incomplete answer-only manifest lists missing questions, links back, and disables real consent
+ok 4 - incomplete answer-only manifest lists missing questions, links back, and disables real consent
+  ---
+  duration_ms: 5.437584
+  type: 'test'
+  ...
+# Subtest: test fallback displays missing answer gates and a route back to questions
+ok 5 - test fallback displays missing answer gates and a route back to questions
+  ---
+  duration_ms: 2.196542
+  type: 'test'
+  ...
+# Subtest: cancelling consent makes no grant or model call and keeps real generation blocked
+ok 6 - cancelling consent makes no grant or model call and keeps real generation blocked
+  ---
+  duration_ms: 4.744458
+  type: 'test'
+  ...
+# Subtest: explicit agreement enables real generation without a test-output notice
+ok 7 - explicit agreement enables real generation without a test-output notice
+  ---
+  duration_ms: 4.358375
+  type: 'test'
+  ...
+# Subtest: test fallback explains why real drafting is unavailable; session verification alone never grants consent
+ok 8 - test fallback explains why real drafting is unavailable; session verification alone never grants consent
+  ---
+  duration_ms: 9.833292
+  type: 'test'
+  ...
+# Subtest: failed session authentication clears the input without allowing real generation
+ok 9 - failed session authentication clears the input without allowing real generation
+  ---
+  duration_ms: 6.1885
+  type: 'test'
+  ...
+# Subtest: unknown policy fields stay unknown, and cancellation clears a temporary access code
+ok 10 - unknown policy fields stay unknown, and cancellation clears a temporary access code
+  ---
+  duration_ms: 7.539541
+  type: 'test'
+  ...
+# Subtest: an old asynchronous grant cannot enable generation after switching target
+ok 11 - an old asynchronous grant cannot enable generation after switching target
+  ---
+  duration_ms: 106.24025
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1573.849083

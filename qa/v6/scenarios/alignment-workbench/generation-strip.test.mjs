@@ -6,26 +6,17 @@ import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
-import { launchChromeWithPageTarget } from "../../helpers/chrome.mjs";
+import { chromeSelfCheck, createCdpClient, launchChromeWithPageTarget, withTimeout } from "../../helpers/chrome.mjs";
 import * as esbuild from "esbuild";
 
-let browser, server, ws, send;
-const pending = new Map();
+let browser, server, client;
 const errors = [];
-let messageId = 0;
-const pause = (ms) => new Promise((done) => setTimeout(done, ms));
-const evaluate = async (expression) => {
-  const response = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-  if (response.exceptionDetails) throw new Error(response.exceptionDetails.text);
-  return response.result.value;
-};
-async function waitFor(expression) {
-  for (let i = 0; i < 100; i++) {
-    if (await evaluate(expression)) return;
-    await pause(50);
-  }
-  throw new Error(`UI condition timed out: ${expression}`);
-}
+const SUITE_SETUP_TIMEOUT_MS = 90_000;
+const TEST_TIMEOUT_MS = 90_000;
+const it = (name, fn) => test(name, { timeout: TEST_TIMEOUT_MS }, fn);
+const evaluate = (expression, options) => client.evaluate(expression, options);
+const waitFor = (expression, label = expression, options = { timeoutMs: 15_000 }) => client.waitFor(expression, label, options);
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const strip = "document.querySelector('[data-testid=workbench-generation-panel]')";
 const isOpen = () => evaluate(`${strip}.open`);
 const click = (selector) => evaluate(`document.querySelector(${JSON.stringify(selector)}).click(); true`);
@@ -94,24 +85,23 @@ before(async () => {
     response.end(request.url === "/fixture.js" ? build.outputFiles[0].contents : '<div id="root"></div><script src="/fixture.js"></script>');
   });
   await new Promise((done) => server.listen(0, "127.0.0.1", done));
-  browser = await launchChromeWithPageTarget({ profilePrefix: "v6-strip-browser-" });
-  ws = browser.socket;
-  ws.addEventListener("message", (event) => {
-    const message = JSON.parse(event.data);
-    if (message.id) { const h = pending.get(message.id); pending.delete(message.id); if (h) message.error ? h.reject(new Error(JSON.stringify(message.error))) : h.resolve(message.result); }
-    if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
-  });
-  send = (method, params = {}) => new Promise((ok, fail) => { const id = ++messageId; pending.set(id, { resolve: ok, reject: fail }); ws.send(JSON.stringify({ id, method, params })); });
-  await send("Runtime.enable");
-  await send("Page.navigate", { url: `http://127.0.0.1:${server.address().port}` });
-  await waitFor("!!window.fixture");
+  await withTimeout((async () => {
+    await chromeSelfCheck({ profilePrefix: "v6-strip-browser-selfcheck-", timeoutMs: 60_000 });
+    browser = await launchChromeWithPageTarget({ profilePrefix: "v6-strip-browser-" });
+    client = createCdpClient(browser.socket, { requestTimeoutMs: 10_000, onEvent: (message) => {
+      if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
+    } });
+    await client.send("Runtime.enable");
+    await client.send("Page.navigate", { url: `http://127.0.0.1:${server.address().port}` });
+    await client.waitFor("!!window.fixture", "fixture loaded", { timeoutMs: 20_000 });
+  })(), SUITE_SETUP_TIMEOUT_MS, "browser suite setup (self-check, launch, first page)");
 });
 after(async () => {
-  await browser?.close();
+  await withTimeout(browser?.close() ?? Promise.resolve(), 20_000, "browser close").catch((error) => console.error(`cleanup: ${error.message}`));
   if (server) await new Promise((done) => server.close(done));
 });
 
-test("a user-expanded strip stays expanded across re-renders, refreshes and window focus", async () => {
+it("a user-expanded strip stays expanded across re-renders, refreshes and window focus", async () => {
   await mount("test", false);
   assert.equal(await isOpen(), false, "collapsed by default when nothing needs attention");
   await click("[data-testid=workbench-generation-panel] > summary");
@@ -124,7 +114,7 @@ test("a user-expanded strip stays expanded across re-renders, refreshes and wind
   assert.equal(await isOpen(), true);
 });
 
-test("a user-collapsed strip is not reopened by re-renders", async () => {
+it("a user-collapsed strip is not reopened by re-renders", async () => {
   await mount("test", false);
   await click("[data-testid=workbench-generation-panel] > summary");
   await waitFor(`${strip}.open === true`);
@@ -135,7 +125,7 @@ test("a user-collapsed strip is not reopened by re-renders", async () => {
   assert.equal(await isOpen(), false);
 });
 
-test("re-consent opens the strip and the consent sheet survives re-renders without remounting", async () => {
+it("re-consent opens the strip and the consent sheet survives re-renders without remounting", async () => {
   await mount("real", true);
   assert.equal(await isOpen(), true, "consent required opens the strip");
   assert.equal(await exists("[role=dialog]"), true);
@@ -147,7 +137,7 @@ test("re-consent opens the strip and the consent sheet survives re-renders witho
   assert.equal(await evaluate("document.querySelector('[role=dialog]') === window.__sheet"), true, "sheet node is the same: not unmounted and remounted");
 });
 
-test("an access code being typed survives a refresh while the sheet is open", async () => {
+it("an access code being typed survives a refresh while the sheet is open", async () => {
   await mount("test", false);
   await click("[data-testid=workbench-runtime-consent-open]");
   await waitFor("!!document.querySelector('[data-testid=workbench-consent-access-code]')");
@@ -164,7 +154,7 @@ test("an access code being typed survives a refresh while the sheet is open", as
   assert.equal(await evaluate("document.querySelector('[data-testid=workbench-consent-access-code]').value"), "synthetic-typing");
 });
 
-test("a running or failed job opens the strip by default", async () => {
+it("a running or failed job opens the strip by default", async () => {
   await mount("test", false);
   assert.equal(await isOpen(), false);
   await evaluate("fixture.setJob('running'); true");
@@ -175,7 +165,7 @@ test("a running or failed job opens the strip by default", async () => {
   await waitFor(`${strip}.open === true`);
 });
 
-test("the editor's reveal request opens the strip; switching target resets it", async () => {
+it("the editor's reveal request opens the strip; switching target resets it", async () => {
   await mount("test", false);
   await evaluate("fixture.reveal(); true");
   await waitFor(`${strip}.open === true`);

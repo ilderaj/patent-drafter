@@ -4,26 +4,17 @@ import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
-import { launchChromeWithPageTarget } from "../../helpers/chrome.mjs";
+import { chromeSelfCheck, createCdpClient, launchChromeWithPageTarget, withTimeout } from "../../helpers/chrome.mjs";
 import * as esbuild from "esbuild";
 
-let browser, server, ws, send;
-const pending = new Map();
+let browser, server, client;
 const errors = [];
-let messageId = 0;
-const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
-const evaluate = async expression => {
-  const response = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-  if (response.exceptionDetails) throw new Error(response.exceptionDetails.text);
-  return response.result.value;
-};
-async function waitFor(expression) {
-  for (let i = 0; i < 100; i++) {
-    if (await evaluate(expression)) return;
-    await pause(50);
-  }
-  throw new Error(`UI condition timed out: ${expression}`);
-}
+const SUITE_SETUP_TIMEOUT_MS = 90_000;
+const TEST_TIMEOUT_MS = 90_000;
+const it = (name, fn) => test(name, { timeout: TEST_TIMEOUT_MS }, fn);
+const evaluate = (expression, options) => client.evaluate(expression, options);
+const waitFor = (expression, label = expression, options = { timeoutMs: 15_000 }) => client.waitFor(expression, label, options);
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const click = selector => evaluate(`document.querySelector(${JSON.stringify(selector)}).click(); true`);
 const text = selector => evaluate(`document.querySelector(${JSON.stringify(selector)})?.textContent ?? null`);
 const exists = selector => evaluate(`!!document.querySelector(${JSON.stringify(selector)})`);
@@ -94,24 +85,23 @@ before(async () => {
     response.end(request.url === "/fixture.js" ? build.outputFiles[0].contents : '<div id="root"></div><script src="/fixture.js"></script>');
   });
   await new Promise(resolve => server.listen(0,"127.0.0.1",resolve));
-  browser = await launchChromeWithPageTarget({ profilePrefix: "v6-consent-browser-" });
-  ws = browser.socket;
-  ws.addEventListener("message",event=> {
-    const message=JSON.parse(event.data);
-    if(message.id){ const handler=pending.get(message.id);pending.delete(message.id); if(handler) message.error ? handler.reject(new Error(JSON.stringify(message.error))) : handler.resolve(message.result); }
-    if(message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
-  });
-  send=(method,params={})=>new Promise((resolve,reject)=> { const id=++messageId;pending.set(id,{resolve,reject});ws.send(JSON.stringify({id,method,params})); });
-  await send("Runtime.enable");
-  await send("Page.navigate", {url:`http://127.0.0.1:${server.address().port}`});
-  await waitFor("!!window.fixture");
+  await withTimeout((async () => {
+    await chromeSelfCheck({ profilePrefix: "v6-consent-browser-selfcheck-", timeoutMs: 60_000 });
+    browser = await launchChromeWithPageTarget({ profilePrefix: "v6-consent-browser-" });
+    client = createCdpClient(browser.socket, { requestTimeoutMs: 10_000, onEvent: (message) => {
+      if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
+    } });
+    await client.send("Runtime.enable");
+    await client.send("Page.navigate", { url: `http://127.0.0.1:${server.address().port}` });
+    await client.waitFor("!!window.fixture", "fixture loaded", { timeoutMs: 20_000 });
+  })(), SUITE_SETUP_TIMEOUT_MS, "browser suite setup (self-check, launch, first page)");
 });
 after(async()=> {
-  await browser?.close();
+  await withTimeout(browser?.close() ?? Promise.resolve(), 20_000, "browser close").catch((error) => console.error(`cleanup: ${error.message}`));
   if(server) await new Promise(resolve=>server.close(resolve));
 });
 
-test("real mode exposes the exact disclosure and mounts no generation engine before consent",async()=> {
+it("real mode exposes the exact disclosure and mounts no generation engine before consent",async()=> {
   await mount();
   assert.match(await text('[data-testid="self-consent-disclosure"]'),/合成处理方.*合成区域.*合成保留政策/);
   assert.match(await text('[data-testid="self-consent-materials"]'),/合成技术交底.docx.*6 页.*4 条事实/s);
@@ -126,13 +116,13 @@ test("real mode exposes the exact disclosure and mounts no generation engine bef
   assert.equal(await evaluate("fixture.grants+fixture.calls"),0);
 });
 
-test("a title that is not sent is disclosed as staying on the device, never hidden or implied sent",async()=> {
+it("a title that is not sent is disclosed as staying on the device, never hidden or implied sent",async()=> {
   await mount("real",true,{title:"仅本机标题",titleSent:false});
   assert.match(await text('[data-testid="self-consent-title-local"]'),/不外发；标题仅留在本机：仅本机标题/);
   assert.equal(await exists('[data-testid="self-consent-title-sent"]'),false);
 });
 
-test("answer-only disclosure has no empty file row and explains the actual outbound answers",async()=> {
+it("answer-only disclosure has no empty file row and explains the actual outbound answers",async()=> {
   await mount("real",true,{noFiles:true});
   const materials = await text('[data-testid="self-consent-materials"]');
   assert.match(materials,/没有上传文档；本次内容来自你保存的回答与事实/);
@@ -141,7 +131,7 @@ test("answer-only disclosure has no empty file row and explains the actual outbo
   assert.match(await text('[data-testid="self-consent-answers"]'),/第 2 题 · 区别 · 约 24 字/);
 });
 
-test("incomplete answer-only manifest lists missing questions, links back, and disables real consent",async()=> {
+it("incomplete answer-only manifest lists missing questions, links back, and disables real consent",async()=> {
   const answers = { total:5, answered:4, sentCount:2, complete:false, missing:["第 5 题（成熟度）"], items:[
     {questionNo:1,key:"problem",label:"问题",answered:true,sent:true,characters:12,chunkId:"answer-problem"},
     {questionNo:2,key:"difference",label:"区别",answered:true,sent:true,characters:24,chunkId:"answer-difference"},
@@ -157,13 +147,13 @@ test("incomplete answer-only manifest lists missing questions, links back, and d
   assert.equal(await exists('[data-testid="fixture-generation"]'),false);
 });
 
-test("test fallback displays missing answer gates and a route back to questions",async()=> {
+it("test fallback displays missing answer gates and a route back to questions",async()=> {
   await mount("test",false,{reason:"没有已解析的文档，且五个问题还没答完，缺：第 2 题（区别）、第 5 题（成熟度）。答完后才能真实起草。"});
   assert.match(await text('[data-testid="self-answer-incomplete"]'),/第 2 题（区别）、第 5 题（成熟度）/);
   assert.equal(await evaluate("document.querySelector('[data-testid=self-answer-link]').getAttribute('href')"),"/v6/new/synthetic-matter/questions");
 });
 
-test("cancelling consent makes no grant or model call and keeps real generation blocked",async()=> {
+it("cancelling consent makes no grant or model call and keeps real generation blocked",async()=> {
   await mount();
   await evaluate(`document.querySelector('[aria-label="关闭"]').click();true`);
   await waitFor("!document.querySelector('[role=dialog]')");
@@ -171,7 +161,7 @@ test("cancelling consent makes no grant or model call and keeps real generation 
   assert.equal(await evaluate("fixture.grants+fixture.calls"),0);
 });
 
-test("explicit agreement enables real generation without a test-output notice",async()=> {
+it("explicit agreement enables real generation without a test-output notice",async()=> {
   await mount();
   await click('[data-testid="self-consent-agree"]');
   await waitFor("!!document.querySelector('[data-testid=fixture-generation]')");
@@ -183,7 +173,7 @@ test("explicit agreement enables real generation without a test-output notice",a
   assert.equal(await evaluate("fixture.calls"),1);
 });
 
-test("test fallback explains why real drafting is unavailable; session verification alone never grants consent",async()=> {
+it("test fallback explains why real drafting is unavailable; session verification alone never grants consent",async()=> {
   await mount("test",false);
   assert.match(await text('[data-testid="self-runtime-test"]'),/真实起草需要访问码/);
   assert.match(await text('[data-testid="self-runtime-test"]'),/固定测试输出/);
@@ -202,7 +192,7 @@ test("test fallback explains why real drafting is unavailable; session verificat
   assert.equal(await evaluate("fixture.grants"),1);
 });
 
-test("failed session authentication clears the input without allowing real generation",async()=> {
+it("failed session authentication clears the input without allowing real generation",async()=> {
   await mount("test",false);
   await evaluate("fixture.failAuth=true;true");
   await click('[data-testid="self-runtime-consent-open"]');
@@ -215,7 +205,7 @@ test("failed session authentication clears the input without allowing real gener
   assert.equal(await exists('[data-testid="fixture-generation"]'),false);
 });
 
-test("unknown policy fields stay unknown, and cancellation clears a temporary access code",async()=> {
+it("unknown policy fields stay unknown, and cancellation clears a temporary access code",async()=> {
   await mount("test",false,{processor:{name:"未知",region:"unknown",retention:"",model:null,termsVersion:null}});
   await click('[data-testid="self-runtime-consent-open"]');
   await waitFor("!!document.querySelector('[data-testid=self-consent-access-code]')");
@@ -223,14 +213,14 @@ test("unknown policy fields stay unknown, and cancellation clears a temporary ac
   assert.match(disclosure,/处理方未知区域未知保留未知/);
   assert.doesNotMatch(disclosure,/零保留|不用于训练/);
   await codeInput("synthetic-temporary-code");
-  await send("Input.dispatchKeyEvent",{type:"keyDown",key:"Escape",code:"Escape",windowsVirtualKeyCode:27});
+  await client.send("Input.dispatchKeyEvent",{type:"keyDown",key:"Escape",code:"Escape",windowsVirtualKeyCode:27});
   await waitFor("!document.querySelector('[role=dialog]')");
   await click('[data-testid="self-runtime-consent-open"]');
   await waitFor("!!document.querySelector('[data-testid=self-consent-access-code]')");
   assert.equal(await evaluate("document.querySelector('[data-testid=self-consent-access-code]').value"),"");
 });
 
-test("an old asynchronous grant cannot enable generation after switching target",async()=> {
+it("an old asynchronous grant cannot enable generation after switching target",async()=> {
   await mount();
   await evaluate("fixture.defer=true;true");
   await click('[data-testid="self-consent-agree"]');

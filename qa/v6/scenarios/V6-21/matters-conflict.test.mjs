@@ -5,26 +5,16 @@ import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
-import { launchChromeWithPageTarget } from "../../helpers/chrome.mjs";
+import { chromeSelfCheck, createCdpClient, launchChromeWithPageTarget, withTimeout } from "../../helpers/chrome.mjs";
 import * as esbuild from "esbuild";
 
-let browser, server, ws, send;
-const pending = new Map();
+let browser, server, client;
 const errors = [];
-let messageId = 0;
-const pause = (ms) => new Promise((done) => setTimeout(done, ms));
-const evaluate = async (expression) => {
-  const response = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-  if (response.exceptionDetails) throw new Error(response.exceptionDetails.exception?.description ?? response.exceptionDetails.text);
-  return response.result.value;
-};
-async function waitFor(expression, label = expression) {
-  for (let i = 0; i < 120; i++) {
-    if (await evaluate(expression)) return;
-    await pause(50);
-  }
-  throw new Error(`UI condition timed out: ${label}`);
-}
+const SUITE_SETUP_TIMEOUT_MS = 90_000;
+const TEST_TIMEOUT_MS = 90_000;
+const it = (name, fn) => test(name, { timeout: TEST_TIMEOUT_MS }, fn);
+const evaluate = (expression, options) => client.evaluate(expression, options);
+const waitFor = (expression, label = expression, options = { timeoutMs: 15_000 }) => client.waitFor(expression, label, options);
 const text = (selector) => evaluate(`document.querySelector(${JSON.stringify(selector)})?.textContent ?? null`);
 const exists = (selector) => evaluate(`!!document.querySelector(${JSON.stringify(selector)})`);
 const click = (selector) => evaluate(`document.querySelector(${JSON.stringify(selector)}).click(); true`);
@@ -71,28 +61,23 @@ before(async () => {
     response.end(request.url === "/fixture.js" ? build.outputFiles[0].contents : '<div id="root"></div><script src="/fixture.js"></script>');
   });
   await new Promise((done) => server.listen(0, "127.0.0.1", done));
-  browser = await launchChromeWithPageTarget({ profilePrefix: "v6-matters-conflict-" });
-  ws = browser.socket;
-  ws.addEventListener("message", (event) => {
-    const message = JSON.parse(event.data);
-    if (message.id) {
-      const handler = pending.get(message.id);
-      pending.delete(message.id);
-      if (handler) message.error ? handler.reject(new Error(JSON.stringify(message.error))) : handler.resolve(message.result);
-    }
-    if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
-  });
-  send = (method, params = {}) => new Promise((ok, fail) => { const id = ++messageId; pending.set(id, { resolve: ok, reject: fail }); ws.send(JSON.stringify({ id, method, params })); });
-  await send("Runtime.enable");
-  await send("Page.navigate", { url: `http://127.0.0.1:${server.address().port}` });
-  await waitFor("!!window.fixture", "fixture loaded");
+  await withTimeout((async () => {
+    await chromeSelfCheck({ profilePrefix: "v6-matters-conflict-selfcheck-", timeoutMs: 60_000 });
+    browser = await launchChromeWithPageTarget({ profilePrefix: "v6-matters-conflict-" });
+    client = createCdpClient(browser.socket, { requestTimeoutMs: 10_000, onEvent: (message) => {
+      if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
+    } });
+    await client.send("Runtime.enable");
+    await client.send("Page.navigate", { url: `http://127.0.0.1:${server.address().port}` });
+    await client.waitFor("!!window.fixture", "fixture loaded", { timeoutMs: 20_000 });
+  })(), SUITE_SETUP_TIMEOUT_MS, "browser suite setup (self-check, launch, first page)");
 });
 after(async () => {
-  await browser?.close();
+  await withTimeout(browser?.close() ?? Promise.resolve(), 20_000, "browser close").catch((error) => console.error(`cleanup: ${error.message}`));
   if (server) await new Promise((done) => server.close(done));
 });
 
-test("a conflicting rename names the conflict, refreshes the list and the retry then succeeds", async () => {
+it("a conflicting rename names the conflict, refreshes the list and the retry then succeeds", async () => {
   const id = await evaluate("fixture.seed()");
   await waitFor(`!!document.querySelector('[data-testid="matter-row-${id}"]')`, "matter row");
   assert.match(await text(`[data-testid="matter-row-${id}"]`), /原题/);

@@ -75,3 +75,40 @@ test("missing browser executable is reported and cleaned up without an unhandled
     assert.deepEqual(readdirSync(directory), []);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
+
+test("a WebSocket that never answers times out with the method name instead of hanging forever", { timeout: 20_000 }, async () => {
+  // Reproduces the CI symptom: the CDP socket opens but no response frame arrives.
+  const { createHash } = await import("node:crypto");
+  const { createServer } = await import("node:http");
+  const { createCdpClient } = await import("../../helpers/chrome.mjs");
+  const server = createServer();
+  const upgraded = new Set();
+  server.on("upgrade", (request, socket) => {
+    upgraded.add(socket);
+    const accept = createHash("sha1")
+      .update(`${request.headers["sec-websocket-key"]}258EAFA5-E914-47DA-95CA-C5AB0DC85B11`)
+      .digest("base64");
+    socket.write(`HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${accept}\r\n\r\n`);
+    socket.on("error", () => {});
+    // Deliberately never write a frame back.
+  });
+  await new Promise((done) => server.listen(0, "127.0.0.1", done));
+  const socket = new WebSocket(`ws://127.0.0.1:${server.address().port}/devtools/page/1`);
+  try {
+    await new Promise((done, fail) => {
+      socket.addEventListener("open", done, { once: true });
+      socket.addEventListener("error", fail, { once: true });
+    });
+    const client = createCdpClient(socket, { requestTimeoutMs: 300 });
+    const started = Date.now();
+    await assert.rejects(client.send("Runtime.enable"), /CDP Runtime\.enable timed out after 300ms/);
+    await assert.rejects(client.waitFor("window.__ready === true", "fixture loaded", { timeoutMs: 700 }),
+      /waitFor "fixture loaded" timed out after 700ms; last probe error: CDP Runtime\.evaluate timed out/);
+    assert.ok(Date.now() - started < 5_000, "both waits are bounded");
+  } finally {
+    try { socket.close(); } catch {}
+    for (const connection of upgraded) connection.destroy();
+    server.closeAllConnections?.();
+    await new Promise((done) => server.close(done));
+  }
+});

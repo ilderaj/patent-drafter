@@ -12,7 +12,7 @@
 import test, { after, before, describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync } from "node:fs";
-import { launchChromeWithPageTarget } from "../../helpers/chrome.mjs";
+import { chromeSelfCheck, createCdpClient, launchChromeWithPageTarget, withTimeout } from "../../helpers/chrome.mjs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -431,23 +431,11 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
     await new Promise((done) => server.listen(0, "127.0.0.1", done));
     const base = `http://127.0.0.1:${server.address().port}`;
 
+    await chromeSelfCheck({ profilePrefix: "v6-09-selfcheck-", width: 1280, height: 860, timeoutMs: 60_000 });
     browser = await launchChromeWithPageTarget({ profilePrefix: "v6-09-chrome-", width: 1280, height: 860 });
     ws = browser.socket;
 
-    let id = 0;
-    const pending = new Map();
-    send = (method, params = {}) => new Promise((resolveSend, reject) => {
-      const next = ++id;
-      pending.set(next, (message) => (message.error ? reject(new Error(JSON.stringify(message.error))) : resolveSend(message.result)));
-      ws.send(JSON.stringify({ id: next, method, params }));
-    });
-    ws.addEventListener("message", (event) => {
-      const message = JSON.parse(event.data);
-      if (message.id && pending.has(message.id)) {
-        pending.get(message.id)(message);
-        pending.delete(message.id);
-        return;
-      }
+    const client = createCdpClient(ws, { requestTimeoutMs: 10_000, onEvent: (message) => {
       if (message.method === "Runtime.exceptionThrown") {
         const details = message.params.exceptionDetails;
         errors.push(`${details.text}${details.exception?.description ? `: ${details.exception.description}` : ""}`);
@@ -456,16 +444,13 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
         errors.push(message.params.args.map((arg) => arg.value ?? arg.description).join(" "));
       }
       if (message.method === "Page.javascriptDialogOpening") {
-        void send("Page.handleJavaScriptDialog", { accept: true }).catch(() => {});
+        void client.send("Page.handleJavaScriptDialog", { accept: true }).catch(() => {});
       }
-    });
+    } });
+    send = client.send;
 
-    evaluate = async (expression) => {
-      const result = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-      if (result.exceptionDetails) throw new Error(`evaluate failed: ${result.exceptionDetails.text} :: ${expression}`);
-      return result.result.value;
-    };
-    waitFor = async (expression, label) => {
+    evaluate = (expression) => client.evaluate(expression);
+    waitFor = async (expression, label, options = { timeoutMs: 15_000 }) => {
       for (let i = 0; i < 80; i++) {
         if (await evaluate(expression)) return;
         await sleep(100);
@@ -514,11 +499,11 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
   });
 
   after(async () => {
-    await browser?.close();
+    await withTimeout(browser?.close() ?? Promise.resolve(), 20_000, "browser close").catch((error) => console.error(`cleanup: ${error.message}`));
     if (server) await new Promise((done) => server.close(done));
   });
 
-  it("keeps a saved preference across navigation and runtime OS changes", async () => {
+  it("keeps a saved preference across navigation and runtime OS changes", { timeout: 90_000 }, async () => {
     await reset("/patent/v6/settings");
     await waitFor(`!!document.querySelector("[data-testid=appearance]")`, "appearance panel");
     await click("input[name=theme][value=celadon]");
@@ -552,7 +537,7 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
     assert.deepEqual(errors, [], "no console errors");
   });
 
-  it("keeps a failed save until the user explicitly discards it", async () => {
+  it("keeps a failed save until the user explicitly discards it", { timeout: 90_000 }, async () => {
     await reset("/patent/v6/settings");
     await waitFor(`!!document.querySelector("[data-testid=appearance]")`, "appearance panel");
     await click('a[href="/patent/v6/matters"]');
@@ -600,7 +585,7 @@ describe("V6-09 React lifecycle in headless Chrome", () => {
     assert.deepEqual(errors, [], "no console errors");
   });
 
-  it("restores the previous document attributes when V6 unmounts", async () => {
+  it("restores the previous document attributes when V6 unmounts", { timeout: 90_000 }, async () => {
     await reset("/patent/projects");
     await waitFor(`!!document.querySelector("[data-testid=legacy]")`, "legacy page");
     await evaluate(`document.documentElement.setAttribute("data-theme", "legacy-orange"); document.documentElement.setAttribute("data-mode", "dark"); true`);
