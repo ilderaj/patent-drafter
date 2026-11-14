@@ -1,0 +1,35 @@
+
+> test
+> node --test test/*.test.mjs
+
+✔ credential: any changed bit in signature or payload is rejected with zero upstream calls (37.3195ms)
+✔ credential: expiry boundary is exclusive at exp and inclusive one millisecond before (4.823ms)
+✔ session: tampered or expired cookies are rejected without revealing why (2.126125ms)
+✔ request and response size caps: oversized request is not forwarded, oversized response is not returned (5.94375ms)
+✔ RATE_LIMIT KV failure fails closed for session and chat without upstream traffic (2.165708ms)
+✔ stage allowlist exactly matches the 13 actual LLM stages (1.455917ms)
+✔ status discloses only public configuration and separates authentication (36.5465ms)
+✔ missing configuration or unknown disclosure disables chat without upstream call (3.789042ms)
+✔ short access code fails configuration closed; the minimum is explicit (0.435458ms)
+✔ session requires access code, uses protected short cookie, and counts attempts best effort by IP (2.350792ms)
+✔ chat requires untampered unexpired session and same-origin writes (0.96ms)
+✔ consent requires a session, current profile and exact hash; it never invokes a model or stores material (2.060417ms)
+✔ chat without proof, with a forged proof or a mismatched manifest never reaches upstream (1.567291ms)
+✔ unknown/local stages and malformed request fields are rejected before upstream (3.18075ms)
+✔ proof expiry, a new login, and a changed processor profile all block old proof without upstream (2.906334ms)
+✔ secret/access rotation invalidates sessions; changing profile invalidates proof but not the login (2.811958ms)
+✔ DELETE session clears the current cookie, rejects cross-origin, and does not claim to revoke copied tokens (0.810833ms)
+✔ chat fixes model/endpoint and returns content without upstream metadata (1.664916ms)
+✔ body limit counts actual bytes without trusting content-length (1.66875ms)
+✔ sequential best-effort daily counter and KV failure fail closed (1.830792ms)
+✔ upstream failures expose only status, never body/key; malformed success fails (4.751458ms)
+✔ root redirects to v6, static resources retain asset binding, unknown API does not return SPA (0.157083ms)
+✔ upstream redirects are never followed and never forward the key (3.731125ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 202.719416

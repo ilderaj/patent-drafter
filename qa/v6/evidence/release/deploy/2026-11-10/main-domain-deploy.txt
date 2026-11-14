@@ -1,0 +1,21 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+ ⛅️ wrangler 4.90.0
+───────────────────
+🌀 Building list of assets...
+✨ Read 12 files from the assets directory /Users/jared/Personal Projects/Patent/.claude/worktrees/v6-prototype-alignment/apps/web/dist/v6
+🌀 Starting asset upload...
+No updated asset files to upload. Proceeding with deployment...
+Total Upload: 0.35 KiB / gzip: 0.25 KiB
+Uploaded patent-v6 (4.06 sec)
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mA request to the Cloudflare API (/accounts/6d3f6ec24cfbbfd5498d0886f7bf3c66/workers/scripts/patent-v6/domains/records) failed.[0m
+
+  Hostname 'patent.paymond.me' already has externally managed DNS records (A, CNAME, etc). Delete them first or try a different hostname. [code: 100117]
+  
+  If you think this is a bug, please open an issue at: [4mhttps://github.com/cloudflare/workers-sdk/issues/new/choose[0m
+
+
+🪵  Logs were written to "/Users/jared/Library/Preferences/.wrangler/logs/wrangler-2026-11-10_11-57-20_521.log"

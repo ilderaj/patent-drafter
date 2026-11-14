@@ -1,0 +1,13 @@
+{
+  "base": "https://patent-v6.paymond.me",
+  "path": "/v6",
+  "title": "专利起草助手",
+  "entries": [
+    "创建案件"
+  ],
+  "consoleErrors": [],
+  "externalRequests": [
+    "https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092"
+  ],
+  "requestCount": 8
+}

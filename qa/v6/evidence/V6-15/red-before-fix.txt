@@ -1,0 +1,121 @@
+source: /private/tmp/patent-v6-15-worktree/apps/web/src/v6/features/ai/ai.ts
+sha256 before: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c
+
+== unknown-profile-field-gate ==
+claim: an incomplete provider profile cannot be granted consent
+test: V6-15 engine: unknown processor fields make consent impossible and report the fields
+mutated sha256: 8b89ec55e4940747c0aa0b45e96ee75b1fa401c9c7138f28eb79e09d2db8a96f
+exit: 1
+restored sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c MATCH
+verdict: RED (guard detects the regression)
+not ok 1 - V6-15 engine: unknown processor fields make consent impossible and report the fields
+  failureType: 'testCodeFailure'
+  error: |-
+  code: 'ERR_ASSERTION'
+
+== manifest-hash-binding ==
+claim: a grant must hash-bind and scope-bind the current payload manifest
+test: V6-15 engine: a stale manifest hash or a mismatched scope is refused without writing
+mutated sha256: d4cc1566f82d8f1abfc6f3116b1441a233bf8c8ee7ac76657155a0196217cd14
+exit: 1
+restored sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c MATCH
+verdict: RED (guard detects the regression)
+not ok 1 - V6-15 engine: a stale manifest hash or a mismatched scope is refused without writing
+  failureType: 'testCodeFailure'
+  error: |-
+  code: 'ERR_ASSERTION'
+
+== new-file-needs-new-consent ==
+claim: adding a source file makes the earlier consent unusable (S04-A02)
+test: V6-15 engine: adding a file makes the old consent stale and unusable (S04-A02)
+mutated sha256: b9b6d7ee3d28a74493b99c668c54e0e5767c72fc2334ec4d6cbf0f37b7a11e3b
+exit: 1
+restored sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c MATCH
+verdict: RED (guard detects the regression)
+not ok 1 - V6-15 engine: adding a file makes the old consent stale and unusable (S04-A02)
+  failureType: 'testCodeFailure'
+  error: |-
+  code: 'ERR_ASSERTION'
+
+== revoked-consent-cannot-authorize ==
+claim: a revoked consent cannot authorize a call
+test: V6-15 engine: revocation is append-only, blocks use, and a second revocation adds no event
+mutated sha256: 60995f5f4a4f1c4365648c599696214678c5f1e71b698080e3c3b75da69fa1ba
+exit: 1
+restored sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c MATCH
+verdict: RED (guard detects the regression)
+not ok 1 - V6-15 engine: revocation is append-only, blocks use, and a second revocation adds no event
+  failureType: 'testCodeFailure'
+  error: |-
+  code: 'ERR_ASSERTION'
+
+== revocation-append-only-idempotent ==
+claim: revoking twice adds no second event and reports alreadyRevoked
+test: V6-15 engine: revocation is append-only, blocks use, and a second revocation adds no event
+mutated sha256: 6758dd4d74489900205ff57c6ed481b3318ce0fd420e97bbc628ef0516fca2da
+exit: 1
+restored sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c MATCH
+verdict: RED (guard detects the regression)
+not ok 1 - V6-15 engine: revocation is append-only, blocks use, and a second revocation adds no event
+  failureType: 'testCodeFailure'
+  error: |-
+  code: 'ERR_ASSERTION'
+
+== request-key-replay-conflict ==
+claim: the same request key with different content is IDEMPOTENCY_CONFLICT
+test: V6-15 engine: request keys replay the original response and conflict on different content
+mutated sha256: ac35b7af70839b266cc5e199145df728982dbcacc941642a2602f9463f467ae2
+exit: 1
+restored sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c MATCH
+verdict: RED (guard detects the regression)
+not ok 1 - V6-15 engine: request keys replay the original response and conflict on different content
+  failureType: 'testCodeFailure'
+  error: |-
+  code: 'ERR_ASSERTION'
+
+== archived-matter-gate ==
+claim: a completed key still replays after the matter is archived
+test: V6-15 engine: an archived matter replays a completed key but refuses new work
+mutated sha256: d6c96f44a8f4005689ec73e1f24794641434f85fd834034cb94af25b5f0bc8cf
+exit: 1
+restored sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c MATCH
+verdict: RED (guard detects the regression)
+not ok 1 - V6-15 engine: an archived matter replays a completed key but refuses new work
+  failureType: 'testCodeFailure'
+  error: |-
+  code: 'ERR_ASSERTION'
+
+== invocation-view-has-no-content ==
+claim: the invocation view model never carries prompt, case content or keys
+test: V6-15 engine: the invocation view model projects contract metadata only
+mutated sha256: 00a3b935f3e53dd95d11e612b448e3790d803321700d151c3bb996205fafb453
+exit: 1
+restored sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c MATCH
+verdict: RED (guard detects the regression)
+not ok 1 - V6-15 engine: the invocation view model projects contract metadata only
+  failureType: 'testCodeFailure'
+  error: |-
+  code: 'ERR_ASSERTION'
+
+== actor-tenant-boundary ==
+claim: another actor or tenant cannot read this matter's AI view
+test: V6-15 engine: another actor or tenant cannot read, grant, validate or revoke
+mutated sha256: 475878eb2854b805f99e8442faf0304dcf44035255ab0a447a2304c9a659b383
+exit: 1
+restored sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c MATCH
+verdict: RED (guard detects the regression)
+not ok 1 - V6-15 engine: another actor or tenant cannot read, grant, validate or revoke
+  failureType: 'testCodeFailure'
+  error: |-
+  code: 'ERR_ASSERTION'
+
+== unmutated baseline ==
+exit: 0
+# tests 19
+# pass 19
+# fail 0
+# skipped 0
+restored sha256: 141bd7d02a40c755c769a1f246b0c103583150f1372a6206a8d4a3980ae2476c
+verdict: GREEN
+
+RED-BEFORE-FIX: ALL GUARDS RED, BASELINE GREEN

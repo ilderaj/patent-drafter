@@ -1,0 +1,1621 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+HTTP 18989: createConnection registry.npmjs.org:443:::::::::::::::::::::
+HTTPS 18989: createConnection [Object: null prototype] {
+  host: 'registry.npmjs.org',
+  path: null,
+  port: 443,
+  headers: {
+    accept: 'application/vnd.npm.install-v1+json; q=1.0, application/json; q=0.8, */*'
+  },
+  timeout: 2000,
+  _defaultAgent: Agent {
+    _events: [Object: null prototype] {
+      free: [Function (anonymous)],
+      newListener: [Function: maybeEnableKeylog]
+    },
+    _eventsCount: 2,
+    _maxListeners: undefined,
+    options: [Object: null prototype] {
+      keepAlive: true,
+      scheduling: 'lifo',
+      timeout: 5000,
+      proxyEnv: undefined,
+      defaultPort: 443,
+      protocol: 'https:',
+      noDelay: true,
+      path: null
+    },
+    defaultPort: 443,
+    protocol: 'https:',
+    requests: [Object: null prototype] {},
+    sockets: [Object: null prototype] {
+      'registry.npmjs.org:443:::::::::::::::::::::': []
+    },
+    freeSockets: [Object: null prototype] {},
+    keepAliveMsecs: 1000,
+    keepAlive: true,
+    maxSockets: Infinity,
+    maxFreeSockets: 256,
+    scheduling: 'lifo',
+    maxTotalSockets: Infinity,
+    totalSocketCount: 0,
+    agentKeepAliveTimeoutBuffer: 1000,
+    maxCachedSessions: 100,
+    _sessionCache: { map: {}, list: [] },
+    Symbol(shapeMode): false,
+    Symbol(kCapture): false
+  },
+  keepAlive: true,
+  scheduling: 'lifo',
+  proxyEnv: undefined,
+  defaultPort: 443,
+  protocol: 'https:',
+  noDelay: true,
+  servername: 'registry.npmjs.org',
+  _agentKey: 'registry.npmjs.org:443:::::::::::::::::::::',
+  encoding: null,
+  keepAliveInitialDelay: 1000
+}
+HTTPS 18989: https createConnection should use proxy for registry.npmjs.org:443: null
+TLS 18989: client _init handle? true
+NET 18989: pipe false null
+NET 18989: connect: find host registry.npmjs.org
+NET 18989: connect: dns options { family: undefined, hints: 1024 }
+NET 18989: connect: autodetecting
+HTTP 18989: sockets registry.npmjs.org:443::::::::::::::::::::: 1 1
+HTTP 18989: outgoing message end.
+TLS 18989: client initRead handle? true buffered? false
+NET 18989: _read - n 65536 isConnecting? true hasHandle? true
+NET 18989: _read wait for connection
+
+ ⛅️ wrangler 4.90.0
+───────────────────
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+NET 18989: createConnection [
+  {
+    highWaterMark: 65536,
+    path: undefined,
+    localAddress: null,
+    port: '7897',
+    host: '127.0.0.1'
+  },
+  null,
+  Symbol(normalizedArgs): true
+]
+NET 18989: pipe false undefined
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: connect: attempting to connect to 127.0.0.1:7897 (addressType: 4)
+NET 18989: afterConnect
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client _init handle? true
+TLS 18989: client _start handle? true connecting? false requestOCSP? false
+TLS 18989: client initRead handle? true buffered? 0
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: createConnection [
+  {
+    highWaterMark: 65536,
+    path: undefined,
+    localAddress: null,
+    port: '7897',
+    host: '127.0.0.1'
+  },
+  null,
+  Symbol(normalizedArgs): true
+]
+NET 18989: pipe false undefined
+NET 18989: connect: attempting to connect to 127.0.0.1:7897 (addressType: 4)
+NET 18989: afterConnect
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client _init handle? true
+TLS 18989: client _start handle? true connecting? false requestOCSP? false
+TLS 18989: client initRead handle? true buffered? 0
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: connect/multiple: will try the following addresses [
+  { address: '104.16.9.34', family: 4 },
+  { address: '104.16.7.34', family: 4 },
+  { address: '104.16.5.34', family: 4 },
+  { address: '104.16.0.34', family: 4 },
+  { address: '104.16.1.34', family: 4 },
+  { address: '104.16.6.34', family: 4 },
+  { address: '104.16.8.34', family: 4 },
+  { address: '104.16.10.34', family: 4 },
+  { address: '104.16.2.34', family: 4 },
+  { address: '104.16.3.34', family: 4 },
+  { address: '104.16.4.34', family: 4 },
+  { address: '104.16.11.34', family: 4 }
+]
+NET 18989: connect/multiple: attempting to connect to 104.16.9.34:443 (addressType: 4)
+NET 18989: connect/multiple: setting the attempt timeout to 500 ms
+NET 18989: connect/multiple: connection to 104.16.9.34:443 timed out
+TLS 18989: client _init handle? true
+NET 18989: connect/multiple: attempting to connect to 104.16.7.34:443 (addressType: 4)
+NET 18989: connect/multiple: setting the attempt timeout to 500 ms
+NET 18989: connect/multiple: connection attempt to 104.16.7.34:443 completed with status 0
+NET 18989: afterConnect
+TLS 18989: client _start handle? true connecting? false requestOCSP? false
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: createConnection [
+  {
+    highWaterMark: 65536,
+    path: undefined,
+    localAddress: null,
+    port: '7897',
+    host: '127.0.0.1'
+  },
+  null,
+  Symbol(normalizedArgs): true
+]
+NET 18989: pipe false undefined
+NET 18989: connect: attempting to connect to 127.0.0.1:7897 (addressType: 4)
+NET 18989: afterConnect
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client _init handle? true
+TLS 18989: client _start handle? true connecting? false requestOCSP? false
+TLS 18989: client initRead handle? true buffered? 0
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+TLS 18989: client onhandshakedone
+TLS 18989: client _finishInit handle? true alpn http/1.1 servername dash.cloudflare.com
+TLS 18989: client emit secureConnect. authorized: true
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: emit close
+NET 18989: emit close
+TLS 18989: client onhandshakedone
+TLS 18989: client _finishInit handle? true alpn false servername registry.npmjs.org
+TLS 18989: client emit secureConnect. authorized: true
+HTTP 18989: AGENT incoming response!
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client onhandshakedone
+TLS 18989: client _finishInit handle? true alpn http/1.1 servername sparrow.cloudflare.com
+TLS 18989: client emit secureConnect. authorized: true
+TLS 18989: client emit session
+TLS 18989: client emit session
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client onhandshakedone
+TLS 18989: client _finishInit handle? true alpn http/1.1 servername dash.cloudflare.com
+TLS 18989: client emit secureConnect. authorized: true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client emit session
+TLS 18989: client emit session
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: emit close
+NET 18989: emit close
+NET 18989: createConnection [
+  {
+    highWaterMark: 65536,
+    path: undefined,
+    localAddress: null,
+    port: '7897',
+    host: '127.0.0.1'
+  },
+  null,
+  Symbol(normalizedArgs): true
+]
+NET 18989: pipe false undefined
+NET 18989: connect: attempting to connect to 127.0.0.1:7897 (addressType: 4)
+NET 18989: afterConnect
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client _init handle? true
+TLS 18989: client _start handle? true connecting? false requestOCSP? false
+TLS 18989: client initRead handle? true buffered? 0
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client onhandshakedone
+TLS 18989: client _finishInit handle? true alpn http/1.1 servername api.cloudflare.com
+TLS 18989: client emit secureConnect. authorized: true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client emit session
+TLS 18989: client emit session
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+🌀 Building list of assets...
+✨ Read 12 files from the assets directory /Users/jared/Personal Projects/Patent/.claude/worktrees/v6-prototype-alignment/apps/web/dist/v6
+🌀 Starting asset upload...
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: emit close
+NET 18989: emit close
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+HTTP 18989: AGENT socket keep-alive
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+HTTP 18989: CLIENT socket onFree
+HTTP 18989: agent.on(free) registry.npmjs.org:443:::::::::::::::::::::
+HTTP 18989: removeSocket registry.npmjs.org:443::::::::::::::::::::: writable: true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+🌀 Found 6 new or modified static assets to upload. Proceeding with upload...
++ /index.html
++ /assets/assembly-CwtZNWzJ.js
++ /assets/index-CPAdSedj.js
++ /assets/index-DViBGiPO.js
++ /assets/V6App-Dd_d3BLB.css
++ /assets/V6App-CYesU6pp.js
+NET 18989: createConnection [
+  {
+    highWaterMark: 65536,
+    path: undefined,
+    localAddress: null,
+    port: '7897',
+    host: '127.0.0.1'
+  },
+  null,
+  Symbol(normalizedArgs): true
+]
+NET 18989: pipe false undefined
+NET 18989: connect: attempting to connect to 127.0.0.1:7897 (addressType: 4)
+NET 18989: afterConnect
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: createConnection [
+  {
+    highWaterMark: 65536,
+    path: undefined,
+    localAddress: null,
+    port: '7897',
+    host: '127.0.0.1'
+  },
+  null,
+  Symbol(normalizedArgs): true
+]
+NET 18989: pipe false undefined
+NET 18989: connect: attempting to connect to 127.0.0.1:7897 (addressType: 4)
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client _init handle? true
+TLS 18989: client _start handle? true connecting? false requestOCSP? false
+TLS 18989: client initRead handle? true buffered? 0
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: afterConnect
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client _init handle? true
+TLS 18989: client _start handle? true connecting? false requestOCSP? false
+TLS 18989: client initRead handle? true buffered? 0
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client onhandshakedone
+TLS 18989: client _finishInit handle? true alpn http/1.1 servername api.cloudflare.com
+TLS 18989: client emit secureConnect. authorized: true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client onhandshakedone
+TLS 18989: client _finishInit handle? true alpn http/1.1 servername api.cloudflare.com
+TLS 18989: client emit secureConnect. authorized: true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _onTimeout
+HTTP 18989: CLIENT socket onTimeout
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: emit close
+HTTP 18989: CLIENT socket onClose
+HTTP 18989: removeSocket registry.npmjs.org:443::::::::::::::::::::: writable: false
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client emit session
+TLS 18989: client emit session
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+Uploaded 2 of 6 assets
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+Uploaded 4 of 6 assets
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: emit close
+NET 18989: emit close
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: emit close
+NET 18989: emit close
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client emit session
+TLS 18989: client emit session
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+Uploaded 6 of 6 assets
+✨ Success! Uploaded 6 files (3 already uploaded) (19.94 sec)
+
+Total Upload: 0.35 KiB / gzip: 0.25 KiB
+NET 18989: createConnection [
+  {
+    highWaterMark: 65536,
+    path: undefined,
+    localAddress: null,
+    port: '7897',
+    host: '127.0.0.1'
+  },
+  null,
+  Symbol(normalizedArgs): true
+]
+NET 18989: pipe false undefined
+NET 18989: connect: attempting to connect to 127.0.0.1:7897 (addressType: 4)
+NET 18989: afterConnect
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client _init handle? true
+TLS 18989: client _start handle? true connecting? false requestOCSP? false
+TLS 18989: client initRead handle? true buffered? 0
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client onhandshakedone
+TLS 18989: client _finishInit handle? true alpn http/1.1 servername api.cloudflare.com
+TLS 18989: client emit secureConnect. authorized: true
+TLS 18989: client emit session
+TLS 18989: client emit session
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+Uploaded patent-v6 (25.21 sec)
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: destroy
+NET 18989: close
+NET 18989: close handle
+NET 18989: emit close
+NET 18989: emit close
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+Deployed patent-v6 triggers (3.48 sec)
+  patent-v6.paymond.me (custom domain)
+Current Version ID: 04cfb43a-c237-450f-a946-2f125cf03cd0
+NET 18989: createConnection [
+  {
+    highWaterMark: 65536,
+    path: undefined,
+    localAddress: null,
+    port: '7897',
+    host: '127.0.0.1'
+  },
+  null,
+  Symbol(normalizedArgs): true
+]
+NET 18989: pipe false undefined
+NET 18989: createConnection [
+  {
+    highWaterMark: 65536,
+    path: undefined,
+    localAddress: null,
+    port: '7897',
+    host: '127.0.0.1'
+  },
+  null,
+  Symbol(normalizedArgs): true
+]
+NET 18989: pipe false undefined
+NET 18989: connect: attempting to connect to 127.0.0.1:7897 (addressType: 4)
+NET 18989: connect: attempting to connect to 127.0.0.1:7897 (addressType: 4)
+NET 18989: afterConnect
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: afterConnect
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: Socket._handle.readStart
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client _init handle? true
+TLS 18989: client _start handle? true connecting? false requestOCSP? false
+TLS 18989: client initRead handle? true buffered? 0
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client _init handle? true
+TLS 18989: client _start handle? true connecting? false requestOCSP? false
+TLS 18989: client initRead handle? true buffered? 0
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client onhandshakedone
+TLS 18989: client _finishInit handle? true alpn http/1.1 servername sparrow.cloudflare.com
+TLS 18989: client emit secureConnect. authorized: true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+NET 18989: _read - n 65536 isConnecting? false hasHandle? true
+TLS 18989: client emit session
+TLS 18989: client emit session
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true
+TLS 18989: client onhandshakedone
+TLS 18989: client _finishInit handle? true alpn http/1.1 servername sparrow.cloudflare.com
+TLS 18989: client emit secureConnect. authorized: true
+TLS 18989: client emit session
+TLS 18989: client emit session
+NET 18989: _read - n 16384 isConnecting? false hasHandle? true

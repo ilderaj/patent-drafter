@@ -1,0 +1,53 @@
+V6-14 red-before-fix
+started 2026-11-01T21:35:02.950Z
+file apps/web/src/v6/features/targets/targets.ts
+final sha256 at start e54498873d8ae3e19c5f001e7ce49df568c48453320f37b5b9de59e020e31cb8
+suite qa/v6/scenarios/V6-14/targets-engine.test.mjs, qa/v6/scenarios/V6-14/targets-idempotency.test.mjs, qa/v6/scenarios/V6-14/targets-recommendation.test.mjs, qa/v6/scenarios/V6-14/targets-ui.test.mjs
+
+== guard: EP rejection
+pre-fix fixture sha256 7f23f3ed175d3022719555f395f03d0b1f92d45baa2cbff4d9b157464668073b
+suite exit=1 tests=41 pass=39 fail=2
+  RED  V6-14-A01 refuses EP and unknown routes with INVALID_INPUT and writes nothing
+  RED  V6-14-A02 update refuses EP without touching either target
+restored sha256 e54498873d8ae3e19c5f001e7ce49df568c48453320f37b5b9de59e020e31cb8 (matches final)
+verdict named guards red as expected
+
+== guard: per-target isolation
+pre-fix fixture sha256 f181e6cb88b49c1df499d21f32bbe6c003417688271f14b597569dbb595b7ab4
+suite exit=1 tests=41 pass=39 fail=2
+  RED  V6-14-A02 updating target A bumps only A's configVersion; B's config and version are unchanged
+  also red  the switcher lists both targets with their own versions; the selection shows only its config
+restored sha256 e54498873d8ae3e19c5f001e7ce49df568c48453320f37b5b9de59e020e31cb8 (matches final)
+verdict named guards red as expected
+
+== guard: recommendation rule (method excludes cn_um)
+pre-fix fixture sha256 e106eaf6d263a6c3a4baa2d7965022af537fda0d473e72132094230b9cb756e8
+suite exit=1 tests=41 pass=38 fail=3
+  RED  S03-A09 a method fact excludes cn_um and names the triggering rule and fact
+  RED  S03-A09 the method rule and its triggering fact are shown on the trace and the cn_um card
+  also red  S03 the user may save a route other than the recommendation
+restored sha256 e54498873d8ae3e19c5f001e7ce49df568c48453320f37b5b9de59e020e31cb8 (matches final)
+verdict named guards red as expected
+
+== guard: unverified number suppression
+pre-fix fixture sha256 0221f0f4a632698425e9c45d19f9952eb87a3a73b51585f5f00290bfa13908df
+suite exit=1 tests=41 pass=39 fail=2
+  RED  S03-A07 numbers appear only for a verified rule entry
+  RED  S03-A07 a verified rule entry shows its numbers on that card only
+restored sha256 e54498873d8ae3e19c5f001e7ce49df568c48453320f37b5b9de59e020e31cb8 (matches final)
+verdict named guards red as expected
+
+== guard: language gating (en-US needs translation_en)
+pre-fix fixture sha256 41ce107b9634621a7c12bec5f6dad63f103d1faebeafb9b72d4039b5646688ef
+suite exit=1 tests=41 pass=38 fail=3
+  RED  S03-A08 en-US is disabled with a visible reason unless translation_en is available
+  RED  en-US is refused at write time while translation_en is unavailable
+  RED  S03-A08 US and PCT cards show the exact handoff sentence; en-US is disabled with its reason
+restored sha256 e54498873d8ae3e19c5f001e7ce49df568c48453320f37b5b9de59e020e31cb8 (matches final)
+verdict named guards red as expected
+
+== final source restored
+sha256 e54498873d8ae3e19c5f001e7ce49df568c48453320f37b5b9de59e020e31cb8 (matches final at start)
+suite exit=0 tests=41 pass=41 fail=0
+overall PASS
+finished 2026-11-01T21:35:05.553Z

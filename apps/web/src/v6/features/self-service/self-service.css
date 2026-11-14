@@ -1,0 +1,68 @@
+/* Public and self-service shells only; page visuals come from v6/styles/proto. */
+.v6-simple-shell {
+  min-height: 100vh;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.v6-simple-header {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+}
+
+.v6-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: inherit;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.v6-wordmark-mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--primary);
+  font-size: 15px;
+}
+
+.v6-simple-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  font-size: 12px;
+}
+
+.v6-simple-links a { color: var(--primary); text-decoration: none; }
+.v6-simple-main { min-width: 0; }
+.v6-simple-shell :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+@media (max-width: 680px) {
+  .v6-simple-header { padding-inline: 14px; }
+  .v6-simple-links { gap: 8px; font-size: 11px; }
+}
+
+.v6-shell .start-bottom {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 34px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.v6-shell .start-bottom a { color: var(--accent); font-size: 11.5px; }
+
+/* Embed the runtime preview/done page inside the wizard pane without its own page padding. */
+.v6-shell .pane.wide > .v6-page,
+.v6-shell .pane.narrow > .v6-page { max-width: none; margin: 0; padding: 0; }

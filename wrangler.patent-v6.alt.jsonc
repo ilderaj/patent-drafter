@@ -1,0 +1,21 @@
+{
+  // Fallback deployment target if patent.paymond.me remains occupied by the
+  // existing ChatGPT custom domain. This creates a NEW hostname and does not
+  // modify the existing record. Deploy only with explicit approval.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "patent-v6",
+  "main": "apps/worker-v6/src/index.ts",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./apps/web/dist/v6",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/v6/*", "/"],
+    "not_found_handling": "single-page-application"
+  },
+  // Existing counter namespace; V6 uses distinct v6:session/v6:chat keys.
+  "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "632acafdeea74f2ca9cc8a4fa22a4ead" }],
+  "vars": { "RATE_LIMIT_PER_DAY": "60" },
+  "routes": [
+    { "pattern": "patent-v6.paymond.me", "custom_domain": true }
+  ]
+}

@@ -1,0 +1,17 @@
+V6-13 fix round 4 regression run, 2026-11-02, worktree /private/tmp/patent-v6-13-worktree (base 953e05d), V6App.tsx reverted (sha256 15b6f3c8...3543ac)
+
+$ npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-11
+exit code: 0
+# tests 53
+# pass 53
+# fail 0
+# skipped 0
+
+$ npm --prefix /private/tmp/patent-v6-13-worktree run test:v6 -- V6-10
+exit code: 0
+# tests 36
+# pass 36
+# fail 0
+# skipped 0
+
+Full TAP output was captured in /private/tmp/v613-r4-v611.txt and /private/tmp/v613-r4-v610.txt (outside the repo).

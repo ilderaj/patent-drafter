@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>V6-20 合成预览挂载</title>
+  </head>
+  <body>
+    <main class="v6-page">
+      <div id="preview-root"></div>
+    </main>
+    <script type="module">
+      import React, { useState } from "react";
+      import { createRoot } from "react-dom/client";
+      import "/apps/web/src/v6/styles/theme.css";
+      import "/apps/web/src/v6/routes/v6.css";
+      import { CONTRACT_VERSION, STORES, openLocalRepository } from "/apps/web/src/v6/lib/repository.ts";
+      import { createGenerationRevisionStore } from "/apps/web/src/v6/features/generation/generation.ts";
+      import { Preview } from "/apps/web/src/v6/features/preview/Preview.tsx";
+
+      const actor = {
+        tenantId: "11111111-1111-4111-8111-111111111111",
+        userId: "22222222-2222-4222-8222-222222222222",
+      };
+      const matterId = "33333333-3333-4333-8333-333333333333";
+      const targetId = "44444444-4444-4444-8444-444444444444";
+      const figureRevisionId = "55555555-5555-4555-8555-555555555555";
+      const claimId = "66666666-6666-4666-8666-666666666661";
+      const claimParagraphId = "77777777-7777-4777-8777-777777777771";
+      const technicalParagraphId = "77777777-7777-4777-8777-777777777772";
+      const backgroundParagraphId = "77777777-7777-4777-8777-777777777773";
+      const summaryParagraphId = "77777777-7777-4777-8777-777777777774";
+      const figuresParagraphId = "77777777-7777-4777-8777-777777777775";
+      const lockedParagraphId = "77777777-7777-4777-8777-777777777776";
+      const abstractParagraphId = "77777777-7777-4777-8777-777777777777";
+      const riskId = "88888888-8888-4888-8888-888888888881";
+      const jobId = "99999999-9999-4999-8999-999999999999";
+      const lockedText = "V6-20 浏览器合成锁定段落，只用于隐私边界检查。";
+      const lockedQuotes = [lockedText.slice(0, 14), lockedText.slice(12, 28)];
+      const now = "2026-11-05T12:00:00.000Z";
+
+      class MemoryBackend {
+        constructor() {
+          this.data = new Map(Object.values(STORES).map((name) => [name, new Map()]));
+          this.queue = Promise.resolve();
+        }
+        transaction(mode, run) {
+          if (mode !== "readwrite") return this.run(run);
+          const next = this.queue.then(() => this.run(run));
+          this.queue = next.then(() => undefined, () => undefined);
+          return next;
+        }
+        async run(run) {
+          const before = new Map([...this.data].map(([name, store]) => [name, new Map(store)]));
+          const tx = {
+            get: async (store, key) => {
+              const value = this.data.get(store).get(key);
+              return value === undefined ? undefined : structuredClone(value);
+            },
+            put: async (store, key, value) => this.data.get(store).set(key, structuredClone(value)),
+            delete: async (store, key) => this.data.get(store).delete(key),
+            getAll: async (store) => [...this.data.get(store).values()].map((value) => structuredClone(value)),
+            getAllByIndex: async (store, index, value) => [...this.data.get(store).values()]
+              .filter((row) => row && typeof row === "object" && row[index] === value)
+              .map((row) => structuredClone(row)),
+          };
+          try { return await run(tx); }
+          catch (error) { this.data = before; throw error; }
+        }
+        close() {}
+      }
+
+      const paragraph = (id, text, origin = "ai") => ({
+        id, text, origin, sourceRefs: [], factIds: [], figureIds: [], generationJobId: origin === "human" ? null : jobId,
+      });
+      const ast = {
+        schemaVersion: "draft.v1",
+        language: "zh-CN",
+        title: "V6-20 浏览器合成草稿",
+        claims: [{ id: claimId, number: 1, dependsOn: [], paragraphs: [paragraph(claimParagraphId, "合成权利要求 1。")], features: [] }],
+        sections: [
+          { kind: "technical_field", paragraphs: [paragraph(technicalParagraphId, "合成技术领域。", "human")] },
+          { kind: "background", paragraphs: [paragraph(backgroundParagraphId, "合成背景技术。", "human")] },
+          { kind: "summary", paragraphs: [paragraph(summaryParagraphId, "合成发明内容。") ] },
+          { kind: "figures_description", paragraphs: [paragraph(figuresParagraphId, "合成附图说明。", "human")] },
+          { kind: "embodiments", paragraphs: [paragraph(lockedParagraphId, lockedText)] },
+          { kind: "abstract", paragraphs: [paragraph(abstractParagraphId, "合成摘要。", "human")] },
+        ],
+      };
+      const risks = [{
+        id: riskId,
+        category: "risk",
+        title: `实施方式依据待核对 ${lockedQuotes[0]}`,
+        explanation: `请核对该段落中的“${lockedQuotes[1]}”结构依据。`,
+        ruleId: "synthetic.embodiment.support",
+        requiresAcknowledgement: true,
+        anchor: { nodeId: lockedParagraphId, section: "embodiments", locked: true },
+      }];
+
+      const repository = openLocalRepository(new MemoryBackend());
+      async function seed() {
+        const created = await repository.commit(actor, {
+          contractVersion: CONTRACT_VERSION,
+          expectedVersion: 0,
+          payload: {
+            matter: {
+              id: matterId, tenantId: actor.tenantId, version: 1, title: "V6-20 浏览器合成案件",
+              status: "active", sourceVersion: 1, createdBy: actor.userId, createdAt: now, updatedAt: now,
+            },
+            targets: [{ id: targetId, matterId, status: "active", configVersion: 1, draftRevisionId: null, figureRevisionId }],
+            assets: [], events: [], blobs: [],
+          },
+        }, { requestId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1" });
+        if (!created.ok) throw new Error(created.error.message);
+        let sequence = 0;
+        const revisions = createGenerationRevisionStore({
+          repository,
+          actor,
+          now: () => new Date(now),
+          newId: () => `bbbbbbbb-bbbb-4bbb-8bbb-${String(++sequence).padStart(12, "0")}`,
+        });
+        const saved = await revisions.saveEditedRevision(matterId, targetId, null, ast);
+        if (!saved.ok) throw new Error(saved.error.message);
+        return saved.data;
+      }
+
+      window.__v620 = { actor, matterId, targetId, lockedText, lockedQuotes, riskId, actions: [], repository, setMode: null, revision: null };
+      window.__v620.advanceSource = async () => {
+        const loaded = await repository.loadMatter(actor, matterId);
+        if (!loaded.ok) throw new Error(loaded.error.message);
+        const aggregate = loaded.data.data;
+        const moved = await repository.commit(actor, {
+          contractVersion: CONTRACT_VERSION,
+          expectedVersion: aggregate.matter.version,
+          payload: {
+            matter: { ...aggregate.matter, version: aggregate.matter.version + 1, sourceVersion: 2, updatedAt: "2026-11-05T12:10:00.000Z" },
+            targets: aggregate.targets,
+            assets: aggregate.assets,
+            events: [],
+            blobs: [],
+          },
+        }, { requestId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2" });
+        if (!moved.ok) throw new Error(moved.error.message);
+        return moved.data.data.matter.sourceVersion;
+      };
+      function App() {
+        const [access, setAccess] = useState("preview");
+        window.__v620.setMode = setAccess;
+        return React.createElement(React.Fragment, null,
+          React.createElement("div", { className: "row", style: { marginBottom: "1rem" } },
+            React.createElement("button", { className: "btn btn-outline", "data-testid": "switch-local", onClick: () => setAccess("local_unmetered") }, "切换到本地完整预览")),
+          React.createElement(Preview, {
+            repository, actor, matterId, targetId, access, risks,
+            onModifyMaterials: (id) => window.__v620.actions.push({ action: "modify", matterId: id }),
+            onOpenDraft: (matter, target) => window.__v620.actions.push({ action: "draft", matterId: matter, targetId: target }),
+            onRegenerate: (matter, target) => window.__v620.actions.push({ action: "regenerate", matterId: matter, targetId: target }),
+            onAdoptInputs: (matter, target) => window.__v620.actions.push({ action: "adopt", matterId: matter, targetId: target }),
+          }));
+      }
+
+      seed().then((revision) => {
+        window.__v620.revision = revision;
+        createRoot(document.getElementById("preview-root")).render(React.createElement(App));
+      }).catch((error) => {
+        document.getElementById("preview-root").textContent = `挂载失败：${error.message}`;
+        window.__v620.error = String(error);
+      });
+    </script>
+  </body>
+</html>

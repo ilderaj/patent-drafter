@@ -123,7 +123,7 @@
       "remediation": "删除无支持的效果断言或补充依据"
     },
     {
-      "ruleId": "AI-INV-001",
+      "ruleId": "AI-POL-001",
       "patentType": ["utility_model", "invention"],
       "severity": "error",
       "deterministicCheck": "inventorsNaturalPerson",
@@ -135,7 +135,7 @@
       "remediation": "修正发明人信息"
     },
     {
-      "ruleId": "AI-INV-002",
+      "ruleId": "AI-POL-002",
       "patentType": ["utility_model", "invention"],
       "severity": "info",
       "deterministicCheck": "aiAssistedReviewConfirmed",

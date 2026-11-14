@@ -1,0 +1,6 @@
+ M .planning/2026-10-30-patent-saas-v6/progress.md
+ M .planning/2026-10-30-patent-saas-v6/task_plan.md
+?? apps/web/src/v6/
+?? node_modules
+?? qa/v6/evidence/V6-06/
+?? qa/v6/scenarios/V6-06/

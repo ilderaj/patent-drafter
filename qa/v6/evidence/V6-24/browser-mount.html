@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="native" data-mode="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>V6-24 内部批准合成验收</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      import "../../../../apps/web/src/styles.css";
+      import "../../../../apps/web/src/v6/styles/theme.css";
+      import "../../../../apps/web/src/v6/routes/v6.css";
+      import React from "react";
+      import { createRoot } from "react-dom/client";
+      import { draftAstSchema } from "../../../../packages/contracts/src/draft.ts";
+      import { runChecks } from "../../../../packages/domain/src/v6/checks.ts";
+      import { ApprovalPanel } from "../../../../apps/web/src/v6/features/delivery/Approval.tsx";
+      import { createGenerationRevisionStore } from "../../../../apps/web/src/v6/features/generation/generation.ts";
+      import { bindFigures, createEmptyFigureSet, importDrawing } from "../../../../apps/web/src/v6/features/sources/drawings.ts";
+      import { CONTRACT_VERSION, LocalRepository, STORES } from "../../../../apps/web/src/v6/lib/repository.ts";
+      import drawingUrl from "../../../../qa/v6/scenarios/V6-12/fixtures/drawing-valid.png?url";
+
+      const T0 = "2026-11-05T12:00:00.000Z";
+      const actor = { tenantId: "11111111-1111-4111-8111-111111111111", userId: "33333333-3333-4333-8333-333333333333" };
+      const matterId = "55555555-5555-4555-8555-555555555555";
+      const targetId = "66666666-6666-4666-8666-666666666661";
+      const figureId = "77777777-7777-4777-8777-777777777771";
+      let sequence = 0;
+      const nextUuid = () => `dddddddd-dddd-4ddd-8ddd-${String(++sequence).padStart(12, "0")}`;
+
+      class MemoryBackend {
+        constructor() {
+          this.data = new Map(Object.values(STORES).map((name) => [name, new Map()]));
+          this.queue = Promise.resolve();
+        }
+        transaction(mode, run) {
+          if (mode !== "readwrite") return this.run(run);
+          const next = this.queue.then(() => this.run(run));
+          this.queue = next.then(() => undefined, () => undefined);
+          return next;
+        }
+        async run(run) {
+          const before = new Map([...this.data].map(([name, store]) => [name, new Map(store)]));
+          const tx = {
+            get: async (store, key) => {
+              const value = this.data.get(store).get(key);
+              return value === undefined ? undefined : structuredClone(value);
+            },
+            put: async (store, key, value) => this.data.get(store).set(key, structuredClone(value)),
+            delete: async (store, key) => this.data.get(store).delete(key),
+            getAll: async (store) => [...this.data.get(store).values()].map((value) => structuredClone(value)),
+            getAllByIndex: async (store, index, value) => [...this.data.get(store).values()]
+              .filter((row) => row && typeof row === "object" && row[index] === value)
+              .map((value) => structuredClone(value)),
+          };
+          try { return await run(tx); }
+          catch (error) { this.data = before; throw error; }
+        }
+        close() {}
+      }
+
+      const paragraph = (id, text, figureIds = []) => ({
+        id, text, origin: "human", sourceRefs: [], factIds: [], figureIds, generationJobId: null,
+      });
+
+      async function seed() {
+        const repository = new LocalRepository(new MemoryBackend());
+        const matter = {
+          id: matterId, tenantId: actor.tenantId, version: 1, title: "合成批准测试案卷", status: "active",
+          sourceVersion: 1, createdBy: actor.userId, createdAt: T0, updatedAt: T0,
+        };
+        const target = {
+          id: targetId, matterId, status: "active", configVersion: 1, draftRevisionId: null,
+          figureRevisionId: "88888888-8888-4888-8888-888888888881",
+        };
+        const created = await repository.commit(actor, {
+          contractVersion: CONTRACT_VERSION,
+          expectedVersion: 0,
+          payload: { matter, targets: [target], assets: [], events: [], blobs: [] },
+        }, { requestId: "99999999-9999-4999-8999-999999999991" });
+        if (!created.ok) throw new Error(JSON.stringify(created.error));
+
+        const empty = await createEmptyFigureSet(repository, actor, matterId, targetId, { now: () => Date.parse(T0) });
+        if (!empty.ok) throw new Error(JSON.stringify(empty.error));
+        const bytesResponse = await fetch(drawingUrl);
+        if (!bytesResponse.ok) throw new Error(`synthetic figure fixture unavailable (${bytesResponse.status})`);
+        const bytes = new Uint8Array(await bytesResponse.arrayBuffer());
+        const imported = await importDrawing(repository, actor, matterId, { bytes, fileName: "synthetic-figure.png" }, {
+          reuseExisting: true,
+          now: () => Date.parse(T0),
+        });
+        if (!imported.ok) throw new Error(JSON.stringify(imported.error));
+        const bound = await bindFigures(repository, actor, matterId, {
+          targetId,
+          baseFigureRevisionId: empty.data.current.id,
+          entries: [{ figureId, number: 1, title: "合成装置图", drawingId: imported.data.drawing.id, numerals: [] }],
+        }, { now: () => Date.parse(T0) });
+        if (!bound.ok) throw new Error(JSON.stringify(bound.error));
+
+        const ast = {
+          schemaVersion: "draft.v1",
+          language: "zh-CN",
+          title: "合成温控装置",
+          claims: [{
+            id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1", number: 1, dependsOn: [],
+            paragraphs: [paragraph("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1", "一种合成温控装置。")],
+            features: [],
+          }],
+          sections: [
+            { kind: "technical_field", paragraphs: [paragraph("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2", "本合成方案涉及温度控制。 ")] },
+            { kind: "background", paragraphs: [paragraph("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb3", "合成背景说明。 ")] },
+            { kind: "summary", paragraphs: [paragraph("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb4", "本方案提供合成温控装置。 ")] },
+            { kind: "figures_description", paragraphs: [paragraph("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb5", "附图说明展示合成结构关系。 ", [figureId])] },
+            { kind: "embodiments", paragraphs: [paragraph("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb6", "以下为合成实施方式。 ")] },
+            { kind: "abstract", paragraphs: [paragraph("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb7", "一种合成温控装置。 ")] },
+          ],
+        };
+        const validAst = draftAstSchema.safeParse(ast);
+        if (!validAst.success) throw new Error(JSON.stringify(validAst.error.issues));
+        const revisions = createGenerationRevisionStore({ repository, actor, newId: nextUuid, now: () => new Date(T0) });
+        const saved = await revisions.saveEditedRevision(matterId, targetId, null, ast);
+        if (!saved.ok) throw new Error(JSON.stringify(saved.error));
+        const current = await repository.loadMatter(actor, matterId);
+        if (!current.ok) throw new Error(JSON.stringify(current.error));
+        const currentTarget = current.data.data.targets.find((item) => item.id === targetId);
+        const snapshot = {
+          matterId, targetId, sourceVersion: current.data.data.matter.sourceVersion,
+          targetConfigVersion: currentTarget.configVersion,
+          draftRevisionId: currentTarget.draftRevisionId,
+          figureRevisionId: currentTarget.figureRevisionId,
+        };
+        const checkResult = runChecks({
+          snapshot,
+          ast,
+          astValidation: { valid: true, issues: [] },
+          facts: [],
+          conflicts: [],
+          disclosure: "none",
+          priorityClaims: [],
+          route: "cn_invention",
+          figureSet: {
+            id: bound.data.current.id,
+            entries: bound.data.current.entries.map(({ figureId, number, title, drawingId }) => ({ figureId, number, title, drawingId })),
+          },
+          assets: [{ id: imported.data.asset.id, drawingId: imported.data.drawing.id, state: imported.data.asset.state }],
+          draftFigureRevisionId: bound.data.current.id,
+        }, { version: "synthetic-rules-v1", rules: [] }, T0);
+
+        window.__approvalFixture = { repository, actor, matterId, targetId, checkResult, bound };
+        window.__rebindFigures = async () => {
+          const next = await bindFigures(repository, actor, matterId, {
+            targetId,
+            baseFigureRevisionId: window.__approvalFixture.bound.data.current.id,
+            entries: window.__approvalFixture.bound.data.current.entries.map((entry) => ({ ...entry, title: "更新后的合成装置图" })),
+          }, { now: () => Date.parse("2026-11-05T12:01:00.000Z") });
+          if (!next.ok) throw new Error(JSON.stringify(next.error));
+          window.__approvalFixture.bound = next;
+        };
+        const root = createRoot(document.getElementById("root"));
+        root.render(React.createElement(ApprovalPanel, {
+          repository,
+          actor,
+          matterId,
+          targetId,
+          role: "reviewer",
+          checkResult,
+          activeRulePackVersion: "synthetic-rules-v1",
+          filesAvailable: true,
+          revisions,
+          newId: nextUuid,
+          now: () => T0,
+        }));
+        window.__approvalReady = true;
+      }
+
+      seed().catch((error) => {
+        window.__approvalError = String(error?.stack ?? error);
+        console.error(window.__approvalError);
+        document.getElementById("root").textContent = "合成初始化失败";
+      });
+    </script>
+  </body>
+</html>

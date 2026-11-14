@@ -1,0 +1,56 @@
+{
+  "checks": 10,
+  "failures": [],
+  "results": [
+    {
+      "name": "ao-target",
+      "ok": true,
+      "detail": "target=181df3e5-f838-5921-89d1-31a8b7e1ea6c"
+    },
+    {
+      "name": "ao-real-runtime",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ao-agree-enabled",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ao-start",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ao-13-stages",
+      "ok": true,
+      "detail": "state=succeeded upstream=13"
+    },
+    {
+      "name": "ao-adopted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ao-no-test-notice",
+      "ok": true,
+      "detail": "{\"preview-test-output\": 0, \"done-test-output-label\": 0, \"delivery-test-output-label\": 0, \"workbench-test-output\": 0, \"generation-test-output\": 0, \"total\": 0, \"flagged\": 0}"
+    },
+    {
+      "name": "ao-answers-sent",
+      "ok": true,
+      "detail": "requests=13"
+    },
+    {
+      "name": "ao-personal-not-sent",
+      "ok": true,
+      "detail": "{\"bytes\": [5494, 5766, 5874]}"
+    },
+    {
+      "name": "ao-chat-count",
+      "ok": true,
+      "detail": "delta=13"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "scenario": "B",
+  "checks": 13,
+  "failures": [],
+  "results": [
+    {
+      "name": "setup-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "b-failed",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "b-revoked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "b-regrant",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "b-consent-updated-notice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "b-notice-text",
+      "ok": true,
+      "detail": "授权已更新，请以新授权开始新任务。\n\n旧的失败任务保留在记录里，不会按旧授权重试。"
+    },
+    {
+      "name": "b-new-auth-button",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "b-button-label",
+      "ok": true,
+      "detail": "以新授权开始任务"
+    },
+    {
+      "name": "b-no-retry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "b-no-plain-start",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "b-no-sheet-loop",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "b-new-auth-executes",
+      "ok": true,
+      "detail": "state=succeeded"
+    },
+    {
+      "name": "b-chat-after-click",
+      "ok": true,
+      "detail": "chat=14"
+    }
+  ]
+}

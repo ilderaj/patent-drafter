@@ -1,0 +1,432 @@
+{
+  "ticket": "V6-19",
+  "title": "支持定位与逐段确认",
+  "status": "accepted",
+  "revision": 5,
+  "baseCommit": "73a70df393a1c4f9b299bce84b0259a2776eacff",
+  "branch": "codex/v6-19-review",
+  "worktree": "/private/tmp/patent-v6-19-worktree",
+  "date": "2026-11-05",
+  "contractVersion": "v6.1",
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-19/review-05.md",
+    "note": "Rounds 1-4 closed locator integrity, C03 versioning, focus, cache isolation, historical revocation and storage-rejection handling. Final: 16/16, V6-05 26/26, tsc/build 0, browser 7/7."
+  },
+  "dependencies": [
+    {
+      "ticket": "V6-05",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-05/receipt.json"
+    },
+    {
+      "ticket": "V6-17",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-17/receipt.json"
+    },
+    {
+      "ticket": "V6-18",
+      "status": "candidate",
+      "evidence": "qa/v6/evidence/V6-18/receipt.json"
+    }
+  ],
+  "changedFiles": [
+    "apps/web/src/v6/features/draft/Review.tsx",
+    "apps/web/src/v6/lib/repository.ts",
+    "apps/web/vite.config.ts",
+    "qa/v6/evidence/V6-19/01-review-ready.png",
+    "qa/v6/evidence/V6-19/02-source-located.png",
+    "qa/v6/evidence/V6-19/03-risk-claim-focus.png",
+    "qa/v6/evidence/V6-19/04-confirmation-revoked.png",
+    "qa/v6/evidence/V6-19/05-revoke-error.png",
+    "qa/v6/evidence/V6-19/06-rejected-callback-error.png",
+    "qa/v6/evidence/V6-19/browser-drive.mjs",
+    "qa/v6/evidence/V6-19/browser-log.json",
+    "qa/v6/evidence/V6-19/browser-mount.html",
+    "qa/v6/evidence/V6-19/build.txt",
+    "qa/v6/evidence/V6-19/receipt.json",
+    "qa/v6/evidence/V6-19/regression.txt",
+    "qa/v6/evidence/V6-19/review-01.md",
+    "qa/v6/evidence/V6-19/review-02.md",
+    "qa/v6/evidence/V6-19/review-03.md",
+    "qa/v6/evidence/V6-19/review-04.md",
+    "qa/v6/evidence/V6-19/review-05.md",
+    "qa/v6/evidence/V6-19/runner.tap",
+    "qa/v6/evidence/V6-19/scope.txt",
+    "qa/v6/evidence/V6-19/typecheck.txt",
+    "qa/v6/evidence/V6-19/vite-cache-path.txt",
+    "qa/v6/scenarios/V6-19/harness.mjs",
+    "qa/v6/scenarios/V6-19/review.test.mjs"
+  ],
+  "authorizedSharedChanges": [
+    "apps/web/src/v6/lib/repository.ts",
+    "apps/web/vite.config.ts"
+  ],
+  "interface": {
+    "exports": [
+      "DraftReviewSession",
+      "DraftReviewSessionOptions",
+      "DraftReviewState",
+      "DraftReviewLocator",
+      "DraftReviewAction",
+      "DraftReviewPanel",
+      "DraftReviewPanelProps",
+      "DraftReviewPanelView",
+      "DraftReviewPanelViewProps"
+    ],
+    "repository": "LocalRepository.writeConfirmationLedger(actor, matterId, expectedVersion, ledgerBlob, event, updatedAt) adds the narrow C03 write seam. It checks ownership/status/version. confirmation.created requires the event snapshot to be current. confirmation.revoked may carry a historical snapshot, but the snapshot must exactly match the confirmation row named by event.resourceId; that row must exist in the ledger, belong to the actor, and have the appended revocation. It then atomically writes matter.version+1, the event and the scoped ledger blob. A conflict or mismatch writes nothing; an idempotent confirm returns before calling it.",
+    "revocation": "Historical and current confirmations are both revocable. The panel keeps the confirmation row, appends a Revocation, bumps matter.version once and records one confirmation.revoked event. A failed revoke is rendered as a role=alert notice with its error code instead of being discarded. A rejected read/write transaction is normalized to STORAGE_UNAVAILABLE rather than escaping the handler; a rejected onRevoke callback is caught by the view and renders the same alert. The initial matter-version read preserves the repository failure code: only RESOURCE_NOT_FOUND remains not-found; all other failures return STORAGE_UNAVAILABLE with retry guidance.",
+    "locator": "SourceRefs are accepted only when the source row belongs to the requested matter and the derived source asset, the asset is available source material of that matter/tenant, the chunk id/hash/page/quote match, and SHA-256 of the live chunk text equals the stored hash. A revision whose input sourceVersion/configVersion/figureRevisionId differs from the current input marks every locator unlocatable and exposes no chunkText.",
+    "focus": "DraftReviewPanelView accepts optional RiskDTO[] and renders a 风险定位 section. Claim, source and risk controls focus the real DOM target: target nodes receive tabIndex=-1 and .focus() is called (plus a visible outline). The source chunk view is itself focusable. Browser evidence asserts document.activeElement for source, claim and risk.",
+    "ledger": "DraftReviewSession persists an actor- and matter-scoped ConfirmationLedger in LocalRepository blobs. Every non-idempotent confirm/revoke uses writeConfirmationLedger; the V6-05 transition remains the authority for confirmation validity and revocations."
+  },
+  "acceptance": [
+    {
+      "id": "V6-19-A01",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-19",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-19/runner.tap",
+      "observed": "A validated SourceRef traces to its chunk; confirmation persists an ai_paragraph record with local_self_reported identity, the actor, the revision SnapshotRef and one confirmation.created event. The matter version increments exactly once."
+    },
+    {
+      "id": "V6-19-A02",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-19",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-19/runner.tap",
+      "observed": "Missing chunks, hash mismatch, quote/offset mismatch and retired sources show 不可定位 and preserve the original quote. New probes reject a foreign matter source row, a foreign asset reference, altered chunk text with the old hash, and a revision whose sourceVersion is stale. Each probe asserts chunkText is null."
+    },
+    {
+      "id": "V6-19-A03",
+      "status": "covered",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-19",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-19/runner.tap",
+      "observed": "Repeating a live confirmation returns created=false with one record and no version bump. Revocation keeps the confirmation, appends one Revocation, bumps matter.version once and appends one confirmation.revoked event. A fresh session restores the same ids and pending state. After saving a new revision, revoking a confirmation from the older snapshot still succeeds with one version bump and both records retained. A rejected initial version read yields STORAGE_UNAVAILABLE with no unhandled rejection and no state change."
+    }
+  ],
+  "fixes": [
+    {
+      "id": "B1",
+      "status": "fixed",
+      "evidence": "qa/v6/scenarios/V6-19/review.test.mjs",
+      "observed": "readLocators now checks stored source matterId and derived asset ownership, asset purpose/tenant, live SHA-256 chunk text against the stored hash, and revision input freshness (sourceVersion, targetConfigVersion, figureRevisionId) before exposing chunkText. Probes: foreign matterId, foreign assetId, altered text with old hash, sourceVersion bump."
+    },
+    {
+      "id": "B2",
+      "status": "fixed",
+      "evidence": "apps/web/src/v6/lib/repository.ts; qa/v6/scenarios/V6-19/review.test.mjs",
+      "observed": "confirmParagraph and revokeParagraphConfirmation call LocalRepository.writeConfirmationLedger. It locks matter.version with expectedVersion, bumps version+1, writes updatedAt, the activity event and the ledger in one transaction. Tests verify +1 on confirm, +1 on revoke, no second bump on an idempotent confirm, VERSION_CONFLICT refusal without writes, and synthetic storage failure rollback of version/event/ledger."
+    },
+    {
+      "id": "B3",
+      "status": "fixed",
+      "evidence": "qa/v6/evidence/V6-19/browser-log.json; qa/v6/evidence/V6-19/03-risk-claim-focus.png",
+      "observed": "DraftReviewPanel/View accepts risks and exposes a 风险定位 section. Claim, source and risk locator nodes receive tabIndex=-1 and DOM focus. Browser steps 02 and 03 assert document.activeElement for the source chunk, claim article and risk anchor."
+    },
+    {
+      "id": "B4",
+      "status": "fixed",
+      "evidence": "apps/web/vite.config.ts; qa/v6/evidence/V6-19/browser-log.json; qa/v6/evidence/V6-19/vite-cache-path.txt",
+      "observed": "cacheDir defaults to node_modules/.vite and is overridable with VITE_CACHE_DIR. Browser and build used /private/tmp/v6-19-vite-cache (24 cache files); the shared /Users/.../Patent/node_modules/.vite mtime was identical before and after (1793834923103.4912)."
+    },
+    {
+      "id": "R2-B1",
+      "status": "fixed",
+      "evidence": "qa/v6/scenarios/V6-19/review.test.mjs; qa/v6/evidence/V6-19/browser-log.json",
+      "observed": "confirmation.revoked no longer requires the event snapshot to be current. It requires the confirmation row named by event.resourceId to exist, belong to the actor, match the event SnapshotRef exactly, and have the appended revocation for that object. Artifacts: historical confirm r1 -> save r2 -> revoke r1 succeeds, bumps version once, retains both records and emits one revocation event; unknown id fails RESOURCE_NOT_FOUND; mismatched snapshot fails INVALID_INPUT with no version/event/ledger writes; current revocation still succeeds. The panel's failed revoke path is asserted in the browser as ACTION_FORBIDDEN with a visible role=alert notice."
+    },
+    {
+      "id": "R3-B1",
+      "status": "fixed",
+      "evidence": "qa/v6/scenarios/V6-19/review.test.mjs; qa/v6/evidence/V6-19/06-rejected-callback-error.png",
+      "observed": "revokeParagraphConfirmation wraps the raw read-only ledger transaction and the versioned write in try/catch, returning STORAGE_UNAVAILABLE with a retry message on rejection. The test arms a rejecting second read-only transaction and asserts ok:false, no unhandled rejection, unchanged matter version, event count and ledger revocations. The view's revoke helper also catches a rejected onRevoke promise; the browser mounts a rejecting-callback panel and asserts the visible STORAGE_UNAVAILABLE alert. The normal returned ACTION_FORBIDDEN path remains covered."
+    },
+    {
+      "id": "R4-B1",
+      "status": "fixed",
+      "evidence": "qa/v6/scenarios/V6-19/review.test.mjs",
+      "observed": "currentMatterVersion now returns the repository result instead of collapsing every failure to null. versionReadFailure maps only an actual RESOURCE_NOT_FOUND repository result to RESOURCE_NOT_FOUND; storage/unavailable and other failures return STORAGE_UNAVAILABLE with retry guidance. confirmParagraph uses the same distinction and is wrapped against rejected reads/writes. The round-4 test rejects the first subsequent read-only transaction (matter-version read) and asserts STORAGE_UNAVAILABLE, no unhandled rejection, and unchanged matter version, events and revocations."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S05-A01",
+      "status": "not_applicable",
+      "reason": "The cloud R2 GWT spans preview, revisions, diff, job-result and search projections and their locked-node responses. V6-19 is the R1 LocalRepository professional review panel and does not implement those cloud endpoints or DTO projections. Locked source/chunk bodies are treated as unlocatable, not returned as a proof of full coverage."
+    },
+    {
+      "id": "S05-A02",
+      "status": "not_applicable",
+      "reason": "This GWT concerns the self-service preview's locked-section risk rendering. V6-19 is the professional draft review panel. It accepts optional RiskDTOs and focuses risk anchors but does not implement the S05 preview page or its locked-body redaction."
+    },
+    {
+      "id": "S05-A03",
+      "status": "covered",
+      "reason": "Five AI paragraphs are confirmed, paragraph 2 is edited and saved through the V6-17 revision seam, and all five become pending for the new SnapshotRef.",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-19",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-19/runner.tap"
+    },
+    {
+      "id": "S05-A04",
+      "status": "not_applicable",
+      "reason": "Stale editor save conflict, local buffer preservation and merge view are V6-18 editor behavior. This panel observes a changed head and invalidates confirmations but does not perform editor saves or merges."
+    },
+    {
+      "id": "S05-A05",
+      "status": "not_applicable",
+      "reason": "Restore commands, figure strategies and restoredFrom history are outside this panel's write set."
+    },
+    {
+      "id": "S05-A06",
+      "status": "not_applicable",
+      "reason": "Adopted-input review and its explicit acknowledgement are outside this panel. It detects a stale SnapshotRef and refuses confirmation until current."
+    },
+    {
+      "id": "S05-A07",
+      "status": "not_applicable",
+      "reason": "risk_ack and the expert-service route are separate flows outside this ticket."
+    },
+    {
+      "id": "S05-A08",
+      "status": "not_applicable",
+      "reason": "Invalid DraftAST save validation and claim-node error mapping are V6-18 editor behavior."
+    },
+    {
+      "id": "S05-A09",
+      "status": "not_applicable",
+      "reason": "This is the professional draft review panel, not the separate R1 self-service preview page."
+    }
+  ],
+  "runs": [
+    {
+      "name": "V6-19 suite",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-19",
+      "exitCode": 0,
+      "tests": 16,
+      "pass": 16,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-19/runner.tap"
+    },
+    {
+      "name": "workspace typecheck",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run typecheck",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-19/typecheck.txt"
+    },
+    {
+      "name": "web build (isolated cache)",
+      "command": "VITE_CACHE_DIR=/private/tmp/v6-19-vite-cache npm --prefix /private/tmp/patent-v6-19-worktree run build --workspace @patent/web",
+      "exitCode": 0,
+      "observed": "Built successfully; existing >500 kB chunk-size warning remains. Shared optimizer cache mtime unchanged.",
+      "evidence": "qa/v6/evidence/V6-19/build.txt"
+    },
+    {
+      "name": "V6-18 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-18",
+      "exitCode": 0,
+      "tests": 7,
+      "pass": 7,
+      "evidence": "qa/v6/evidence/V6-19/regression.txt"
+    },
+    {
+      "name": "V6-17 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-17",
+      "exitCode": 0,
+      "tests": 37,
+      "pass": 37,
+      "evidence": "qa/v6/evidence/V6-19/regression.txt"
+    },
+    {
+      "name": "V6-16 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-16",
+      "exitCode": 0,
+      "tests": 14,
+      "pass": 14,
+      "evidence": "qa/v6/evidence/V6-19/regression.txt"
+    },
+    {
+      "name": "V6-15 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-15",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "evidence": "qa/v6/evidence/V6-19/regression.txt"
+    },
+    {
+      "name": "V6-14 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-14",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "evidence": "qa/v6/evidence/V6-19/regression.txt"
+    },
+    {
+      "name": "V6-10 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-10",
+      "exitCode": 0,
+      "tests": 36,
+      "pass": 36,
+      "evidence": "qa/v6/evidence/V6-19/regression.txt"
+    },
+    {
+      "name": "V6-08 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-08",
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "evidence": "qa/v6/evidence/V6-19/regression.txt"
+    },
+    {
+      "name": "V6-05 regression",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree run test:v6 -- V6-05",
+      "exitCode": 0,
+      "tests": 26,
+      "pass": 26,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-19/regression.txt"
+    },
+    {
+      "name": "workspace tests",
+      "command": "npm --prefix /private/tmp/patent-v6-19-worktree test --workspaces --if-present",
+      "exitCode": 0,
+      "checks": 59,
+      "breakdown": {
+        "workerTests": 15,
+        "exportChecks": 44
+      },
+      "evidence": "qa/v6/evidence/V6-19/regression.txt"
+    },
+    {
+      "name": "browser review flow",
+      "command": "VITE_CACHE_DIR=/private/tmp/v6-19-vite-cache node /private/tmp/patent-v6-19-worktree/qa/v6/evidence/V6-19/browser-drive.mjs /private/tmp/patent-v6-19-worktree/qa/v6/evidence/V6-19 http://localhost:4189/patent",
+      "exitCode": 0,
+      "steps": 7,
+      "screenshots": 6,
+      "externalRequests": 0,
+      "consoleErrors": 0,
+      "sharedCacheUnchanged": true,
+      "evidence": "qa/v6/evidence/V6-19/browser-log.json"
+    }
+  ],
+  "browserEvidence": {
+    "driver": "qa/v6/evidence/V6-19/browser-drive.mjs",
+    "mount": "qa/v6/evidence/V6-19/browser-mount.html",
+    "log": "qa/v6/evidence/V6-19/browser-log.json",
+    "url": "http://localhost:4189/patent/qa/v6/evidence/V6-19/browser-mount.html",
+    "result": "ok; 7/7 steps; 0 console errors; 0 external requests; shared cache unchanged",
+    "focusAssertions": [
+      "source chunk activeElement after source locator click",
+      "claim article activeElement after claim locator click",
+      "risk anchor activeElement after risk locator click"
+    ],
+    "revokeErrorAssertion": "A foreign-actor confirmation's revoke action produces a visible draft-review-revoke-error notice with data-code=ACTION_FORBIDDEN. A rejecting onRevoke callback produces the same visible alert with data-code=STORAGE_UNAVAILABLE.",
+    "screenshots": [
+      "qa/v6/evidence/V6-19/01-review-ready.png",
+      "qa/v6/evidence/V6-19/02-source-located.png",
+      "qa/v6/evidence/V6-19/03-risk-claim-focus.png",
+      "qa/v6/evidence/V6-19/04-confirmation-revoked.png",
+      "qa/v6/evidence/V6-19/05-revoke-error.png",
+      "qa/v6/evidence/V6-19/06-rejected-callback-error.png"
+    ]
+  },
+  "scope": {
+    "porcelainEntries": 26,
+    "excluded": [
+      "node_modules"
+    ],
+    "changedFilesCount": 26,
+    "scopeMatchesChangedFiles": true,
+    "includedFiles": 26
+  },
+  "mountHashes": {
+    "mode": "standalone evidence harness; no shared application mount file was changed",
+    "harness": {
+      "path": "qa/v6/evidence/V6-19/browser-mount.html",
+      "sha256": "25c46c8c407bcaf4866e49caa4175bc6ac3894b7875b7a9c0683c1dff5a9348d"
+    },
+    "unchangedSharedFiles": [
+      {
+        "path": "apps/web/src/v6/routes/V6App.tsx",
+        "baseSha256": "a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37",
+        "finalSha256": "a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37",
+        "match": true
+      },
+      {
+        "path": "apps/web/src/v6/routes/navigation.ts",
+        "baseSha256": "aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951",
+        "finalSha256": "aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951",
+        "match": true
+      },
+      {
+        "path": "apps/web/src/v6/routes/v6.css",
+        "baseSha256": "90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7",
+        "finalSha256": "90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7",
+        "match": true
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "baseSha256": "52903213e82c61d7c8cfd3ee6d59dea0dfa3a566b26e72f52c2acdcbb76c5b77",
+        "finalSha256": "52903213e82c61d7c8cfd3ee6d59dea0dfa3a566b26e72f52c2acdcbb76c5b77",
+        "match": true
+      }
+    ],
+    "authorizedModifiedSharedFiles": [
+      {
+        "path": "apps/web/src/v6/lib/repository.ts",
+        "baseSha256": "b843647579d95bce382745cc5174a92c3444e402b8264dd8b59ea29f769a1dd0",
+        "finalSha256": "d15b376b63bdaff5b3e085632216aa557280edc1b50333b11e5331217d998ec5",
+        "reason": "narrow writeConfirmationLedger seam with historical revocation validation"
+      },
+      {
+        "path": "apps/web/vite.config.ts",
+        "baseSha256": "3a904314113e71cfaec322b4ae48b87c4ba71ea5b814b9f67589e9e0b39d4241",
+        "finalSha256": "b15322b6fa5c72e809445f36788c61372bdb4ea01faa3049f34ec55f43e0cdfb",
+        "reason": "optional VITE_CACHE_DIR isolation"
+      }
+    ]
+  },
+  "cacheIsolation": {
+    "envVar": "VITE_CACHE_DIR",
+    "commandValue": "/private/tmp/v6-19-vite-cache",
+    "isolatedCacheFiles": 24,
+    "sharedCache": "/Users/jared/Personal Projects/Patent/node_modules/.vite",
+    "sharedCacheMtimeBefore": 1793834923103.4912,
+    "sharedCacheMtimeAfter": 1793834923103.4912,
+    "sharedCacheUnchanged": true,
+    "evidence": [
+      "qa/v6/evidence/V6-19/browser-log.json",
+      "qa/v6/evidence/V6-19/vite-cache-path.txt",
+      "qa/v6/evidence/V6-19/build.txt"
+    ]
+  },
+  "runtime": {
+    "node": "v25.8.1",
+    "npm": "11.11.0",
+    "contractArchitectureNode": "v22",
+    "node22Verified": false
+  },
+  "limitations": [
+    "Status remains candidate pending independent re-review. No commit, push, deployment, provider call, external network request, or real customer material was used.",
+    "Node 25.8.1 was available; the architecture specifies Node 22, which was unavailable and remains unverified.",
+    "The browser harness is a standalone synthetic LocalRepository + DraftEditor + DraftReviewPanel mount. V6App/navigation registration and native IndexedDB are not exercised.",
+    "Risks are supplied through the DraftReviewPanel risks prop. The panel does not fetch risks from a cloud check service; S05 preview risk rendering remains outside this R1 professional review ticket.",
+    "The accepted V6-05 confirm transition treats a repeated actor/kind/paragraph/SnapshotRef command as idempotent even after its Confirmation is revoked. This round did not change that product rule; the panel explains that a new revision is needed before reconfirming.",
+    "The build completed with the existing Vite warning for minified chunks over 500 kB.",
+    "Historical confirmations remain revocable after a new revision; the revocation appends to the historical row and bumps matter.version once. It does not make the historical confirmation current or restore it.",
+    "The review artifacts review-01.md, review-02.md, review-03.md and review-04.md are included in scope because they are files in the evidence worktree; they were authored by the independent reviewer, not by this implementation."
+  ],
+  "decisionsRequested": [
+    {
+      "code": "NEEDS_DECISION",
+      "question": "Can a user create a second confirmation for the same paragraph and SnapshotRef after revoking the first?",
+      "suggestion": "Add an explicit confirmation attempt/idempotency identity or revise the V6-05 duplicate rule while preserving append-only history; until then the panel requires a new revision before reconfirming.",
+      "impact": "The accepted V6-05 API returns the already revoked row on the same command and cannot append a new live confirmation for that same snapshot."
+    }
+  ],
+  "amendment": "2026-11-05: V6-20 coordinated a V6-05 change so a revoked confirmation no longer blocks a new live confirmation. The V6-19 C03 scenario was amended after acceptance to expect a new live row on retry after revocation (version +1) and idempotency only for the live duplicate; 16/16 on the integration tree. See V6-20 receipt."
+}

@@ -29,29 +29,29 @@ function blank(): DocxParagraph {
   return { text: "", style: "body" };
 }
 
-export function buildClaimsDocx(d: ExportProjectData): Uint8Array {
+export function buildClaimsDocx(d: ExportProjectData, notice?: string): Uint8Array {
   const paras: DocxParagraph[] = [{ text: "权利要求书", style: "title" }, blank()];
   for (const c of d.claims) {
     paras.push({ text: c.text, style: "body" }, blank());
   }
-  return buildDocx(paras);
+  return buildDocx(withNotice(notice, paras));
 }
 
-export function buildSpecificationDocx(d: ExportProjectData): Uint8Array {
+export function buildSpecificationDocx(d: ExportProjectData, notice?: string): Uint8Array {
   const paras: DocxParagraph[] = [{ text: "说明书", style: "title" }, blank()];
   for (const s of d.specSections) {
     paras.push({ text: s.title, style: "heading" }, { text: s.body, style: "body" }, blank());
   }
-  return buildDocx(paras);
+  return buildDocx(withNotice(notice, paras));
 }
 
-export function buildAbstractDocx(d: ExportProjectData): Uint8Array {
+export function buildAbstractDocx(d: ExportProjectData, notice?: string): Uint8Array {
   const paras: DocxParagraph[] = [{ text: "说明书摘要", style: "title" }, blank()];
   paras.push({ text: d.abstractText.trim() || "（暂无摘要内容）", style: "body" });
-  return buildDocx(paras);
+  return buildDocx(withNotice(notice, paras));
 }
 
-export function buildBundleDocx(d: ExportProjectData): Uint8Array {
+export function buildBundleDocx(d: ExportProjectData, notice?: string): Uint8Array {
   const paras: DocxParagraph[] = [{ text: "专利申请文件草案合集", style: "title" }, blank()];
   paras.push({ text: "第一部分 权利要求书", style: "heading" }, blank());
   for (const c of d.claims) paras.push({ text: c.text, style: "body" }, blank());
@@ -61,7 +61,7 @@ export function buildBundleDocx(d: ExportProjectData): Uint8Array {
   }
   paras.push({ text: "第三部分 说明书摘要", style: "heading" }, blank());
   paras.push({ text: d.abstractText.trim() || "（暂无摘要内容）", style: "body" });
-  return buildDocx(paras);
+  return buildDocx(withNotice(notice, paras));
 }
 
 export function buildReviewReportSpec(
@@ -144,6 +144,12 @@ export interface AssembleOptions {
   renderFigure?: PageRenderer<FigurePageSpec>;
   passphrase?: string;
   exportedAt?: string;
+  /** Prepended to every generated DOCX as its first paragraph. */
+  notice?: string;
+}
+
+function withNotice(notice: string | undefined, paragraphs: DocxParagraph[]): DocxParagraph[] {
+  return notice ? [{ text: notice, style: "heading" }, blank(), ...paragraphs] : paragraphs;
 }
 
 /**
@@ -160,10 +166,10 @@ export async function assembleExportArtifacts(
   const out: ExportArtifact[] = [];
   const add = (key: ExportArtifactKey, data: Uint8Array) => out.push({ key, fileName: EXPORT_FILE_NAMES[key], data });
 
-  if (selection.bundle) add("bundle", buildBundleDocx(d));
-  if (selection.claims) add("claims", buildClaimsDocx(d));
-  if (selection.specification) add("specification", buildSpecificationDocx(d));
-  if (selection.abstract) add("abstract", buildAbstractDocx(d));
+  if (selection.bundle) add("bundle", buildBundleDocx(d, opts.notice));
+  if (selection.claims) add("claims", buildClaimsDocx(d, opts.notice));
+  if (selection.specification) add("specification", buildSpecificationDocx(d, opts.notice));
+  if (selection.abstract) add("abstract", buildAbstractDocx(d, opts.notice));
   if (selection.figures) {
     if (!opts.renderFigure) throw new Error("export assembly requires a figure page renderer");
     add("figures", await buildFiguresPdf(d.figures, { renderPages: opts.renderFigure }));

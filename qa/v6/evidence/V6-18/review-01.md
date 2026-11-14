@@ -1,0 +1,27 @@
+VERDICT: CHANGES_REQUIRED
+
+## Blockers
+
+1. **A save can silently bind old draft content to a newer input snapshot.** `DraftEditorSession.save()` checks input freshness in `refreshValidationContext()` and then calls `saveEditedRevision()`. The V6-17 seam independently reads the current `DraftInputRef` and uses it in the new revision (`generation.ts:480-493, 589-607`); it does not compare that reference with the editor's base revision input. If the facts, target config, or figure revision changes after the editor check but before the seam read, the head revision ID is still the expected base, so the seam can save the old edited AST with the newer input reference. For a figure change, the seam also does not revalidate `figureIds` against the new figure set.
+
+   **Reproduction:** Load and edit a revision based on source version 1. Let `refreshValidationContext()` complete while the matter is still at source version 1. Before `saveEditedRevision()` reads the matter, advance the source version to 2 without changing the draft head. The seam's read sees version 2, its base-revision CAS succeeds, and the saved revision records version 2 although the edited AST was based on version 1. The same interleaving applies to target config and figure revision changes. The candidate disclosed this as `NEEDS_DECISION`; that is an honest escalation, but the decision/fence is still unresolved. Acceptance should wait for an explicit expected-input precondition at the save seam or another defined rule that prevents implicit adoption.
+
+2. **Claim-numbering errors do not identify a claim in the editor.** The contract reports a missing contiguous claim number at path `claims` (`packages/contracts/src/draft.ts:88-90`). `mapIssue()` only assigns a node or claim number when the path contains a numeric claim index (`ast-adapter.ts:248-275`). I probed a valid two-claim AST after changing claim 2's number to 4: validation returned `INVALID_AST`-eligible issue `{path: "claims", nodeId: null, claimNumber: null}`. The UI consequently falls back to the generic `claims` label, and its focus effect finds no node to focus (`Editor.tsx:695-704, 783-788`). Other tested paths do locate their offending claim/feature/paragraph, including dependencies, duplicate node IDs, support references, and figure references. Add a location for numbering-gap errors and cover it with a save/UI assertion.
+
+3. **The two browser screenshots are mislabeled.** `01-editor-loaded.png` shows the post-save revision `c109b637-6c75-452f-a8a3-bd21f0c2759e` and edited text. `02-editor-saved.png` shows the initial `77777777-7777-4777-8777-000000000001` revision and original text. This is opposite to the capture order in `browser-drive.mjs` and the receipt's step names. Correct the screenshot names or recapture them, then align the receipt so the browser evidence is attributable to the stated step.
+
+## Non-blocking notes
+
+- The S05 mapping is honest: A03/A04/A08 are marked covered with matching scenarios; A01/A02/A05/A06/A07/A09 are marked not applicable with reasons consistent with this editor's write scope. A03 checks five confirmed AI paragraphs becoming pending on the new revision; A04 checks stale-save conflict and merge comparison; A08 checks the later-claim dependency and reports claim 2.
+- The browser caveat is accurately stated. The harness mounts `DraftEditor` directly with a synthetic in-memory `LocalRepository`; it does not exercise the app route, navigation, or full shell. The recorded log reports four successful steps, no console errors, and no external requests. The V6App/navigation hashes in the receipt match both the candidate files and base `f0cb918`.
+- The editor has distinct loading, empty, error, and stale states. It preserves the local buffer on conflict, displays local and latest text side by side, and starts manual merge with the latest revision as the new base. `beforeunload` warns on reload/tab close when dirty, but it does not intercept in-app SPA route changes; route integration remains unverified and should add a navigation guard when the orchestrator mounts this component.
+- Receipt scope is consistent: the commit has 14 candidate files; `scope.txt` lists those files and separately lists `node_modules`, which the receipt excludes. `node_modules` is the only pre-existing worktree item outside the candidate scope; this review file is the sole file added by the review. The mount hashes and base commit match. The receipt also accurately records the Node 22 verification gap: checks here ran under Node 25.8.1.
+- The recorded build evidence reports exit 0 and Vite's chunk-size warning. I inspected that evidence and the browser harness files; I did not rerun the build.
+
+## What I ran
+
+- `npm run test:v6 -- V6-18`: 7 passed, 0 failed, 0 skipped, exit 0.
+- `./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit`: exit 0.
+- Re-ran `npm run test:v6 -- V6-17`, `V6-16`, `V6-15`, `V6-14`, `V6-10`, and `V6-08`: all exited 0. Observed test counts were 37, 14, 41, 41, 36, and 12 respectively.
+- Probed adapter validation locations for claim-number gaps, invalid dependencies, duplicate node IDs, invalid support references, and invalid figure references. Confirmed the numbering-gap location defect; the other tested issue types carry the expected claim/node location.
+- Inspected the V6-17 revision seam, candidate scenarios, receipt/scope, recorded build and browser logs, and both screenshots. No build or real provider call was run.

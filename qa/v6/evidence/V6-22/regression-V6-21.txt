@@ -1,0 +1,188 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-21
+
+TAP version 13
+# Subtest: nextAction follows every S06 priority in order without mutating its input
+ok 1 - nextAction follows every S06 priority in order without mutating its input
+  ---
+  duration_ms: 5.8955
+  type: 'test'
+  ...
+# Subtest: S06-A01 empty inbox is distinct from a failed read and contains no sample tasks
+ok 2 - S06-A01 empty inbox is distinct from a failed read and contains no sample tasks
+  ---
+  duration_ms: 1.6215
+  type: 'test'
+  ...
+# Subtest: S06-A02 an open fact conflict outranks a stale target input
+ok 3 - S06-A02 an open fact conflict outranks a stale target input
+  ---
+  duration_ms: 12.808292
+  type: 'test'
+  ...
+# Subtest: S06-A04 reading a conflict keeps it open until the conflict state is resolved
+ok 4 - S06-A04 reading a conflict keeps it open until the conflict state is resolved
+  ---
+  duration_ms: 22.862958
+  type: 'test'
+  ...
+# Subtest: S06-A05 inaccessible matters have no inbox items and direct lookup returns not found
+ok 5 - S06-A05 inaccessible matters have no inbox items and direct lookup returns not found
+  ---
+  duration_ms: 3.130959
+  type: 'test'
+  ...
+# Subtest: S06-A07 suggested deadlines stay out while confirmed deadlines enter with a due time
+ok 6 - S06-A07 suggested deadlines stay out while confirmed deadlines enter with a due time
+  ---
+  duration_ms: 11.814458
+  type: 'test'
+  ...
+# Subtest: V6-21-A03 refreshing and reading use persisted state without repeating a business write
+ok 7 - V6-21-A03 refreshing and reading use persisted state without repeating a business write
+  ---
+  duration_ms: 2.064292
+  type: 'test'
+  ...
+# Subtest: B1 inbox actionKind is the shared nextAction projection for the target
+ok 8 - B1 inbox actionKind is the shared nextAction projection for the target
+  ---
+  duration_ms: 2.632083
+  type: 'test'
+  ...
+# Subtest: B2 one deletion_pending matter does not hide readable matters or inbox items
+ok 9 - B2 one deletion_pending matter does not hide readable matters or inbox items
+  ---
+  duration_ms: 1.471292
+  type: 'test'
+  ...
+# Subtest: B3 a successful parse job resolves on its parser terminal state while other job kinds keep their rule
+ok 10 - B3 a successful parse job resolves on its parser terminal state while other job kinds keep their rule
+  ---
+  duration_ms: 0.862375
+  type: 'test'
+  ...
+# Subtest: S06-A04 review item stays open after read until its feedback is processed
+ok 11 - S06-A04 review item stays open after read until its feedback is processed
+  ---
+  duration_ms: 1.795917
+  type: 'test'
+  ...
+# Subtest: matter list derives committed routes, sorts and paginates 25 rows, and filters by status, route, action and title
+ok 12 - matter list derives committed routes, sorts and paginates 25 rows, and filters by status, route, action and title
+  ---
+  duration_ms: 36.403417
+  type: 'test'
+  ...
+# Subtest: matter data refreshes after 60 seconds or when the window regains focus
+ok 13 - matter data refreshes after 60 seconds or when the window regains focus
+  ---
+  duration_ms: 0.111292
+  type: 'test'
+  ...
+# Subtest: create retry with the same matter id returns the persisted matter without a duplicate creation event
+ok 14 - create retry with the same matter id returns the persisted matter without a duplicate creation event
+  ---
+  duration_ms: 3.46625
+  type: 'test'
+  ...
+# Subtest: create retry with a colliding id from another actor remains RESOURCE_NOT_FOUND
+ok 15 - create retry with a colliding id from another actor remains RESOURCE_NOT_FOUND
+  ---
+  duration_ms: 0.267334
+  type: 'test'
+  ...
+# Subtest: matter create, rename and archive retain version checks and reject ordinary archived writes
+ok 16 - matter create, rename and archive retain version checks and reject ordinary archived writes
+  ---
+  duration_ms: 2.577292
+  type: 'test'
+  ...
+# Subtest: repository unarchive updates only archived matter state with one version bump and no event or blob writes
+ok 17 - repository unarchive updates only archived matter state with one version bump and no event or blob writes
+  ---
+  duration_ms: 29.800875
+  type: 'test'
+  ...
+# Subtest: repository unarchive rejects a stale expectedVersion with the stored version
+ok 18 - repository unarchive rejects a stale expectedVersion with the stored version
+  ---
+  duration_ms: 0.322042
+  type: 'test'
+  ...
+# Subtest: repository unarchive accepts only archived matters
+ok 19 - repository unarchive accepts only archived matters
+  ---
+  duration_ms: 0.226167
+  type: 'test'
+  ...
+# Subtest: repository unarchive hides missing and inaccessible matters as RESOURCE_NOT_FOUND
+ok 20 - repository unarchive hides missing and inaccessible matters as RESOURCE_NOT_FOUND
+  ---
+  duration_ms: 0.234084
+  type: 'test'
+  ...
+# Subtest: archived commits stay refused before unarchive and succeed with a newer version afterward
+ok 21 - archived commits stay refused before unarchive and succeed with a newer version afterward
+  ---
+  duration_ms: 0.283666
+  type: 'test'
+  ...
+# Subtest: simultaneous renames produce one winner and one VERSION_CONFLICT without a duplicate event
+ok 22 - simultaneous renames produce one winner and one VERSION_CONFLICT without a duplicate event
+  ---
+  duration_ms: 14.366833
+  type: 'test'
+  ...
+# Subtest: create, rename and archive append one whitelisted event each and archive hides the matter from the active list
+ok 23 - create, rename and archive append one whitelisted event each and archive hides the matter from the active list
+  ---
+  duration_ms: 1.996041
+  type: 'test'
+  ...
+# Subtest: V6-21-A01 inbox derives an accessible item whose root-cause fix resolves it
+ok 24 - V6-21-A01 inbox derives an accessible item whose root-cause fix resolves it
+  ---
+  duration_ms: 15.057208
+  type: 'test'
+  ...
+# Subtest: inbox ignores manually authored message rows and shows only derived domain conditions
+ok 25 - inbox ignores manually authored message rows and shows only derived domain conditions
+  ---
+  duration_ms: 0.476208
+  type: 'test'
+  ...
+# Subtest: empty, loading, error and retained states are distinguishable
+ok 26 - empty, loading, error and retained states are distinguishable
+  ---
+  duration_ms: 98.78025
+  type: 'test'
+  ...
+# Subtest: read cursor is per user; it does not change conflict state or matter version
+ok 27 - read cursor is per user; it does not change conflict state or matter version
+  ---
+  duration_ms: 5.110417
+  type: 'test'
+  ...
+# Subtest: pagination pages keep their existing results when a later list refresh fails
+ok 28 - pagination pages keep their existing results when a later list refresh fails
+  ---
+  duration_ms: 37.504
+  type: 'test'
+  ...
+# Subtest: read cursor belongs to the actor and leaves underlying open business condition unchanged
+ok 29 - read cursor belongs to the actor and leaves underlying open business condition unchanged
+  ---
+  duration_ms: 11.060958
+  type: 'test'
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 400.613833

@@ -1,0 +1,45 @@
+ M .planning/2026-10-30-patent-saas-v6/progress.md
+ M .planning/2026-10-30-patent-saas-v6/task_plan.md
+ M apps/web/src/v6/features/sources/Upload.tsx
+ M apps/web/src/v6/routes/V6App.tsx
+?? apps/web/src/v6/features/sources/Parse.tsx
+?? apps/web/src/v6/features/sources/parse.ts
+?? qa/v6/evidence/V6-11/01-create-matter.png
+?? qa/v6/evidence/V6-11/02-upload-text-appears-without-reload.png
+?? qa/v6/evidence/V6-11/03-upload-pdf-appears-without-reload.png
+?? qa/v6/evidence/V6-11/04-parse-both-to-parsed.png
+?? qa/v6/evidence/V6-11/05-reload-keeps-parsed.png
+?? qa/v6/evidence/V6-11/06-scanned-pdf-partial.png
+?? qa/v6/evidence/V6-11/07-legacy-doc-refused-at-upload.png
+?? qa/v6/evidence/V6-11/08-failed-parse-then-retry-new-job.png
+?? qa/v6/evidence/V6-11/09-interrupt-by-reload-then-resume.png
+?? qa/v6/evidence/V6-11/09a-running-before-reload.png
+?? qa/v6/evidence/V6-11/09b-interrupted-after-reload.png
+?? qa/v6/evidence/V6-11/10-interrupt-by-reload-then-abandon.png
+?? qa/v6/evidence/V6-11/10a-running-before-reload.png
+?? qa/v6/evidence/V6-11/10b-interrupted-after-reload.png
+?? qa/v6/evidence/V6-11/11-upload-during-parse-keeps-progress.png
+?? qa/v6/evidence/V6-11/12-duplicated-tab-does-not-interrupt.png
+?? qa/v6/evidence/V6-11/12a-duplicated-tab-both-running.png
+?? qa/v6/evidence/V6-11/12b-duplicated-tab-original-completed.png
+?? qa/v6/evidence/V6-11/browser-drive.mjs
+?? qa/v6/evidence/V6-11/browser-log.json
+?? qa/v6/evidence/V6-11/build.txt
+?? qa/v6/evidence/V6-11/receipt.json
+?? qa/v6/evidence/V6-11/regression.txt
+?? qa/v6/evidence/V6-11/review-01.md
+?? qa/v6/evidence/V6-11/review-02.md
+?? qa/v6/evidence/V6-11/runner.tap
+?? qa/v6/evidence/V6-11/scope.txt
+?? qa/v6/evidence/V6-11/typecheck.txt
+?? qa/v6/scenarios/V6-11/fixtures/generate.mjs
+?? qa/v6/scenarios/V6-11/fixtures/legacy-doc.doc
+?? qa/v6/scenarios/V6-11/fixtures/plain-docx.docx
+?? qa/v6/scenarios/V6-11/fixtures/plain-text.txt
+?? qa/v6/scenarios/V6-11/fixtures/scan-no-text-layer.pdf
+?? qa/v6/scenarios/V6-11/fixtures/scanned-page-note.txt
+?? qa/v6/scenarios/V6-11/fixtures/text-two-pages.pdf
+?? qa/v6/scenarios/V6-11/fixtures/verify-fixtures.mjs
+?? qa/v6/scenarios/V6-11/harness.mjs
+?? qa/v6/scenarios/V6-11/parse-engine.test.mjs
+?? qa/v6/scenarios/V6-11/parse-ui.test.mjs

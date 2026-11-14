@@ -1,0 +1,65 @@
+{
+  "ok": true,
+  "url": "http://127.0.0.1:4177/qa/v6/evidence/V6-23/browser-mount.html",
+  "steps": [
+    {
+      "step": "01-checks-ready-four-groups",
+      "ok": true
+    },
+    {
+      "step": "02-risk-ack-callback-once",
+      "ackCalls": 1,
+      "ok": true
+    },
+    {
+      "step": "03-rerun-retains-results-and-deduplicates",
+      "runCalls": 1,
+      "ok": true
+    },
+    {
+      "step": "04-failed-rerun-keeps-old-result-and-error-code",
+      "ok": true
+    },
+    {
+      "step": "05-stale-snapshot-requires-rerun",
+      "ok": true
+    },
+    {
+      "step": "06-stale-rule-pack-requires-rerun",
+      "ok": true
+    },
+    {
+      "step": "07-no-external-network-or-console-errors",
+      "ok": true
+    }
+  ],
+  "screenshots": [
+    "01-checks-ready.png",
+    "02-checks-rerunning.png",
+    "03-checks-error-retains-previous.png",
+    "04-checks-stale.png"
+  ],
+  "consoleErrors": [],
+  "network": [
+    "http://127.0.0.1:4177/qa/v6/evidence/V6-23/browser-mount.html",
+    "http://127.0.0.1:4177/@vite/client",
+    "http://127.0.0.1:4177/qa/v6/evidence/V6-23/browser-mount.html?html-proxy&index=0.js",
+    "http://127.0.0.1:4177/apps/web/src/styles.css",
+    "http://127.0.0.1:4177/apps/web/src/v6/styles/theme.css",
+    "http://127.0.0.1:4177/apps/web/src/v6/routes/v6.css",
+    "http://127.0.0.1:4177/node_modules/.vite/deps/react.js?v=0059fee2",
+    "http://127.0.0.1:4177/node_modules/.vite/deps/react-dom_client.js?v=0059fee2",
+    "http://127.0.0.1:4177/apps/web/src/v6/features/checks/Checks.tsx",
+    "http://127.0.0.1:4177/packages/domain/src/v6/checks.ts",
+    "http://127.0.0.1:4177/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0059fee2",
+    "http://127.0.0.1:4177/packages/contracts/src/draft.ts",
+    "http://127.0.0.1:4177/node_modules/.vite/deps/chunk-ETMAEK6N.js?v=0059fee2",
+    "http://127.0.0.1:4177/node_modules/.vite/deps/chunk-BO4YYYGR.js?v=0059fee2",
+    "http://127.0.0.1:4177/@fs/Users/jared/Personal%20Projects/Patent/node_modules/vite/dist/client/env.mjs",
+    "http://127.0.0.1:4177/node_modules/.vite/deps/zod.js?v=0059fee2",
+    "http://127.0.0.1:4177/packages/contracts/src/primitives.ts",
+    "http://127.0.0.1:4177/packages/contracts/src/matter.ts",
+    "http://127.0.0.1:4177/favicon.ico"
+  ],
+  "externalRequests": []
+}

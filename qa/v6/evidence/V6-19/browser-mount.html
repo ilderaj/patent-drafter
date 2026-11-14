@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>V6-19 合成浏览器挂载</title>
+  </head>
+  <body>
+    <main class="v6-page">
+      <div id="draft-root"></div>
+    </main>
+    <script type="module">
+      import React from "react";
+      import { createRoot } from "react-dom/client";
+      import "/apps/web/src/styles.css";
+      import "/apps/web/src/v6/styles/theme.css";
+      import "/apps/web/src/v6/routes/v6.css";
+      import { CONTRACT_VERSION, STORES, openLocalRepository } from "/apps/web/src/v6/lib/repository.ts";
+      import { createGenerationRevisionStore } from "/apps/web/src/v6/features/generation/generation.ts";
+      import { DraftEditor } from "/apps/web/src/v6/features/draft/Editor.tsx";
+      import { DraftReviewPanel, DraftReviewPanelView } from "/apps/web/src/v6/features/draft/Review.tsx";
+      import { sourceIdFor } from "/apps/web/src/v6/features/sources/parse.ts";
+
+      const actor = {
+        tenantId: "11111111-1111-4111-8111-111111111111",
+        userId: "22222222-2222-4222-8222-222222222222",
+      };
+      const matterId = "33333333-3333-4333-8333-333333333333";
+      const targetId = "44444444-4444-4444-8444-444444444444";
+      const figureRevisionId = "55555555-5555-4555-8555-555555555555";
+      const claimId = "66666666-6666-4666-8666-666666666661";
+      const paragraphId = "77777777-7777-4777-8777-777777777771";
+      const featureId = "88888888-8888-4888-8888-888888888881";
+      const factId = "99999999-9999-4999-8999-999999999991";
+      const assetId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1";
+      const chunkId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1";
+      const generationJobId = "cccccccc-cccc-4ccc-8ccc-ccccccccccc1";
+      const chunkHash = "8c4525b1d47550a878e60c9d4ff3f0593c0004aed07799aa243c046afdf8d5e9";
+      const chunkText = "温控装置接收热量信号";
+      const now = "2026-11-05T12:00:00.000Z";
+
+      class MemoryBackend {
+        constructor() {
+          this.data = new Map(Object.values(STORES).map((name) => [name, new Map()]));
+          this.queue = Promise.resolve();
+        }
+        transaction(mode, run) {
+          if (mode !== "readwrite") return this.run(run);
+          const next = this.queue.then(() => this.run(run));
+          this.queue = next.then(() => undefined, () => undefined);
+          return next;
+        }
+        async run(run) {
+          const before = new Map([...this.data].map(([name, store]) => [name, new Map(store)]));
+          const tx = {
+            get: async (store, key) => {
+              const value = this.data.get(store).get(key);
+              return value === undefined ? undefined : structuredClone(value);
+            },
+            put: async (store, key, value) => this.data.get(store).set(key, structuredClone(value)),
+            delete: async (store, key) => this.data.get(store).delete(key),
+            getAll: async (store) => [...this.data.get(store).values()].map((value) => structuredClone(value)),
+            getAllByIndex: async (store, index, value) => [...this.data.get(store).values()]
+              .filter((row) => row && typeof row === "object" && row[index] === value)
+              .map((row) => structuredClone(row)),
+          };
+          try { return await run(tx); }
+          catch (error) { this.data = before; throw error; }
+        }
+        close() {}
+      }
+
+      let revisionIdSequence = 0;
+      let confirmationIdSequence = 0;
+      const revisionId = () => `dddddddd-dddd-4ddd-8ddd-${String(++revisionIdSequence).padStart(12, "0")}`;
+      const confirmationId = () => `eeeeeeee-eeee-4eee-8eee-${String(++confirmationIdSequence).padStart(12, "0")}`;
+
+      async function main() {
+        const backend = new MemoryBackend();
+        const repository = openLocalRepository(backend);
+        const sourceId = await sourceIdFor(assetId);
+        const sourceRef = { sourceId, chunkId, chunkHash, page: 1, start: 6, end: 8, quote: "热量" };
+        const committed = await repository.commit(actor, {
+          contractVersion: CONTRACT_VERSION,
+          expectedVersion: 0,
+          payload: {
+            matter: { id: matterId, tenantId: actor.tenantId, version: 1, title: "合成温控案件", status: "active", sourceVersion: 1, createdBy: actor.userId, createdAt: now, updatedAt: now },
+            targets: [{ id: targetId, matterId, status: "active", configVersion: 1, draftRevisionId: null, figureRevisionId }],
+            assets: [{ id: assetId, tenantId: actor.tenantId, matterId, serviceOrderId: null, purpose: "source", originalName: "synthetic-source.txt", mime: "text/plain", byteLength: 32, sha256: "c".repeat(64), state: "available", objectKey: `synthetic/${assetId}`, createdAt: now }],
+            events: [], blobs: [],
+          },
+        }, { requestId: "ffffffff-ffff-4fff-8fff-fffffffffff1" });
+        if (!committed.ok) throw new Error(committed.error.message);
+
+        const fact = { id: factId, statement: "温控装置接收热量信号", kind: "structure", status: "source_backed", refs: [sourceRef], confirmedBy: actor.userId, confirmedAt: now };
+        const sourceSnapshot = {
+          matterId, version: 1, sourceIds: [sourceId], facts: [fact], conflicts: [],
+          answers: { problem: "", difference: "", inventorIds: [], disclosure: null, maturity: null, disclosureDetail: null },
+          parties: [], createdBy: actor.userId, createdAt: now,
+        };
+        await backend.transaction("readwrite", async (tx) => {
+          await tx.put(STORES.blobs, `intake/snapshot/${matterId}/1`, { kind: "intake.snapshot", snapshot: sourceSnapshot });
+          await tx.put(STORES.blobs, `parse/source/${sourceId}`, {
+            kind: "parse.source",
+            source: { id: sourceId, matterId, assetId, retiredAt: null, parseStatus: "parsed", parserVersion: "synthetic-v1", pageCount: 1, ocrNeeded: false },
+            currentJobId: null, jobIds: [], chunkSets: [{ parserVersion: "synthetic-v1", jobId: generationJobId, chunkCount: 1 }],
+          });
+          await tx.put(STORES.blobs, `parse/chunks/${sourceId}/synthetic-v1`, {
+            kind: "parse.chunks", sourceId, parserVersion: "synthetic-v1", jobId: generationJobId, pageCount: 1, createdAt: now,
+            chunks: [{ id: chunkId, sourceId, parserVersion: "synthetic-v1", index: 0, kind: "paragraph", text: chunkText, hash: chunkHash, page: 1, rect: null, ocrConfidence: null }],
+          });
+        });
+
+        const ast = {
+          schemaVersion: "draft.v1", language: "zh-CN", title: "合成温控草稿",
+          claims: [{
+            id: claimId, number: 1, dependsOn: [],
+            paragraphs: [{ id: paragraphId, text: "温控装置接收热量信号。", origin: "ai", sourceRefs: [sourceRef], factIds: [factId], figureIds: [], generationJobId }],
+            features: [{ id: featureId, text: "温控装置", factIds: [factId], supportParagraphIds: [paragraphId], status: "supported" }],
+          }],
+          sections: [],
+        };
+        const revisions = createGenerationRevisionStore({
+          repository, actor, now: () => new Date(now), newId: revisionId,
+        });
+        const saved = await revisions.saveEditedRevision(matterId, targetId, null, ast);
+        if (!saved.ok) throw new Error(saved.error.message);
+        const foreignConfirmationId = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeee77";
+        window.__v619 = {
+          revisionId: saved.data.id,
+          paragraphId,
+          featureId,
+          claimId,
+          actorId: actor.userId,
+          sourceId,
+          chunkId,
+          foreignConfirmationId,
+        };
+        window.__v619.injectForeignConfirmation = async () => {
+          const key = `draft-review/confirmations/${encodeURIComponent(actor.tenantId)}/${encodeURIComponent(actor.userId)}/${matterId}`;
+          const snapshot = {
+            matterId,
+            targetId,
+            sourceVersion: 1,
+            targetConfigVersion: 1,
+            draftRevisionId: saved.data.id,
+            figureRevisionId,
+          };
+          await backend.transaction("readwrite", async (tx) => {
+            const existing = await tx.get(STORES.blobs, key);
+            const ledger = existing?.ledger ?? { matterId, confirmations: [], revocations: [] };
+            ledger.confirmations.push({
+              id: foreignConfirmationId,
+              snapshot,
+              actorId: "99999999-9999-4999-8999-999999999999",
+              identity: "authenticated",
+              kind: "ai_paragraph",
+              paragraphId,
+              riskId: null,
+              checkRunId: null,
+              createdAt: now,
+            });
+            await tx.put(STORES.blobs, key, {
+              kind: "draft-review.confirmations",
+              tenantId: actor.tenantId,
+              actorId: actor.userId,
+              matterId,
+              ledger,
+            });
+          });
+          return foreignConfirmationId;
+        };
+        window.__v619.mountRejectingCallbackPanel = () => {
+          const snapshot = {
+            matterId,
+            targetId,
+            sourceVersion: 1,
+            targetConfigVersion: 1,
+            draftRevisionId: saved.data.id,
+            figureRevisionId,
+          };
+          const rejectionConfirmationId = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeee88";
+          const rejectionState = {
+            phase: "ready",
+            revision: { revision: saved.data, ast },
+            snapshot,
+            currentSnapshot: snapshot,
+            isCurrent: true,
+            supportRows: [],
+            locators: [],
+            ledger: {
+              matterId,
+              confirmations: [{
+                id: rejectionConfirmationId,
+                snapshot,
+                actorId: actor.userId,
+                identity: "local_self_reported",
+                kind: "ai_paragraph",
+                paragraphId,
+                riskId: null,
+                checkRunId: null,
+                createdAt: now,
+              }],
+              revocations: [],
+            },
+            error: null,
+          };
+          const host = document.createElement("div");
+          host.id = "rejecting-review-root";
+          document.body.appendChild(host);
+          createRoot(host).render(React.createElement(DraftReviewPanelView, {
+            state: rejectionState,
+            onRefresh() {},
+            onConfirm() {},
+            onRevoke: () => Promise.reject(new Error("synthetic rejected revoke callback")),
+          }));
+          return rejectionConfirmationId;
+        };
+        const risks = [{
+          id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb9",
+          category: "risk",
+          title: "合成支持风险",
+          explanation: "核对合成段落与来源依据。",
+          ruleId: "synthetic.review.focus",
+          requiresAcknowledgement: false,
+          anchor: { nodeId: featureId, section: "claims", locked: false },
+        }];
+
+        createRoot(document.getElementById("draft-root")).render(React.createElement("div", { className: "stack-3" },
+          React.createElement(DraftEditor, { repository, actor, matterId, targetId, revisions }),
+          React.createElement(DraftReviewPanel, { repository, actor, matterId, targetId, revisions, newId: confirmationId, now: () => now, risks }),
+        ));
+      }
+
+      main().catch((error) => {
+        document.getElementById("draft-root").textContent = `浏览器挂载失败：${error.message}`;
+        window.__draftReviewMountError = String(error);
+      });
+    </script>
+  </body>
+</html>

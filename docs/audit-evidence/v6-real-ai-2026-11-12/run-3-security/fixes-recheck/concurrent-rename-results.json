@@ -1,0 +1,36 @@
+{
+  "checks": 6,
+  "failures": [],
+  "results": [
+    {
+      "name": "two-matters-created",
+      "ok": true,
+      "detail": "matters=2"
+    },
+    {
+      "name": "version-before",
+      "ok": true,
+      "detail": "matter.version=1"
+    },
+    {
+      "name": "concurrent-rename-outcomes",
+      "ok": true,
+      "detail": "A错误='' B错误='无法读取或保存。\\n标题已在其他窗口修改，请刷新后重试。\\n重试'"
+    },
+    {
+      "name": "conflict-message-is-specific",
+      "ok": true,
+      "detail": "specific=True generic=False"
+    },
+    {
+      "name": "version-incremented-once",
+      "ok": true,
+      "detail": "version 1 -> 2"
+    },
+    {
+      "name": "final-title-is-one-of-the-two",
+      "ok": true,
+      "detail": "并发A-1794591238 / 尚无目标 · 进行中 · 更新 2026/11/14 01:33:58 · 本机用户 / 技术详情 / 补充材料或事实 / 打开工作台 / 重命名 / 归档"
+    }
+  ]
+}

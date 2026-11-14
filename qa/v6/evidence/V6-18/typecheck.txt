@@ -1,0 +1,2 @@
+command=./node_modules/.bin/tsc -p apps/web/tsconfig.json --noEmit
+exitCode=0

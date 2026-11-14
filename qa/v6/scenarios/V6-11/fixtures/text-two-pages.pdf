@@ -1,0 +1,130 @@
+%PDF-1.7
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [9 0 R 11 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type0 /BaseFont /V6Synthetic /Encoding /Identity-H /DescendantFonts [5 0 R] /ToUnicode 6 0 R >>
+endobj
+4 0 obj
+<< /Type /FontDescriptor /FontName /V6Synthetic /Flags 4 /FontBBox [0 -200 1000 900] /ItalicAngle 0 /Ascent 880 /Descent -200 /CapHeight 700 /StemV 80 >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /CIDFontType2 /BaseFont /V6Synthetic /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor 4 0 R /DW 1000 >>
+endobj
+6 0 obj
+<< /Length 1038 >>
+stream
+/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def
+/CMapName /Adobe-Identity-UCS def
+/CMapType 2 def
+1 begincodespacerange
+<0000> <FFFF>
+endcodespacerange
+51 beginbfchar
+<0056> <0056>
+<0036> <0036>
+<002D> <002D>
+<0031> <0031>
+<0020> <0020>
+<0073> <0073>
+<0079> <0079>
+<006E> <006E>
+<0074> <0074>
+<0068> <0068>
+<0065> <0065>
+<0069> <0069>
+<0063> <0063>
+<0078> <0078>
+<0050> <0050>
+<0044> <0044>
+<0046> <0046>
+<002C> <002C>
+<0070> <0070>
+<0061> <0061>
+<0067> <0067>
+<006F> <006F>
+<002E> <002E>
+<6BCF> <6BCF>
+<9875> <9875>
+<90FD> <90FD>
+<6709> <6709>
+<6587> <6587>
+<5B57> <5B57>
+<5C42> <5C42>
+<FF0C> <FF0C>
+<6BB5> <6BB5>
+<843D> <843D>
+<53EF> <53EF>
+<5B9A> <5B9A>
+<4F4D> <4F4D>
+<3002> <3002>
+<0053> <0053>
+<0064> <0064>
+<0066> <0066>
+<0072> <0072>
+<006C> <006C>
+<7B2C> <7B2C>
+<4E8C> <4E8C>
+<7528> <7528>
+<6765> <6765>
+<9A8C> <9A8C>
+<8BC1> <8BC1>
+<7801> <7801>
+<5F52> <5F52>
+<5C5E> <5C5E>
+endbfchar
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+end
+endstream
+endobj
+7 0 obj
+
+endobj
+8 0 obj
+<< /Length 259 >>
+stream
+BT /F1 12 Tf 72 720 Td <00560036002D00310031002000730079006E007400680065007400690063002000740065007800740020005000440046002C002000700061006700650020006F006E0065002E> Tj ET
+BT /F1 12 Tf 72 700 Td <6BCF987590FD670965875B575C42FF0C6BB5843D53EF5B9A4F4D3002> Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 211 >>
+stream
+BT /F1 12 Tf 72 720 Td <005300650063006F006E00640020007000610067006500200066006F00720020006C006F006300610074006F00720073002E> Tj ET
+BT /F1 12 Tf 72 700 Td <7B2C4E8C9875752867659A8C8BC1987578015F525C5E3002> Tj ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 10 0 R >>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000128 00000 n 
+0000000264 00000 n 
+0000000433 00000 n 
+0000000617 00000 n 
+0000001707 00000 n 
+0000001723 00000 n 
+0000002033 00000 n 
+0000002159 00000 n 
+0000002422 00000 n 
+trailer
+<< /Size 12 /Root 1 0 R >>
+startxref
+2550
+%%EOF

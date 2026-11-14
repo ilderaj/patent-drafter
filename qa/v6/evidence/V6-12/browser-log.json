@@ -1,0 +1,664 @@
+{
+  "base": "http://127.0.0.1:4176/patent",
+  "matterId": "e8c86d4e-f603-4347-918e-62b47b5196ac",
+  "fixtures": {
+    "png": "合成-附图.png",
+    "jpg": "合成-附图.jpg",
+    "corrupt": "合成-损坏.png",
+    "big": "合成-17MP.png",
+    "progressive": "合成-渐进式.jpg",
+    "notImage": "合成-不是图片.png"
+  },
+  "notReachable": [
+    {
+      "state": "figures-set / figures-gate-blocked / figures-set-missing (target-bound panel)",
+      "reason": "Requires a target. No ticket before V6-12 creates one and the UI has no target command, so targetId is null on both pages. Not faked; the run asserts an unknown target URL is refused with 案件不可用."
+    },
+    {
+      "state": "figures-stale",
+      "reason": "Requires draftFigureRevisionId. V6App passes none (there is no draft store yet), so the panel never claims a draft is stale. Not injected."
+    },
+    {
+      "state": "figures-action-error INPUT_STALE",
+      "reason": "Requires binding a figure set to a target; the library-only surface cannot reach it."
+    },
+    {
+      "state": "figures-failed / figures-load-error (STORAGE_UNAVAILABLE)",
+      "reason": "Requires a repository read fault. The shell renders its own unavailable page before the panel mounts, and the run may not inject storage faults. Covered by the unit/UI-render tests in the suite."
+    }
+  ],
+  "consoleErrors": [],
+  "steps": [
+    {
+      "step": "01-create-matter-sources-tab",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "empty",
+          "empty": "附图库里还没有图。导入 PNG 或 JPEG 后才能编入图集。",
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": null,
+          "importInput": true
+        },
+        "rows": [],
+        "unavailable": null
+      },
+      "notes": {
+        "matterId": "e8c86d4e-f603-4347-918e-62b47b5196ac",
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "tab": "材料"
+      }
+    },
+    {
+      "step": "02-empty-drawings-state",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "empty",
+          "empty": "附图库里还没有图。导入 PNG 或 JPEG 后才能编入图集。",
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": null,
+          "importInput": true
+        },
+        "rows": [],
+        "unavailable": null
+      },
+      "notes": {
+        "figuresKind": "empty",
+        "db": {
+          "matterVersion": 1,
+          "eventCount": 1,
+          "drawingAssets": 0,
+          "drawingAssetIds": [],
+          "drawingRows": 0,
+          "drawingRowIds": [],
+          "drawingBlobs": 0,
+          "revisionRows": 0
+        }
+      }
+    },
+    {
+      "step": "03-import-png-and-jpeg-without-reload",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "library",
+          "empty": null,
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": null,
+          "importInput": true
+        },
+        "rows": [
+          {
+            "id": "0b94f32c-0138-563d-899b-2d046cbec642",
+            "name": "合成-附图.png",
+            "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+            "bound": false,
+            "canDelete": true
+          },
+          {
+            "id": "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "name": "合成-附图.jpg",
+            "detail": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+            "bound": false,
+            "canDelete": true
+          }
+        ],
+        "unavailable": null
+      },
+      "notes": {
+        "png": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+        "jpeg": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+        "marker": "s1",
+        "db": {
+          "matterVersion": 3,
+          "eventCount": 3,
+          "drawingAssets": 2,
+          "drawingAssetIds": [
+            "31d67191-1bfb-582e-89c6-774bb89bc806",
+            "e226ad30-885d-53e5-8e8a-ed719fe8b9ee"
+          ],
+          "drawingRows": 2,
+          "drawingRowIds": [
+            "0b94f32c-0138-563d-899b-2d046cbec642",
+            "fa16e03f-ca64-551d-80ee-caf42920aaa0"
+          ],
+          "drawingBlobs": 2,
+          "revisionRows": 0
+        }
+      }
+    },
+    {
+      "step": "04-reload-keeps-drawings",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "library",
+          "empty": null,
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": null,
+          "importInput": true
+        },
+        "rows": [
+          {
+            "id": "0b94f32c-0138-563d-899b-2d046cbec642",
+            "name": "合成-附图.png",
+            "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+            "bound": false,
+            "canDelete": true
+          },
+          {
+            "id": "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "name": "合成-附图.jpg",
+            "detail": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+            "bound": false,
+            "canDelete": true
+          }
+        ],
+        "unavailable": null
+      },
+      "notes": {
+        "before": [
+          [
+            "0b94f32c-0138-563d-899b-2d046cbec642",
+            "合成-附图.png",
+            "128 × 96 · PNG · 36.2 KB · ff59bad3618f"
+          ],
+          [
+            "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "合成-附图.jpg",
+            "40 × 16 · JPEG · 143 B · 5195c0f8c367"
+          ]
+        ],
+        "after": [
+          [
+            "0b94f32c-0138-563d-899b-2d046cbec642",
+            "合成-附图.png",
+            "128 × 96 · PNG · 36.2 KB · ff59bad3618f"
+          ],
+          [
+            "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "合成-附图.jpg",
+            "40 × 16 · JPEG · 143 B · 5195c0f8c367"
+          ]
+        ]
+      }
+    },
+    {
+      "step": "05a-corrupt-png-refused",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "library",
+          "empty": null,
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": {
+            "code": "BAD_DRAWING",
+            "text": "未保存PNG 的图像数据无法解压，文件已损坏。（BAD_DRAWING）"
+          },
+          "importInput": true
+        },
+        "rows": [
+          {
+            "id": "0b94f32c-0138-563d-899b-2d046cbec642",
+            "name": "合成-附图.png",
+            "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+            "bound": false,
+            "canDelete": true
+          },
+          {
+            "id": "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "name": "合成-附图.jpg",
+            "detail": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+            "bound": false,
+            "canDelete": true
+          }
+        ],
+        "unavailable": null
+      },
+      "notes": {
+        "code": "BAD_DRAWING",
+        "notice": "未保存PNG 的图像数据无法解压，文件已损坏。（BAD_DRAWING）",
+        "rows": 2,
+        "db": {
+          "matterVersion": 3,
+          "eventCount": 3,
+          "drawingAssets": 2,
+          "drawingAssetIds": [
+            "31d67191-1bfb-582e-89c6-774bb89bc806",
+            "e226ad30-885d-53e5-8e8a-ed719fe8b9ee"
+          ],
+          "drawingRows": 2,
+          "drawingRowIds": [
+            "0b94f32c-0138-563d-899b-2d046cbec642",
+            "fa16e03f-ca64-551d-80ee-caf42920aaa0"
+          ],
+          "drawingBlobs": 2,
+          "revisionRows": 0
+        }
+      }
+    },
+    {
+      "step": "05b-17mp-png-refused",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "library",
+          "empty": null,
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": {
+            "code": "IMAGE_TOO_LARGE",
+            "text": "未保存图片超过 16 MP 上限，请换原图，不会自动缩小。（IMAGE_TOO_LARGE）"
+          },
+          "importInput": true
+        },
+        "rows": [
+          {
+            "id": "0b94f32c-0138-563d-899b-2d046cbec642",
+            "name": "合成-附图.png",
+            "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+            "bound": false,
+            "canDelete": true
+          },
+          {
+            "id": "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "name": "合成-附图.jpg",
+            "detail": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+            "bound": false,
+            "canDelete": true
+          }
+        ],
+        "unavailable": null
+      },
+      "notes": {
+        "code": "IMAGE_TOO_LARGE",
+        "notice": "未保存图片超过 16 MP 上限，请换原图，不会自动缩小。（IMAGE_TOO_LARGE）",
+        "rows": 2,
+        "db": {
+          "matterVersion": 3,
+          "eventCount": 3,
+          "drawingAssets": 2,
+          "drawingAssetIds": [
+            "31d67191-1bfb-582e-89c6-774bb89bc806",
+            "e226ad30-885d-53e5-8e8a-ed719fe8b9ee"
+          ],
+          "drawingRows": 2,
+          "drawingRowIds": [
+            "0b94f32c-0138-563d-899b-2d046cbec642",
+            "fa16e03f-ca64-551d-80ee-caf42920aaa0"
+          ],
+          "drawingBlobs": 2,
+          "revisionRows": 0
+        }
+      }
+    },
+    {
+      "step": "05c-progressive-jpeg-refused",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "library",
+          "empty": null,
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": {
+            "code": "BAD_DRAWING",
+            "text": "未保存暂不支持渐进式 JPEG，请另存为基线 JPEG 或 PNG。（BAD_DRAWING）"
+          },
+          "importInput": true
+        },
+        "rows": [
+          {
+            "id": "0b94f32c-0138-563d-899b-2d046cbec642",
+            "name": "合成-附图.png",
+            "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+            "bound": false,
+            "canDelete": true
+          },
+          {
+            "id": "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "name": "合成-附图.jpg",
+            "detail": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+            "bound": false,
+            "canDelete": true
+          }
+        ],
+        "unavailable": null
+      },
+      "notes": {
+        "code": "BAD_DRAWING",
+        "notice": "未保存暂不支持渐进式 JPEG，请另存为基线 JPEG 或 PNG。（BAD_DRAWING）",
+        "rows": 2,
+        "db": {
+          "matterVersion": 3,
+          "eventCount": 3,
+          "drawingAssets": 2,
+          "drawingAssetIds": [
+            "31d67191-1bfb-582e-89c6-774bb89bc806",
+            "e226ad30-885d-53e5-8e8a-ed719fe8b9ee"
+          ],
+          "drawingRows": 2,
+          "drawingRowIds": [
+            "0b94f32c-0138-563d-899b-2d046cbec642",
+            "fa16e03f-ca64-551d-80ee-caf42920aaa0"
+          ],
+          "drawingBlobs": 2,
+          "revisionRows": 0
+        }
+      }
+    },
+    {
+      "step": "05d-not-an-image-refused",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "library",
+          "empty": null,
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": {
+            "code": "BAD_DRAWING",
+            "text": "未保存附图必须是 PNG 或 JPEG，改扩展名不会改变内容。（BAD_DRAWING）"
+          },
+          "importInput": true
+        },
+        "rows": [
+          {
+            "id": "0b94f32c-0138-563d-899b-2d046cbec642",
+            "name": "合成-附图.png",
+            "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+            "bound": false,
+            "canDelete": true
+          },
+          {
+            "id": "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "name": "合成-附图.jpg",
+            "detail": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+            "bound": false,
+            "canDelete": true
+          }
+        ],
+        "unavailable": null
+      },
+      "notes": {
+        "code": "BAD_DRAWING",
+        "notice": "未保存附图必须是 PNG 或 JPEG，改扩展名不会改变内容。（BAD_DRAWING）",
+        "rows": 2,
+        "db": {
+          "matterVersion": 3,
+          "eventCount": 3,
+          "drawingAssets": 2,
+          "drawingAssetIds": [
+            "31d67191-1bfb-582e-89c6-774bb89bc806",
+            "e226ad30-885d-53e5-8e8a-ed719fe8b9ee"
+          ],
+          "drawingRows": 2,
+          "drawingRowIds": [
+            "0b94f32c-0138-563d-899b-2d046cbec642",
+            "fa16e03f-ca64-551d-80ee-caf42920aaa0"
+          ],
+          "drawingBlobs": 2,
+          "revisionRows": 0
+        }
+      }
+    },
+    {
+      "step": "06-delete-and-reimport-new-id",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "library",
+          "empty": null,
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": null,
+          "importInput": true
+        },
+        "rows": [
+          {
+            "id": "0c9b14b6-d37f-55a5-8694-0d27b7ad97c0",
+            "name": "合成-附图.png",
+            "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+            "bound": false,
+            "canDelete": true
+          },
+          {
+            "id": "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "name": "合成-附图.jpg",
+            "detail": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+            "bound": false,
+            "canDelete": true
+          }
+        ],
+        "unavailable": null
+      },
+      "notes": {
+        "oldId": "0b94f32c-0138-563d-899b-2d046cbec642",
+        "newId": "0c9b14b6-d37f-55a5-8694-0d27b7ad97c0",
+        "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+        "orphanBytesKept": 2,
+        "blobsAfter": 3,
+        "matterVersionBefore": 3,
+        "matterVersionAfter": 5
+      }
+    },
+    {
+      "step": "07-duplicate-import-no-second-row",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "library",
+          "empty": null,
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": {
+            "code": "INVALID_INPUT",
+            "text": "未保存这张图已经在附图库里；删除后重新导入才会生成新版本。（INVALID_INPUT）"
+          },
+          "importInput": true
+        },
+        "rows": [
+          {
+            "id": "0c9b14b6-d37f-55a5-8694-0d27b7ad97c0",
+            "name": "合成-附图.png",
+            "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+            "bound": false,
+            "canDelete": true
+          },
+          {
+            "id": "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "name": "合成-附图.jpg",
+            "detail": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+            "bound": false,
+            "canDelete": true
+          }
+        ],
+        "unavailable": null
+      },
+      "notes": {
+        "code": "INVALID_INPUT",
+        "notice": "未保存这张图已经在附图库里；删除后重新导入才会生成新版本。（INVALID_INPUT）",
+        "rows": 2,
+        "sameName": 1
+      }
+    },
+    {
+      "step": "08-target-states-not-reachable",
+      "ok": true,
+      "state": {
+        "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+        "figures": {
+          "present": true,
+          "count": 1,
+          "kind": "library",
+          "empty": null,
+          "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+          "stale": null,
+          "set": null,
+          "setVersion": null,
+          "setEntries": 0,
+          "setMissing": null,
+          "gateBlocked": null,
+          "loadError": null,
+          "action": null,
+          "importInput": true
+        },
+        "rows": [
+          {
+            "id": "0c9b14b6-d37f-55a5-8694-0d27b7ad97c0",
+            "name": "合成-附图.png",
+            "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+            "bound": false,
+            "canDelete": true
+          },
+          {
+            "id": "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+            "name": "合成-附图.jpg",
+            "detail": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+            "bound": false,
+            "canDelete": true
+          }
+        ],
+        "unavailable": null
+      },
+      "notes": {
+        "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+        "unavailablePath": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/targets/99999999-9999-4999-8999-999999999999/sources",
+        "figuresOnUnavailable": 0,
+        "rows": 2
+      }
+    }
+  ],
+  "finalState": {
+    "path": "/patent/v6/matters/e8c86d4e-f603-4347-918e-62b47b5196ac/sources",
+    "figures": {
+      "present": true,
+      "count": 1,
+      "kind": "library",
+      "empty": null,
+      "noTarget": "案件还没有目标；目标建立后才能绑定图集。",
+      "stale": null,
+      "set": null,
+      "setVersion": null,
+      "setEntries": 0,
+      "setMissing": null,
+      "gateBlocked": null,
+      "loadError": null,
+      "action": null,
+      "importInput": true
+    },
+    "rows": [
+      {
+        "id": "0c9b14b6-d37f-55a5-8694-0d27b7ad97c0",
+        "name": "合成-附图.png",
+        "detail": "128 × 96 · PNG · 36.2 KB · ff59bad3618f",
+        "bound": false,
+        "canDelete": true
+      },
+      {
+        "id": "fa16e03f-ca64-551d-80ee-caf42920aaa0",
+        "name": "合成-附图.jpg",
+        "detail": "40 × 16 · JPEG · 143 B · 5195c0f8c367",
+        "bound": false,
+        "canDelete": true
+      }
+    ],
+    "unavailable": null
+  }
+}

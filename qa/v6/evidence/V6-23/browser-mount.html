@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="native" data-mode="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>V6-23 检查面板合成验收</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      import "../../../../apps/web/src/styles.css";
+      import "../../../../apps/web/src/v6/styles/theme.css";
+      import "../../../../apps/web/src/v6/routes/v6.css";
+      import * as React from "react";
+      import { createRoot } from "react-dom/client";
+      import { ChecksPanel } from "../../../../apps/web/src/v6/features/checks/Checks.tsx";
+      import { runChecks } from "../../../../packages/domain/src/v6/checks.ts";
+
+      const snapshot = {
+        matterId: "11111111-1111-4111-8111-111111111111",
+        targetId: "22222222-2222-4222-8222-222222222222",
+        sourceVersion: 1,
+        targetConfigVersion: 1,
+        draftRevisionId: "33333333-3333-4333-8333-333333333333",
+        figureRevisionId: "44444444-4444-4444-8444-444444444444",
+      };
+      const paragraph = (id, text) => ({ id, text, origin: "human", sourceRefs: [], factIds: [], figureIds: [], generationJobId: null });
+      const ast = {
+        schemaVersion: "draft.v1",
+        language: "zh-CN",
+        title: "合成结构装置",
+        claims: [],
+        sections: [
+          { kind: "technical_field", paragraphs: [paragraph("55555555-5555-4555-8555-555555555551", "合成技术领域")] },
+          { kind: "background", paragraphs: [paragraph("55555555-5555-4555-8555-555555555552", "合成背景")] },
+          { kind: "summary", paragraphs: [] },
+          { kind: "figures_description", paragraphs: [] },
+          { kind: "embodiments", paragraphs: [] },
+          { kind: "abstract", paragraphs: [paragraph("55555555-5555-4555-8555-555555555553", "合成摘要")] },
+        ],
+      };
+      const input = {
+        snapshot,
+        ast,
+        astValidation: { valid: true, issues: [] },
+        facts: [],
+        conflicts: [{ id: "66666666-6666-4666-8666-666666666661", factIds: ["77777777-7777-4777-8777-777777777771"], state: "open" }],
+        disclosure: "public_event",
+        figureSet: { id: snapshot.figureRevisionId, entries: [] },
+        assets: [],
+      };
+      const rulePack = {
+        version: "synthetic-rules-v1",
+        rules: [{
+          id: "SYNTH-LEGAL-001",
+          packVersion: "synthetic-rules-v1",
+          category: "blocker",
+          authority: "official",
+          verification: "verified",
+          jurisdiction: "cn_invention",
+          documentKind: "合成规则",
+          action: "export",
+          basisUrl: "https://example.invalid/synthetic-rule",
+          citation: "合成官方规则，未用于法律判断。",
+          effectiveFrom: "2026-01-01",
+          effectiveTo: null,
+          verifiedBy: null,
+          verifiedAt: null,
+          title: "未核实规则提示",
+          explanation: "此条来自合成测试规则。",
+          suggestedAction: "请人工核实规则文本。",
+          deterministicCheck: "always",
+        }],
+      };
+      let currentSnapshot = snapshot;
+      let activeRulePackVersion = rulePack.version;
+      let mode = "pending";
+      let releasePending;
+      let runCalls = 0;
+      let ackCalls = 0;
+      const initialResult = runChecks(input, rulePack, "2026-11-05T12:00:00.000Z");
+      const root = createRoot(document.getElementById("root"));
+      const render = () => root.render(React.createElement(ChecksPanel, {
+        input,
+        rulePack,
+        currentSnapshot,
+        activeRulePackVersion,
+        initialResult,
+        onRiskAck: () => { ackCalls += 1; window.__ackCalls = ackCalls; },
+        run: async (nextInput, nextPack, at) => {
+          runCalls += 1;
+          window.__runCalls = runCalls;
+          if (mode === "pending") await new Promise((resolve) => { releasePending = resolve; window.__releaseRun = resolve; });
+          if (mode === "fail") throw Object.assign(new Error("合成检查故障"), { code: "SYNTHETIC_CHECK_FAILURE" });
+          return runChecks(nextInput, nextPack, at);
+        },
+      }));
+      window.__setFailureMode = () => { mode = "fail"; };
+      window.__setStale = () => {
+        mode = "normal";
+        currentSnapshot = { ...snapshot, figureRevisionId: "88888888-8888-4888-8888-888888888888" };
+        render();
+      };
+      window.__setPackStale = () => {
+        mode = "normal";
+        activeRulePackVersion = "synthetic-rules-v2";
+        render();
+      };
+      window.__releasePendingRun = () => releasePending?.();
+      window.__readCounts = () => ({ runCalls, ackCalls });
+      render();
+    </script>
+  </body>
+</html>

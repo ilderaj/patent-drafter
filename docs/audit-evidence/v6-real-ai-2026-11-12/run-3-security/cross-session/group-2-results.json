@@ -1,0 +1,94 @@
+{
+  "checks": 17,
+  "failures": [],
+  "results": [
+    {
+      "name": "session-A-created",
+      "ok": true,
+      "detail": "POST /session -> 200"
+    },
+    {
+      "name": "status-A-session-id",
+      "ok": true,
+      "detail": "status=200 sessionId=a162cf898dac authenticated=True"
+    },
+    {
+      "name": "session-B-created",
+      "ok": true,
+      "detail": "POST /session -> 200"
+    },
+    {
+      "name": "status-B-session-id",
+      "ok": true,
+      "detail": "sessionId=f50f1a02be1b"
+    },
+    {
+      "name": "A-and-B-are-different-sessions",
+      "ok": true,
+      "detail": "A=a162cf898dac B=f50f1a02be1b"
+    },
+    {
+      "name": "A-consent-credential",
+      "ok": true,
+      "detail": "POST /consent -> 200 stages=13"
+    },
+    {
+      "name": "A-chat-positive",
+      "ok": true,
+      "detail": "status=200 upstream+=1"
+    },
+    {
+      "name": "B-with-A-credential-rejected",
+      "ok": true,
+      "detail": "status=409"
+    },
+    {
+      "name": "B-with-A-credential-no-upstream",
+      "ok": true,
+      "detail": "upstream+=0"
+    },
+    {
+      "name": "A-wrong-manifest-hash-rejected",
+      "ok": true,
+      "detail": "status=409"
+    },
+    {
+      "name": "A-wrong-manifest-hash-no-upstream",
+      "ok": true,
+      "detail": "upstream+=0"
+    },
+    {
+      "name": "A-wrong-profile-version-rejected",
+      "ok": true,
+      "detail": "status=409"
+    },
+    {
+      "name": "A-wrong-profile-version-no-upstream",
+      "ok": true,
+      "detail": "upstream+=0"
+    },
+    {
+      "name": "A-missing-credential-rejected",
+      "ok": true,
+      "detail": "status=409"
+    },
+    {
+      "name": "A-missing-credential-no-upstream",
+      "ok": true,
+      "detail": "upstream+=0"
+    },
+    {
+      "name": "A-unknown-stage-rejected",
+      "ok": true,
+      "detail": "status=400"
+    },
+    {
+      "name": "A-unknown-stage-no-upstream",
+      "ok": true,
+      "detail": "upstream+=0"
+    }
+  ],
+  "base": "http://127.0.0.1:8791",
+  "build": "85f1d738100cce87ca08023b373a407b74f54c77bd8bebb120465faa022fc084",
+  "scopeHashDigest": "f8a9f9481ecb"
+}

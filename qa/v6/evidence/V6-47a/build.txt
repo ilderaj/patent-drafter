@@ -1,0 +1,24 @@
+
+> build:v6-root
+> tsc --noEmit && V6_WEB_BASE=/ V6_WEB_OUTDIR=dist/v6 vite build && cp v6-deploy/_headers dist/v6/_headers && cp v6-deploy/_redirects dist/v6/_redirects
+
+vite v6.4.3 building for production...
+transforming...
+✓ 2234 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/v6/index.html                              0.79 kB │ gzip:   0.51 kB
+dist/v6/assets/pdf.worker.min-CLrFZWeq.mjs  1,312.45 kB
+dist/v6/assets/V6App-BKpE1eve.css              11.62 kB │ gzip:   2.81 kB
+dist/v6/assets/index-DdwQeOia.css              24.34 kB │ gzip:   4.95 kB
+dist/v6/assets/index-BBUFzeC4.js                1.13 kB │ gzip:   0.62 kB
+dist/v6/assets/assembly-Dh0EvDSW.js           439.79 kB │ gzip: 182.23 kB
+dist/v6/assets/index-_5MN80ZY.js              515.13 kB │ gzip: 162.53 kB
+dist/v6/assets/pdf.min-C5rkUzaZ.js            531.78 kB │ gzip: 160.74 kB
+dist/v6/assets/V6App-B33EB_87.js              742.24 kB │ gzip: 210.01 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.72s

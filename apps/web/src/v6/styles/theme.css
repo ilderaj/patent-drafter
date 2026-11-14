@@ -1,0 +1,390 @@
+/* ==========================================================================
+   V6-09 — v6 themes (S01 主题与设置).
+
+   Native light/dark is this period's visual acceptance target. Graphite,
+   Cyanotype and Celadon keep the historical v5 assets and selection values;
+   each palette is mapped onto the semantic tokens styles.css already uses, so
+   every component follows the selected theme without a second set of class
+   names. The attributes are set on <html> by styles/preferences.ts:
+
+     data-theme="native|graphite|cyan|celadon"
+     data-mode="light|dark"
+
+   Styles that need no mode (focus, reduced motion, the settings panel) live at
+   the end of this file.
+   ========================================================================== */
+
+/* ----- Native · light: system gray and blue from the V6 prototype. ----- */
+:root[data-theme="native"][data-mode="light"] {
+  color-scheme: light;
+  --background: #ececec;
+  --foreground: #1d1d1f;
+  --card: #ffffff;
+  --card-foreground: #1d1d1f;
+  --popover: #ffffff;
+  --popover-foreground: #1d1d1f;
+  --primary: #0a64d6;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #1d1d1f;
+  --muted: #e2e2e2;
+  --muted-foreground: #6a6a70;
+  --accent: #e1ecfb;
+  --accent-foreground: #1d1d1f;
+  --destructive: #c0261b;
+  --destructive-foreground: #ffffff;
+  --success: #237a3b;
+  --warning: #865600;
+  --border: #dadada;
+  --input: #bcbcbc;
+  --ring: #0a64d6;
+  --sidebar: #eeeeee;
+  --sidebar-foreground: #3a3a3c;
+  --sidebar-primary: #1d1d1f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-border: #dadada;
+  --sidebar-accent: #e1ecfb;
+  --sidebar-accent-foreground: #1d1d1f;
+  --sidebar-ring: #0a64d6;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --radius-sm: 6px;
+  --radius-m: 10px;
+  --radius-lg: 12px;
+  --radius: 10px;
+  --shadow-xs: 0 0.5px 1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.12);
+}
+
+/* ----- Native · dark ----- */
+:root[data-theme="native"][data-mode="dark"] {
+  color-scheme: dark;
+  --background: #1e1e1e;
+  --foreground: #ececec;
+  --card: #262626;
+  --card-foreground: #ececec;
+  --popover: #262626;
+  --popover-foreground: #ececec;
+  --primary: #4c9bf5;
+  --primary-foreground: #04111f;
+  --secondary: #2c2c2c;
+  --secondary-foreground: #ececec;
+  --muted: #191919;
+  --muted-foreground: #9c9c9c;
+  --accent: #1b2f48;
+  --accent-foreground: #ececec;
+  --destructive: #f28b82;
+  --destructive-foreground: #1e1e1e;
+  --success: #5fc27a;
+  --warning: #e0b04f;
+  --border: #383838;
+  --input: #525252;
+  --ring: #5aa2f5;
+  --sidebar: #262626;
+  --sidebar-foreground: #c9c9c9;
+  --sidebar-primary: #ececec;
+  --sidebar-primary-foreground: #1e1e1e;
+  --sidebar-border: #383838;
+  --sidebar-accent: #1b2f48;
+  --sidebar-accent-foreground: #ececec;
+  --sidebar-ring: #5aa2f5;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --radius-sm: 6px;
+  --radius-m: 10px;
+  --radius-lg: 12px;
+  --radius: 10px;
+  --shadow-xs: 0 0.5px 1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
+}
+
+/* ----- Graphite · light (v5 review.html) ----- */
+:root[data-theme="graphite"][data-mode="light"] {
+  color-scheme: light;
+  --background: #eef0f2;
+  --foreground: #15191e;
+  --card: #ffffff;
+  --card-foreground: #15191e;
+  --popover: #ffffff;
+  --popover-foreground: #15191e;
+  --primary: #1f4f86;
+  --primary-foreground: #ffffff;
+  --secondary: #f6f7f8;
+  --secondary-foreground: #15191e;
+  --muted: #e4e7ea;
+  --muted-foreground: #5a646f;
+  --accent: #e2eaf4;
+  --accent-foreground: #15191e;
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --success: #256640;
+  --warning: #835500;
+  --border: #d9dde2;
+  --input: #b5bdc6;
+  --ring: #2c6ecb;
+  --sidebar: #e8ebee;
+  --sidebar-foreground: #38414b;
+  --sidebar-primary: #15191e;
+  --sidebar-primary-foreground: #eef0f2;
+  --sidebar-border: #d9dde2;
+  --sidebar-accent: #e4e7ea;
+  --sidebar-accent-foreground: #15191e;
+  --sidebar-ring: #2c6ecb;
+  --radius-sm: 4px;
+  --radius-m: 6px;
+  --radius-lg: 10px;
+  --radius: 6px;
+  --shadow-xs: 0 1px 2px rgba(21, 25, 30, 0.05);
+  --shadow-md: 0 8px 24px -8px rgba(21, 25, 30, 0.12);
+}
+
+/* ----- Graphite · dark ----- */
+:root[data-theme="graphite"][data-mode="dark"] {
+  color-scheme: dark;
+  --background: #14171b;
+  --foreground: #e6e9ec;
+  --card: #1b1f24;
+  --card-foreground: #e6e9ec;
+  --popover: #1b1f24;
+  --popover-foreground: #e6e9ec;
+  --primary: #86b4ea;
+  --primary-foreground: #0b1520;
+  --secondary: #20252b;
+  --secondary-foreground: #e6e9ec;
+  --muted: #101317;
+  --muted-foreground: #929ca6;
+  --accent: #1c2d41;
+  --accent-foreground: #e6e9ec;
+  --destructive: #f2907f;
+  --destructive-foreground: #ffffff;
+  --success: #6cc591;
+  --warning: #e3b65b;
+  --border: #2c333b;
+  --input: #46505b;
+  --ring: #8cbcf2;
+  --sidebar: #171a1e;
+  --sidebar-foreground: #c3c9cf;
+  --sidebar-primary: #e6e9ec;
+  --sidebar-primary-foreground: #14171b;
+  --sidebar-border: #2c333b;
+  --sidebar-accent: #20252b;
+  --sidebar-accent-foreground: #e6e9ec;
+  --sidebar-ring: #8cbcf2;
+  --radius-sm: 4px;
+  --radius-m: 6px;
+  --radius-lg: 10px;
+  --radius: 6px;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
+}
+
+/* ----- Cyanotype · light (v5 review.html) ----- */
+:root[data-theme="cyan"][data-mode="light"] {
+  color-scheme: light;
+  --background: #e7edf3;
+  --foreground: #0d2238;
+  --card: #f7fafc;
+  --card-foreground: #0d2238;
+  --popover: #f7fafc;
+  --popover-foreground: #0d2238;
+  --primary: #0d5b8b;
+  --primary-foreground: #ffffff;
+  --secondary: #eef3f8;
+  --secondary-foreground: #0d2238;
+  --muted: #dae3ec;
+  --muted-foreground: #4c6681;
+  --accent: #dbeaf4;
+  --accent-foreground: #0d2238;
+  --destructive: #b0251d;
+  --destructive-foreground: #ffffff;
+  --success: #1d6a49;
+  --warning: #805500;
+  --border: #c3d1df;
+  --input: #8fa6be;
+  --ring: #1677b8;
+  --sidebar: #dfe7ef;
+  --sidebar-foreground: #24405e;
+  --sidebar-primary: #0d2238;
+  --sidebar-primary-foreground: #e7edf3;
+  --sidebar-border: #c3d1df;
+  --sidebar-accent: #dae3ec;
+  --sidebar-accent-foreground: #0d2238;
+  --sidebar-ring: #1677b8;
+  --radius-sm: 2px;
+  --radius-m: 3px;
+  --radius-lg: 8px;
+  --radius: 3px;
+  --shadow-xs: 0 1px 2px rgba(13, 34, 56, 0.05);
+  --shadow-md: 0 8px 24px -8px rgba(13, 34, 56, 0.12);
+}
+
+/* ----- Cyanotype · dark ----- */
+:root[data-theme="cyan"][data-mode="dark"] {
+  color-scheme: dark;
+  --background: #0b1d31;
+  --foreground: #e3edf7;
+  --card: #10263d;
+  --card-foreground: #e3edf7;
+  --popover: #10263d;
+  --popover-foreground: #e3edf7;
+  --primary: #5ccbea;
+  --primary-foreground: #03202c;
+  --secondary: #142e49;
+  --secondary-foreground: #e3edf7;
+  --muted: #081727;
+  --muted-foreground: #8ba7c2;
+  --accent: #113a52;
+  --accent-foreground: #e3edf7;
+  --destructive: #ff9284;
+  --destructive-foreground: #ffffff;
+  --success: #70d5a1;
+  --warning: #f1c263;
+  --border: #21436a;
+  --input: #386390;
+  --ring: #8fe0f7;
+  --sidebar: #09192a;
+  --sidebar-foreground: #bccfe2;
+  --sidebar-primary: #e3edf7;
+  --sidebar-primary-foreground: #0b1d31;
+  --sidebar-border: #21436a;
+  --sidebar-accent: #142e49;
+  --sidebar-accent-foreground: #e3edf7;
+  --sidebar-ring: #8fe0f7;
+  --radius-sm: 2px;
+  --radius-m: 3px;
+  --radius-lg: 8px;
+  --radius: 3px;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
+}
+
+/* ----- Celadon · light (v5 review.html) ----- */
+:root[data-theme="celadon"][data-mode="light"] {
+  color-scheme: light;
+  --background: #ecf0ed;
+  --foreground: #18211d;
+  --card: #fbfcfa;
+  --card-foreground: #18211d;
+  --popover: #fbfcfa;
+  --popover-foreground: #18211d;
+  --primary: #28656f;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f6f3;
+  --secondary-foreground: #18211d;
+  --muted: #e1e7e2;
+  --muted-foreground: #59685f;
+  --accent: #deebec;
+  --accent-foreground: #18211d;
+  --destructive: #a6311e;
+  --destructive-foreground: #ffffff;
+  --success: #2b6740;
+  --warning: #805509;
+  --border: #d2dbd4;
+  --input: #a9b8ad;
+  --ring: #2f7d8a;
+  --sidebar: #e4eae5;
+  --sidebar-foreground: #33403a;
+  --sidebar-primary: #18211d;
+  --sidebar-primary-foreground: #ecf0ed;
+  --sidebar-border: #d2dbd4;
+  --sidebar-accent: #e1e7e2;
+  --sidebar-accent-foreground: #18211d;
+  --sidebar-ring: #2f7d8a;
+  --radius-sm: 6px;
+  --radius-m: 10px;
+  --radius-lg: 12px;
+  --radius: 10px;
+  --shadow-xs: 0 1px 2px rgba(24, 33, 29, 0.05);
+  --shadow-md: 0 8px 24px -8px rgba(24, 33, 29, 0.12);
+}
+
+/* ----- Celadon · dark ----- */
+:root[data-theme="celadon"][data-mode="dark"] {
+  color-scheme: dark;
+  --background: #151b19;
+  --foreground: #e3eae6;
+  --card: #1b2320;
+  --card-foreground: #e3eae6;
+  --popover: #1b2320;
+  --popover-foreground: #e3eae6;
+  --primary: #7cc1c9;
+  --primary-foreground: #0c1e21;
+  --secondary: #212a26;
+  --secondary-foreground: #e3eae6;
+  --muted: #111614;
+  --muted-foreground: #8f9d96;
+  --accent: #1a3135;
+  --accent-foreground: #e3eae6;
+  --destructive: #ef907f;
+  --destructive-foreground: #ffffff;
+  --success: #79c48f;
+  --warning: #dfb661;
+  --border: #2d3833;
+  --input: #47564e;
+  --ring: #93d3da;
+  --sidebar: #121815;
+  --sidebar-foreground: #c0cbc5;
+  --sidebar-primary: #e3eae6;
+  --sidebar-primary-foreground: #151b19;
+  --sidebar-border: #2d3833;
+  --sidebar-accent: #212a26;
+  --sidebar-accent-foreground: #e3eae6;
+  --sidebar-ring: #93d3da;
+  --radius-sm: 6px;
+  --radius-m: 10px;
+  --radius-lg: 12px;
+  --radius: 10px;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
+}
+
+/* ----- Keyboard focus: same ring in every theme, visible over any surface. ----- */
+.v6-shell :focus-visible,
+.v6-choice:has(input:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ----- Reduced motion: the user's OS preference wins over every transition. ----- */
+@media (prefers-reduced-motion: reduce) {
+  .v6-shell *,
+  .v6-shell *::before,
+  .v6-shell *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ----- Settings · appearance panel ----- */
+.v6-appearance { display: flex; flex-direction: column; gap: var(--space-5); max-width: 760px; }
+.v6-field { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.v6-field legend { font-size: 13px; font-weight: 600; color: var(--foreground); padding: 0; margin-bottom: var(--space-2); }
+.v6-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-2); }
+.v6-choice {
+  display: flex; align-items: center; gap: var(--space-2);
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius-m);
+  padding: 10px var(--space-3); cursor: pointer;
+  font-size: 13px;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.v6-choice:hover { border-color: color-mix(in srgb, var(--border) 55%, var(--ring)); }
+.v6-choice:has(input:checked) {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+.v6-choice input { accent-color: var(--primary); margin: 0; width: 15px; height: 15px; flex: none; }
+.v6-choice input:focus-visible { outline: none; }
+.v6-appearance-status { margin: 0; font-size: 13px; color: var(--foreground); }
+.v6-save-state { margin: 0; font-size: 12px; }
+.v6-save-state[data-state="saved"] { color: var(--success); }
+.v6-save-state[data-state="failed"] { color: var(--destructive); }
+
+@media (max-width: 480px) {
+  .v6-choices { grid-template-columns: 1fr; }
+}

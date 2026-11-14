@@ -1,0 +1,467 @@
+{
+  "ticket": "V6-22",
+  "title": "专业工作台与活动",
+  "status": "accepted",
+  "review": {
+    "verdict": "accept",
+    "evidence": "qa/v6/evidence/V6-22/review-02.md",
+    "note": "Round 1 fixed target language, narrowed A02 to the public failure/retry path, and produced clean browser evidence; round 2 accepted. Final: 15/15, dependencies green, tsc/build 0."
+  },
+  "baseCommit": "58885452d0aa70f1467071ea31138004f827710f",
+  "candidateHeadCommit": "0890bae230fef44492a0b9dc6bb6ca6b5ecf588d",
+  "baselineManifestSha256": "d7a3fc337285b2ed63e1d6d6d9893e7f5a39da580a871516b1578c0905ccccf4",
+  "contractVersion": "v6.1",
+  "branch": "codex/v6-22-workbench",
+  "worktree": "/private/tmp/patent-v6-22-worktree",
+  "dependencies": [
+    {
+      "ticket": "V6-21",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-21/receipt.json"
+    },
+    {
+      "ticket": "V6-19",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-19/receipt.json"
+    },
+    {
+      "ticket": "V6-20",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-20/receipt.json"
+    },
+    {
+      "ticket": "V6-23",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-23/receipt.json"
+    },
+    {
+      "ticket": "V6-12",
+      "status": "accepted",
+      "evidence": "qa/v6/evidence/V6-12/receipt.json"
+    }
+  ],
+  "changedFiles": [
+    "apps/web/src/v6/features/workbench/ActivityFeed.tsx",
+    "apps/web/src/v6/features/workbench/Workbench.tsx",
+    "apps/web/src/v6/features/workbench/workbench.ts",
+    "qa/v6/evidence/V6-22/01-workbench-overview.png",
+    "qa/v6/evidence/V6-22/02-tab-sources.png",
+    "qa/v6/evidence/V6-22/03-tab-facts.png",
+    "qa/v6/evidence/V6-22/04-tab-draft.png",
+    "qa/v6/evidence/V6-22/05-tab-check.png",
+    "qa/v6/evidence/V6-22/06-tab-review.png",
+    "qa/v6/evidence/V6-22/07-tab-deliver.png",
+    "qa/v6/evidence/V6-22/08-tab-filing.png",
+    "qa/v6/evidence/V6-22/09-workbench-error.png",
+    "qa/v6/evidence/V6-22/browser-drive.mjs",
+    "qa/v6/evidence/V6-22/browser-log.json",
+    "qa/v6/evidence/V6-22/browser-mount.html",
+    "qa/v6/evidence/V6-22/browser-mount.tsx",
+    "qa/v6/evidence/V6-22/browser-run.txt",
+    "qa/v6/evidence/V6-22/build.txt",
+    "qa/v6/evidence/V6-22/regression-V6-06.txt",
+    "qa/v6/evidence/V6-22/regression-V6-08.txt",
+    "qa/v6/evidence/V6-22/regression-V6-10.txt",
+    "qa/v6/evidence/V6-22/regression-V6-12.txt",
+    "qa/v6/evidence/V6-22/regression-V6-14.txt",
+    "qa/v6/evidence/V6-22/regression-V6-15.txt",
+    "qa/v6/evidence/V6-22/regression-V6-16.txt",
+    "qa/v6/evidence/V6-22/regression-V6-17.txt",
+    "qa/v6/evidence/V6-22/regression-V6-18.txt",
+    "qa/v6/evidence/V6-22/regression-V6-19.txt",
+    "qa/v6/evidence/V6-22/regression-V6-20.txt",
+    "qa/v6/evidence/V6-22/regression-V6-21.txt",
+    "qa/v6/evidence/V6-22/regression-V6-23.txt",
+    "qa/v6/evidence/V6-22/regression-export.txt",
+    "qa/v6/evidence/V6-22/regression-worker.txt",
+    "qa/v6/evidence/V6-22/regression-workspace.txt",
+    "qa/v6/evidence/V6-22/regression.txt",
+    "qa/v6/evidence/V6-22/review-02.md",
+    "qa/v6/evidence/V6-22/runner.tap",
+    "qa/v6/evidence/V6-22/typecheck.txt",
+    "qa/v6/scenarios/V6-22/workbench.test.mjs"
+  ],
+  "scope": {
+    "porcelainEntries": 39,
+    "excluded": [
+      "node_modules"
+    ],
+    "changedFilesCount": 39,
+    "scopeMatchesChangedFiles": true,
+    "includedFiles": 39
+  },
+  "runs": [
+    {
+      "name": "V6-22 acceptance suite",
+      "command": "npm --prefix /private/tmp/patent-v6-22-worktree run test:v6 -- V6-22",
+      "exitCode": 0,
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skipped": 0,
+      "evidence": "qa/v6/evidence/V6-22/runner.tap"
+    },
+    {
+      "name": "direct web typecheck",
+      "command": "npm --prefix /private/tmp/patent-v6-22-worktree/apps/web run typecheck",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-22/typecheck.txt"
+    },
+    {
+      "name": "production build",
+      "command": "VITE_CACHE_DIR=/private/tmp/v6-22-vite-cache npm --prefix /private/tmp/patent-v6-22-worktree run build",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-22/build.txt",
+      "observed": "Built successfully; the existing Vite warning about minified chunks over 500 kB remains."
+    },
+    {
+      "name": "browser evidence",
+      "command": "VITE_CACHE_DIR=/private/tmp/v6-22-vite-cache node /private/tmp/patent-v6-22-worktree/qa/v6/evidence/V6-22/browser-drive.mjs /private/tmp/patent-v6-22-worktree/qa/v6/evidence/V6-22 http://127.0.0.1:4186/patent",
+      "exitCode": 0,
+      "steps": 9,
+      "passed": 9,
+      "consoleErrors": 0,
+      "externalRequests": 0,
+      "evidence": [
+        "qa/v6/evidence/V6-22/browser-run.txt",
+        "qa/v6/evidence/V6-22/browser-log.json"
+      ]
+    },
+    {
+      "name": "V6-06 repository regression",
+      "command": "npm run test:v6 -- V6-06",
+      "exitCode": 0,
+      "tests": 25,
+      "pass": 25,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-06.txt"
+    },
+    {
+      "name": "V6-08 routes regression",
+      "command": "npm run test:v6 -- V6-08",
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-08.txt"
+    },
+    {
+      "name": "V6-10 upload regression",
+      "command": "npm run test:v6 -- V6-10",
+      "exitCode": 0,
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-10.txt"
+    },
+    {
+      "name": "V6-12 figures regression",
+      "command": "npm run test:v6 -- V6-12",
+      "exitCode": 0,
+      "tests": 42,
+      "pass": 42,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-12.txt"
+    },
+    {
+      "name": "V6-14 targets regression",
+      "command": "npm run test:v6 -- V6-14",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-14.txt"
+    },
+    {
+      "name": "V6-15 confirmation/gate regression",
+      "command": "npm run test:v6 -- V6-15",
+      "exitCode": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-15.txt"
+    },
+    {
+      "name": "V6-16 AI regression",
+      "command": "npm run test:v6 -- V6-16",
+      "exitCode": 0,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-16.txt"
+    },
+    {
+      "name": "V6-17 generation regression",
+      "command": "npm run test:v6 -- V6-17",
+      "exitCode": 0,
+      "tests": 37,
+      "pass": 37,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-17.txt"
+    },
+    {
+      "name": "V6-18 editor regression",
+      "command": "npm run test:v6 -- V6-18",
+      "exitCode": 0,
+      "tests": 10,
+      "pass": 10,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-18.txt"
+    },
+    {
+      "name": "V6-19 review regression",
+      "command": "npm run test:v6 -- V6-19",
+      "exitCode": 0,
+      "tests": 16,
+      "pass": 16,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-19.txt"
+    },
+    {
+      "name": "V6-20 preview regression",
+      "command": "npm run test:v6 -- V6-20",
+      "exitCode": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-20.txt"
+    },
+    {
+      "name": "V6-21 matters/inbox regression",
+      "command": "npm run test:v6 -- V6-21",
+      "exitCode": 0,
+      "tests": 29,
+      "pass": 29,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-21.txt"
+    },
+    {
+      "name": "V6-23 checks regression",
+      "command": "npm run test:v6 -- V6-23",
+      "exitCode": 0,
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-V6-23.txt"
+    },
+    {
+      "name": "worker workspace regression",
+      "command": "npm run test -w apps/worker",
+      "exitCode": 0,
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-worker.txt"
+    },
+    {
+      "name": "export workspace regression",
+      "command": "npm run test -w packages/export",
+      "exitCode": 0,
+      "checks": 44,
+      "pass": 44,
+      "fail": 0,
+      "evidence": "qa/v6/evidence/V6-22/regression-export.txt"
+    },
+    {
+      "name": "workspace-wide test probe",
+      "command": "npm test --workspaces",
+      "exitCode": 1,
+      "status": "not_applicable",
+      "reason": "Several workspaces define no test script; the successful test-bearing workspaces are covered individually above.",
+      "evidence": "qa/v6/evidence/V6-22/regression-workspace.txt"
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "V6-22-A01",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-22",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-22/runner.tap; qa/v6/evidence/V6-22/browser-log.json",
+      "observed": "A self-service matter is opened through the same matter id with no new matter/event; the overview reads the existing record. Browser steps 01-08 cover overview plus the seven other tabs and assert the same data-matter-id throughout. The language probe confirms per-target route/language aggregation for two targets, including en-US."
+    },
+    {
+      "id": "V6-22-A02",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-22",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-22/runner.tap",
+      "observed": "Revoking target A's confirmation invalidates only A's approval; revision, figure, check and rule-pack changes recompute approval validity live with exact reasons. Activity rows derive their outcome from each stored action and the workbench never synthesizes an event: a job.failed row stays failed, and the V6-17 retry path is a distinct job id whose own job.succeeded row appears separately. The V6-17 regression suite also proves failed retry creates a new job (retryOfJobId set). No same-job terminal-transition enforcement is claimed."
+    },
+    {
+      "id": "V6-22-A03",
+      "status": "covered",
+      "command": "npm run test:v6 -- V6-22",
+      "exitCode": 0,
+      "evidence": "qa/v6/evidence/V6-22/runner.tap",
+      "observed": "Refresh/retry reloads the same matter state and keeps one confirmation and one event; repeated reads do not add duplicate activity. Activity loading, empty, error and stale states are explicitly rendered."
+    }
+  ],
+  "specAcceptance": [
+    {
+      "id": "S06-A01",
+      "status": "not_applicable",
+      "reason": "Empty-case-list entry behavior belongs to V6-21; V6-22 is entered with an existing matter and shows no demo data."
+    },
+    {
+      "id": "S06-A02",
+      "status": "covered",
+      "reason": "Open conflict outranks stale input in the shared next-action ordering (test).",
+      "evidence": "qa/v6/evidence/V6-22/runner.tap"
+    },
+    {
+      "id": "S06-A03",
+      "status": "covered",
+      "reason": "Revoking target A's AI confirmation makes A's approval invalid while B is unchanged (test).",
+      "evidence": "qa/v6/evidence/V6-22/runner.tap"
+    },
+    {
+      "id": "S06-A04",
+      "status": "not_applicable",
+      "reason": "Inbox read-cursor behavior is V6-21; V6-22 renders the matter workbench and activity, not the inbox."
+    },
+    {
+      "id": "S06-A05",
+      "status": "covered",
+      "reason": "Inaccessible matters and their activity are absent for the actor (test).",
+      "evidence": "qa/v6/evidence/V6-22/runner.tap"
+    },
+    {
+      "id": "S06-A06",
+      "status": "covered",
+      "reason": "Model activity shows job/provider/model metadata and excludes prompt/body metadata (test).",
+      "evidence": "qa/v6/evidence/V6-22/runner.tap"
+    },
+    {
+      "id": "S06-A07",
+      "status": "not_applicable",
+      "reason": "Visibility of suggested versus confirmed deadlines is inbox derivation tested by accepted V6-21; V6-22 does not implement inbox items."
+    },
+    {
+      "id": "S06-A08",
+      "status": "covered",
+      "reason": "Archived matter refuses a draft save with INVALID_TRANSITION; the overview derivation reports archived status (test).",
+      "evidence": "qa/v6/evidence/V6-22/runner.tap"
+    }
+  ],
+  "reviewFix": [
+    {
+      "id": "B1",
+      "status": "fixed",
+      "change": "Added TargetLanguage and language to WorkbenchTargetSummary, projected the current target config language (tenant/matter/target/configVersion scoped), added a 语言 column via exported TargetOverviewTable, and tested a zh-CN target plus an en-US target in both data and markup."
+    },
+    {
+      "id": "B2",
+      "status": "fixed",
+      "change": "Narrowed the claim to the real public path. The test records job.failed for one job, then job.succeeded for a distinct retry job id; both rows are rendered with their own outcomes. The workbench never creates events. No same-job terminal-transition guard is implemented or claimed; that seam remains a limitation."
+    },
+    {
+      "id": "B3",
+      "status": "fixed",
+      "change": "The browser mount creates one React root and reuses root.render with a keyed router for the missing-matter case. Final browser evidence is 9/9 steps, 0 console errors, 0 external requests."
+    },
+    {
+      "id": "B4",
+      "status": "fixed",
+      "change": "Regenerated V6-19 regression after de8247c: 16/16 pass. Added baselineManifestSha256 and mountHashes to this receipt and corrected the S06-A07 reason to the inbox/V6-21 boundary."
+    }
+  ],
+  "interface": {
+    "components": [
+      "ProfessionalWorkbench / TargetOverviewTable (Workbench.tsx)",
+      "ActivityFeed / ActivityFeedView (ActivityFeed.tsx)"
+    ],
+    "functions": [
+      "loadWorkbenchOverview",
+      "deriveWorkbenchOverview",
+      "loadActivityFeed",
+      "filterActivity",
+      "hasModelParticipation",
+      "activityOutcome",
+      "activityActionLabel",
+      "actorLabel",
+      "currentSnapshot",
+      "professionalMatterPath"
+    ],
+    "props": "ProfessionalWorkbench: repository, actor, matterId, targetId, tab, activeRulePackVersion?, generation?; ActivityFeed: repository, actor, currentMatterId; TargetOverviewTable: targets.",
+    "notes": "The workbench keeps matter/target/tab in the route and never copies a matter. Generation is only mounted when the owner supplies a configured engine; no test output or provider is enabled by default. Shared route/style registration remains orchestrator-owned."
+  },
+  "browserEvidence": {
+    "status": "run",
+    "driver": "qa/v6/evidence/V6-22/browser-drive.mjs",
+    "mount": "qa/v6/evidence/V6-22/browser-mount.html",
+    "mountModule": "qa/v6/evidence/V6-22/browser-mount.tsx",
+    "log": "qa/v6/evidence/V6-22/browser-log.json",
+    "run": "qa/v6/evidence/V6-22/browser-run.txt",
+    "result": "passed; 9/9 steps; 0 console errors; 0 external requests",
+    "server": "Vite dev server on 127.0.0.1:4186 with VITE_CACHE_DIR=/private/tmp/v6-22-vite-cache",
+    "browser": "Headless Google Chrome with a throwaway profile",
+    "fixtures": "Synthetic in-memory LocalRepository only; no customer files, network calls or provider calls.",
+    "screenshots": [
+      "qa/v6/evidence/V6-22/01-workbench-overview.png",
+      "qa/v6/evidence/V6-22/02-tab-sources.png",
+      "qa/v6/evidence/V6-22/03-tab-facts.png",
+      "qa/v6/evidence/V6-22/04-tab-draft.png",
+      "qa/v6/evidence/V6-22/05-tab-check.png",
+      "qa/v6/evidence/V6-22/06-tab-review.png",
+      "qa/v6/evidence/V6-22/07-tab-deliver.png",
+      "qa/v6/evidence/V6-22/08-tab-filing.png",
+      "qa/v6/evidence/V6-22/09-workbench-error.png"
+    ]
+  },
+  "mountHashes": {
+    "mode": "standalone evidence mount; no shared application route or style file changed",
+    "browser-mount.html": {
+      "path": "qa/v6/evidence/V6-22/browser-mount.html",
+      "sha256": "6c302ca2a8a075ed082489c70187a7a9cf7546d7fec2251bb37fe45b706c77ef"
+    },
+    "browser-mount.tsx": {
+      "path": "qa/v6/evidence/V6-22/browser-mount.tsx",
+      "sha256": "269371cbdb335a243aa7b48a50aade297b0c6082a453e4037fbd0c53f5c08550"
+    },
+    "unchangedSharedFiles": [
+      {
+        "path": "apps/web/src/v6/routes/V6App.tsx",
+        "sha256": "a7c8f51b3dbf3baa8ffd0d02a8e43c042538f53b23e1b2a310997ab1e4c93e37"
+      },
+      {
+        "path": "apps/web/src/v6/routes/navigation.ts",
+        "sha256": "aa30443e7927198743d1827ede3a0c2dcc20902661b358e00ef61ba1f0397951"
+      },
+      {
+        "path": "apps/web/src/v6/routes/v6.css",
+        "sha256": "90685ee819031b2d3a7ffe0f3d8e551828d485a5c570a68e797245ac86d8dba7"
+      }
+    ]
+  },
+  "cacheIsolation": {
+    "envVar": "VITE_CACHE_DIR",
+    "value": "/private/tmp/v6-22-vite-cache",
+    "sharedCache": "/Users/jared/Personal Projects/Patent/node_modules/.vite",
+    "sharedCacheMtimeBefore": 1793834923,
+    "sharedCacheMtimeAfter": 1793834923,
+    "sharedCacheUnchanged": true
+  },
+  "limitations": [
+    "The workbench component is exported but not registered in V6App/navigation; shared registration is orchestrator-owned and remains unverified.",
+    "Browser evidence uses a synthetic in-memory LocalRepository mount; native IndexedDB, app routing and full-shell navigation are unverified.",
+    "LocalRepository does not enforce job terminal transitions: a same-job job.failed followed by a current-version job.succeeded event can be stored. V6-22 does not claim to prevent that; the workbench derives display outcomes from each stored action and never creates events. V6-17's supported retry path uses a new job id.",
+    "The 检查 tab shows persisted check state but does not mount V6-23's run panel: V6-22 has no rule-pack/check-input configuration in its public inputs, so running checks remains V6-23's surface.",
+    "The deliver and filing tabs show readiness/empty states; V6-20 preview and export panels are not mounted in this workbench revision. No signature, submission or official-receipt claim is made.",
+    "Activity producers for every future action kind do not exist in R1; only repository events are rendered.",
+    "No real provider, network call or customer material was used.",
+    "Node 25.8.1 was used; the architecture target Node 22 remains unverified."
+  ],
+  "runtime": {
+    "node": "v25.8.1",
+    "npm": "11.11.0",
+    "contractArchitectureNode": "v22",
+    "node22Verified": false
+  },
+  "decisionsRequested": [
+    {
+      "decision": "LocalRepository does not enforce same-job terminal transitions (a job.succeeded event after job.failed is accepted if the write is otherwise valid). V6-22 derives activity outcomes and never synthesizes events, and V6-17 retries create new job ids; confirm this narrowed boundary or add a repository terminal guard before R2.",
+      "impact": "Activity truthfulness under a hostile/incorrect writer; R1 UI path unaffected."
+    }
+  ]
+}

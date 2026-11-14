@@ -3,7 +3,12 @@ import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
 
 export default defineConfig({
-  base: "/patent/",
+  // The legacy worker serves the app under /patent/. The standalone
+  // patent.paymond.me worker builds the same app at the domain root.
+  base: process.env.V6_WEB_BASE ?? "/patent/",
+  // Tests/browser evidence point this at a worktree-local directory so the
+  // node_modules symlink's shared optimizer cache is not written.
+  cacheDir: process.env.VITE_CACHE_DIR ?? "node_modules/.vite",
   plugins: [react()],
   resolve: {
     alias: {
@@ -54,6 +59,6 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "dist/patent",
+    outDir: process.env.V6_WEB_OUTDIR ?? "dist/patent",
   },
 });

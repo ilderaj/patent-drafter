@@ -1,0 +1,164 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-06
+
+TAP version 13
+# Subtest: A01 a committed matter, target and assets survive closing and reopening the database
+ok 1 - A01 a committed matter, target and assets survive closing and reopening the database
+  ---
+  duration_ms: 30.016833
+  type: 'test'
+  ...
+# Subtest: A01 stored bytes come back byte-for-byte and re-hash to the asset digest
+ok 2 - A01 stored bytes come back byte-for-byte and re-hash to the asset digest
+  ---
+  duration_ms: 25.587667
+  type: 'test'
+  ...
+# Subtest: A01 a fresh local database lists no matters and no example cases
+ok 3 - A01 a fresh local database lists no matters and no example cases
+  ---
+  duration_ms: 0.259458
+  type: 'test'
+  ...
+# Subtest: A01 activity carries ids and counts, never document content, newest first
+ok 4 - A01 activity carries ids and counts, never document content, newest first
+  ---
+  duration_ms: 8.247792
+  type: 'test'
+  ...
+# Subtest: A01 the adapter opens the named database and indexes events by matter
+ok 5 - A01 the adapter opens the named database and indexes events by matter
+  ---
+  duration_ms: 1.606292
+  type: 'test'
+  ...
+# Subtest: A02 a quota failure on a blob refuses the commit and leaves the previous version readable
+ok 6 - A02 a quota failure on a blob refuses the commit and leaves the previous version readable
+  ---
+  duration_ms: 33.596042
+  type: 'test'
+  ...
+# Subtest: A02 a transaction failure after the aggregate write rolls the whole version back
+ok 7 - A02 a transaction failure after the aggregate write rolls the whole version back
+  ---
+  duration_ms: 28.258459
+  type: 'test'
+  ...
+# Subtest: A02 a stale expectedVersion is refused with the stored version
+ok 8 - A02 a stale expectedVersion is refused with the stored version
+  ---
+  duration_ms: 0.945875
+  type: 'test'
+  ...
+# Subtest: A02 a duplicate event id cannot be recorded twice
+ok 9 - A02 a duplicate event id cannot be recorded twice
+  ---
+  duration_ms: 0.691791
+  type: 'test'
+  ...
+# Subtest: A02 an archived matter refuses writes with INVALID_TRANSITION
+ok 10 - A02 an archived matter refuses writes with INVALID_TRANSITION
+  ---
+  duration_ms: 0.746458
+  type: 'test'
+  ...
+# Subtest: A02 another tenant's matter is not found for this actor
+ok 11 - A02 another tenant's matter is not found for this actor
+  ---
+  duration_ms: 0.774959
+  type: 'test'
+  ...
+# Subtest: A02 a same-tenant user who did not create the matter is not found for this actor
+ok 12 - A02 a same-tenant user who did not create the matter is not found for this actor
+  ---
+  duration_ms: 1.491917
+  type: 'test'
+  ...
+# Subtest: A02 a commit cannot record another user as creator or as the user actor
+ok 13 - A02 a commit cannot record another user as creator or as the user actor
+  ---
+  duration_ms: 1.173334
+  type: 'test'
+  ...
+# Subtest: A03 repeating a successful commit changes nothing
+ok 14 - A03 repeating a successful commit changes nothing
+  ---
+  duration_ms: 0.654542
+  type: 'test'
+  ...
+# Subtest: A03 a failed commit can be retried once the fault clears
+ok 15 - A03 a failed commit can be retried once the fault clears
+  ---
+  duration_ms: 0.701375
+  type: 'test'
+  ...
+# Subtest: A03 two writers racing from the same version: exactly one wins
+ok 16 - A03 two writers racing from the same version: exactly one wins
+  ---
+  duration_ms: 0.640584
+  type: 'test'
+  ...
+# Subtest: A03 reads never hand out references to stored state
+ok 17 - A03 reads never hand out references to stored state
+  ---
+  duration_ms: 0.516041
+  type: 'test'
+  ...
+# Subtest: A03 corrupted stored bytes are refused with HASH_MISMATCH
+ok 18 - A03 corrupted stored bytes are refused with HASH_MISMATCH
+  ---
+  duration_ms: 0.393958
+  type: 'test'
+  ...
+# Subtest: A03 an asset's digest cannot change without new bytes
+ok 19 - A03 an asset's digest cannot change without new bytes
+  ---
+  duration_ms: 0.785542
+  type: 'test'
+  ...
+# Subtest: A03 new bytes and their digest land in the same commit
+ok 20 - A03 new bytes and their digest land in the same commit
+  ---
+  duration_ms: 0.824333
+  type: 'test'
+  ...
+# Subtest: A03 bytes whose asset record moved are refused
+ok 21 - A03 bytes whose asset record moved are refused
+  ---
+  duration_ms: 0.385167
+  type: 'test'
+  ...
+# Subtest: A01 activity metadata is confined to the action's whitelist
+ok 22 - A01 activity metadata is confined to the action's whitelist
+  ---
+  duration_ms: 0.612125
+  type: 'test'
+  ...
+# Subtest: A03 the activity contract mirror matches packages/contracts
+ok 23 - A03 the activity contract mirror matches packages/contracts
+  ---
+  duration_ms: 0.158125
+  type: 'test'
+  ...
+# Subtest: A03 every refusal code is a §10 error code
+ok 24 - A03 every refusal code is a §10 error code
+  ---
+  duration_ms: 1.542625
+  type: 'test'
+  ...
+# Subtest: A03 a commit result parses against the contract Result envelope
+ok 25 - A03 a commit result parses against the contract Result envelope
+  ---
+  duration_ms: 0.601875
+  type: 'test'
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 291.18575

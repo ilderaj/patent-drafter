@@ -1,0 +1,1307 @@
+command=npm test --workspaces --if-present
+
+> test
+> node --test test/*.test.mjs
+
+✔ healthz reports cloud mode (29.500667ms)
+{"rid":"cd106a46","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+✔ login rejects wrong password with 401 (3.352875ms)
+{"rid":"9147fceb","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"ce2709f7","method":"GET","path":"/patent/api/status","status":200,"ms":0}
+✔ login accepts correct password and issues a usable token (1.959ms)
+{"rid":"631ec846","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"737ea033","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"1ce42222","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"7fbdafb4","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"18eafac9","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"bc600488","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"f1058a5d","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"23217809","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"bccc9e44","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"d9676af4","method":"POST","path":"/patent/api/login","status":401,"ms":0}
+{"rid":"cee6a7ae","method":"POST","path":"/patent/api/login","status":429,"ms":0}
+{"rid":"aafe36f1","method":"POST","path":"/patent/api/login","status":429,"ms":0}
+{"rid":"3555e857","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+{"rid":"ab4520a2","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+✔ login is rate-limited per IP after 10 attempts (3.461375ms)
+✔ status rejects missing/invalid token with 401 (0.21825ms)
+{"rid":"3fb1fbe4","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"41a07487","method":"GET","path":"/patent/api/status","status":401,"ms":0}
+{"rid":"05b8f723","method":"POST","path":"/patent/api/providers/deepseek/chat","status":401,"ms":0}
+✔ expired token is rejected (0.865375ms)
+✔ chat without session returns 401 and never reaches upstream (0.378083ms)
+{"rid":"584d1c3a","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"9a8f1a65","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"8019efb5","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ preview gate: first send gets 428 + requiredConfirm, confirmed send reaches upstream (2.057833ms)
+{"rid":"2043f133","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"37157a7a","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+✔ wrong preview hash still gets 428 (0.631583ms)
+{"rid":"7b2fac4c","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"f27f6a44","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ preview gate disabled: single send reaches upstream without a confirm hash (0.774583ms)
+{"rid":"ca4e4f4d","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"6fb198a0","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ streaming request passes the SSE stream straight through (1.32725ms)
+{"rid":"09f0974f","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"bad4b1cf","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"4c9be54b","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"6e4a83e4","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"82ffa1c8","method":"POST","path":"/patent/api/providers/deepseek/chat","status":429,"ms":0}
+✔ daily chat rate limit returns 429 after the configured cap (1.191792ms)
+{"rid":"91dce742","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"ada54335","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"1bbeb4d8","method":"POST","path":"/patent/api/providers/deepseek/chat","status":502,"ms":0}
+✔ upstream failure surfaces only the status, never the body (0.81825ms)
+{"rid":"03eaebdd","method":"POST","path":"/patent/api/login","status":200,"ms":0}
+{"rid":"e29ea3d5","method":"POST","path":"/patent/api/providers/deepseek/chat","status":428,"ms":0}
+{"rid":"4d50c825","method":"POST","path":"/patent/api/providers/deepseek/chat","status":200,"ms":0}
+✔ API key is sent only as an upstream Bearer header (0.774792ms)
+✔ non-API paths fall through to static assets (0.090042ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 176.6115
+
+> @patent/export@0.0.1 test
+> node tests/export-builders.test.mjs
+
+  [PASS] docx starts with zip magic PK
+  [PASS] docx contains [Content_Types].xml / _rels/.rels / word/document.xml
+  [PASS] document.xml contains claim 1 text
+  [PASS] document.xml escapes XML entities (& -> &amp;)
+  [PASS] document.xml escapes angle brackets
+  [PASS] docx has no plain <w:body> nesting issue
+  [PASS] docx builder handles empty paragraph
+  [PASS] figures pdf starts with %PDF
+  [PASS] figures pdf page count equals figure count
+  [PASS] brief figure without raster gets placeholder page
+  [PASS] no-figures pdf has single 无附图 page
+  [PASS] review pdf starts with %PDF
+  [PASS] review pdf has at least 1 page
+  [PASS] report spec carries support matrix rows
+  [PASS] report spec carries audit checks
+  [PASS] report spec carries AI label + rule pack version
+  [PASS] report spec carries exported time
+  [PASS] figureSvg is self-contained svg with title
+  [PASS] patentpack is JSON envelope v1
+  [PASS] patentpack uses PBKDF2-SHA256-AESGCM-200000
+  [PASS] patentpack has salt+iv base64
+  [PASS] patentpack envelope is ASCII-only (no plaintext CJK)
+  [PASS] patentpack file contains no plaintext claim text
+  [PASS] patentpack decrypts with same passphrase
+  [PASS] patentpack rejects wrong passphrase
+  [PASS] patentpack requires non-empty passphrase
+  [PASS] selection subset produces exactly selected files in UI order
+  [PASS] unselected 合集 not produced
+  [PASS] unselected report not produced
+  [PASS] unselected patentpack not produced
+  [PASS] all-selected produces 7 files in UI order
+  [PASS] version note lists real exported file names
+  [PASS] patentpack assembly without passphrase throws
+  [PASS] empty selection produces zero files
+  [PASS] patentpack payload snapshot matches project data
+  [PASS] zip preserves entry names and bytes
+  [PASS] note derives claim count
+  [PASS] note derives spec sections
+  [PASS] note derives abstract char count
+  [PASS] note derives figure range
+  [PASS] note derives report stats
+  [PASS] empty project notes fall back to generic copy
+  [PASS] sanitizeFileName handles slashes/spaces
+  [PASS] sanitizeFileName empty fallback
+
+结果: 44 通过 / 0 失败
+exitCode=0
+
+command=npm run test:v6 -- V6-17
+
+> test:v6
+> node qa/v6/runner.mjs V6-17
+
+TAP version 13
+# Subtest: V6-17 B1: support derives traceable facts and the AST carries factIds/sourceRefs
+ok 1 - V6-17 B1: support derives traceable facts and the AST carries factIds/sourceRefs
+  ---
+  duration_ms: 108.775666
+  type: 'test'
+  ...
+# Subtest: V6-17 B1: changing persisted facts changes the support output and job input hash
+ok 2 - V6-17 B1: changing persisted facts changes the support output and job input hash
+  ---
+  duration_ms: 135.913708
+  type: 'test'
+  ...
+# Subtest: V6-17 B2: maxCostMinor is enforced and the next provider call fails with JOB_LIMIT_EXCEEDED
+ok 3 - V6-17 B2: maxCostMinor is enforced and the next provider call fails with JOB_LIMIT_EXCEEDED
+  ---
+  duration_ms: 12.82625
+  type: 'test'
+  ...
+# Subtest: V6-17 B2: an unknown-cost call consumes the remaining budget
+ok 4 - V6-17 B2: an unknown-cost call consumes the remaining budget
+  ---
+  duration_ms: 13.314834
+  type: 'test'
+  ...
+# Subtest: V6-17 B2: maxDurationSeconds is enforced across the whole job
+ok 5 - V6-17 B2: maxDurationSeconds is enforced across the whole job
+  ---
+  duration_ms: 12.593916
+  type: 'test'
+  ...
+# Subtest: V6-17 B3: generated DraftRevision.astHash is the canonical AST digest
+ok 6 - V6-17 B3: generated DraftRevision.astHash is the canonical AST digest
+  ---
+  duration_ms: 56.1625
+  type: 'test'
+  ...
+# Subtest: V6-17 B4: a failed final revision-state write is recoverable and the next save succeeds
+ok 7 - V6-17 B4: a failed final revision-state write is recoverable and the next save succeeds
+  ---
+  duration_ms: 46.78875
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: a short fact with substring overlap does not map a multi-component provider fact
+ok 8 - V6-17 B1 probe: a short fact with substring overlap does not map a multi-component provider fact
+  ---
+  duration_ms: 53.713917
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: an absent chunk UUID makes the fact unresolved and never links it
+ok 9 - V6-17 B1 probe: an absent chunk UUID makes the fact unresolved and never links it
+  ---
+  duration_ms: 54.99275
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: a persisted unsupported fact is never linked or marked supported
+ok 10 - V6-17 B1 probe: a persisted unsupported fact is never linked or marked supported
+  ---
+  duration_ms: 51.41825
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: a provider source_backed feature with no factId is partial, not supported
+ok 11 - V6-17 B1 probe: a provider source_backed feature with no factId is partial, not supported
+  ---
+  duration_ms: 55.456709
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: altered sourceId/hash/quote/offsets invalidate the ref
+ok 12 - V6-17 B1 probe: altered sourceId/hash/quote/offsets invalidate the ref
+  ---
+  duration_ms: 227.979875
+  type: 'test'
+  ...
+# Subtest: V6-17 B1 probe: numeric punctuation distinguishes 1.5mm from 15mm while NFKC/whitespace variants match
+ok 13 - V6-17 B1 probe: numeric punctuation distinguishes 1.5mm from 15mm while NFKC/whitespace variants match
+  ---
+  duration_ms: 186.205667
+  type: 'test'
+  ...
+# Subtest: V6-17 B2 probe: a cap of 2 stops after the second call inside one multi-call stage
+ok 14 - V6-17 B2 probe: a cap of 2 stops after the second call inside one multi-call stage
+  ---
+  duration_ms: 12.071375
+  type: 'test'
+  ...
+# Subtest: V6-17 B3 probe: a 2 s overrun during the final provider response fails before success
+ok 15 - V6-17 B3 probe: a 2 s overrun during the final provider response fails before success
+  ---
+  duration_ms: 46.171209
+  type: 'test'
+  ...
+# Subtest: V6-17 B3 probe: resume reuses the original deadline and 0.7 s + 0.7 s fails a 1 s cap
+ok 16 - V6-17 B3 probe: resume reuses the original deadline and 0.7 s + 0.7 s fails a 1 s cap
+  ---
+  duration_ms: 32.9335
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A06: a fact/input change during generation marks the result obsolete
+ok 17 - V6-17 S04-A06: a fact/input change during generation marks the result obsolete
+  ---
+  duration_ms: 118.730166
+  type: 'test'
+  ...
+# Subtest: V6-17 A03: repeated adoption has one side effect and replays the same revision
+ok 18 - V6-17 A03: repeated adoption has one side effect and replays the same revision
+  ---
+  duration_ms: 60.676541
+  type: 'test'
+  ...
+# Subtest: V6-17 A02: a queued job can be cancelled before any provider call
+ok 19 - V6-17 A02: a queued job can be cancelled before any provider call
+  ---
+  duration_ms: 2.169125
+  type: 'test'
+  ...
+# Subtest: V6-17 A02: cancelling a completed job is refused and cannot remove its result
+ok 20 - V6-17 A02: cancelling a completed job is refused and cannot remove its result
+  ---
+  duration_ms: 61.277458
+  type: 'test'
+  ...
+# Subtest: V6-17 A03: retry with a different consent/provider configuration is refused, not silently switched
+ok 21 - V6-17 A03: retry with a different consent/provider configuration is refused, not silently switched
+  ---
+  duration_ms: 23.145459
+  type: 'test'
+  ...
+# Subtest: empty, loading and error states are distinct
+ok 22 - empty, loading and error states are distinct
+  ---
+  duration_ms: 113.826375
+  type: 'test'
+  ...
+# Subtest: all five real states and completed/total progress render
+ok 23 - all five real states and completed/total progress render
+  ---
+  duration_ms: 1.110333
+  type: 'test'
+  ...
+# Subtest: a failed stage shows its code, recovery action and retry control
+ok 24 - a failed stage shows its code, recovery action and retry control
+  ---
+  duration_ms: 0.430041
+  type: 'test'
+  ...
+# Subtest: interrupted offers resume and discard; stale offers a compare entry
+ok 25 - interrupted offers resume and discard; stale offers a compare entry
+  ---
+  duration_ms: 0.825458
+  type: 'test'
+  ...
+# Subtest: a ready candidate has an explicit adopt action; stub output is labelled and not adoptable
+ok 26 - a ready candidate has an explicit adopt action; stub output is labelled and not adoptable
+  ---
+  duration_ms: 0.668458
+  type: 'test'
+  ...
+# Subtest: V6-17 A01: completed output is a candidate until explicit adoption creates a viewable revision
+ok 27 - V6-17 A01: completed output is a candidate until explicit adoption creates a viewable revision
+  ---
+  duration_ms: 124.323959
+  type: 'test'
+  ...
+# Subtest: V6-17 A02: cancellation fences a late response and leaves the draft pointer unchanged
+ok 28 - V6-17 A02: cancellation fences a late response and leaves the draft pointer unchanged
+  ---
+  duration_ms: 36.335708
+  type: 'test'
+  ...
+# Subtest: V6-17 A02: stale candidate returns obsolete_result and is never adopted over the current draft
+ok 29 - V6-17 A02: stale candidate returns obsolete_result and is never adopted over the current draft
+  ---
+  duration_ms: 54.1375
+  type: 'test'
+  ...
+# Subtest: V6-17 A03: failed retry creates a new job and retains successful stage checkpoints
+ok 30 - V6-17 A03: failed retry creates a new job and retains successful stage checkpoints
+  ---
+  duration_ms: 60.707541
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A07: schema-invalid output makes one provider call and preserves earlier results
+ok 31 - V6-17 S04-A07: schema-invalid output makes one provider call and preserves earlier results
+  ---
+  duration_ms: 21.586708
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A08: revoked consent blocks the next provider call
+ok 32 - V6-17 S04-A08: revoked consent blocks the next provider call
+  ---
+  duration_ms: 34.654333
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A09: refresh recovery resumes from saved stages after consent validation
+ok 33 - V6-17 S04-A09: refresh recovery resumes from saved stages after consent validation
+  ---
+  duration_ms: 129.207042
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A09: interrupted work refuses resume if consent is revoked
+ok 34 - V6-17 S04-A09: interrupted work refuses resume if consent is revoked
+  ---
+  duration_ms: 7.280917
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A10: invocation rows contain metadata only, never prompts, body or keys
+ok 35 - V6-17 S04-A10: invocation rows contain metadata only, never prompts, body or keys
+  ---
+  duration_ms: 43.842917
+  type: 'test'
+  ...
+# Subtest: V6-17 S04-A10: stub execution records local location without consent or injected provider calls
+ok 36 - V6-17 S04-A10: stub execution records local location without consent or injected provider calls
+  ---
+  duration_ms: 27.891291
+  type: 'test'
+  ...
+# Subtest: V6-17 A03: exported revision seam loads head and CAS-saves an edited DraftRevision
+ok 37 - V6-17 A03: exported revision seam loads head and CAS-saves an edited DraftRevision
+  ---
+  duration_ms: 46.9015
+  type: 'test'
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 37
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1353.983083
+exitCode=0
+
+command=npm run test:v6 -- V6-16
+
+> test:v6
+> node qa/v6/runner.mjs V6-16
+
+TAP version 13
+# Subtest: V6-16: identical snapshots resume every stage without provider or cache writes
+ok 1 - V6-16: identical snapshots resume every stage without provider or cache writes
+  ---
+  duration_ms: 23.254417
+  type: 'test'
+  ...
+# Subtest: V6-16: changing user facts invalidates dependent stages and keeps unrelated upstream branches cached
+ok 2 - V6-16: changing user facts invalidates dependent stages and keeps unrelated upstream branches cached
+  ---
+  duration_ms: 12.219875
+  type: 'test'
+  ...
+# Subtest: V6-16: changing source facts invalidates ingest and dependent stages
+ok 3 - V6-16: changing source facts invalidates ingest and dependent stages
+  ---
+  duration_ms: 11.614834
+  type: 'test'
+  ...
+# Subtest: V6-16: changing one branch leaves a non-dependent branch cached
+ok 4 - V6-16: changing one branch leaves a non-dependent branch cached
+  ---
+  duration_ms: 4.085125
+  type: 'test'
+  ...
+# Subtest: V6-16: provider, model, prompt, rule-pack, and stage-version changes all miss cache
+ok 5 - V6-16: provider, model, prompt, rule-pack, and stage-version changes all miss cache
+  ---
+  duration_ms: 3.396375
+  type: 'test'
+  ...
+# Subtest: V6-16: cache keys are scoped to a project when a cache is shared
+ok 6 - V6-16: cache keys are scoped to a project when a cache is shared
+  ---
+  duration_ms: 1.475167
+  type: 'test'
+  ...
+# Subtest: V6-16: authorization refusal surfaces its contract code before any provider call
+ok 7 - V6-16: authorization refusal surfaces its contract code before any provider call
+  ---
+  duration_ms: 0.911209
+  type: 'test'
+  ...
+# Subtest: V6-16: autoConfirm providers are rejected before an invocation can start
+ok 8 - V6-16: autoConfirm providers are rejected before an invocation can start
+  ---
+  duration_ms: 0.130542
+  type: 'test'
+  ...
+# Subtest: V6-16: stub execution has truthful test metadata and calls no injected provider
+ok 9 - V6-16: stub execution has truthful test metadata and calls no injected provider
+  ---
+  duration_ms: 1.136417
+  type: 'test'
+  ...
+# Subtest: V6-16: cache rejects forged provider/model metadata and reports valid hits
+ok 10 - V6-16: cache rejects forged provider/model metadata and reports valid hits
+  ---
+  duration_ms: 2.717792
+  type: 'test'
+  ...
+# Subtest: V6-16: invalid cache hash is evicted and repaired for subsequent adapters
+ok 11 - V6-16: invalid cache hash is evicted and repaired for subsequent adapters
+  ---
+  duration_ms: 8.856458
+  type: 'test'
+  ...
+# Subtest: V6-16: failed stage keeps earlier checkpoints and retry runs only that stage and dependents
+ok 12 - V6-16: failed stage keeps earlier checkpoints and retry runs only that stage and dependents
+  ---
+  duration_ms: 5.972792
+  type: 'test'
+  ...
+# Subtest: V6-16: schema-invalid output fails after one provider call and retry uses retained checkpoints
+ok 13 - V6-16: schema-invalid output fails after one provider call and retry uses retained checkpoints
+  ---
+  duration_ms: 1.460875
+  type: 'test'
+  ...
+# Subtest: V6-16: public calls leave caller inputs untouched
+ok 14 - V6-16: public calls leave caller inputs untouched
+  ---
+  duration_ms: 5.197
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 234.612083
+exitCode=0
+
+command=npm run test:v6 -- V6-15
+
+> test:v6
+> node qa/v6/runner.mjs V6-15
+
+TAP version 13
+# Subtest: V6-15 concurrency: grant same key with different payloads gets one winner and one conflict
+ok 1 - V6-15 concurrency: grant same key with different payloads gets one winner and one conflict
+  ---
+  duration_ms: 30.9355
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: identical concurrent grants both succeed with one creation and equal results
+ok 2 - V6-15 concurrency: identical concurrent grants both succeed with one creation and equal results
+  ---
+  duration_ms: 7.527333
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: revoke same key with different consentIds gets one winner and one conflict
+ok 3 - V6-15 concurrency: revoke same key with different consentIds gets one winner and one conflict
+  ---
+  duration_ms: 9.935833
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: identical concurrent revokes both succeed with one event and consistent answers
+ok 4 - V6-15 concurrency: identical concurrent revokes both succeed with one event and consistent answers
+  ---
+  duration_ms: 9.361
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: a grant whose finalize fails after commit replays the original response
+ok 5 - V6-15 concurrency: a grant whose finalize fails after commit replays the original response
+  ---
+  duration_ms: 3.49175
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: a revoke whose finalize fails after commit replays the original response
+ok 6 - V6-15 concurrency: a revoke whose finalize fails after commit replays the original response
+  ---
+  duration_ms: 3.653166
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: cleanup cannot delete a consent row whose granted event survived
+ok 7 - V6-15 concurrency: cleanup cannot delete a consent row whose granted event survived
+  ---
+  duration_ms: 2.726917
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: the losing claim performs no business write at all
+ok 8 - V6-15 concurrency: the losing claim performs no business write at all
+  ---
+  duration_ms: 2.747208
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: a live claim makes an identical request wait, then report busy, then replay
+ok 9 - V6-15 concurrency: a live claim makes an identical request wait, then report busy, then replay
+  ---
+  duration_ms: 505.195125
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: an expired owner's cleanup cannot delete the new claim owner's consent row
+ok 10 - V6-15 concurrency: an expired owner's cleanup cannot delete the new claim owner's consent row
+  ---
+  duration_ms: 3.811459
+  type: 'test'
+  ...
+# Subtest: V6-15 concurrency: a same-key retry after a failed commit re-executes instead of conflicting on the invisible orphan row
+ok 11 - V6-15 concurrency: a same-key retry after a failed commit re-executes instead of conflicting on the invisible orphan row
+  ---
+  duration_ms: 2.065125
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: capabilities never claim local, byok or platform outbound availability in R1
+ok 12 - V6-15 engine: capabilities never claim local, byok or platform outbound availability in R1
+  ---
+  duration_ms: 24.933417
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: a manifest lists exactly the current source files, counts and target revisions
+ok 13 - V6-15 engine: a manifest lists exactly the current source files, counts and target revisions
+  ---
+  duration_ms: 5.4845
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: unknown page counts and missing facts stay visible without inventing data
+ok 14 - V6-15 engine: unknown page counts and missing facts stay visible without inventing data
+  ---
+  duration_ms: 6.949958
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: an empty workspace is the no-matters view, not a fake matter
+ok 15 - V6-15 engine: an empty workspace is the no-matters view, not a fake matter
+  ---
+  duration_ms: 2.865708
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: unknown processor fields make consent impossible and report the fields
+ok 16 - V6-15 engine: unknown processor fields make consent impossible and report the fields
+  ---
+  duration_ms: 6.213875
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: a grant saves the profile facts, scope, one allowlisted event and can be validated
+ok 17 - V6-15 engine: a grant saves the profile facts, scope, one allowlisted event and can be validated
+  ---
+  duration_ms: 3.468584
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: a stale manifest hash or a mismatched scope is refused without writing
+ok 18 - V6-15 engine: a stale manifest hash or a mismatched scope is refused without writing
+  ---
+  duration_ms: 8.634542
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: adding a file makes the old consent stale and unusable (S04-A02)
+ok 19 - V6-15 engine: adding a file makes the old consent stale and unusable (S04-A02)
+  ---
+  duration_ms: 6.287708
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: a purpose change requires a separate consent
+ok 20 - V6-15 engine: a purpose change requires a separate consent
+  ---
+  duration_ms: 3.712625
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: changed processor, region, retention, training or terms invalidates the old consent
+ok 21 - V6-15 engine: changed processor, region, retention, training or terms invalidates the old consent
+  ---
+  duration_ms: 6.144292
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: an expired consent stays historical and cannot authorize
+ok 22 - V6-15 engine: an expired consent stays historical and cannot authorize
+  ---
+  duration_ms: 2.415708
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: target-scoped consent does not cover another target or the whole matter
+ok 23 - V6-15 engine: target-scoped consent does not cover another target or the whole matter
+  ---
+  duration_ms: 2.544708
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: revocation is append-only, blocks use, and a second revocation adds no event
+ok 24 - V6-15 engine: revocation is append-only, blocks use, and a second revocation adds no event
+  ---
+  duration_ms: 4.097542
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: request keys replay the original response and conflict on different content
+ok 25 - V6-15 engine: request keys replay the original response and conflict on different content
+  ---
+  duration_ms: 2.57525
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: an archived matter replays a completed key but refuses new work
+ok 26 - V6-15 engine: an archived matter replays a completed key but refuses new work
+  ---
+  duration_ms: 1.725666
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: another actor or tenant cannot read, grant, validate or revoke
+ok 27 - V6-15 engine: another actor or tenant cannot read, grant, validate or revoke
+  ---
+  duration_ms: 1.607834
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: the real invocation gate closes before storage or network
+ok 28 - V6-15 engine: the real invocation gate closes before storage or network
+  ---
+  duration_ms: 0.560375
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: S04-A01 an incomplete profile still cannot start a real call
+ok 29 - V6-15 engine: S04-A01 an incomplete profile still cannot start a real call
+  ---
+  duration_ms: 1.27675
+  type: 'test'
+  ...
+# Subtest: V6-15 engine: the invocation view model projects contract metadata only
+ok 30 - V6-15 engine: the invocation view model projects contract metadata only
+  ---
+  duration_ms: 1.2155
+  type: 'test'
+  ...
+# Subtest: V6-15 UI loading: the first render is busy and shows no invented rows
+ok 31 - V6-15 UI loading: the first render is busy and shows no invented rows
+  ---
+  duration_ms: 48.926792
+  type: 'test'
+  ...
+# Subtest: V6-15 UI mounting: the container renders its page shell and the loading panel
+ok 32 - V6-15 UI mounting: the container renders its page shell and the loading panel
+  ---
+  duration_ms: 5.291625
+  type: 'test'
+  ...
+# Subtest: V6-15 UI error: a failed load shows its code and a retry, never an empty page
+ok 33 - V6-15 UI error: a failed load shows its code and a retry, never an empty page
+  ---
+  duration_ms: 0.372083
+  type: 'test'
+  ...
+# Subtest: V6-15 UI empty: no matter shows the empty reason, honest capabilities and disabled grants
+ok 34 - V6-15 UI empty: no matter shows the empty reason, honest capabilities and disabled grants
+  ---
+  duration_ms: 2.780416
+  type: 'test'
+  ...
+# Subtest: V6-15 UI ready: the manifest, profile facts, unknown fields and release gate are explicit
+ok 35 - V6-15 UI ready: the manifest, profile facts, unknown fields and release gate are explicit
+  ---
+  duration_ms: 12.116
+  type: 'test'
+  ...
+# Subtest: V6-15 UI purpose: a purpose the profile does not allow disables confirmation
+ok 36 - V6-15 UI purpose: a purpose the profile does not allow disables confirmation
+  ---
+  duration_ms: 2.093291
+  type: 'test'
+  ...
+# Subtest: V6-15 UI granted: the consent row shows its scope and offers revocation
+ok 37 - V6-15 UI granted: the consent row shows its scope and offers revocation
+  ---
+  duration_ms: 4.937041
+  type: 'test'
+  ...
+# Subtest: V6-15 UI stale: a new file marks the active consent and warns before re-confirmation
+ok 38 - V6-15 UI stale: a new file marks the active consent and warns before re-confirmation
+  ---
+  duration_ms: 3.102292
+  type: 'test'
+  ...
+# Subtest: V6-15 UI revoked and archived: history remains, but new authorization is disabled
+ok 39 - V6-15 UI revoked and archived: history remains, but new authorization is disabled
+  ---
+  duration_ms: 4.380292
+  type: 'test'
+  ...
+# Subtest: V6-15 UI invocation table: metadata only, with no prompt, content or key
+ok 40 - V6-15 UI invocation table: metadata only, with no prompt, content or key
+  ---
+  duration_ms: 1.306708
+  type: 'test'
+  ...
+# Subtest: V6-15 UI actions: errors and confirmations are shown without losing the manifest
+ok 41 - V6-15 UI actions: errors and confirmations are shown without losing the manifest
+  ---
+  duration_ms: 0.917417
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 779.6825
+exitCode=0
+
+command=npm run test:v6 -- V6-14
+
+> test:v6
+> node qa/v6/runner.mjs V6-14
+
+TAP version 13
+# Subtest: V6-14-A01 creates a target with a TargetConfig for each supported route
+ok 1 - V6-14-A01 creates a target with a TargetConfig for each supported route
+  ---
+  duration_ms: 29.309625
+  type: 'test'
+  ...
+# Subtest: V6-14-A01 refuses EP and unknown routes with INVALID_INPUT and writes nothing
+ok 2 - V6-14-A01 refuses EP and unknown routes with INVALID_INPUT and writes nothing
+  ---
+  duration_ms: 30.092041
+  type: 'test'
+  ...
+# Subtest: V6-14-A01 a matter is not capped at two targets (S03: professional mode adds targets)
+ok 3 - V6-14-A01 a matter is not capped at two targets (S03: professional mode adds targets)
+  ---
+  duration_ms: 4.75475
+  type: 'test'
+  ...
+# Subtest: V6-14-A02 an asset that is not available is neither offered nor accepted as priority evidence
+ok 4 - V6-14-A02 an asset that is not available is neither offered nor accepted as priority evidence
+  ---
+  duration_ms: 4.571625
+  type: 'test'
+  ...
+# Subtest: V6-14-A02 updating target A bumps only A's configVersion; B's config and version are unchanged
+ok 5 - V6-14-A02 updating target A bumps only A's configVersion; B's config and version are unchanged
+  ---
+  duration_ms: 3.411667
+  type: 'test'
+  ...
+# Subtest: V6-14-A02 switching and reading targets is read-only
+ok 6 - V6-14-A02 switching and reading targets is read-only
+  ---
+  duration_ms: 2.204292
+  type: 'test'
+  ...
+# Subtest: V6-14-A02 a stale baseVersion is VERSION_CONFLICT and writes nothing
+ok 7 - V6-14-A02 a stale baseVersion is VERSION_CONFLICT and writes nothing
+  ---
+  duration_ms: 2.016792
+  type: 'test'
+  ...
+# Subtest: V6-14-A02 update refuses EP without touching either target
+ok 8 - V6-14-A02 update refuses EP without touching either target
+  ---
+  duration_ms: 1.203166
+  type: 'test'
+  ...
+# Subtest: another tenant or another actor gets RESOURCE_NOT_FOUND and writes nothing
+ok 9 - another tenant or another actor gets RESOURCE_NOT_FOUND and writes nothing
+  ---
+  duration_ms: 3.42175
+  type: 'test'
+  ...
+# Subtest: an archived matter refuses create and update with INVALID_TRANSITION
+ok 10 - an archived matter refuses create and update with INVALID_TRANSITION
+  ---
+  duration_ms: 1.9055
+  type: 'test'
+  ...
+# Subtest: config is validated against the snapshot: parties, inventor kind, priority date and evidence
+ok 11 - config is validated against the snapshot: parties, inventor kind, priority date and evidence
+  ---
+  duration_ms: 1.927292
+  type: 'test'
+  ...
+# Subtest: a valid priority claim keeps its evidence asset and defaults verification to unverified
+ok 12 - a valid priority claim keeps its evidence asset and defaults verification to unverified
+  ---
+  duration_ms: 0.978584
+  type: 'test'
+  ...
+# Subtest: en-US is refused at write time while translation_en is unavailable
+ok 13 - en-US is refused at write time while translation_en is unavailable
+  ---
+  duration_ms: 0.792791
+  type: 'test'
+  ...
+# Subtest: a matter with no intake snapshot reads as empty and refuses party ids it does not know
+ok 14 - a matter with no intake snapshot reads as empty and refuses party ids it does not know
+  ---
+  duration_ms: 1.214166
+  type: 'test'
+  ...
+# Subtest: A03 same key, identical payload replays the first result with deterministic ids
+ok 15 - A03 same key, identical payload replays the first result with deterministic ids
+  ---
+  duration_ms: 42.533542
+  type: 'test'
+  ...
+# Subtest: A03 same key, different payload is IDEMPOTENCY_CONFLICT and writes nothing
+ok 16 - A03 same key, different payload is IDEMPOTENCY_CONFLICT and writes nothing
+  ---
+  duration_ms: 13.626917
+  type: 'test'
+  ...
+# Subtest: A03 a failed commit releases the claim; the same-key retry commits exactly once
+ok 17 - A03 a failed commit releases the claim; the same-key retry commits exactly once
+  ---
+  duration_ms: 12.584291
+  type: 'test'
+  ...
+# Subtest: A03 a failed finalize after a landed commit is recovered by a same-key retry without a second commit
+ok 18 - A03 a failed finalize after a landed commit is recovered by a same-key retry without a second commit
+  ---
+  duration_ms: 6.259875
+  type: 'test'
+  ...
+# Subtest: A03 a live claim makes an identical request wait, then answer busy with no writes
+ok 19 - A03 a live claim makes an identical request wait, then answer busy with no writes
+  ---
+  duration_ms: 104.165167
+  type: 'test'
+  ...
+# Subtest: A03 an expired lease is taken over; the stalled owner cannot commit a duplicate
+ok 20 - A03 an expired lease is taken over; the stalled owner cannot commit a duplicate
+  ---
+  duration_ms: 3.6515
+  type: 'test'
+  ...
+# Subtest: A03 an expired lease with a prepared, landed update is recovered instead of re-committed
+ok 21 - A03 an expired lease with a prepared, landed update is recovered instead of re-committed
+  ---
+  duration_ms: 2.438458
+  type: 'test'
+  ...
+# Subtest: S03 a structure fact plus tested_sample or drawing recommends cn_um and lists cn_invention
+ok 22 - S03 a structure fact plus tested_sample or drawing recommends cn_um and lists cn_invention
+  ---
+  duration_ms: 3.003
+  type: 'test'
+  ...
+# Subtest: S03-A09 a method fact excludes cn_um and names the triggering rule and fact
+ok 23 - S03-A09 a method fact excludes cn_um and names the triggering rule and fact
+  ---
+  duration_ms: 0.870708
+  type: 'test'
+  ...
+# Subtest: S03 maturity=idea excludes cn_um even with a structure fact
+ok 24 - S03 maturity=idea excludes cn_um even with a structure fact
+  ---
+  duration_ms: 0.211875
+  type: 'test'
+  ...
+# Subtest: S03 no route rule fires without facts: fallback, nothing recommended, no invented reason
+ok 25 - S03 no route rule fires without facts: fallback, nothing recommended, no invented reason
+  ---
+  duration_ms: 0.178708
+  type: 'test'
+  ...
+# Subtest: S03 the user may save a route other than the recommendation
+ok 26 - S03 the user may save a route other than the recommendation
+  ---
+  duration_ms: 29.138083
+  type: 'test'
+  ...
+# Subtest: the view's recommendation is built from the stored snapshot facts and maturity
+ok 27 - the view's recommendation is built from the stored snapshot facts and maturity
+  ---
+  duration_ms: 3.721167
+  type: 'test'
+  ...
+# Subtest: S03-A07 every card shows protection, examination, limits and verification; numbers stay hidden when unverified
+ok 28 - S03-A07 every card shows protection, examination, limits and verification; numbers stay hidden when unverified
+  ---
+  duration_ms: 0.235375
+  type: 'test'
+  ...
+# Subtest: S03-A07 numbers appear only for a verified rule entry
+ok 29 - S03-A07 numbers appear only for a verified rule entry
+  ---
+  duration_ms: 0.158792
+  type: 'test'
+  ...
+# Subtest: S03-A08 US and PCT default to zh-CN and carry the exact handoff sentence
+ok 30 - S03-A08 US and PCT default to zh-CN and carry the exact handoff sentence
+  ---
+  duration_ms: 0.101417
+  type: 'test'
+  ...
+# Subtest: S03-A08 en-US is disabled with a visible reason unless translation_en is available
+ok 31 - S03-A08 en-US is disabled with a visible reason unless translation_en is available
+  ---
+  duration_ms: 0.175833
+  type: 'test'
+  ...
+# Subtest: loading, error and empty states render distinctly
+ok 32 - loading, error and empty states render distinctly
+  ---
+  duration_ms: 48.9285
+  type: 'test'
+  ...
+# Subtest: the stale notice keeps the view and offers a re-read
+ok 33 - the stale notice keeps the view and offers a re-read
+  ---
+  duration_ms: 1.736292
+  type: 'test'
+  ...
+# Subtest: the switcher lists both targets with their own versions; the selection shows only its config
+ok 34 - the switcher lists both targets with their own versions; the selection shows only its config
+  ---
+  duration_ms: 14.11
+  type: 'test'
+  ...
+# Subtest: S03-A07 cards show protection, examination, limits and 未核实 instead of numbers
+ok 35 - S03-A07 cards show protection, examination, limits and 未核实 instead of numbers
+  ---
+  duration_ms: 1.644583
+  type: 'test'
+  ...
+# Subtest: S03-A07 a verified rule entry shows its numbers on that card only
+ok 36 - S03-A07 a verified rule entry shows its numbers on that card only
+  ---
+  duration_ms: 1.681458
+  type: 'test'
+  ...
+# Subtest: S03-A08 US and PCT cards show the exact handoff sentence; en-US is disabled with its reason
+ok 37 - S03-A08 US and PCT cards show the exact handoff sentence; en-US is disabled with its reason
+  ---
+  duration_ms: 0.869167
+  type: 'test'
+  ...
+# Subtest: S03-A09 the method rule and its triggering fact are shown on the trace and the cn_um card
+ok 38 - S03-A09 the method rule and its triggering fact are shown on the trace and the cn_um card
+  ---
+  duration_ms: 1.702292
+  type: 'test'
+  ...
+# Subtest: with no facts the trace says no rule fired instead of inventing one
+ok 39 - with no facts the trace says no rule fired instead of inventing one
+  ---
+  duration_ms: 0.918083
+  type: 'test'
+  ...
+# Subtest: create stays enabled with two targets and is disabled with a visible reason on an archived matter
+ok 40 - create stays enabled with two targets and is disabled with a visible reason on an archived matter
+  ---
+  duration_ms: 3.300209
+  type: 'test'
+  ...
+# Subtest: an action error shows its code, message and field reasons
+ok 41 - an action error shows its code, message and field reasons
+  ---
+  duration_ms: 0.844042
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 430.357
+exitCode=0
+
+command=npm run test:v6 -- V6-10
+
+> test:v6
+> node qa/v6/runner.mjs V6-10
+
+TAP version 13
+# Subtest: V6-10-A02 XML name prefixes with XML NameChars cannot hide relationships or macros
+ok 1 - V6-10-A02 XML name prefixes with XML NameChars cannot hide relationships or macros
+  ---
+  duration_ms: 21.282916
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 a password-protected PDF is refused before storage
+ok 2 - V6-10-A02 a password-protected PDF is refused before storage
+  ---
+  duration_ms: 10.509125
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 an encrypted PDF leaves a fresh matter at version 1 with no asset or blob
+ok 3 - V6-10-A03 an encrypted PDF leaves a fresh matter at version 1 with no asset or blob
+  ---
+  duration_ms: 0.508417
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 content-type mappings refuse encoded macros and decoys before storage
+ok 4 - V6-10-A02 content-type mappings refuse encoded macros and decoys before storage
+  ---
+  duration_ms: 4.453958
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 normal content types accept BOM encodings, Unicode names and text decoys
+ok 5 - V6-10-A02 normal content types accept BOM encodings, Unicode names and text decoys
+  ---
+  duration_ms: 2.321417
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 decoded VBA relationship types refuse benign part names
+ok 6 - V6-10-A02 decoded VBA relationship types refuse benign part names
+  ---
+  duration_ms: 1.657334
+  type: 'test'
+  ...
+# Subtest: V6-10-A01 a valid DOCX is saved with its bytes and survives a refresh
+ok 7 - V6-10-A01 a valid DOCX is saved with its bytes and survives a refresh
+  ---
+  duration_ms: 3.775667
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 accepts every whitelisted format from its own bytes
+ok 8 - V6-10-S02 accepts every whitelisted format from its own bytes
+  ---
+  duration_ms: 4.269708
+  type: 'test'
+  ...
+# Subtest: V6-10-S02-A01 a 49 MiB PDF is saved while a 51 MiB PDF in the same batch is FILE_TOO_LARGE
+ok 9 - V6-10-S02-A01 a 49 MiB PDF is saved while a 51 MiB PDF in the same batch is FILE_TOO_LARGE
+  ---
+  duration_ms: 421.191292
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the bytes decide the format, never the extension or declared type
+ok 10 - V6-10-S02 the bytes decide the format, never the extension or declared type
+  ---
+  duration_ms: 1.131083
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the DOCX archive budget refuses too many entries and an over-cap declared size
+ok 11 - V6-10-S02 the DOCX archive budget refuses too many entries and an over-cap declared size
+  ---
+  duration_ms: 84.617
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a real 16 MiB deflate stream inflates in linear time
+ok 12 - V6-10-S02 a real 16 MiB deflate stream inflates in linear time
+  ---
+  duration_ms: 254.25725
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 many tiny deflated parts retain no 64 KiB backing buffer each
+ok 13 - V6-10-A02 many tiny deflated parts retain no 64 KiB backing buffer each
+  ---
+  duration_ms: 32.256417
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 remote or absolute relationships are refused in every .rels part
+ok 14 - V6-10-A02 remote or absolute relationships are refused in every .rels part
+  ---
+  duration_ms: 3.035875
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 standards-valid .rels encodings and prefixes cannot hide an external relationship
+ok 15 - V6-10-A02 standards-valid .rels encodings and prefixes cannot hide an external relationship
+  ---
+  duration_ms: 2.842416
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 NUL, drive-letter and Unix symlink entries are refused
+ok 16 - V6-10-A02 NUL, drive-letter and Unix symlink entries are refused
+  ---
+  duration_ms: 1.138417
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 an OLE compound file declared .docx reports encryption, not a mismatch
+ok 17 - V6-10-A02 an OLE compound file declared .docx reports encryption, not a mismatch
+  ---
+  duration_ms: 0.153125
+  type: 'test'
+  ...
+# Subtest: V6-10 stores a display name without a path and without control characters
+ok 18 - V6-10 stores a display name without a path and without control characters
+  ---
+  duration_ms: 6.344792
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 oversize, fake-extension and hostile DOCX files leave nothing usable
+ok 19 - V6-10-A02 oversize, fake-extension and hostile DOCX files leave nothing usable
+  ---
+  duration_ms: 33.845333
+  type: 'test'
+  ...
+# Subtest: V6-10-A02 repeated picks of the same bytes create one asset, even in parallel
+ok 20 - V6-10-A02 repeated picks of the same bytes create one asset, even in parallel
+  ---
+  duration_ms: 1.616917
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 a retry after success keeps one asset at one version
+ok 21 - V6-10-A03 a retry after success keeps one asset at one version
+  ---
+  duration_ms: 0.660375
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 a storage failure mid-write leaves neither metadata nor bytes
+ok 22 - V6-10-A03 a storage failure mid-write leaves neither metadata nor bytes
+  ---
+  duration_ms: 1.066625
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 a partly failed batch keeps its successes and retries only what failed
+ok 23 - V6-10-A03 a partly failed batch keeps its successes and retries only what failed
+  ---
+  duration_ms: 1.788125
+  type: 'test'
+  ...
+# Subtest: V6-10 identity and matter state gate the write
+ok 24 - V6-10 identity and matter state gate the write
+  ---
+  duration_ms: 0.539292
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 reads at most three files at once
+ok 25 - V6-10-S02 reads at most three files at once
+  ---
+  duration_ms: 45.31775
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 progress reports real stages and real byte counts
+ok 26 - V6-10-S02 progress reports real stages and real byte counts
+  ---
+  duration_ms: 1.384166
+  type: 'test'
+  ...
+# Subtest: V6-10 a cancelled upload stores nothing and can be restarted
+ok 27 - V6-10 a cancelled upload stores nothing and can be restarted
+  ---
+  duration_ms: 0.705333
+  type: 'test'
+  ...
+# Subtest: V6-10-A03 cancelling mid-batch after the first slice stores nothing
+ok 28 - V6-10-A03 cancelling mid-batch after the first slice stores nothing
+  ---
+  duration_ms: 26.207917
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the initial surface offers a picker, a drop zone and answering without documents
+ok 29 - V6-10-S02 the initial surface offers a picker, a drop zone and answering without documents
+  ---
+  duration_ms: 46.06325
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a committed file shows 已保存 only after the asset exists
+ok 30 - V6-10-S02 a committed file shows 已保存 only after the asset exists
+  ---
+  duration_ms: 0.657709
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a storage failure never shows 已保存 and stays removable and retryable
+ok 31 - V6-10-S02 a storage failure never shows 已保存 and stays removable and retryable
+  ---
+  duration_ms: 0.3515
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a rejected file states the reason and creates no saved state
+ok 32 - V6-10-S02 a rejected file states the reason and creates no saved state
+  ---
+  duration_ms: 0.261875
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 progress is the real read fraction and a busy batch can be cancelled
+ok 33 - V6-10-S02 progress is the real read fraction and a busy batch can be cancelled
+  ---
+  duration_ms: 0.299917
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 the reducer keeps one row per file and never removes a stored asset
+ok 34 - V6-10-S02 the reducer keeps one row per file and never removes a stored asset
+  ---
+  duration_ms: 2.357292
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a file that has not started is an explicit selected row at zero
+ok 35 - V6-10-S02 a file that has not started is an explicit selected row at zero
+  ---
+  duration_ms: 0.789542
+  type: 'test'
+  ...
+# Subtest: V6-10-S02 a cancelled row is removable and is not reported as a problem
+ok 36 - V6-10-S02 a cancelled row is removable and is not reported as a problem
+  ---
+  duration_ms: 0.375417
+  type: 'test'
+  ...
+1..36
+# tests 36
+# suites 0
+# pass 36
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1187.622083
+exitCode=0
+
+command=npm run test:v6 -- V6-08
+
+> test:v6
+> node qa/v6/runner.mjs V6-08
+
+TAP version 13
+# Subtest: S01: the shell's fixed navigation, eight tabs and runtime labels
+ok 1 - S01: the shell's fixed navigation, eight tabs and runtime labels
+  ---
+  duration_ms: 1.929333
+  type: 'test'
+  ...
+# Subtest: V6-08-A01: the self-service entry creates one real empty matter and opens its upload step
+ok 2 - V6-08-A01: the self-service entry creates one real empty matter and opens its upload step
+  ---
+  duration_ms: 1.891042
+  type: 'test'
+  ...
+# Subtest: V6-08-A01: a direct link to a matter, target and tab survives a refresh
+ok 3 - V6-08-A01: a direct link to a matter, target and tab survives a refresh
+  ---
+  duration_ms: 0.337417
+  type: 'test'
+  ...
+# Subtest: S01-A02: switching tabs and targets changes only the URL, never stored data
+ok 4 - S01-A02: switching tabs and targets changes only the URL, never stored data
+  ---
+  duration_ms: 1.10475
+  type: 'test'
+  ...
+# Subtest: routes: every page parses and round-trips; anything else is not_found
+ok 5 - routes: every page parses and round-trips; anything else is not_found
+  ---
+  duration_ms: 0.185208
+  type: 'test'
+  ...
+# Subtest: V6-08-A02: missing, foreign, malformed and unknown-target links all show one unavailable page and write nothing
+ok 6 - V6-08-A02: missing, foreign, malformed and unknown-target links all show one unavailable page and write nothing
+  ---
+  duration_ms: 0.559208
+  type: 'test'
+  ...
+# Subtest: S01-A01: a fresh profile lists no matters and no demo content
+ok 7 - S01-A01: a fresh profile lists no matters and no demo content
+  ---
+  duration_ms: 0.233875
+  type: 'test'
+  ...
+# Subtest: STORAGE_UNAVAILABLE: a read fault is reported as such, never as an empty or missing matter
+ok 8 - STORAGE_UNAVAILABLE: a read fault is reported as such, never as an empty or missing matter
+  ---
+  duration_ms: 0.346167
+  type: 'test'
+  ...
+# Subtest: STORAGE_UNAVAILABLE: the storage exception's own text never reaches a page
+ok 9 - STORAGE_UNAVAILABLE: the storage exception's own text never reaches a page
+  ---
+  duration_ms: 0.327042
+  type: 'test'
+  ...
+# Subtest: V6-08-A03: a failed create writes nothing; retrying with the same ids creates exactly one matter
+ok 10 - V6-08-A03: a failed create writes nothing; retrying with the same ids creates exactly one matter
+  ---
+  duration_ms: 0.423333
+  type: 'test'
+  ...
+# Subtest: V6-08-A03: another user's id is never reported as a successful create
+ok 11 - V6-08-A03: another user's id is never reported as a successful create
+  ---
+  duration_ms: 0.20425
+  type: 'test'
+  ...
+# Subtest: V6-08-A03: parsing is pure — the same input gives the same route and nothing is mutated
+ok 12 - V6-08-A03: parsing is pure — the same input gives the same route and nothing is mutated
+  ---
+  duration_ms: 0.055333
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 167.262833
+exitCode=0

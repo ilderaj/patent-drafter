@@ -1,0 +1,98 @@
+
+> test:v6
+> node qa/v6/runner.mjs V6-16
+
+TAP version 13
+# Subtest: V6-16: identical snapshots resume every stage without provider or cache writes
+ok 1 - V6-16: identical snapshots resume every stage without provider or cache writes
+  ---
+  duration_ms: 22.188958
+  type: 'test'
+  ...
+# Subtest: V6-16: changing user facts invalidates dependent stages and keeps unrelated upstream branches cached
+ok 2 - V6-16: changing user facts invalidates dependent stages and keeps unrelated upstream branches cached
+  ---
+  duration_ms: 12.846625
+  type: 'test'
+  ...
+# Subtest: V6-16: changing source facts invalidates ingest and dependent stages
+ok 3 - V6-16: changing source facts invalidates ingest and dependent stages
+  ---
+  duration_ms: 10.917208
+  type: 'test'
+  ...
+# Subtest: V6-16: changing one branch leaves a non-dependent branch cached
+ok 4 - V6-16: changing one branch leaves a non-dependent branch cached
+  ---
+  duration_ms: 3.693292
+  type: 'test'
+  ...
+# Subtest: V6-16: provider, model, prompt, rule-pack, and stage-version changes all miss cache
+ok 5 - V6-16: provider, model, prompt, rule-pack, and stage-version changes all miss cache
+  ---
+  duration_ms: 3.475708
+  type: 'test'
+  ...
+# Subtest: V6-16: cache keys are scoped to a project when a cache is shared
+ok 6 - V6-16: cache keys are scoped to a project when a cache is shared
+  ---
+  duration_ms: 1.154417
+  type: 'test'
+  ...
+# Subtest: V6-16: authorization refusal surfaces its contract code before any provider call
+ok 7 - V6-16: authorization refusal surfaces its contract code before any provider call
+  ---
+  duration_ms: 0.926875
+  type: 'test'
+  ...
+# Subtest: V6-16: autoConfirm providers are rejected before an invocation can start
+ok 8 - V6-16: autoConfirm providers are rejected before an invocation can start
+  ---
+  duration_ms: 0.139833
+  type: 'test'
+  ...
+# Subtest: V6-16: stub execution has truthful test metadata and calls no injected provider
+ok 9 - V6-16: stub execution has truthful test metadata and calls no injected provider
+  ---
+  duration_ms: 1.139084
+  type: 'test'
+  ...
+# Subtest: V6-16: cache rejects forged provider/model metadata and reports valid hits
+ok 10 - V6-16: cache rejects forged provider/model metadata and reports valid hits
+  ---
+  duration_ms: 3.085375
+  type: 'test'
+  ...
+# Subtest: V6-16: invalid cache hash is evicted and repaired for subsequent adapters
+ok 11 - V6-16: invalid cache hash is evicted and repaired for subsequent adapters
+  ---
+  duration_ms: 8.181833
+  type: 'test'
+  ...
+# Subtest: V6-16: failed stage keeps earlier checkpoints and retry runs only that stage and dependents
+ok 12 - V6-16: failed stage keeps earlier checkpoints and retry runs only that stage and dependents
+  ---
+  duration_ms: 6.004709
+  type: 'test'
+  ...
+# Subtest: V6-16: schema-invalid output fails after one provider call and retry uses retained checkpoints
+ok 13 - V6-16: schema-invalid output fails after one provider call and retry uses retained checkpoints
+  ---
+  duration_ms: 1.322417
+  type: 'test'
+  ...
+# Subtest: V6-16: public calls leave caller inputs untouched
+ok 14 - V6-16: public calls leave caller inputs untouched
+  ---
+  duration_ms: 4.686333
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 232.916583

@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    env:
+      # The scenario suites and the export tests import TypeScript sources
+      # directly; Node 22 needs the explicit flag (Node 23+ enables it by default).
+      NODE_OPTIONS: --experimental-strip-types
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Chrome for headless tests
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+          install-dependencies: true
+
+      - name: Install from lockfile
+        run: npm ci
+
+      - name: Typecheck all workspaces
+        run: npm run typecheck
+
+      - name: Build the web app
+        run: npm run build -w @patent/web
+
+      # Require the installed browser: missing Chrome must fail, never skip tests.
+      - name: Run all V6 scenarios
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        run: |
+          set -o pipefail
+          test -x "$CHROME_PATH"
+          "$CHROME_PATH" --version
+          npm run test:v6 -- --all | tee qa/v6/scenarios/alignment-self/ci-portability-ci.log
+
+      - name: Preserve V6 scenario log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v6-node22-browser-tests
+          path: qa/v6/scenarios/alignment-self/ci-portability-ci.log
+          if-no-files-found: ignore
+
+      - name: Export builder tests
+        run: npm test -w packages/export

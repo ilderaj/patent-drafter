@@ -1,0 +1,37 @@
+ M .planning/2026-10-30-patent-saas-v6/progress.md
+ M .planning/2026-10-30-patent-saas-v6/task_plan.md
+ M apps/web/src/v6/routes/V6App.tsx
+ M apps/web/src/v6/routes/navigation.ts
+?? .claude/launch.json
+?? apps/web/src/v6/features/settings/Appearance.tsx
+?? apps/web/src/v6/styles/preferences.ts
+?? apps/web/src/v6/styles/theme.css
+?? node_modules
+?? qa/v6/evidence/V6-09/01-settings-light.png
+?? qa/v6/evidence/V6-09/02-switch-dark.png
+?? qa/v6/evidence/V6-09/03-reload-dark.png
+?? qa/v6/evidence/V6-09/04-system-follows-os.png
+?? qa/v6/evidence/V6-09/05-theme-selection.png
+?? qa/v6/evidence/V6-09/06-write-failure.png
+?? qa/v6/evidence/V6-09/07-refresh-after-failure.png
+?? qa/v6/evidence/V6-09/08-retry-saves.png
+?? qa/v6/evidence/V6-09/09-keyboard-375.png
+?? qa/v6/evidence/V6-09/10-final-native-light.png
+?? qa/v6/evidence/V6-09/11-final-native-dark.png
+?? qa/v6/evidence/V6-09/12-reduced-motion.png
+?? qa/v6/evidence/V6-09/13-navigation-keeps-saved.png
+?? qa/v6/evidence/V6-09/14-failed-save-stay.png
+?? qa/v6/evidence/V6-09/15-failed-save-discard.png
+?? qa/v6/evidence/V6-09/16-legacy-release.png
+?? qa/v6/evidence/V6-09/browser-drive.mjs
+?? qa/v6/evidence/V6-09/browser-log.json
+?? qa/v6/evidence/V6-09/build.txt
+?? qa/v6/evidence/V6-09/receipt.json
+?? qa/v6/evidence/V6-09/regression.txt
+?? qa/v6/evidence/V6-09/review-01.md
+?? qa/v6/evidence/V6-09/review-02.md
+?? qa/v6/evidence/V6-09/runner.tap
+?? qa/v6/evidence/V6-09/scope.txt
+?? qa/v6/evidence/V6-09/typecheck.txt
+?? qa/v6/scenarios/V6-09/appearance.test.mjs
+?? qa/v6/scenarios/V6-09/lifecycle-app.tsx

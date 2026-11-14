@@ -1,0 +1,66 @@
+{
+  "checks": 12,
+  "failures": [],
+  "results": [
+    {
+      "name": "setup-consent",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "g3-failed-job",
+      "ok": true,
+      "detail": "state=failed"
+    },
+    {
+      "name": "g3-revoked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "g3-retry-control",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "g3-sheet-reopens",
+      "ok": true,
+      "detail": "仅授权变化 → 重新确认"
+    },
+    {
+      "name": "g3-no-auto-consent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "g3-no-chat-before-grant",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "g3-not-input-stale",
+      "ok": true,
+      "detail": "code=None"
+    },
+    {
+      "name": "g3-explicit-grant",
+      "ok": true,
+      "detail": "agreed"
+    },
+    {
+      "name": "g3-control-after-grant",
+      "ok": true,
+      "detail": "retry=True start=True"
+    },
+    {
+      "name": "g3-executes-after-grant",
+      "ok": true,
+      "detail": "state=succeeded"
+    },
+    {
+      "name": "g3-chat-after-grant",
+      "ok": true,
+      "detail": "chat=14"
+    }
+  ]
+}
