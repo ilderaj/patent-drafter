@@ -173,6 +173,9 @@ test("a target that never had figures approves and exports without figure files"
   assert.equal(created.record.manifest.files.length, 5, "no figure file in the hashed manifest");
   assert.equal(created.record.files.length, 6, "manifest sidecar adds one view");
   assert.match(JSON.stringify(checklistSpec), /附图：0 张（本次材料包不含附图）/);
+  // The downloaded JSON sidecar is a different artifact from the PDF: it must carry
+  // the same human-readable figure note, not only the PDF render spec.
+  assert.deepEqual(created.record.manifest.figures, { count: 0, included: false, note: "附图：0 张（本次材料包不含附图）" });
 });
 
 test("a draft that mentions figures but has none needs one explicit acknowledgement", async () => {
