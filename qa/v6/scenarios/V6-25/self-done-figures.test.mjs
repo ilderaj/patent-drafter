@@ -4,14 +4,14 @@
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import * as esbuild from "esbuild";
 import { chromeSelfCheck, createCdpClient, launchChromeWithPageTarget, withTimeout } from "../../helpers/chrome.mjs";
 
-let browser, server, client;
+let browser, server, client, downloadDir;
 const errors = [];
 const TEST_TIMEOUT_MS = 90_000;
 const it = (name, fn) => test(name, { timeout: TEST_TIMEOUT_MS }, fn);
@@ -147,10 +147,12 @@ before(async () => {
   await withTimeout((async () => {
     await chromeSelfCheck({ profilePrefix: "v6-selfdone-selfcheck-", timeoutMs: 60_000 });
     browser = await launchChromeWithPageTarget({ profilePrefix: "v6-selfdone-" });
+    downloadDir = mkdtempSync(join(tmpdir(), "v6-selfdone-dl-"));
     client = createCdpClient(browser.socket, { requestTimeoutMs: 10_000, onEvent: (message) => {
       if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
     } });
     await client.send("Runtime.enable");
+    await client.send("Browser.setDownloadBehavior", { behavior: "allow", downloadPath: downloadDir, eventsEnabled: true });
     await client.send("Page.navigate", { url: `http://127.0.0.1:${server.address().port}` });
     await client.waitFor("!!window.fixture", "fixture loaded", { timeoutMs: 20_000 });
   })(), 90_000, "self done browser setup");
@@ -158,6 +160,7 @@ before(async () => {
 after(async () => {
   await withTimeout(browser?.close() ?? Promise.resolve(), 20_000, "browser close").catch((error) => console.error(`cleanup: ${error.message}`));
   if (server) await new Promise((done) => server.close(done));
+  if (downloadDir) rmSync(downloadDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 });
 
 it("self-service done without figures requires the acknowledgement, then exports through the real page", async () => {
@@ -180,10 +183,51 @@ it("self-service done without figures requires the acknowledgement, then exports
   await click('[data-testid="done-figure-ack"]');
   await waitFor("document.querySelector('[data-testid=done-export-button]').disabled === false", "export enabled after acknowledgement");
 
+  await evaluate(`(() => {
+    window.__drawnText = [];
+    const proto = CanvasRenderingContext2D.prototype;
+    if (!proto.__v6Patched) {
+      const original = proto.fillText;
+      proto.fillText = function (text, ...rest) { window.__drawnText.push(String(text)); return original.call(this, text, ...rest); };
+      proto.__v6Patched = true;
+    }
+    return true; })()`);
   await click('[data-testid="done-export-button"]');
   await waitFor(`document.querySelectorAll('[data-testid^="done-file-"]').length > 0`, "exported files listed", { timeoutMs: 60_000 });
   const names = await evaluate(`[...document.querySelectorAll('[data-testid^="done-file-"] .dl-n')].map((node) => node.textContent)`);
   assert.ok(names.some((name) => name.endsWith("权利要求书.docx")), JSON.stringify(names));
   assert.equal(names.some((name) => name.startsWith("附图原件-")), false, "no figure originals in a no-figure package");
   assert.match(await text('[data-testid="done-figures-none"]'), /未添加附图/);
+
+  // The checklist PDF is drawn on a canvas; check what the renderer actually wrote.
+  const drawn = await evaluate('window.__drawnText.join("|")');
+  assert.match(drawn, /附图：0 张（本次材料包不含附图）/, "the checklist renderer draws the figure line");
+  assert.match(drawn, /检索状态：未检索/);
+
+  // The JSON sidecar downloaded by the user carries the same note.
+  await evaluate(`(() => {
+    const row = [...document.querySelectorAll('[data-testid^="done-file-"]')]
+      .find((item) => item.textContent.includes('导出清单.json'));
+    if (!row) throw new Error('missing manifest row');
+    const button = [...row.querySelectorAll('button')].find((item) => item.textContent.trim() === '下载');
+    if (!button) throw new Error('missing manifest download');
+    button.click(); return true;
+  })()`);
+  let manifestFile = null;
+  for (let i = 0; i < 100 && manifestFile === null; i++) {
+    await new Promise((done) => setTimeout(done, 100));
+    manifestFile = readdirSync(downloadDir).find((name) => name.endsWith(".json")) ?? null;
+  }
+  assert.ok(manifestFile, "the manifest sidecar was downloaded");
+  const manifest = JSON.parse(readFileSync(join(downloadDir, manifestFile), "utf8"));
+  assert.deepEqual(manifest.figures, { count: 0, included: false, note: "附图：0 张（本次材料包不含附图）" });
+
+  // The self approval panel (inside the collapsed details) shows the same state after expanding.
+  await evaluate(`(() => { const d = document.querySelector('[data-testid="delivery-approval-details"]'); if (d) d.open = true; return true; })()`);
+  await waitFor(`!!document.querySelector('[data-testid="approval-panel"]')`, "approval panel in self details");
+  await waitFor(`!!document.querySelector('[data-testid="approval-figures-none"]')`, "approval no-figure tip");
+  assert.match(await text('[data-testid="approval-figure-set"]'), /附图：0 张/);
+  assert.match(await text('[data-testid="approval-figures-none"]'), /未添加附图：本次材料包不含附图，提交前请按需要补充/);
+  assert.equal(await evaluate("document.querySelector('[data-testid=approval-add-figures]')?.getAttribute('href')"),
+    `/v6/matters/${matterId}/targets/${targetId}/sources`);
 });

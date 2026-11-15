@@ -85,6 +85,8 @@ export interface ExportManifest {
   riskIds: string[];
   searchState: "not_searched";
   packageKind: ExportPackageKind;
+  /** Human-readable figure state shipped with the manifest sidecar; absent on older rows. */
+  figures?: { count: number; included: boolean; note: string };
   testOutput?: boolean;
   language: "zh-CN" | "en-US";
   createdAt: string;
@@ -736,6 +738,14 @@ function makeChecklist(
   };
 }
 
+export function figureManifestNote(count: number): { count: number; included: boolean; note: string } {
+  return {
+    count,
+    included: count > 0,
+    note: count === 0 ? "附图：0 张（本次材料包不含附图）" : `附图：${count} 张`,
+  };
+}
+
 function mimeFor(name: string): string {
   if (name.endsWith(".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
   if (name.endsWith(".pdf")) return "application/pdf";
@@ -827,6 +837,7 @@ async function buildFiles(options: ExportSessionOptions, context: LoadedExportCo
     riskIds,
     searchState: "not_searched",
     packageKind,
+        figures: figureManifestNote(context.figureSummary.count),
     ...(testOutput ? { testOutput: true } : {}),
     language: context.revision.ast.language,
     createdAt,
@@ -1072,6 +1083,7 @@ export class ExportSession {
         riskIds: (this.options.checkResult.checkRun.findings ?? []).filter((item) => item.category === "risk").map((item) => item.id),
         searchState: "not_searched",
         packageKind,
+                figures: figureManifestNote(context.figureSummary.count),
         ...(context.revision.revision.testOutput === true ? { testOutput: true } : {}),
         language: context.revision.ast.language,
         createdAt,
@@ -1183,6 +1195,7 @@ export class ExportSession {
       riskIds: (this.options.checkResult?.checkRun.findings ?? []).filter((item) => item.category === "risk").map((item) => item.id),
       searchState: "not_searched",
       packageKind: effectivePackageKind(this.options),
+      figures: figureManifestNote(context.figureSummary.count),
       language: context.revision.ast.language,
       createdAt: at,
       files: [],

@@ -700,6 +700,23 @@ export interface ApprovalPanelViewProps {
   onRevoke: (approvalId: string, reason: string) => ApprovalRevokeResult | Promise<ApprovalRevokeResult>;
 }
 
+function FigureStatusBlock({ state }: { state: ApprovalPanelState }) {
+  const known = state.phase === "ready" || state.phase === "stale";
+  const count = known ? state.figureSet?.entries.length ?? 0 : null;
+  return <>
+    <div className="gate">
+      <span className="g-t" data-testid="approval-figure-set">{count === null ? "附图：— 张（尚未读取）" : `附图：${count} 张`}</span>
+      {count === 0 && state.snapshot
+        ? <a className="link" data-testid="approval-add-figures" href={`/v6/matters/${state.snapshot.matterId}/targets/${state.snapshot.targetId}/sources`}>去材料页添加附图</a>
+        : null}
+    </div>
+    {count === 0 ? <div className="callout warn" data-testid="approval-figures-none">
+      <b>未添加附图：本次材料包不含附图，提交前请按需要补充。</b>
+      {state.figureReferencesInDraft ? <p>草稿正文提到附图或附图说明，但当前没有附图。批准只记录内部放行，不代替附图补齐。</p> : null}
+    </div> : null}
+  </>;
+}
+
 /** Exported for standalone shell composition and accessible state verification. */
 export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }: ApprovalPanelViewProps) {
   const [note, setNote] = useState("");
@@ -713,6 +730,7 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
   </section>;
   if (state.phase === "error") return <section className="card stack-3" data-testid="approval-panel" data-state="error">
     <h2 className="card-title">内部交付批准</h2>
+    <FigureStatusBlock state={state} />
     <div className="notice" role="alert" data-testid="approval-error" data-code={state.error?.code}>
       <strong>{userMessageFor(state.error?.code)}</strong><p>{state.error?.message}</p>
       {state.error?.code ? <details><summary>技术详情</summary><code>{technicalDetailLabel(state.error.code)}</code></details> : null}
@@ -721,6 +739,7 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
   </section>;
   if (state.phase === "empty" || !state.snapshot || !state.revision) return <section className="card stack-3" data-testid="approval-panel" data-state="empty">
     <h2 className="card-title">内部交付批准</h2><p className="muted">当前目标没有可批准的草稿修订。</p>
+    <FigureStatusBlock state={state} />
     {state.ledger.approvals.length === 0 ? <p className="field-hint">尚无内部批准记录。</p> : <div className="stack-2" data-testid="approval-history-empty">
       <h3 className="card-title">历史批准记录</h3>
       {state.ledger.approvals.map((approval) => {
@@ -762,11 +781,6 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
       <p>{state.inputStale ? "草稿依据的材料、配置或附图版本已变化，请刷新后重新检查。" : "检查或快照已变化；现有批准会按当前门禁重新计算。"}</p>
     </div> : null}
 
-    {(state.figureSet?.entries.length ?? 0) === 0 ? <div className="callout warn" data-testid="approval-figures-none">
-      <b>未添加附图：本次材料包不含附图，提交前请按需要补充。</b>
-      {state.figureReferencesInDraft ? <p>草稿正文提到附图或附图说明，但当前没有附图。批准只记录内部放行，不代替附图补齐。</p> : null}
-    </div> : null}
-
     <details data-testid="approval-snapshot" className="tech">
       <summary>当前版本快照（技术详情）</summary>
       <code>SnapshotRef：{snapshotLabel(state.snapshot)}</code>
@@ -774,18 +788,13 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
 
     <div className="exportcard" data-testid="approval-prerequisites">
       <div className="ec-h"><span className="ec-t">门禁前置条件</span><span className="ec-r"><span className="tag plain">{model.roleCanApprove ? "当前角色可批准" : "当前角色不可批准"}</span></span></div>
+      <FigureStatusBlock state={state} />
       <div className="gates">
         <div className="gate"><span className="g-t" data-testid="approval-check-validity">当前检查：{model.checkStatus}</span></div>
         <div className="gate"><span className="g-t" data-testid="approval-ai-coverage">AI / 混合段落：{model.confirmedAiParagraphIds.length} / {model.aiParagraphIds.length} 已确认</span></div>
         <div className="gate"><span className="g-t" data-testid="approval-full-read">通读确认：{model.fullReadConfirmed ? "当前快照已确认" : "未确认"}</span></div>
         <div className="gate"><span className="g-t" data-testid="approval-input-stale">输入陈旧：{state.inputStale ? "是" : "否"}</span></div>
         <div className="gate"><span className="g-t" data-testid="approval-files-available">引用文件：{model.filesAvailable ? "当前可用" : "缺失或不可用"}</span></div>
-        <div className="gate">
-          <span className="g-t" data-testid="approval-figure-set">附图：{state.figureSet?.entries.length ?? 0} 张</span>
-          {(state.figureSet?.entries.length ?? 0) === 0
-            ? <a className="link" data-testid="approval-add-figures" href={`/v6/matters/${state.snapshot?.matterId ?? ""}/targets/${state.snapshot?.targetId ?? ""}/sources`}>去材料页添加附图</a>
-            : null}
-        </div>
         <div className="gate"><span className="g-t" data-testid="approval-rule-pack">{model.rulePackStatus}</span></div>
         <div className="gate"><span className="g-t" data-testid="approval-role">{ROLE_LABELS[role]} · {model.roleCanApprove ? "可执行批准" : "不可批准"}
           {model.roleCanApprove ? null : <details className="tech"><summary>技术详情</summary><code>ACTION_FORBIDDEN</code></details>}
