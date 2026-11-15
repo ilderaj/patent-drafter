@@ -228,9 +228,11 @@ export async function loadWorkspace(
     priorityClaims,
     parties,
     route: target.config?.route,
+    // A target that never had figures has no set to judge: the rule stays a
+    // blocker for empty or unbound sets, but it does not apply to "no figures yet".
     figureSet: figureRevision
       ? { id: figureRevision.id, entries: figureRevision.entries.map(mapFigure) }
-      : null,
+      : undefined,
     assets: mapCheckAssets(aggregate.assets, figureData?.drawings ?? []),
     draftFigureRevisionId: snapshot.figureRevisionId,
     inputStale,

@@ -38,8 +38,12 @@ test('status discloses only public configuration and separates authentication', 
   const s = setup(); const value = await s.status();
   assert.equal(value.available, true); assert.equal(value.authenticated, false);assert.equal(value.sessionId,null);
   assert.equal(value.processor.region, 'fixture-region');assert.ok(Number.isSafeInteger(value.profileVersion));
+  assert.equal(value.protocol, 'openai-chat');
+  assert.equal(value.endpoint, 'https://model.example/v1/chat/completions');
+  assert.equal(value.localLoopback, false);
   const raw = JSON.stringify(value);
-  for (const secret of [s.env.MODEL_API_KEY, s.env.ACCESS_CODE, s.env.SESSION_SECRET, s.env.MODEL_BASE_URL]) assert.ok(!raw.includes(secret));
+  // Protocol/endpoint/model are disclosed by design; key, access code and session secret are not.
+  for (const secret of [s.env.MODEL_API_KEY, s.env.ACCESS_CODE, s.env.SESSION_SECRET]) assert.ok(!raw.includes(secret));
   const cookie = await s.login();const authenticated = await s.status(cookie);
   assert.equal(authenticated.authenticated, true);assert.match(authenticated.sessionId,/^[0-9a-f]{64}$/);
   assert.ok(!JSON.stringify(authenticated).includes(cookie));

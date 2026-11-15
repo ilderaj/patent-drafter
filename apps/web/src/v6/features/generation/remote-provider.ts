@@ -6,7 +6,11 @@ const processorSchema = z.object({ name: z.string(), region: z.string(), retenti
   trainingPolicy: z.enum(["no_training", "allowed", "unknown"]), termsVersion: z.string().nullable() });
 export const generationStatusSchema = z.object({ available: z.boolean(), configured: z.boolean(), authenticated: z.boolean(),
   model: z.string().nullable(), processor: processorSchema, profileVersion: z.number().int().positive().safe(), unavailableReason: z.string().nullable(),
-  sessionId: z.string().regex(/^[0-9a-f]{64}$/).nullable().optional() });
+  sessionId: z.string().regex(/^[0-9a-f]{64}$/).nullable().optional(),
+  /** Upstream protocol and resolved endpoint; disclosed by the relay. */
+  protocol: z.string().nullable().optional(), endpoint: z.string().nullable().optional(),
+  /** True when the endpoint is http on 127.0.0.1/localhost and explicitly allowed for local verification. */
+  localLoopback: z.boolean().optional() });
 export type GenerationStatus = z.infer<typeof generationStatusSchema>;
 export interface RemoteConsentBinding { credential: string; manifestHash: string }
 const consentCredentialSchema = z.object({ credential: z.string().min(1), expiresAt: z.string().datetime(), allowedStages: z.array(z.string().min(1)).min(1) });

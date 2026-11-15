@@ -39,6 +39,7 @@ export const USER_MESSAGES: Readonly<Record<string, string>> = Object.freeze({
   PROVIDER_REJECTED: "模型服务拒绝了请求",
   PROVIDER_REQUEST_INVALID: "请求内容或参数不符合模型要求",
   PROVIDER_SCHEMA_INVALID: "模型输出无法解析",
+  FIGURE_ACK_REQUIRED: "草稿提到附图但本次没有附图，需要先确认不含附图",
 });
 
 /**

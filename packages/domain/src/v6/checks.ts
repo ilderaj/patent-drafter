@@ -490,6 +490,10 @@ const BUILTIN_CHECKS: readonly RegisteredCheck[] = Object.freeze([
     "草稿引用了当前图集不存在的图，或草稿绑定的图集修订已变化。",
     "核对草稿图号与当前图集，再重新检查。",
     (input) => {
+      // A target that never had a figure set has nothing to mismatch. The export
+      // and approval surfaces require an explicit "no figures" acknowledgement
+      // instead; the blocker stays for every target that does have a set.
+      if (input.figureSet === undefined) return [];
       const figures = input.figureSet?.entries ?? [];
       const known = new Set(figures.map((entry) => entry.figureId));
       const referenced = collectAstFigureIds(input.ast);

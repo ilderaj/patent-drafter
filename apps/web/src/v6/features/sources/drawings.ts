@@ -1721,6 +1721,37 @@ export interface FigureSetRead {
   current: ReadonlyMap<string, FigureSetRevision>;
   revisions: readonly FigureSetRevision[];
   drawings: readonly LibraryDrawing[];
+  /**
+   * Targets with a stored figure-set row that cannot be read back (malformed or
+   * foreign). A missing row alone is not corruption: a target that never used
+   * figures has none. These must keep blocking.
+   */
+  corruptTargets: ReadonlySet<string>;
+}
+
+/** Stored rows that name a figure set but fail validation: corruption, never "no figures". */
+async function readCorruptFigureTargets(
+  repository: LocalRepository,
+  actor: Actor,
+  matterId: string,
+): Promise<Set<string>> {
+  let rows: readonly unknown[];
+  try {
+    rows = await repository.backend.transaction("readonly", async (tx) => tx.getAll(STORES.blobs));
+  } catch {
+    return new Set();
+  }
+  const targets = new Set<string>();
+  for (const value of rows) {
+    if (!isRecord(value) || value.kind !== "figures.set") continue;
+    const stored = asStoredFigureSet(value);
+    if (stored !== null) continue;
+    if (value.tenantId !== undefined && value.tenantId !== actor.tenantId) continue;
+    if (value.matterId !== undefined && value.matterId !== matterId) continue;
+    const revision = isRecord(value.revision) ? value.revision : null;
+    if (revision !== null && typeof revision.targetId === "string") targets.add(revision.targetId);
+  }
+  return targets;
 }
 
 /** Everything the figure surface shows, read from persisted state only. */
@@ -1741,7 +1772,8 @@ export async function readFigureLibrary(
     const bound = revisions.find((revision) => revision.id === target.figureRevisionId);
     if (bound) current.set(target.id, bound);
   }
-  return { ok: true, data: { targets: loaded.data.data.targets, current, revisions, drawings: drawings.data } };
+  const corruptTargets = await readCorruptFigureTargets(repository, actor, matterId);
+  return { ok: true, data: { targets: loaded.data.data.targets, current, revisions, corruptTargets, drawings: drawings.data } };
 }
 
 // ---------------------------------------------------------------------------
@@ -1793,6 +1825,36 @@ export function resolveFigureReferences(
 }
 
 /** The distinct figure ids a draft AST references, in document order. */
+/**
+ * Distinguish "this target never had a figure set" from "its set record is gone".
+ * The contract always names a first `figureRevisionId`, but a target that never
+ * touched figures has no row for it; losing a row that history proves existed is
+ * corruption and must keep blocking export.
+ */
+export type FigureSetStatus = "present" | "never_created" | "missing";
+
+export function figureSetStatus(data: FigureSetRead, targetId: string): FigureSetStatus {
+  if (data.current.has(targetId)) return "present";
+  // A malformed row, or history for this target without the bound revision, is
+  // damage; a target that never had figures simply has no row.
+  if (data.corruptTargets?.has(targetId)) return "missing";
+  return data.revisions.some((revision) => revision.targetId === targetId) ? "missing" : "never_created";
+}
+
+/** True when the draft itself talks about figures: bound ids, 图N references or 附图说明 text. */
+export function hasFigureReferences(ast: unknown): boolean {
+  if (collectFigureIds(ast).length > 0) return true;
+  if (!isRecord(ast)) return false;
+  const mentions = (text: unknown) => typeof text === "string" && /(?:图|圖)\s*\d{1,4}|\bFIG(?:URE)?S?\.?\s*\d{1,4}/i.test(text);
+  const visit = (paragraphs: unknown) => Array.isArray(paragraphs)
+    && paragraphs.some((paragraph) => isRecord(paragraph) && mentions(paragraph.text));
+  if (Array.isArray(ast.claims) && ast.claims.some((claim) => isRecord(claim) && visit(claim.paragraphs))) return true;
+  if (!Array.isArray(ast.sections)) return false;
+  // A 附图说明 section only counts when it actually names a figure; an explicit
+  // "本申请无附图。" must not demand an acknowledgement for figures it does not have.
+  return ast.sections.some((section) => isRecord(section) && visit(section.paragraphs));
+}
+
 export function collectFigureIds(ast: unknown): string[] {
   const out: string[] = [];
   const add = (value: unknown) => {
