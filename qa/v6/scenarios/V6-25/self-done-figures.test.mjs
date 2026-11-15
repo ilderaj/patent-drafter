@@ -1,0 +1,189 @@
+// Real SelfService "done" step in headless Chrome: the page must show the figure
+// status, require the acknowledgement when the draft references figures, and then
+// export through the same code path the online smoke uses. In-memory repository.
+import test, { before, after } from "node:test";
+import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { createServer } from "node:http";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import * as esbuild from "esbuild";
+import { chromeSelfCheck, createCdpClient, launchChromeWithPageTarget, withTimeout } from "../../helpers/chrome.mjs";
+
+let browser, server, client;
+const errors = [];
+const TEST_TIMEOUT_MS = 90_000;
+const it = (name, fn) => test(name, { timeout: TEST_TIMEOUT_MS }, fn);
+const evaluate = (expression, options) => client.evaluate(expression, options);
+const waitFor = (expression, label = expression, options = { timeoutMs: 20_000 }) => client.waitFor(expression, label, options);
+const exists = (selector) => evaluate(`!!document.querySelector(${JSON.stringify(selector)})`);
+const text = (selector) => evaluate(`document.querySelector(${JSON.stringify(selector)})?.textContent ?? null`);
+const click = (selector) => evaluate(`(() => { const el = document.querySelector(${JSON.stringify(selector)}); if (!el) throw new Error('missing ${selector}'); el.click(); return true; })()`);
+
+before(async () => {
+  const root = resolve(import.meta.dirname, "../../../..");
+  const build = await esbuild.build({
+    stdin: { resolveDir: root, sourcefile: "self-done.tsx", loader: "tsx", contents: `
+      import { createRoot } from 'react-dom/client';
+      import { MemoryRouter } from 'react-router-dom';
+      import { SelfService } from './apps/web/src/v6/features/self-service/SelfService.tsx';
+      import { createSelfServiceMatter } from './apps/web/src/v6/routes/navigation.ts';
+      import { createTarget } from './apps/web/src/v6/features/targets/targets.ts';
+      import { createGenerationRevisionStore } from './apps/web/src/v6/features/generation/generation.ts';
+      import { readIntake } from './apps/web/src/v6/features/intake/intake.ts';
+      import { loadTargetsView } from './apps/web/src/v6/features/targets/targets.ts';
+      import { requiredSelfServiceStep } from './apps/web/src/v6/features/self-service/route-state.ts';
+      import { confirmLocalFullRead } from './apps/web/src/v6/features/preview/preview.ts';
+      import { MemoryBackend } from './qa/v6/scenarios/V6-21/harness.mjs';
+      import { openLocalRepository, STORES } from './apps/web/src/v6/lib/repository.ts';
+
+      const actor = { tenantId: '11111111-1111-4111-8111-111111111111', userId: '22222222-2222-4222-8222-222222222222' };
+      const T0 = '2026-11-15T10:00:00.000Z';
+      const FIGURE_ID = '99999999-9999-4999-8999-999999999991';
+      const paragraph = (id, text, extra = {}) => ({ id, text, origin: 'human', sourceRefs: [], factIds: [], figureIds: [], generationJobId: null, ...extra });
+      const ast = {
+        schemaVersion: 'draft.v1', language: 'zh-CN', title: '合成温控装置',
+        claims: [{ id: '66666666-6666-4666-8666-666666666661', number: 1, dependsOn: [],
+          paragraphs: [paragraph('77777777-7777-4777-8777-777777777771', '一种合成温控装置，包括温控组件。')], features: [] }],
+        sections: [
+          { kind: 'technical_field', paragraphs: [paragraph('77777777-7777-4777-8777-777777777772', '本实用新型涉及温控装置。')] },
+          { kind: 'background', paragraphs: [paragraph('77777777-7777-4777-8777-777777777773', '现有温控装置结构复杂。')] },
+          { kind: 'summary', paragraphs: [paragraph('77777777-7777-4777-8777-777777777774', '本方案简化温控结构。')] },
+          { kind: 'figures_description', paragraphs: [paragraph('77777777-7777-4777-8777-777777777775', '图1为本实用新型结构示意图。', { figureIds: [FIGURE_ID] })] },
+          { kind: 'embodiments', paragraphs: [paragraph('77777777-7777-4777-8777-777777777776', '以下结合图1说明实施方式。')] },
+          { kind: 'abstract', paragraphs: [paragraph('77777777-7777-4777-8777-777777777777', '一种合成温控装置。')] },
+        ],
+      };
+
+      window.fixture = {
+        async seed() {
+          const repository = openLocalRepository(new MemoryBackend());
+          const matterId = crypto.randomUUID();
+          const created = await createSelfServiceMatter(repository, actor, {
+            matterId, eventId: crypto.randomUUID(), requestId: crypto.randomUUID(), now: T0, title: '自助无附图案件',
+          });
+          if (!created.ok) throw new Error(JSON.stringify(created));
+          const partyId = crypto.randomUUID();
+          const provenance = {};
+          for (const key of ['problem', 'difference', 'inventorIds', 'disclosure', 'maturity']) {
+            provenance[key] = { key, source: { kind: 'direct' }, basedOnVersion: 1, savedAt: T0 };
+          }
+          await repository.backend.transaction('readwrite', (tx) => tx.put(STORES.blobs, 'intake/snapshot/' + matterId + '/1', {
+            kind: 'intake.snapshot',
+            provenance,
+            snapshot: {
+              matterId, version: 1, sourceIds: [], facts: [], conflicts: [],
+              answers: { problem: '结构复杂', difference: '简化温控结构', inventorIds: [partyId], disclosure: 'none', maturity: 'drawing', disclosureDetail: null },
+              parties: [{ id: partyId, kind: 'person', name: '合成发明人', roles: ['inventor'], country: 'CN' }],
+              createdBy: actor.userId, createdAt: T0,
+            },
+          }));
+          const target = await createTarget(repository, actor, matterId, {
+            config: { route: 'cn_um', language: 'zh-CN', applicantIds: [], inventorIds: [partyId], priorityClaims: [] },
+          }, { requestKey: crypto.randomUUID() });
+          if (!target.ok) throw new Error(JSON.stringify(target.error));
+          const targetId = target.data.target.id;
+          const revisions = createGenerationRevisionStore({ repository, actor, now: () => new Date(T0) });
+          const saved = await revisions.saveEditedRevision(matterId, targetId, null, ast);
+          if (!saved.ok) throw new Error(JSON.stringify(saved.error));
+          const snapshot = {
+            matterId, targetId, sourceVersion: 1, targetConfigVersion: 1,
+            draftRevisionId: saved.data.id, figureRevisionId: target.data.target.figureRevisionId,
+          };
+          const read = await confirmLocalFullRead({ repository, actor, snapshot, access: 'local_unmetered', now: () => T0 });
+          if (!read.ok) throw new Error(JSON.stringify(read.error));
+          const rootEl = document.getElementById('root');
+          createRoot(rootEl).render(
+            <MemoryRouter initialEntries={['/v6/new/' + matterId + '/done?target=' + targetId]}>
+              <SelfService repository={repository} actor={actor} matterId={matterId} step="done" />
+            </MemoryRouter>,
+          );
+          this.diag = async () => {
+            const intake = await readIntake(repository, actor, matterId);
+            const targets = await loadTargetsView(repository, actor, matterId);
+            const loaded = await repository.loadMatter(actor, matterId);
+            const active = targets.ok ? targets.view.targets.filter((t) => t.status === 'active') : [];
+            const targetRecord = loaded.ok ? loaded.data.data.targets.find((t) => t.id === targetId) : null;
+            return JSON.stringify({
+              intakeOk: intake.ok, missing: intake.ok ? intake.view.missing : null,
+              targetsOk: targets.ok, active: active.length,
+              configs: active.map((t) => t.config !== null),
+              draftRevisionId: targetRecord ? targetRecord.draftRevisionId : null,
+              step: intake.ok && targets.ok ? requiredSelfServiceStep('done', { intake: intake.view, target: active[0] ?? null, targetRecord }) : null,
+            });
+          };
+          return { matterId, targetId };
+        },
+      };
+    ` },
+    bundle: true, write: false, format: "iife", platform: "browser", jsx: "automatic",
+    loader: { ".css": "empty" },
+    define: { "process.env.NODE_ENV": '"production"' }, logLevel: "silent",
+    plugins: [{
+      name: "node-builtin-shim",
+      setup(build) {
+        build.onResolve({ filter: /^node:(fs\/promises|path)$/ }, (args) => ({ path: args.path, namespace: "node-builtin-shim" }));
+        build.onLoad({ filter: /.*/, namespace: "node-builtin-shim" }, (args) => ({
+          loader: "js",
+          contents: args.path === "node:fs/promises"
+            ? "export async function readFile() { throw new Error('文件系统在浏览器 fixture 中不可用'); }\nexport default { readFile };"
+            : "export function join(...parts) { return parts.join('/'); }\nexport default { join };",
+        }));
+      },
+    }, {
+      name: "vite-raw",
+      setup(build) {
+        build.onResolve({ filter: /\?raw$/ }, (args) => ({ path: resolve(args.resolveDir, args.path.replace(/\?raw$/, "")), namespace: "vite-raw" }));
+        build.onLoad({ filter: /.*/, namespace: "vite-raw" }, (args) => ({ contents: `export default ${JSON.stringify(readFileSync(args.path, "utf8"))}`, loader: "js" }));
+      },
+    }],
+  });
+  server = createServer((request, response) => {
+    response.setHeader("content-type", request.url === "/fixture.js" ? "application/javascript" : "text/html; charset=utf-8");
+    response.end(request.url === "/fixture.js" ? build.outputFiles[0].contents : '<div id="root"></div><script src="/fixture.js"></script>');
+  });
+  await new Promise((done) => server.listen(0, "127.0.0.1", done));
+  await withTimeout((async () => {
+    await chromeSelfCheck({ profilePrefix: "v6-selfdone-selfcheck-", timeoutMs: 60_000 });
+    browser = await launchChromeWithPageTarget({ profilePrefix: "v6-selfdone-" });
+    client = createCdpClient(browser.socket, { requestTimeoutMs: 10_000, onEvent: (message) => {
+      if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
+    } });
+    await client.send("Runtime.enable");
+    await client.send("Page.navigate", { url: `http://127.0.0.1:${server.address().port}` });
+    await client.waitFor("!!window.fixture", "fixture loaded", { timeoutMs: 20_000 });
+  })(), 90_000, "self done browser setup");
+});
+after(async () => {
+  await withTimeout(browser?.close() ?? Promise.resolve(), 20_000, "browser close").catch((error) => console.error(`cleanup: ${error.message}`));
+  if (server) await new Promise((done) => server.close(done));
+});
+
+it("self-service done without figures requires the acknowledgement, then exports through the real page", async () => {
+  const { matterId, targetId } = await evaluate("fixture.seed()");
+  await waitFor(`!!document.querySelector('[data-testid="self-done-step"]')`, "self done step");
+  await waitFor(`!!document.querySelector('[data-testid="done-figures"]')`, "figure block in self done");
+
+  assert.match(await text('[data-testid="done-figure-status"]'), /附图：0 张/);
+  assert.match(await text('[data-testid="done-figures-none"]'), /未添加附图：本次材料包不含附图，提交前请按需要补充/);
+  assert.equal(await evaluate("document.querySelector('[data-testid=done-add-figures]').getAttribute('href')"),
+    `/v6/matters/${matterId}/targets/${targetId}/sources`);
+  assert.equal(await exists('[data-testid="done-figure-ack"]'), true, "referenced draft asks for the acknowledgement");
+  assert.equal(await evaluate("document.querySelector('[data-testid=done-export-button]').disabled"), true);
+
+  await evaluate(`(() => {
+    const input = document.querySelector('[data-testid="done-passphrase"]');
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'synthetic-self-passphrase');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    return true; })()`);
+  await click('[data-testid="done-figure-ack"]');
+  await waitFor("document.querySelector('[data-testid=done-export-button]').disabled === false", "export enabled after acknowledgement");
+
+  await click('[data-testid="done-export-button"]');
+  await waitFor(`document.querySelectorAll('[data-testid^="done-file-"]').length > 0`, "exported files listed", { timeoutMs: 60_000 });
+  const names = await evaluate(`[...document.querySelectorAll('[data-testid^="done-file-"] .dl-n')].map((node) => node.textContent)`);
+  assert.ok(names.some((name) => name.endsWith("权利要求书.docx")), JSON.stringify(names));
+  assert.equal(names.some((name) => name.startsWith("附图原件-")), false, "no figure originals in a no-figure package");
+  assert.match(await text('[data-testid="done-figures-none"]'), /未添加附图/);
+});
