@@ -23,7 +23,7 @@ import {
   type GenerationRevisionStore,
   type GenerationRevisionView,
 } from "../generation/generation.ts";
-import { readFigureLibrary } from "../sources/drawings.ts";
+import { figureSetStatus, hasFigureReferences, readFigureLibrary } from "../sources/drawings.ts";
 import { technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
 import { migrateLegacyConfirmationLedger } from "../preview/preview.ts";
 import {
@@ -70,6 +70,9 @@ export interface ApprovalPanelState {
   inputStale: boolean;
   revision: GenerationRevisionView | null;
   figureSet: FigureSetRevision | null;
+  /** "never_created" = the target has no figures and never bound any. */
+  figureStatus: "present" | "never_created" | "missing";
+  figureReferencesInDraft: boolean;
   figureAssetsAvailable: boolean;
   ledger: ApprovalLedger;
   confirmations: ConfirmationLedger;
@@ -270,14 +273,14 @@ export class ApprovalSession {
     if (action === "export" && approval) return this.getGateDecisionForRecord(approval);
     const state = this.state;
     const snapshot = state.snapshot;
-    if (!snapshot || !state.revision || !state.figureSet) return null;
+    if (!snapshot || !state.revision) return null;
     return this.evaluate(action, snapshot, state.snapshotCurrent, state.inputStale, state.figureAssetsAvailable, state.confirmations, approval ?? null);
   }
 
   getGateDecisionForRecord(approval: Approval): GateDecision | null {
     const state = this.state;
     const currentSnapshot = state.snapshot;
-    if (!currentSnapshot || !state.revision || !state.figureSet) return null;
+    if (!currentSnapshot || !state.revision) return null;
     const bindingIsCurrent = state.snapshotCurrent && sameSnapshot(approval.snapshot, currentSnapshot);
     const decision = this.evaluate(
       "export",
@@ -305,7 +308,7 @@ export class ApprovalSession {
     const state = this.state;
     const snapshot = state.snapshot;
     const checkRun = this.checkResult?.checkRun ?? null;
-    if (state.phase === "loading" || state.phase === "error" || state.phase === "empty" || !snapshot || !state.revision || !state.figureSet) {
+    if (state.phase === "loading" || state.phase === "error" || state.phase === "empty" || !snapshot || !state.revision) {
       return actionFailure("STALE_BINDING", "当前目标没有可批准的稳定草稿；请刷新后再试。");
     }
     const gate = this.getGateDecision("approve");
@@ -487,11 +490,14 @@ export class ApprovalSession {
       const snapshot = snapshotFrom(aggregate, this.targetId);
       const snapshotCurrent = snapshot !== null && revision.revision.id === target.draftRevisionId;
       if (!snapshot) throw new ApprovalReadFailure("STALE_BINDING", "目标快照尚未绑定可批准的修订。");
-      const figureSet = figureRead.data.current.get(this.targetId) ?? null;
-      if (!figureSet) throw new ApprovalReadFailure("MISSING_BYTES", "当前目标的附图集不可读取；批准已阻止。");
+      const figureStatus = figureSetStatus(figureRead.data, this.targetId);
+      if (figureStatus === "missing") {
+        throw new ApprovalReadFailure("MISSING_BYTES", "附图集记录缺失或已损坏；请到材料页重新添加附图后再批准。");
+      }
+      const figureSet = figureStatus === "present" ? figureRead.data.current.get(this.targetId) ?? null : null;
       const drawingById = new Map(figureRead.data.drawings.map((item) => [item.drawing.id, item]));
-      let figureAssetsAvailable = figureSet.id === snapshot.figureRevisionId;
-      for (const entry of figureSet.entries) {
+      let figureAssetsAvailable = figureSet === null || figureSet.id === snapshot.figureRevisionId;
+      for (const entry of figureSet?.entries ?? []) {
         if (entry.drawingId === null) {
           figureAssetsAvailable = false;
           continue;
@@ -515,6 +521,8 @@ export class ApprovalSession {
         inputStale,
         revision,
         figureSet,
+        figureStatus,
+        figureReferencesInDraft: hasFigureReferences(revision.ast),
         figureAssetsAvailable,
         ledger,
         confirmations,
@@ -654,7 +662,7 @@ function buildModel(state: ApprovalPanelState, props: ApprovalPanelProps, sessio
   ) : { fullRead: false, confirmedAiParagraphIds: [], pendingAiParagraphIds: [], acknowledgedRiskIds: [] };
   const records: ApprovalRecordView[] = [...state.ledger.approvals].reverse().map((approval) => {
     const revocation = state.ledger.revocations.find((item) => item.objectId === approval.id) ?? null;
-    const decision = revocation || !snapshot || !state.figureSet
+    const decision = revocation || !snapshot
       ? null
       : session.getGateDecisionForRecord(approval);
     return { approval, revocation, decision };
@@ -711,7 +719,7 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
       <button type="button" className="btn btn-outline btn-sm" onClick={() => void onRefresh()}>重试读取</button>
     </div>
   </section>;
-  if (state.phase === "empty" || !state.snapshot || !state.revision || !state.figureSet) return <section className="card stack-3" data-testid="approval-panel" data-state="empty">
+  if (state.phase === "empty" || !state.snapshot || !state.revision) return <section className="card stack-3" data-testid="approval-panel" data-state="empty">
     <h2 className="card-title">内部交付批准</h2><p className="muted">当前目标没有可批准的草稿修订。</p>
     {state.ledger.approvals.length === 0 ? <p className="field-hint">尚无内部批准记录。</p> : <div className="stack-2" data-testid="approval-history-empty">
       <h3 className="card-title">历史批准记录</h3>
@@ -754,6 +762,11 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
       <p>{state.inputStale ? "草稿依据的材料、配置或附图版本已变化，请刷新后重新检查。" : "检查或快照已变化；现有批准会按当前门禁重新计算。"}</p>
     </div> : null}
 
+    {(state.figureSet?.entries.length ?? 0) === 0 ? <div className="callout warn" data-testid="approval-figures-none">
+      <b>未添加附图：本次材料包不含附图，提交前请按需要补充。</b>
+      {state.figureReferencesInDraft ? <p>草稿正文提到附图或附图说明，但当前没有附图。批准只记录内部放行，不代替附图补齐。</p> : null}
+    </div> : null}
+
     <details data-testid="approval-snapshot" className="tech">
       <summary>当前版本快照（技术详情）</summary>
       <code>SnapshotRef：{snapshotLabel(state.snapshot)}</code>
@@ -767,7 +780,12 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
         <div className="gate"><span className="g-t" data-testid="approval-full-read">通读确认：{model.fullReadConfirmed ? "当前快照已确认" : "未确认"}</span></div>
         <div className="gate"><span className="g-t" data-testid="approval-input-stale">输入陈旧：{state.inputStale ? "是" : "否"}</span></div>
         <div className="gate"><span className="g-t" data-testid="approval-files-available">引用文件：{model.filesAvailable ? "当前可用" : "缺失或不可用"}</span></div>
-        <div className="gate"><span className="g-t" data-testid="approval-figure-set">附图集：{state.figureSet.entries.length} 张</span></div>
+        <div className="gate">
+          <span className="g-t" data-testid="approval-figure-set">附图：{state.figureSet?.entries.length ?? 0} 张</span>
+          {(state.figureSet?.entries.length ?? 0) === 0
+            ? <a className="link" data-testid="approval-add-figures" href={`/v6/matters/${state.snapshot?.matterId ?? ""}/targets/${state.snapshot?.targetId ?? ""}/sources`}>去材料页添加附图</a>
+            : null}
+        </div>
         <div className="gate"><span className="g-t" data-testid="approval-rule-pack">{model.rulePackStatus}</span></div>
         <div className="gate"><span className="g-t" data-testid="approval-role">{ROLE_LABELS[role]} · {model.roleCanApprove ? "可执行批准" : "不可批准"}
           {model.roleCanApprove ? null : <details className="tech"><summary>技术详情</summary><code>ACTION_FORBIDDEN</code></details>}
@@ -946,6 +964,8 @@ function initialState(matterId: string): ApprovalPanelState {
     inputStale: false,
     revision: null,
     figureSet: null,
+  figureStatus: "never_created",
+  figureReferencesInDraft: false,
     figureAssetsAvailable: false,
     ledger: EMPTY_APPROVAL_LEDGER(matterId),
     confirmations: EMPTY_CONFIRMATION_LEDGER(matterId),

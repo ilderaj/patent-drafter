@@ -211,3 +211,31 @@ POST `/api/v6/chat`：`{requestId:string, prompt:string, stage:string, profileVe
 | A 同授权 429 后 | 有 `generation-retry`；无 `generation-consent-updated`；点击后 chat 增加 |
 | B 重新授权产生新 consent id | 有 `generation-consent-updated` 与 `generation-start-new-authorization`；**无** `generation-retry`、无 `generation-start`；点击后新作业 chat>0，旧失败记录仍在列表 |
 | C 同授权下材料变化后 retry | 点 `generation-retry` 后出现 `generation-action-error[data-code="INPUT_STALE"]` 与 `generation-start`；无 `generation-consent-updated` |
+
+## 2026-11-15 协议扩展与本地真实冒烟（分支 codex/v6-figures-and-providers）
+
+### 上游协议（worker-v6）
+
+- `MODEL_PROTOCOL`：`openai-chat`（默认）/ `openai-responses` / `anthropic-messages`。未知值 → `configured=false`、`available=false`、原因「不支持的模型协议」，不会猜。
+- 端点：`MODEL_BASE_URL` + 协议后缀——`/chat/completions`、`/responses`、`/v1/messages`（base 已以 `/v1` 结尾时用 `/messages`）。任意 https 端点；`http://127.0.0.1|localhost:<port>` 仅当 `MODEL_ALLOW_LOCAL_HTTP=true`；其他 http 一律拒绝。
+- 请求：openai-chat 用 `authorization: Bearer` + `messages` + `response_format.json_object`；openai-responses 用 `input` + `max_output_tokens` + `text.format.json_object`；anthropic 用 `x-api-key` + `anthropic-version: 2023-06-01` + `messages` + `max_tokens`（temperature > 1 省略）。
+- 响应：`choices[0].message.content` / `output_text` 或 `output[].content[].text` / `content[].text`；均无内容 → `PROVIDER_SCHEMA_INVALID`。
+- 不变：90 秒超时、512 KiB 请求 / 2 MiB 响应上限、redirect manual、stage 白名单、同意凭证校验、错误只回代码 + 数字 `upstreamStatus`、不记录正文/密钥。
+- status 新增 `protocol`、`endpoint`、`localLoopback`；protocol/endpoint/model/local 均纳入 `profileVersion`，切换协议或端点会使旧同意失效。
+- 本机回环：`localLoopback=true` 时，即使未提供处理方留存/训练信息也允许本地验证（状态如实标为「本机回环」，不冒充厂商声明）。
+
+### 本地真实冒烟脚本
+
+`qa/v6/local/live-deepseek.mjs`：只读根 `.dev.vars`（缺失时回退主检出），在内存映射为 worker 变量，写入仓库外临时 `.dev.vars`（0600），启动 `wrangler dev --local`，退出清理；从不回显密钥。远程 https 端点且无 `PROCESSOR_*` 时，通过 127.0.0.1 反向代理转发（地区如实标“本机回环”）；`LIVE_PROXY_HEADERS` 可为特定网关附加非密钥路由头。模型名默认从 `/models` 探测（依次尝试无认证/Bearer/x-api-key），失败则明确报错。
+
+### 冒烟结果（2026-11-15，本机，合成材料）
+
+- 模型探测成功：`deepseek-v4.1-flash`；协议 `openai-chat`；`upstreamMode=loopback-proxy-to-remote-https`；worker `status.available=true`。
+- 会话与同意凭证获取成功；chat 发出的请求被上游拒绝，worker 返回 502、`upstreamStatus=401`，耗时约 0.37 s，无 JSON 内容。
+- 直接探测确认原因：**上游 API key 已过期**（OpenCode Console 提示需更换新 key）。另观察到该网关对 chat 还要求 `x-opencode-session` 路由头，否则返回 400。两项都是运营侧配置问题，不是协议实现错误；未伪造兜底。
+- 下一步：更换有效 key 后重跑 `node qa/v6/local/live-deepseek.mjs`；如仍提示缺少路由头，设置 `LIVE_PROXY_HEADERS='{"x-opencode-session":"<opaque-id>"}'`（只用于本地代理）。
+
+### 测试与验证
+
+- `apps/worker-v6/test/protocols.test.mjs` 8 条：三协议请求形状/解析（含 `output_text` 与嵌套 output）、未知协议 unavailable、loopback 仅显式开启、远程 http 拒绝、loopback 如实披露、协议变化使旧凭证 409、错误映射与凭证校验不回退。
+- worker-v6 31/31；typecheck/build 通过；`--all` 745/749：4 个失败在 `V6-25/figures-optional.test.mjs`（依赖本工作树中其他 worker 正在修改的 delivery/export 文件，可单独复现，与本次改动无关）。

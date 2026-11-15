@@ -26,6 +26,8 @@ import {
 import {
   checkFigureExportGate,
   collectFigureIds,
+  figureSetStatus,
+  hasFigureReferences,
   readFigureLibrary,
   type FigureSetRead,
 } from "../sources/drawings.ts";
@@ -125,6 +127,11 @@ export interface ExportSessionOptions {
   /** Availability resolved by the host for non-figure references. */
   filesAvailable: boolean;
   confirmationMode: ExportConfirmationMode;
+  /**
+   * The user explicitly accepted exporting a package without figures while the
+   * draft still refers to them. Only a missing set with references needs this.
+   */
+  acknowledgeMissingFigures?: boolean;
   /** Defaults from confirmation mode: professional => internally_approved. */
   packageKind?: ExportPackageKind;
   passphrase: string;
@@ -133,12 +140,22 @@ export interface ExportSessionOptions {
   renderReport?: (spec: ReportPageSpec) => Promise<Uint8Array[]>;
 }
 
+export interface ExportFigureSummary {
+  /** Number of figure entries in the bound set; 0 when the target has none. */
+  count: number;
+  status: "present" | "never_created" | "missing";
+  /** The draft references figures (or 附图说明) but the set has none. */
+  acknowledgementRequired: boolean;
+  acknowledged: boolean;
+}
+
 export interface ExportSessionState {
   phase: "loading" | "empty" | "ready" | "blocked" | "stale" | "error";
   snapshot: SnapshotRef | null;
   inputStale: boolean;
   testOutput: boolean;
   gate: ExportGateDecision | null;
+  figures: ExportFigureSummary;
   record: ExportRecord | null;
   files: readonly ExportFileView[];
   unavailableFormats: readonly { format: "xml"; code: "FORMAT_UNAVAILABLE"; reason: string }[];
@@ -187,6 +204,7 @@ interface LoadedExportContext {
   gate: ExportGateDecision;
   inputStale: boolean;
   referencedFigureGateReasons: readonly ExportGateReason[];
+  figureSummary: ExportFigureSummary;
   figureAssets: readonly { figureId: string; number: number; drawingId: string; originalName: string; mime: string; sha256: string; bytes: Uint8Array }[];
 }
 
@@ -418,8 +436,11 @@ async function readCurrentContext(options: ExportSessionOptions): Promise<Loaded
   if (!figureRead.ok) throw new ExportReadFailure(figureRead.error.code, figureRead.error.message);
   if (head.data === null) throw new ExportReadFailure("RESOURCE_NOT_FOUND", "当前目标没有可导出的草稿修订。");
   const revision = head.data;
-  const figureSet = figureRead.data.current.get(targetId);
-  if (!figureSet) throw new ExportReadFailure("MISSING_BYTES", "当前附图集不可读取。");
+  const figureStatus = figureSetStatus(figureRead.data, targetId);
+  if (figureStatus === "missing") {
+    throw new ExportReadFailure("MISSING_BYTES", "附图集记录缺失或已损坏；请到材料页重新添加附图后再导出。");
+  }
+  const figureSet = figureStatus === "present" ? figureRead.data.current.get(targetId) ?? null : null;
 
   const snapshot: SnapshotRef = {
     matterId,
@@ -444,22 +465,38 @@ async function readCurrentContext(options: ExportSessionOptions): Promise<Loaded
     checkRun?.id ?? null,
     liveConfirmations.map((item) => item.id),
   );
-  const figureGate = await checkFigureExportGate(repository, actor, matterId, {
-    targetId,
-    figureRevisionId: snapshot.figureRevisionId,
-    referencedFigureIds: collectFigureIds(revision.ast),
-  }, { now: () => Date.parse((options.now ?? defaultNow)()) });
-  if (!figureGate.ok) throw new ExportReadFailure(figureGate.error.code, figureGate.error.message);
-  const figureReasons: ExportGateReason[] = figureGate.data.reasons.map((item) => ({
-    code: item.code,
-    ...(item.resourceId ? { resourceId: item.resourceId } : {}),
-  }));
+  const figuresReference = hasFigureReferences(revision.ast);
+  const acknowledged = options.acknowledgeMissingFigures === true;
+  let figureFilesAvailable = true;
+  let figureReasons: ExportGateReason[] = [];
+  if (figureSet !== null) {
+    const figureGate = await checkFigureExportGate(repository, actor, matterId, {
+      targetId,
+      figureRevisionId: snapshot.figureRevisionId,
+      referencedFigureIds: collectFigureIds(revision.ast),
+    }, { now: () => Date.parse((options.now ?? defaultNow)()) });
+    if (!figureGate.ok) throw new ExportReadFailure(figureGate.error.code, figureGate.error.message);
+    figureFilesAvailable = figureGate.data.filesAvailable;
+    figureReasons = figureGate.data.reasons.map((item) => ({
+      code: item.code,
+      ...(item.resourceId ? { resourceId: item.resourceId } : {}),
+    }));
+  } else if (figuresReference && !acknowledged) {
+    // Never silently export a draft that talks about figures it does not have.
+    figureReasons = [{ code: "FIGURE_ACK_REQUIRED" }];
+  }
+  const figureSummary: ExportFigureSummary = {
+    count: figureSet?.entries.length ?? 0,
+    status: figureStatus,
+    acknowledgementRequired: figureSet === null && figuresReference,
+    acknowledged,
+  };
 
   const sourceReasons = await referencedSourceAvailability(repository, actor, aggregate, revision.ast);
   sourceReasons.push(...await referencedPriorityAssetReasons(repository, actor, aggregate, targetId, target.configVersion));
   const figuresByDrawing = new Map(figureRead.data.drawings.map((item) => [item.drawing.id, item]));
   const figureAssets: LoadedExportContext["figureAssets"][number][] = [];
-  for (const entry of figureSet.entries) {
+  for (const entry of figureSet?.entries ?? []) {
     if (entry.drawingId === null) continue;
     const linked = figuresByDrawing.get(entry.drawingId);
     if (!linked || linked.asset.state !== "available") continue;
@@ -485,7 +522,7 @@ async function readCurrentContext(options: ExportSessionOptions): Promise<Loaded
     action: "export",
     snapshot,
     snapshotCurrent,
-    filesAvailable: figureGate.data.filesAvailable && sourceReasons.length === 0 && options.filesAvailable,
+    filesAvailable: figureFilesAvailable && sourceReasons.length === 0 && options.filesAvailable,
     rulePackVersion: checkRun?.rulePackVersion ?? options.activeRulePackVersion,
     activeRulePackVersion: options.activeRulePackVersion,
     checkRun,
@@ -523,6 +560,7 @@ async function readCurrentContext(options: ExportSessionOptions): Promise<Loaded
     gate,
     inputStale,
     referencedFigureGateReasons: figureReasons,
+    figureSummary,
     figureAssets,
   };
 }
@@ -677,6 +715,7 @@ function makeChecklist(
     { text: `风险 ID：${riskIds.join("、") || "当前检查未列出风险"}`, tone: "warn" as const },
     { text: `内容确认 ID：${context.liveConfirmations.map((item) => item.id).join("、") || "无"}`, tone: "ink" as const },
     { text: "检索状态：未检索", tone: "warn" as const },
+    { text: `附图：${context.figureSummary.count} 张${context.figureSummary.count === 0 ? "（本次材料包不含附图）" : ""}`, tone: context.figureSummary.count === 0 ? "warn" as const : "ink" as const },
     ...baseFiles.map((file) => ({ text: `${file.name} · ${file.bytes} bytes · SHA-256 ${file.sha256}`, tone: "ink" as const })),
     { text: `生成时间：${generatedAt}`, tone: "muted" as const },
   ];
@@ -686,7 +725,7 @@ function makeChecklist(
       { label: "案件", value: data.name },
       { label: "SnapshotRef", value: `${context.snapshot.matterId} / ${context.snapshot.targetId} / ${context.snapshot.draftRevisionId}` },
       { label: "AST SHA-256", value: context.revision.revision.astHash },
-      { label: "附图集 SHA-256", value: context.figures.current.get(context.snapshot.targetId)?.hash ?? "" },
+      { label: "附图集 SHA-256", value: context.figures.current.get(context.snapshot.targetId)?.hash ?? "（无附图集）" },
     ],
     sections: [
       { heading: "权利要求书", items: fullText.slice(0, data.claims.length), emptyText: "（无权利要求）" },
@@ -856,6 +895,7 @@ export class ExportSession {
       inputStale: false,
       testOutput: false,
       gate: null,
+      figures: { count: 0, status: "never_created", acknowledgementRequired: false, acknowledged: false },
       record: null,
       files: [],
       unavailableFormats: [{ format: "xml", code: "FORMAT_UNAVAILABLE", reason: XML_UNAVAILABLE }],
@@ -875,6 +915,13 @@ export class ExportSession {
   /** Update the export passphrase without rebuilding the loaded session. */
   setPassphrase(value: string): void {
     this.passphrase = value;
+  }
+
+  /** Record the explicit "export without figures" acknowledgement, then re-evaluate. */
+  async setFigureAcknowledged(value: boolean): Promise<void> {
+    if ((this.options.acknowledgeMissingFigures === true) === value) return;
+    this.options.acknowledgeMissingFigures = value;
+    await this.refresh();
   }
 
   async load(): Promise<void> {
@@ -932,6 +979,7 @@ export class ExportSession {
         inputStale: context.inputStale,
         testOutput: context.revision.revision.testOutput === true,
         gate: context.gate,
+        figures: context.figureSummary,
         record,
         files: record?.files ?? [],
         unavailableFormats: [{ format: "xml", code: "FORMAT_UNAVAILABLE", reason: XML_UNAVAILABLE }],

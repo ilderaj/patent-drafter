@@ -141,6 +141,7 @@ export function Done(props: DoneProps) {
     busy={busy}
     actionError={actionError}
     onPassphrase={setPassphrase}
+    onAcknowledgeFigures={(value) => { void session.setFigureAcknowledged(value); }}
     onRefresh={() => session.refresh()}
     onCreate={() => createExport()}
     onDownload={download}
@@ -156,6 +157,7 @@ export interface DoneViewProps {
   busy: boolean;
   actionError: { code: string; message: string } | null;
   onPassphrase: (value: string) => void;
+  onAcknowledgeFigures?: (value: boolean) => void;
   onRefresh: () => void | Promise<void>;
   onCreate: () => void | Promise<void>;
   onDownload: (file: ExportFileView) => void | Promise<void>;
@@ -183,11 +185,14 @@ function fileDescription(name: string, stats?: { claims: number; paragraphs: num
 }
 
 /** Exported for static state rendering and shell composition. */
-export function DoneView({ route, mode = "professional", documentStats, state, passphrase, busy, actionError, onPassphrase, onRefresh, onCreate, onDownload }: DoneViewProps) {
+export function DoneView({ route, mode = "professional", documentStats, state, passphrase, busy, actionError, onPassphrase, onAcknowledgeFigures, onRefresh, onCreate, onDownload }: DoneViewProps) {
   const hasUnavailableRecord = state.files.some((file) => file.status !== "ready");
   const actionLabel = hasUnavailableRecord ? "重新导出材料包" : state.record ? "再次导出材料包" : "生成材料包";
   const self = mode === "self";
   const allowed = state.gate?.allowed === true;
+  // Static/pre-feature states may omit the summary; treat them as "no figures".
+  const figures = state.figures ?? { count: 0, status: "never_created" as const, acknowledgementRequired: false, acknowledged: false };
+  const figureAckMissing = figures.acknowledgementRequired && !figures.acknowledged;
   const blockers = state.gate?.reasons?.length
     ? state.gate.reasons
     : state.phase === "error" && state.error ? [{ code: state.error.code }] : [];
@@ -242,6 +247,25 @@ export function DoneView({ route, mode = "professional", documentStats, state, p
     </div>)}
   </details>;
 
+  const figureBlock = <div className="group" data-testid="done-figures">
+    <div className="row"><div className="r-main">
+      <div className="r-title" data-testid="done-figure-status">附图：{figures.count} 张</div>
+      <div className="r-sub">{figures.count === 0 ? "本次材料包不含附图。" : "附图原件会随材料包一起导出。"}</div>
+      {figures.count === 0 && state.snapshot
+        ? <a className="link" data-testid="done-add-figures" href={`/v6/matters/${state.snapshot.matterId}/targets/${state.snapshot.targetId}/sources`}>去材料页添加附图</a>
+        : null}
+    </div></div>
+    {figures.count === 0 ? <div className="callout warn" data-testid="done-figures-none">
+      <b>未添加附图：本次材料包不含附图，提交前请按需要补充。</b>
+      {figures.acknowledgementRequired ? <p>草稿正文提到附图或附图说明，但当前没有可导出的附图。</p> : null}
+    </div> : null}
+    {figures.acknowledgementRequired && onAcknowledgeFigures ? <label className="checkrow" data-testid="done-figure-ack-row">
+      <input type="checkbox" checked={figures.acknowledged} disabled={busy}
+        onChange={(event) => onAcknowledgeFigures(event.currentTarget.checked)} data-testid="done-figure-ack" />
+      <span>我确认：草稿提到附图，但本次导出不含附图；我会在提交前按需要补充。</span>
+    </label> : null}
+  </div>;
+
   const exportAction = <div className="group" data-testid="done-export-action">
     <div className="row" style={{ flexDirection: "column", alignItems: "stretch", gap: 6 }}>
       <div className="r-main"><div className="r-title">备份口令</div><div className="r-sub">口令只用于本机加密，不会保存。</div></div>
@@ -249,7 +273,7 @@ export function DoneView({ route, mode = "professional", documentStats, state, p
         onChange={(event) => onPassphrase(event.currentTarget.value)} data-testid="done-passphrase" />
     </div>
     <div className="row"><div className="r-main">
-      <Button variant="primary" disabled={busy || !allowed || passphrase.trim().length === 0} onClick={() => void onCreate()} data-testid="done-export-button">
+      <Button variant="primary" disabled={busy || !allowed || figureAckMissing || passphrase.trim().length === 0} onClick={() => void onCreate()} data-testid="done-export-button">
         {busy ? "正在本机生成或校验文件…" : actionLabel}
       </Button>
       {actionError ? <Callout tone="warn"><div data-testid="done-action-error" data-code={actionError.code}>
@@ -330,6 +354,7 @@ export function DoneView({ route, mode = "professional", documentStats, state, p
     </> : <>
       {professionalFormatTable}
       <div className="section-h"><span>文件</span><span className="sh-r">{state.files.length} 份</span></div>
+      {figureBlock}
       {fileList}
       <div className="exportcard"><div className="ec-h"><Icon name="doc" /><span className="ec-t">材料包</span><span className="ec-r"><span className="tag plain">本机生成</span></span></div>
         <div className="gates"><div className="gate"><span className="g-t">导出记录：{state.record ? `${state.record.manifest.exportId.slice(0, 8)}… · ${state.record.manifest.createdAt}` : "尚无导出记录"}</span></div></div>
