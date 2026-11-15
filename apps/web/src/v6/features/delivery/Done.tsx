@@ -32,6 +32,7 @@ const REASON_TABS: Readonly<Record<string, string>> = Object.freeze({
   DUPLICATE_FIGURE_NUMBER: "sources",
   INVALID_AST: "draft",
   GATE_BLOCKED: "overview",
+  FIGURE_ACK_REQUIRED: "sources",
 });
 
 function errorText(code: string): string {
@@ -345,6 +346,7 @@ export function DoneView({ route, mode = "professional", documentStats, state, p
     </div></Callout> : null}
 
     {self ? <>
+      {figureBlock}
       {allowed ? <div className="section-h"><span>文件</span><span className="sh-r">{state.files.length} 份</span></div> : null}
       {allowed ? fileList : null}
       <Callout tone="warn" icon="alert"><b>XML 不可用：</b>规定范围内的电子文件需要官方 XML；本产品不生成 XML，也不会把其他格式改名为 .xml。请在官方工具中转换并校验。</Callout>

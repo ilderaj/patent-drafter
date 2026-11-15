@@ -37,6 +37,8 @@ export interface LoadedWorkspace {
   checkResult: CheckRunResult | null;
   risks: readonly RiskDTO[];
   filesAvailable: boolean;
+  /** Figures in the bound set; 0 when the target never had any. */
+  figureCount: number;
   archived: boolean;
   confirmedRiskIds: readonly string[];
   testOutput: boolean;
@@ -276,6 +278,7 @@ export async function loadWorkspace(
       checkResult,
       risks,
       filesAvailable,
+      figureCount: checkInput.figureSet?.entries.length ?? 0,
       archived: aggregate.matter.status !== "active",
       confirmedRiskIds,
       testOutput: head?.revision.testOutput === true,
