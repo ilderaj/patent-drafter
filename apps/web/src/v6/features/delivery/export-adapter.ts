@@ -728,6 +728,8 @@ function makeChecklist(
       { label: "SnapshotRef", value: `${context.snapshot.matterId} / ${context.snapshot.targetId} / ${context.snapshot.draftRevisionId}` },
       { label: "AST SHA-256", value: context.revision.revision.astHash },
       { label: "附图集 SHA-256", value: context.figures.current.get(context.snapshot.targetId)?.hash ?? "（无附图集）" },
+      // Also on page 1's meta: the checklist list can paginate, the figure state must not disappear.
+      { label: "附图", value: context.figureSummary.count === 0 ? "0 张（本次材料包不含附图）" : `${context.figureSummary.count} 张` },
     ],
     sections: [
       { heading: "权利要求书", items: fullText.slice(0, data.claims.length), emptyText: "（无权利要求）" },

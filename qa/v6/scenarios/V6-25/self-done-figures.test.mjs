@@ -37,6 +37,7 @@ before(async () => {
       import { confirmLocalFullRead } from './apps/web/src/v6/features/preview/preview.ts';
       import { MemoryBackend } from './qa/v6/scenarios/V6-21/harness.mjs';
       import { openLocalRepository, STORES } from './apps/web/src/v6/lib/repository.ts';
+      import { renderReportPages } from './apps/web/src/lib/export-render.ts';
 
       const actor = { tenantId: '11111111-1111-4111-8111-111111111111', userId: '22222222-2222-4222-8222-222222222222' };
       const T0 = '2026-11-15T10:00:00.000Z';
@@ -57,6 +58,24 @@ before(async () => {
       };
 
       window.fixture = {
+        async renderLongChecklist() {
+          window.__drawn = [];
+          window.__canvasCount = 0;
+          const items = [];
+          for (let i = 0; i < 30; i++) items.push({ text: '内容确认 ID：' + crypto.randomUUID(), tone: 'ink' });
+          items.push({ text: '附图：0 张（本次材料包不含附图）', tone: 'warn' });
+          for (let i = 0; i < 4; i++) items.push({ text: '测试输出-说明书.docx · 1604 bytes · SHA-256 ' + 'a'.repeat(64), tone: 'ink' });
+          await renderReportPages({
+            title: '测试输出，仅用于验证流程，不能作为正式申请材料：申请准备材料：全文与提交检查清单',
+            meta: [
+              { label: '案件', value: '合成案件' },
+              { label: '附图', value: '0 张（本次材料包不含附图）' },
+            ],
+            sections: [{ heading: '提交检查清单', items, emptyText: '（无检查项目）' }],
+            footer: '测试输出，非正式申请稿；申请准备材料，非递交回执。',
+          });
+          return window.__drawn;
+        },
         async seed() {
           const repository = openLocalRepository(new MemoryBackend());
           const matterId = crypto.randomUUID();
@@ -184,12 +203,22 @@ it("self-service done without figures requires the acknowledgement, then exports
   await waitFor("document.querySelector('[data-testid=done-export-button]').disabled === false", "export enabled after acknowledgement");
 
   await evaluate(`(() => {
-    window.__drawnText = [];
-    const proto = CanvasRenderingContext2D.prototype;
-    if (!proto.__v6Patched) {
-      const original = proto.fillText;
-      proto.fillText = function (text, ...rest) { window.__drawnText.push(String(text)); return original.call(this, text, ...rest); };
-      proto.__v6Patched = true;
+    window.__drawn = [];
+    window.__canvasCount = 0;
+    const ctxProto = CanvasRenderingContext2D.prototype;
+    const getContext = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (...args) {
+      const ctx = getContext.apply(this, args);
+      if (ctx && this.__v6Page === undefined) this.__v6Page = ++window.__canvasCount;
+      return ctx;
+    };
+    if (!ctxProto.__v6Patched) {
+      const original = ctxProto.fillText;
+      ctxProto.fillText = function (text, x, y, ...rest) {
+        window.__drawn.push({ page: this.canvas.__v6Page ?? 0, text: String(text), x, y, font: this.font });
+        return original.call(this, text, x, y, ...rest);
+      };
+      ctxProto.__v6Patched = true;
     }
     return true; })()`);
   await click('[data-testid="done-export-button"]');
@@ -200,9 +229,31 @@ it("self-service done without figures requires the acknowledgement, then exports
   assert.match(await text('[data-testid="done-figures-none"]'), /未添加附图/);
 
   // The checklist PDF is drawn on a canvas; check what the renderer actually wrote.
-  const drawn = await evaluate('window.__drawnText.join("|")');
-  assert.match(drawn, /附图：0 张（本次材料包不含附图）/, "the checklist renderer draws the figure line");
-  assert.match(drawn, /检索状态：未检索/);
+  const drawn = JSON.parse(await evaluate("JSON.stringify(window.__drawn)"));
+  const pages = [...new Set(drawn.map((entry) => entry.page))];
+  const figureLines = drawn.filter((entry) => entry.text.includes("附图：0 张（本次材料包不含附图）"));
+  assert.ok(figureLines.length >= 1, "the checklist renderer draws the figure line");
+  assert.match(drawn.map((entry) => entry.text).join("|"), /检索状态：未检索/);
+  // Every drawn line stays inside its page canvas (no clipped overflow).
+  for (const entry of drawn) {
+    assert.ok(entry.y > 0 && entry.y < 1684, `drawn outside the page: ${entry.page} ${entry.y} ${entry.text}`);
+  }
+  assert.ok(pages.length >= 1);
+
+  // A long checklist must paginate without losing the figure line or its font.
+  const longDrawn = JSON.parse(await evaluate("fixture.renderLongChecklist().then((entries) => JSON.stringify(entries))"));
+  const longPages = [...new Set(longDrawn.map((entry) => entry.page))];
+  assert.ok(longPages.length >= 2, `a long checklist paginates: ${JSON.stringify(longPages)}`);
+  const longFigure = longDrawn.filter((entry) => entry.text.includes("附图：0 张（本次材料包不含附图）"));
+  assert.ok(longFigure.length >= 1, "the figure line survives pagination");
+  for (const entry of longFigure) {
+    assert.ok(entry.y > 0 && entry.y < 1684, `figure line drawn outside a page: ${JSON.stringify(entry)}`);
+  }
+  const itemLine = longFigure.find((entry) => /19px/.test(entry.font));
+  assert.ok(itemLine, `the checklist item keeps its own font across pages: ${JSON.stringify(longFigure.map((entry) => entry.font))}`);
+  assert.ok(itemLine.page >= 2, `the checklist item landed on a later page: ${JSON.stringify(itemLine)}`);
+  const pageOneMeta = longDrawn.some((entry) => entry.page === 1 && entry.text.includes("附图：0 张（本次材料包不含附图）"));
+  assert.equal(pageOneMeta, true, "the meta header carries the figure state on page 1");
 
   // The JSON sidecar downloaded by the user carries the same note.
   await evaluate(`(() => {

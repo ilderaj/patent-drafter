@@ -99,7 +99,9 @@ export async function renderReportPages(spec: ReportPageSpec): Promise<Uint8Arra
   }
   y += 24;
 
-  // Sections
+  // Sections. A page break must never lose an item or leave it in the default
+  // font: every item is moved as a whole when it does not fit, and the font and
+  // colour are re-applied after `flush()` creates a new context.
   for (const section of spec.sections) {
     if (y > PAGE_H - 260) await flush();
     ctx.font = fontCss(25, "bold");
@@ -108,10 +110,26 @@ export async function renderReportPages(spec: ReportPageSpec): Promise<Uint8Arra
     y += 46;
     const items = section.items.length > 0 ? section.items : [{ text: section.emptyText, tone: "muted" as Tone }];
     for (const item of items) {
-      ctx.font = fontCss(19);
-      ctx.fillStyle = TONE_COLORS[item.tone ?? "ink"];
-      for (const line of wrapText(ctx, item.text, PAGE_W - 2 * MARGIN - 24, 19)) {
-        if (y > PAGE_H - 130) await flush();
+      const font = fontCss(19);
+      const color = TONE_COLORS[item.tone ?? "ink"];
+      ctx.font = font;
+      ctx.fillStyle = color;
+      const lines = wrapText(ctx, item.text, PAGE_W - 2 * MARGIN - 24, 19);
+      // Keep a whole item on one page when it fits there at all.
+      const itemHeight = lines.length * 32 + 8;
+      if (y + itemHeight > PAGE_H - 96 && itemHeight <= PAGE_H - 2 * MARGIN - 96) {
+        await flush();
+        // `flush()` swaps in a fresh context whose font/colour are defaults.
+        ctx.font = font;
+        ctx.fillStyle = color;
+      }
+      for (const line of lines) {
+        if (y > PAGE_H - 130) {
+          await flush();
+          // The new context has default font/colour; restore the item's style.
+          ctx.font = font;
+          ctx.fillStyle = color;
+        }
         ctx.fillText(line, MARGIN + 12, y);
         y += 32;
       }
