@@ -146,7 +146,7 @@ export function DeliveryWorkspace({ repository, actor, matterId, targetId, ruleP
     {selfMode ? <>
       {done}
       <details className="group" id="approval-details" data-testid="delivery-approval-details">
-        <summary className="section-h"><span>批准与门禁详情</span><span className="sh-r">技术详情</span></summary>
+        <summary className="section-h"><span>批准与门禁详情</span><span className="sh-r">附图 {data.figureCount} 张 · 技术详情</span></summary>
         {approval}
       </details>
     </> : <>{approval}{done}</>}

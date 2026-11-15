@@ -250,6 +250,49 @@ test("Done shows the zero-figure state, a sources link and the acknowledgement c
   assert.equal(withFigures.includes('data-testid="done-figures-none"'), false);
 });
 
+test("self-service Done renders the same figure status, notice, link and acknowledgement gate", async () => {
+  const snapshot = { matterId: "m", targetId: "t", sourceVersion: 1, targetConfigVersion: 1, draftRevisionId: "r", figureRevisionId: "f" };
+  const renderSelf = (figures, gate = { allowed: false, reasons: [{ code: "FIGURE_ACK_REQUIRED" }] }) => doneUi({
+    route: "cn_invention", mode: "self",
+    state: {
+      phase: "ready", snapshot, inputStale: false, testOutput: false, record: null, files: [],
+      unavailableFormats: [], error: null, gate, figures,
+    },
+    passphrase: "x", busy: false, actionError: null,
+    onPassphrase() {}, onAcknowledgeFigures() {}, onRefresh() {}, onCreate() {}, onDownload() {},
+  });
+
+  // Referenced draft without figures: the block exists, the export stays disabled until checked.
+  const blocked = renderSelf({ count: 0, status: "never_created", acknowledgementRequired: true, acknowledged: false });
+  assert.match(blocked, /data-testid="done-figures"/);
+  assert.match(blocked, /data-testid="done-figure-status"[^>]*>附图：0 张/);
+  assert.match(blocked, /data-testid="done-figures-none"[\s\S]*?未添加附图：本次材料包不含附图，提交前请按需要补充/);
+  assert.match(blocked, /data-testid="done-add-figures"[^>]*href="\/v6\/matters\/m\/targets\/t\/sources"/);
+  assert.match(blocked, /data-testid="done-figure-ack"/);
+  assert.match(/<button[^>]*data-testid="done-export-button"[^>]*>/.exec(blocked)[0], /disabled/);
+
+  // Checked: the same page can export.
+  const checked = renderSelf({ count: 0, status: "never_created", acknowledgementRequired: true, acknowledged: true },
+    { allowed: true, reasons: [] });
+  assert.match(checked, /data-testid="done-figure-ack"[^>]*checked/);
+  assert.doesNotMatch(/<button[^>]*data-testid="done-export-button"[^>]*>/.exec(checked)[0], /disabled/);
+
+  // No references: status and notice only, never a checkbox, immediately exportable.
+  const plain = renderSelf({ count: 0, status: "never_created", acknowledgementRequired: false, acknowledged: false },
+    { allowed: true, reasons: [] });
+  assert.match(plain, /data-testid="done-figure-status"[^>]*>附图：0 张/);
+  assert.match(plain, /data-testid="done-figures-none"/);
+  assert.equal(plain.includes('data-testid="done-figure-ack"'), false);
+  assert.doesNotMatch(/<button[^>]*data-testid="done-export-button"[^>]*>/.exec(plain)[0], /disabled/);
+
+  // Figures present: count only, no notice and no checkbox.
+  const withFigures = renderSelf({ count: 3, status: "present", acknowledgementRequired: false, acknowledged: false },
+    { allowed: true, reasons: [] });
+  assert.match(withFigures, /data-testid="done-figure-status"[^>]*>附图：3 张/);
+  assert.equal(withFigures.includes('data-testid="done-figures-none"'), false);
+  assert.equal(withFigures.includes('data-testid="done-figure-ack"'), false);
+});
+
 test("Approval shows the zero-figure state and keeps its blocker rule untouched", async () => {
   const fixture = await makeNoFigureFixture();
   const model = v624.readyPanelModel({ ...fixture, session: fixture.approval }, fixture.approval.getSnapshot());
