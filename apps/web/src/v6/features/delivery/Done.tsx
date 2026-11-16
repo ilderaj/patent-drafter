@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
+import { DEV_UNDISCLOSED_WARNING, technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
 import { Button, Callout, Icon } from "../../components/ui/index.ts";
 import {
   ExportSession,
@@ -323,6 +323,7 @@ export function DoneView({ route, mode = "professional", documentStats, state, p
     </div>
 
     {state.testOutput ? <Callout tone="warn" icon="alert"><b data-testid="done-test-output-label">测试输出：本地固定测试结果，非真实 AI 生成或正式申请稿。</b></Callout> : null}
+    {state.devUndisclosed === true ? <Callout tone="warn" icon="alert"><b data-testid="done-dev-undisclosed">{DEV_UNDISCLOSED_WARNING}</b></Callout> : null}
 
     {!self ? <div className="spread" style={{ marginTop: 10 }}>
       <span className="small muted">交付与内部批准</span>

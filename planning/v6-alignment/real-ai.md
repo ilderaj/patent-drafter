@@ -239,3 +239,52 @@ POST `/api/v6/chat`：`{requestId:string, prompt:string, stage:string, profileVe
 
 - `apps/worker-v6/test/protocols.test.mjs` 8 条：三协议请求形状/解析（含 `output_text` 与嵌套 output）、未知协议 unavailable、loopback 仅显式开启、远程 http 拒绝、loopback 如实披露、协议变化使旧凭证 409、错误映射与凭证校验不回退。
 - worker-v6 31/31；typecheck/build 通过；`--all` 745/749：4 个失败在 `V6-25/figures-optional.test.mjs`（依赖本工作树中其他 worker 正在修改的 delivery/export 文件，可单独复现，与本次改动无关）。
+
+## 2026-11-16 Magpie 云端中转真实验证（分支 codex/v6-magpie-live）
+
+### 新增环境变量
+
+| 变量 | 作用 |
+|---|---|
+| `MODEL_DISABLE_REASONING=true` | openai-chat 请求带 `thinking:{type:"disabled"}`；anthropic 不发 thinking（本来也不发）。其它值/缺省不改请求。 |
+| `MODEL_ALLOW_UNDISCLOSED_DEV=true` | **仅开发**：处理方披露未知时仍允许真实调用；`status.devUndisclosed=true`，同意弹层显示「开发验证：处理方信息未核实，仅限合成材料，不得用于真实客户材料。」。生产不设则保持 fail-closed。 |
+
+- 该标记不进入 `profileVersion`，不影响同意凭证/清单摘要；测试覆盖「无开关不可用」「有开关标记正确」「错清单/缺凭证仍 409」。
+- 推理模型：`content` 为空且存在 `reasoning_content`（或 responses 的 reasoning 项、anthropic 的 thinking 块）时，worker 返回 502 `PROVIDER_SCHEMA_INVALID` + `reason:"reasoning_only"`，客户端给中文说明，不再产出空稿。
+- 客户端 provider 不再提前做阶段 schema 校验，改为只解析 JSON，交由 pipeline 的 `normalizeStageOutput` 归一化后再校验（真实模型常见的 `supported` 等近义枚举可被归一化，最终错误码不变）。
+- 开发同意记录：`consentSchema` 新增可选 `devUndisclosed:true`，只有带该标记时才允许 `trainingPolicy:"unknown"`；生产数据形状不变。
+
+### 本地脚本
+
+`qa/v6/local/live-magpie.mjs`：从 `~/.config/magpie/providers.json`（或 `MAGPIE_PROVIDERS`）只读 provider（默认 `remote-magpie`），在内存取 `decide` 与 `key`；仓库外临时 `.dev.vars`（0600）写 `MODEL_API_KEY/MODEL_BASE_URL/MODEL_NAME/MODEL_PROTOCOL/MODEL_DISABLE_REASONING/MODEL_ALLOW_UNDISCLOSED_DEV/ACCESS_CODE/SESSION_SECRET`，启动 `wrangler dev --local`，退出清理；从不回显密钥。
+- `--protocol openai-chat|anthropic-messages`、`--model <id>`、`--full`（真实 13 阶段 + 采纳）、`--keep`。
+- 模型默认取 provider `models` 中 `deepseek-v4.1-flash` 或首个；不探测不猜。
+
+### 冒烟结果（2026-11-16，合成材料）
+
+| 项 | 结果 |
+|---|---|
+| 简单冒烟 openai-chat | 200，JSON 可解析，约 2.6 s，模型 `auto/deepseek-v4.1-flash` |
+| 简单冒烟 anthropic-messages | 200，JSON 可解析，约 2.5 s |
+| 真实 13 阶段（`--full`） | **成功**：5/5 阶段完成，1 次自动重试（第 12 次上游返回 502，重试后继续），14 次 chat 请求（13×200、1×502），总耗时约 190 s，采纳修订 `testOutput=false` |
+| token/费用 | worker 只转发 content，不回传 usage；invocation 的 costMinor=null、usageUnknown=true（未伪造） |
+
+### 限制
+
+- `MODEL_ALLOW_UNDISCLOSED_DEV` 仅限本地验证，生产绝不能设置；状态与同意弹层已标注，但**导出清单尚未加入该警示**（需要把标记接到导出侧，另议）。
+- Magpie 偶发上游 502；R1 客户端只做手动/脚本级重试，任务不会无限重试。
+- 真实产物质量、法域规则与法律质量仍需人工审阅，本冒烟只证明链路与表单结构可跑通。
+
+## 2026-11-17 上游抖动有界重试
+
+- `GenerationLimits.maxStageRetries`（默认 2，范围 0–5）按阶段限制重试；真实 runtime 显式设为 2。
+- 仅重试**可安全重试**的错误：映射后的 `PROVIDER_UNAVAILABLE`（5xx/网络）与 `PROVIDER_TIMEOUT`；`PROVIDER_AUTH`/`PROVIDER_REJECTED`（含 3xx、其它 4xx）/`RATE_LIMITED`/`PROVIDER_SCHEMA_INVALID`/同意与状态错误**不重试**。
+- 退避 1s、2s；等待期间每 100 ms 检查 fence/任务状态，取消或换页后不再发起新请求。
+- 每次尝试都写入 invocation：新建记录、`attempt` 为 0/1/2，失败尝试先以 failed + 错误码关闭；阶段视图新增 `retries`，UI 显示「第 N 次重试」。
+- 重试仍逐次经过同意凭证校验（authorize 每次调用前重新验证）；费用未知时每次尝试消耗一次 `maxUnknownCostCalls`，runtime 由 16 提到 48（13 阶段 + 有界重试的预留）。
+- 终态失败信息保留阶段名与上游状态：`…（阶段 claims，上游 HTTP 502，已重试 2 次）`，不自动缩小材料。
+- 顺带加固：裸 provider 错误码（`UPSTREAM_ERROR` 等）在写作业前映射为契约错误码，避免作业记录 schema 校验失败。
+
+测试：`qa/v6/scenarios/real-ai/stage-retry.test.mjs` 5 条（两次 502 后成功=3 次尝试且 attempt 0/1/2；持续 502=3 次后失败且无候选；401/400/429 不重试；退避中取消只发 1 次；UI 显示「第 2 次重试」）。定向 real-ai+V6-17+V6-15+V6-16 = 167/167；worker-v6 36/36；typecheck/build/diff-check 通过；`--all` 762/762。
+
+真实冒烟（Magpie，合成材料）：16 次 chat（13×200、3×502）；内层重试在同一阶段 3 次尝试耗尽后任务失败，脚本外层重试 1 次后 5/5 阶段完成并采纳（`testOutput=false`），约 230 s。说明上游 502 仍可能出现，但有界重试与如实失败均符合预期。

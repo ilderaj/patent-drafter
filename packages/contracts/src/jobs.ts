@@ -86,12 +86,19 @@ export const consentSchema = z
     processorName: z.string().min(1),
     processingRegion: z.string().min(1),
     retentionPolicyVersion: z.string().min(1),
-    trainingPolicy: z.enum(["no_training", "allowed"]),
+    trainingPolicy: z.enum(["no_training", "allowed", "unknown"]),
     termsVersion: z.string().min(1),
     createdAt: isoDateTimeSchema,
     expiresAt: isoDateTimeSchema.nullable(),
+    /** Development only: the processor disclosure is unknown; UI must show the synthetic-data warning. */
+    devUndisclosed: z.literal(true).optional(),
   })
-  .strict();
+  .strict()
+  // Production consents must state a real training policy; only the explicit dev marker may be unknown.
+  .refine((consent) => consent.trainingPolicy !== "unknown" || consent.devUndisclosed === true, {
+    message: "trainingPolicy=unknown requires devUndisclosed",
+    path: ["trainingPolicy"],
+  });
 
 export const jobKindSchema = z.enum([
   "parse",

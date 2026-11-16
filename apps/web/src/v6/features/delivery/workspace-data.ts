@@ -28,6 +28,7 @@ import { STORES } from "../../lib/repository.ts";
 import { createGenerationRevisionStore, type GenerationRevisionView } from "../generation/generation.ts";
 import { loadTargetsView, type TargetView } from "../targets/targets.ts";
 import { readIntake } from "../intake/intake.ts";
+import { readDraftDevUndisclosed } from "../ai/ai.ts";
 import { loadFigurePanel, type FigurePanelEntry, type LibraryDrawing } from "../sources/drawings.ts";
 
 export interface LoadedWorkspace {
@@ -39,6 +40,8 @@ export interface LoadedWorkspace {
   filesAvailable: boolean;
   /** Figures in the bound set; 0 when the target never had any. */
   figureCount: number;
+  /** The draft consent for this target was granted for a dev-only undisclosed processor. */
+  devUndisclosed: boolean;
   archived: boolean;
   confirmedRiskIds: readonly string[];
   testOutput: boolean;
@@ -279,6 +282,7 @@ export async function loadWorkspace(
       risks,
       filesAvailable,
       figureCount: checkInput.figureSet?.entries.length ?? 0,
+      devUndisclosed: await readDraftDevUndisclosed(repository, actor, matterId, targetId),
       archived: aggregate.matter.status !== "active",
       confirmedRiskIds,
       testOutput: head?.revision.testOutput === true,

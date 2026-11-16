@@ -75,16 +75,18 @@ test('real generation: one record per chat call, content-free, usage honestly un
   assert.deepEqual(Object.keys(rows[0]).sort(), allowed);
 });
 
-test('a failed upstream call is recorded with its failure code, and the record count still equals chat calls', async () => {
-  const f = await fixture((stage, n) => n === 2
-    ? json({ error: { code: 'UPSTREAM_ERROR', upstreamStatus: 503 } }, 502)
-    : json({ content: JSON.stringify(MOCK_STAGE_OUTPUTS[stage]) }));
+test('a persistently failing upstream is recorded with its failure code on every attempt', async () => {
+  // Transient 5xx is retried (see stage-retry.test.mjs); a persistent failure exhausts the budget.
+  const f = await fixture((stage, n) => n === 1
+    ? json({ content: JSON.stringify(MOCK_STAGE_OUTPUTS[stage]) })
+    : json({ error: { code: 'UPSTREAM_ERROR', upstreamStatus: 503 } }, 502));
   const done = await f.run();
   assert.equal(done.job.state, 'failed'); assert.equal(done.job.errorCode, 'PROVIDER_UNAVAILABLE');
   const rows = await f.rows();
   assert.equal(rows.length, f.state.chat);
   const failed = rows.filter(r => r.status === 'failed');
-  assert.equal(failed.length, 1); assert.equal(failed[0].errorCode, 'PROVIDER_UNAVAILABLE');
+  assert.equal(failed.length, 3, 'three attempts of the failing stage are all recorded');
+  assert.ok(failed.every(r => r.errorCode === 'PROVIDER_UNAVAILABLE'));
   assert.ok(rows.filter(r => r.status === 'succeeded').every(r => r.errorCode === null));
   assert.ok(!JSON.stringify(rows).includes('503'), 'no upstream detail beyond the code');
 });

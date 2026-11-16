@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { GenerationRuntime } from "../features/generation/runtime.ts";
 import { INTAKE_QUESTIONS } from "../features/intake/intake.ts";
 import { Button, Callout } from "./ui/index.ts";
+import { DEV_UNDISCLOSED_WARNING } from "../lib/user-messages.ts";
 
 const LOCAL_ONLY_ANSWERS = "发明人、公开历史、成熟度只在本机，不会发送。";
 
@@ -77,6 +78,9 @@ export function GenerationConsentDetails({
   const titleSent = manifest?.titleSent === true && manifest.title !== null;
 
   return <div className="consentbox" data-testid={`${testIdPrefix}-consent-disclosure`}>
+    {runtime?.devUndisclosed ? <Callout tone="warn" icon="alert" testId={`${testIdPrefix}-dev-undisclosed`}>
+      <b>{DEV_UNDISCLOSED_WARNING}</b>
+    </Callout> : null}
     <div className="cb-row"><span className="cb-k">用途</span><span className="cb-v">起草中国实用新型中文权利要求书与说明书（草稿）</span></div>
     <div className="cb-row"><span className="cb-k">处理方</span><span className="cb-v">{known(processor?.name)}</span></div>
     <div className="cb-row"><span className="cb-k">区域</span><span className="cb-v">{known(processor?.region)}</span></div>

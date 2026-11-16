@@ -92,6 +92,7 @@ export function generationView(job: GenerationJobView | null, matterId: string, 
     errorCode: null,
     output: null,
     outputMeta: null,
+    retries: 0,
   }));
   const state = job?.job.state ?? null;
   const inputStale = job?.job.disposition === "obsolete_result";
@@ -213,6 +214,7 @@ function StageRow({ stage }: { stage: GenerationStageView }) {
       <span>{label}</span>
       <span className="gi-note" data-testid={`generation-stage-state-${stage.stage}`}>
         {STAGE_STATE_LABELS[stage.state]}
+        {stage.retries > 0 ? <span className="small muted" data-testid={`generation-stage-retry-${stage.stage}`}> 第 {stage.retries} 次重试</span> : null}
         {stage.errorCode !== null ? <span data-testid={`generation-stage-error-${stage.stage}`}> {userMessageFor(stage.errorCode)}</span> : null}
       </span>
       {stage.outputMeta !== null ? (

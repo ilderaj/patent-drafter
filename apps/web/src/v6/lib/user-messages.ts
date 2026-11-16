@@ -4,6 +4,9 @@
  * The original code stays available for "技术详情" disclosures; product copy
  * should use `userMessageFor` instead of showing the raw value.
  */
+/** Shown wherever a development-only undisclosed processor was accepted. */
+export const DEV_UNDISCLOSED_WARNING = "开发验证：处理方信息未核实，仅限合成材料，不得用于真实客户材料。";
+
 export const USER_MESSAGES: Readonly<Record<string, string>> = Object.freeze({
   local_unmetered: "本机保存，不计费",
   CACHE_EXPIRED: "导出文件已超过七天，请重新导出",

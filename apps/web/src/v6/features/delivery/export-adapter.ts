@@ -37,6 +37,8 @@ import {
   type GenerationRevisionView,
 } from "../generation/generation.ts";
 import { legacyConfirmationLedgerStorageKey, mergeLedgerRows } from "../preview/preview.ts";
+import { readDraftDevUndisclosed } from "../ai/ai.ts";
+import { DEV_UNDISCLOSED_WARNING } from "../../lib/user-messages.ts";
 import {
   ACTIVITY_METADATA_KEYS_BY_ACTION,
   CONTRACT_VERSION,
@@ -87,6 +89,8 @@ export interface ExportManifest {
   packageKind: ExportPackageKind;
   /** Human-readable figure state shipped with the manifest sidecar; absent on older rows. */
   figures?: { count: number; included: boolean; note: string };
+  /** Present only when the draft's consent came from a development-only undisclosed processor. */
+  devVerification?: { devUndisclosed: true; note: string };
   testOutput?: boolean;
   language: "zh-CN" | "en-US";
   createdAt: string;
@@ -158,6 +162,7 @@ export interface ExportSessionState {
   testOutput: boolean;
   gate: ExportGateDecision | null;
   figures: ExportFigureSummary;
+  devUndisclosed: boolean;
   record: ExportRecord | null;
   files: readonly ExportFileView[];
   unavailableFormats: readonly { format: "xml"; code: "FORMAT_UNAVAILABLE"; reason: string }[];
@@ -207,6 +212,8 @@ interface LoadedExportContext {
   inputStale: boolean;
   referencedFigureGateReasons: readonly ExportGateReason[];
   figureSummary: ExportFigureSummary;
+  /** The latest draft consent for this target was granted for a dev-only undisclosed processor. */
+  devUndisclosed: boolean;
   figureAssets: readonly { figureId: string; number: number; drawingId: string; originalName: string; mime: string; sha256: string; bytes: Uint8Array }[];
 }
 
@@ -425,7 +432,7 @@ async function readCurrentContext(options: ExportSessionOptions): Promise<Loaded
   if (!target || target.status !== "active") throw new ExportReadFailure("RESOURCE_NOT_FOUND", "当前目标不可用。");
 
   const revisions = options.revisions ?? createGenerationRevisionStore({ repository, actor });
-  const [head, figureRead, ledgers] = await Promise.all([
+  const [head, figureRead, ledgers, devUndisclosed] = await Promise.all([
     revisions.loadHeadRevision(matterId, targetId),
     readFigureLibrary(repository, actor, matterId),
     repository.backend.transaction("readonly", async (tx) => ({
@@ -433,6 +440,7 @@ async function readCurrentContext(options: ExportSessionOptions): Promise<Loaded
       legacyConfirmations: await tx.get(STORES.blobs, legacyConfirmationLedgerStorageKey(actor, matterId)),
       approvals: await tx.get(STORES.blobs, approvalKey(actor, matterId)),
     })),
+    readDraftDevUndisclosed(repository, actor, matterId, targetId, { now: options.now ?? defaultNow }),
   ]);
   if (!head.ok) throw new ExportReadFailure(head.error.code, head.error.message);
   if (!figureRead.ok) throw new ExportReadFailure(figureRead.error.code, figureRead.error.message);
@@ -563,6 +571,7 @@ async function readCurrentContext(options: ExportSessionOptions): Promise<Loaded
     inputStale,
     referencedFigureGateReasons: figureReasons,
     figureSummary,
+    devUndisclosed,
     figureAssets,
   };
 }
@@ -711,6 +720,7 @@ function makeChecklist(
   const testOutput = context.revision.revision.testOutput === true;
   const checkItems = [
     ...(testOutput ? [{ text: TEST_OUTPUT_NOTICE, tone: "warn" as const }] : []),
+    ...(context.devUndisclosed ? [{ text: DEV_UNDISCLOSED_WARNING, tone: "warn" as const }] : []),
     { text: `目标路线：${route}`, tone: "ink" as const },
     { text: `导出包：${packageKind === "preparation" ? "准备包" : "内部批准包"}`, tone: "ink" as const },
     { text: `检查记录：${context.checkRun?.id ?? "无"} · 当前规则包 ${context.checkRun?.rulePackVersion ?? "无"}`, tone: "ink" as const },
@@ -771,6 +781,7 @@ async function packageKindKey(options: ExportSessionOptions, context: LoadedExpo
     astHash: context.revision.revision.astHash,
     testOutput: context.revision.revision.testOutput === true,
     figureSetHash: context.figures.current.get(options.targetId)?.hash,
+    devUndisclosed: context.devUndisclosed,
     checkRunId: options.checkResult?.checkRun.id ?? null,
     approvalId: packageKind === "internally_approved" ? context.approval?.id ?? null : null,
     confirmationIds: context.liveConfirmations.map((item) => item.id),
@@ -839,7 +850,8 @@ async function buildFiles(options: ExportSessionOptions, context: LoadedExportCo
     riskIds,
     searchState: "not_searched",
     packageKind,
-        figures: figureManifestNote(context.figureSummary.count),
+    figures: figureManifestNote(context.figureSummary.count),
+    ...(context.devUndisclosed ? { devVerification: { devUndisclosed: true as const, note: DEV_UNDISCLOSED_WARNING } } : {}),
     ...(testOutput ? { testOutput: true } : {}),
     language: context.revision.ast.language,
     createdAt,
@@ -909,6 +921,7 @@ export class ExportSession {
       testOutput: false,
       gate: null,
       figures: { count: 0, status: "never_created", acknowledgementRequired: false, acknowledged: false },
+      devUndisclosed: false,
       record: null,
       files: [],
       unavailableFormats: [{ format: "xml", code: "FORMAT_UNAVAILABLE", reason: XML_UNAVAILABLE }],
@@ -993,6 +1006,7 @@ export class ExportSession {
         testOutput: context.revision.revision.testOutput === true,
         gate: context.gate,
         figures: context.figureSummary,
+        devUndisclosed: context.devUndisclosed,
         record,
         files: record?.files ?? [],
         unavailableFormats: [{ format: "xml", code: "FORMAT_UNAVAILABLE", reason: XML_UNAVAILABLE }],
@@ -1085,7 +1099,8 @@ export class ExportSession {
         riskIds: (this.options.checkResult.checkRun.findings ?? []).filter((item) => item.category === "risk").map((item) => item.id),
         searchState: "not_searched",
         packageKind,
-                figures: figureManifestNote(context.figureSummary.count),
+        figures: figureManifestNote(context.figureSummary.count),
+        ...(context.devUndisclosed ? { devVerification: { devUndisclosed: true as const, note: DEV_UNDISCLOSED_WARNING } } : {}),
         ...(context.revision.revision.testOutput === true ? { testOutput: true } : {}),
         language: context.revision.ast.language,
         createdAt,
@@ -1198,6 +1213,7 @@ export class ExportSession {
       searchState: "not_searched",
       packageKind: effectivePackageKind(this.options),
       figures: figureManifestNote(context.figureSummary.count),
+      ...(context.devUndisclosed ? { devVerification: { devUndisclosed: true as const, note: DEV_UNDISCLOSED_WARNING } } : {}),
       language: context.revision.ast.language,
       createdAt: at,
       files: [],

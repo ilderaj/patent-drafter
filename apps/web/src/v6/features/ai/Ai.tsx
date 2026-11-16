@@ -19,7 +19,7 @@ import { Body, Pane, Toolbar } from "../../components/ui/index.ts";
 import type { Actor, LocalRepository, MatterRecord } from "../../lib/repository.ts";
 import { readGenerationStatus, type GenerationStatus } from "../generation/remote-provider.ts";
 import { endGenerationSession } from "../generation/runtime.ts";
-import { technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
+import { DEV_UNDISCLOSED_WARNING, technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
 import {
   AI_PURPOSES,
   grantConsent,
@@ -334,6 +334,11 @@ function ServiceStatus({
     <div style={tone} data-testid="ai-service-status" data-state={presentation.state}>
       <strong>{presentation.title}</strong>
       <div>{presentation.body}</div>
+      {status?.devUndisclosed === true ? (
+        <div role="status" data-testid="ai-dev-undisclosed" style={{ ...S.warning, marginTop: "8px" }}>
+          <b>{DEV_UNDISCLOSED_WARNING}</b>
+        </div>
+      ) : null}
       {fields.length > 0 && (
         <div style={{ ...S.fields, marginTop: "8px" }}>
           {fields.map((field) => (
