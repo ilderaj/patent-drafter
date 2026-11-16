@@ -385,6 +385,23 @@ test("V6-15 UI invocation table marks on-device test output separately from real
   assert.match(html, /data-testid="ai-invocation-execution-[^"]*"[^>]*>测试<div[^>]*>device:stub<\/div>/);
 });
 
+test("V6-15 UI dev status: an undisclosed development processor shows the same warning as the consent sheet", async () => {
+  const { repository } = await seed();
+  const view = await readyView(repository);
+  const status = (devUndisclosed) => ({
+    available: true, configured: true, authenticated: false, model: null,
+    processor: { name: "未知", region: "未知", retention: "未知", trainingPolicy: "unknown", termsVersion: null },
+    profileVersion: 3, unavailableReason: null,
+    ...(devUndisclosed ? { devUndisclosed: true } : {}),
+  });
+  const flagged = render(view, { status: status(true) });
+  assert.match(flagged, /data-testid="ai-dev-undisclosed"[^>]*>[\s\S]*?开发验证：处理方信息未核实，仅限合成材料，不得用于真实客户材料。/);
+  assert.match(flagged, /data-testid="ai-service-processor"[^>]*data-known="false"/);
+  const ordinary = render(view, { status: status(false) });
+  assert.equal(ordinary.includes('data-testid="ai-dev-undisclosed"'), false);
+  assert.equal(render(view, { status: null }).includes('data-testid="ai-dev-undisclosed"'), false);
+});
+
 test("V6-15 UI session: 「退出起草会话」keeps its scope honest and only appears for an authenticated browser session", async () => {
   const { repository } = await seed();
   const view = await readyView(repository);

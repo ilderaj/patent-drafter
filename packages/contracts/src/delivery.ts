@@ -161,6 +161,11 @@ export const manifestSchema = z
       .object({ count: z.number().int().min(0), included: z.boolean(), note: z.string().min(1) })
       .strict()
       .optional(),
+    /** Present only for a draft whose consent came from a dev-only undisclosed processor. */
+    devVerification: z
+      .object({ devUndisclosed: z.literal(true), note: z.string().min(1) })
+      .strict()
+      .optional(),
     testOutput: z.boolean().optional(),
     language: languageSchema,
     createdAt: isoDateTimeSchema,

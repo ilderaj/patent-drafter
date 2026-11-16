@@ -110,6 +110,21 @@ before(async () => {
             matterId, targetId, sourceVersion: 1, targetConfigVersion: 1,
             draftRevisionId: saved.data.id, figureRevisionId: target.data.target.figureRevisionId,
           };
+          // The dev-only undisclosed processor accepted this draft: the delivery
+          // surfaces must carry that warning into the page, the PDF and the manifest.
+          const consentId = crypto.randomUUID();
+          await repository.backend.transaction('readwrite', (tx) => tx.put(STORES.blobs,
+            ['ai/consent', encodeURIComponent(actor.tenantId), encodeURIComponent(matterId), consentId].join('/'), {
+              kind: 'ai.consent', tenantId: actor.tenantId, matterId, requestKey: null,
+              consent: {
+                id: consentId, actorId: actor.userId,
+                providerProfileId: 'a1000000-0000-4000-8000-000000000006', providerProfileVersion: 1,
+                purpose: 'draft',
+                scope: { matterId, targetId, sourceVersion: 1, assetIds: [], chunkIds: [], factIds: [], draftRevisionIds: [], figureRevisionIds: [], payloadManifestHash: 'a'.repeat(64) },
+                processorName: '合成处理方', processingRegion: '合成区域', retentionPolicyVersion: '合成保留',
+                trainingPolicy: 'unknown', termsVersion: '未核实（开发验证）', createdAt: T0, expiresAt: null, devUndisclosed: true,
+              },
+            }));
           const read = await confirmLocalFullRead({ repository, actor, snapshot, access: 'local_unmetered', now: () => T0 });
           if (!read.ok) throw new Error(JSON.stringify(read.error));
           const rootEl = document.getElementById('root');
@@ -231,6 +246,9 @@ it("self-service done without figures requires the acknowledgement, then exports
   // The checklist PDF is drawn on a canvas; check what the renderer actually wrote.
   const drawn = JSON.parse(await evaluate("JSON.stringify(window.__drawn)"));
   const pages = [...new Set(drawn.map((entry) => entry.page))];
+  const warningLines = drawn.filter((entry) => entry.text.includes("开发验证：处理方信息未核实，仅限合成材料，不得用于真实客户材料。"));
+  assert.ok(warningLines.length === 1, `the checklist PDF draws the dev warning once: ${warningLines.length}`);
+  assert.equal(await exists('[data-testid="done-dev-undisclosed"]'), true, "the done page shows the dev warning");
   const figureLines = drawn.filter((entry) => entry.text.includes("附图：0 张（本次材料包不含附图）"));
   assert.ok(figureLines.length >= 1, "the checklist renderer draws the figure line");
   assert.match(drawn.map((entry) => entry.text).join("|"), /检索状态：未检索/);
@@ -272,6 +290,7 @@ it("self-service done without figures requires the acknowledgement, then exports
   assert.ok(manifestFile, "the manifest sidecar was downloaded");
   const manifest = JSON.parse(readFileSync(join(downloadDir, manifestFile), "utf8"));
   assert.deepEqual(manifest.figures, { count: 0, included: false, note: "附图：0 张（本次材料包不含附图）" });
+  assert.deepEqual(manifest.devVerification, { devUndisclosed: true, note: "开发验证：处理方信息未核实，仅限合成材料，不得用于真实客户材料。" });
 
   // The self approval panel (inside the collapsed details) shows the same state after expanding.
   await evaluate(`(() => { const d = document.querySelector('[data-testid="delivery-approval-details"]'); if (d) d.open = true; return true; })()`);

@@ -108,6 +108,8 @@ export interface GenerationStageView {
   errorCode: GenerationErrorCode | null;
   output: unknown | null;
   outputMeta: StageOutput | null;
+  /** Transient-failure retries already spent on this stage (0 when none). */
+  retries: number;
 }
 
 export interface GenerationResultPreview {
@@ -157,6 +159,8 @@ export interface GenerationLimits {
   maxUnknownCostCalls?: number;
   /** Whole-job elapsed cap, measured from the running segment start. */
   maxDurationSeconds: number;
+  /** Same-stage retries for transient upstream failures (5xx/timeout/network). Default 2; 0 disables. */
+  maxStageRetries?: number;
 }
 
 /** A transaction spans the current IndexedDB backend or its deterministic memory adapter. */
@@ -237,6 +241,7 @@ interface StoredStage {
   errorCode: GenerationErrorCode | null;
   metadata: StageOutput | null;
   output: unknown | null;
+  retries?: number;
 }
 
 interface AdoptionCandidate {
@@ -342,6 +347,7 @@ function viewOf(record: StoredGenerationJob): GenerationJobView {
       errorCode: stage.errorCode,
       output: stage.output === null ? null : clone(stage.output),
       outputMeta: stage.metadata === null ? null : clone(stage.metadata),
+      retries: stage.retries ?? 0,
     })),
     progress: clone(record.job.progress),
     result: record.resultAst === null ? null : { ast: clone(record.resultAst), testOutput: record.testOutput },
@@ -363,7 +369,9 @@ function validateLimits(limits: GenerationLimits): boolean {
   return [limits.maxInputTokens, limits.maxOutputTokens, limits.maxCostMinor, limits.maxDurationSeconds]
     .every((value) => Number.isSafeInteger(value) && value > 0)
     && (limits.maxUnknownCostCalls === undefined || (Number.isSafeInteger(limits.maxUnknownCostCalls)
-      && limits.maxUnknownCostCalls > 0 && limits.maxUnknownCostCalls <= 64));
+      && limits.maxUnknownCostCalls > 0 && limits.maxUnknownCostCalls <= 64))
+    && (limits.maxStageRetries === undefined || (Number.isSafeInteger(limits.maxStageRetries)
+      && limits.maxStageRetries >= 0 && limits.maxStageRetries <= 5));
 }
 
 function makeJobId(options: GenerationEngineOptions): string {
@@ -1019,6 +1027,7 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     generationStage: GenerateStage,
     jobId: string,
     fence: number,
+    attempt = 0,
   ) {
     const record = await readRecord(jobId);
     if (!record || record.fence !== fence || record.job.state !== "running" || record.ownerPageId !== pageId) {
@@ -1044,7 +1053,7 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
       // silently switching to a new scope or dropping the job. Revocation and
       // profile/purpose changes remain terminal (S04-A02/A08).
       if (consent.error.code === "CONSENT_REQUIRED") {
-        const recorded = await createInvocation(jobId, stage, scopeHash, generationStage, fence);
+        const recorded = await createInvocation(jobId, stage, scopeHash, generationStage, fence, attempt);
         if (!recorded) return { allowed: false as const, code: "INVALID_TRANSITION", message: "任务已取消，未开始新的调用。" };
         await updateRecord(jobId, (current) => {
           if (current.job.disposition !== "obsolete_result") {
@@ -1068,7 +1077,7 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     if (!stillCurrent || stillCurrent.fence !== fence || stillCurrent.job.state !== "running" || stillCurrent.ownerPageId !== pageId) {
       return { allowed: false as const, code: "INVALID_TRANSITION", message: "任务已取消，未开始新的调用。" };
     }
-    const recorded = await createInvocation(jobId, stage, scopeHash, generationStage, fence);
+    const recorded = await createInvocation(jobId, stage, scopeHash, generationStage, fence, attempt);
     if (!recorded) return { allowed: false as const, code: "INVALID_TRANSITION", message: "任务已取消，未开始新的调用。" };
     return { allowed: true as const };
   }
@@ -1079,13 +1088,14 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     scopeHash: string,
     generationStage: GenerateStage,
     fence: number,
+    attempt = 0,
   ): Promise<boolean> {
     const invocationId = newId("model-invocation");
     const invocation: GenerationInvocation = {
       id: invocationId,
       jobId,
       stage,
-      attempt: 0,
+      attempt,
       providerProfileId: selectedProfile.id,
       modelId: selectedProfile.modelId,
       consentId: options.consentId ?? null,
@@ -1226,10 +1236,11 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     await updateRecord(jobId, (current) => {
       if (current.fence !== fence || current.job.state !== "running" || current.ownerPageId !== pageId) return;
       const item = current.stages.find((candidate) => candidate.stage === stage)!;
+      const contractCode = contractJobErrorCode(code);
       item.state = "failed";
-      item.errorCode = code;
+      item.errorCode = contractCode;
       current.job.state = "failed";
-      current.job.errorCode = code as Job["errorCode"];
+      current.job.errorCode = contractCode as Job["errorCode"];
       current.job.version += 1;
       current.job.stage = stage;
       current.job.progress = { completed: countCompleted(current.stages), total: GENERATE_STAGES.length, unit: "stage" };
@@ -1319,6 +1330,56 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
     return { prompts, injected };
   }
 
+  /** Map bare provider codes onto the contract's job error codes so the record always validates. */
+  function contractJobErrorCode(code: string): string {
+    switch (code) {
+      case "UPSTREAM_ERROR": return "PROVIDER_REJECTED";
+      case "NOT_CONFIGURED": return "PROVIDER_UNAVAILABLE";
+      case "AUTH_FAILED": return "PROVIDER_AUTH";
+      case "INVALID_SCHEMA": return "PROVIDER_SCHEMA_INVALID";
+      case "TIMEOUT": return "PROVIDER_TIMEOUT";
+      case "CANCELLED": return "INVALID_TRANSITION";
+      default: return code;
+    }
+  }
+
+  /** Only transient failures are retried; 4xx/consent/schema errors fail immediately. */
+  function isRetryableStageError(error: unknown): boolean {
+    const code = error instanceof PipelineAdapterError
+      ? error.code
+      : isRecord(error) && typeof error.code === "string" ? error.code : null;
+    return code === "PROVIDER_UNAVAILABLE" || code === "PROVIDER_TIMEOUT";
+  }
+
+  function annotateStageFailure(error: unknown, stage: GenerateStage, attempts: number): unknown {
+    if (!(error instanceof Error)) return error;
+    const upstream = (error as { upstreamStatus?: unknown }).upstreamStatus;
+    const detail = [`阶段 ${stage}`, typeof upstream === "number" ? `上游 HTTP ${upstream}` : null,
+      attempts > 0 ? `已重试 ${attempts} 次` : null].filter(Boolean).join("，");
+    return Object.assign(error, { message: `${error.message}（${detail}）` });
+  }
+
+  async function recordStageRetry(jobId: string, fence: number, stage: GenerateStage, attempt: number): Promise<void> {
+    await updateRecord(jobId, (record) => {
+      if (record.fence !== fence || record.job.state !== "running" || record.ownerPageId !== pageId) return;
+      const item = record.stages.find((candidate) => candidate.stage === stage);
+      if (!item) return;
+      item.retries = attempt;
+      record.job.version += 1;
+    });
+  }
+
+  /** Exponential backoff (1s, 2s, …) that stops as soon as the job is cancelled or taken over. */
+  async function waitBeforeRetry(jobId: string, fence: number, attempt: number): Promise<boolean> {
+    const deadline = Date.now() + 1000 * 2 ** (attempt - 1);
+    while (Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, Math.min(100, Math.max(1, deadline - Date.now()))));
+      const record = await readRecord(jobId);
+      if (!record || record.fence !== fence || record.job.state !== "running" || record.ownerPageId !== pageId) return false;
+    }
+    return true;
+  }
+
   async function runJob(jobId: string, fence: number): Promise<void> {
     const begun = await updateRecord(jobId, (record) => {
       if (record.fence !== fence || record.ownerPageId !== pageId) return false;
@@ -1382,23 +1443,38 @@ export function createGenerationEngine(options: GenerationEngineOptions): Genera
 
         const target = PIPELINE_TARGET[stage];
         const supportPrompts = supportPromptsFor(record);
-        let activeStage: GenerateStage | null = stage;
-        const adapter = new PipelineAdapter({
-          ...adapterOptions,
-          provider: costCapturingProvider(activeProvider, jobId, fence),
-          pipeline: {
-            ...pipeline,
-            prompts: supportPrompts.prompts,
-            promptVersion: record.job.promptVersion,
-          },
-          cache: new GenerationPipelineCache(storage),
-          authorize: async (request) => activeStage === null
-            ? { allowed: false, code: "INVALID_TRANSITION", message: "生成阶段没有有效的任务上下文。" }
-            : authorize(request.stage, request.scopeHash, activeStage, jobId, fence),
-        });
-        const result = await adapter.run(clone(record.context), target);
-        activeStage = null;
-        const stageResult = result.context.results[target];
+        const maxRetries = options.limits.maxStageRetries ?? 2;
+        let attempt = 0;
+        let result: Awaited<ReturnType<PipelineAdapter["run"]>> | null = null;
+        while (true) {
+          let activeStage: GenerateStage | null = stage;
+          const adapter = new PipelineAdapter({
+            ...adapterOptions,
+            provider: costCapturingProvider(activeProvider, jobId, fence),
+            pipeline: {
+              ...pipeline,
+              prompts: supportPrompts.prompts,
+              promptVersion: record.job.promptVersion,
+            },
+            cache: new GenerationPipelineCache(storage),
+            authorize: async (request) => activeStage === null
+              ? { allowed: false, code: "INVALID_TRANSITION", message: "生成阶段没有有效的任务上下文。" }
+              : authorize(request.stage, request.scopeHash, activeStage, jobId, fence, attempt),
+          });
+          try {
+            result = await adapter.run(clone(record.context), target);
+            activeStage = null;
+            break;
+          } catch (error) {
+            if (!isRetryableStageError(error) || attempt >= maxRetries) throw annotateStageFailure(error, stage, attempt);
+            attempt += 1;
+            // Keep the failed attempt visible and close its invocation before the next one starts.
+            await recordStageRetry(jobId, fence, stage, attempt);
+            await closeStartedInvocations(jobId, fence, "failed", normalizeError(error).code);
+            if (!(await waitBeforeRetry(jobId, fence, attempt))) return;
+          }
+        }
+        const stageResult = result!.context.results[target];
         if (!stageResult) throw Object.assign(new Error(`missing ${target} output`), { code: "INTERNAL_ERROR" });
         const ast = stage === "checks" ? buildDraftAst(result.context, jobId, record.language, record.supportIndex) : null;
         if (ast && !draftAstSchema.safeParse(ast).success) {

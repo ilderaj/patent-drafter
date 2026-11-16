@@ -43,6 +43,8 @@ export interface GenerationRuntime {
   consent: { required: boolean; manifest: PayloadManifest | null; grant(): Promise<GenerationRuntime> };
   processor: RuntimeProcessor;
   unavailableReason: string | null;
+  /** Development only: calls are allowed although processor disclosure is unknown. UI must warn. */
+  devUndisclosed: boolean;
 }
 /** Injection seam for deterministic tests; normal pages pass only the four public arguments. */
 export interface RuntimeDependencies {
@@ -54,15 +56,17 @@ const PROFILE_ID = "a1000000-0000-4000-8000-000000000006";
 const unknownProcessor: RuntimeProcessor = { name: "未知", region: "未知", retention: "未知", trainingPolicy: "unknown", termsVersion: null, model: null };
 export function statusProfileConfig(status: GenerationStatus): ProviderProfileConfig {
   return { configVersion: `v6-remote-${status.profileVersion}`, releaseGate: status.available && status.authenticated ? "open" : "closed",
+    devUndisclosed: status.devUndisclosed === true,
     profiles: [{ id: PROFILE_ID, version: status.profileVersion, mode: "platform", adapterId: "v6-same-origin",
       modelId: status.model ?? "unavailable", processorName: status.processor.name, processingRegion: status.processor.region,
       retentionPolicyVersion: status.processor.retention, trainingPolicy: status.processor.trainingPolicy,
-      termsVersion: status.processor.termsVersion, allowedPurposes: ["draft"], credentialRef: null,
+      termsVersion: status.processor.termsVersion ?? (status.devUndisclosed === true ? "未核实（开发验证）" : null),
+      allowedPurposes: ["draft"], credentialRef: null,
       capabilities: { structuredOutput: true, visionInput: false, imageGeneration: false, contextWindowTokens: 100_000, maxOutputTokens: 8192 },
       status: status.available ? "approved" : "disabled" }] };
 }
 function unavailable(reason: string, processor = unknownProcessor): GenerationRuntime {
-  return { mode: "test", engineOptions: LOCAL_TEST_GENERATION_OPTIONS, processor, unavailableReason: reason,
+  return { mode: "test", engineOptions: LOCAL_TEST_GENERATION_OPTIONS, processor, unavailableReason: reason, devUndisclosed: false,
     consent: { required: false, manifest: null, grant: async () => { throw new Error(reason); } } };
 }
 function coded(code: string, message: string): Error { return Object.assign(new Error(message), { code }); }
@@ -84,8 +88,9 @@ export async function resolveGenerationRuntime(
   if (!status.available || !status.model) return unavailable(status.unavailableReason ?? "真实起草服务尚未配置完整。", processor);
   if (!status.authenticated) return unavailable("真实起草需要访问码。建立访问会话后可重新选择真实起草。", processor);
   if (!status.sessionId) return unavailable("服务端尚未提供新会话校验，请更新服务后重新输入访问码。", processor);
-  if ([processor.name, processor.region, processor.retention].some(v => !v || v === "未知" || v === "unknown")
-    || processor.trainingPolicy === "unknown" || !processor.termsVersion) return unavailable("处理方披露信息尚未完整，暂不能外发材料。", processor);
+  const devUndisclosed = status.devUndisclosed === true;
+  if (!devUndisclosed && ([processor.name, processor.region, processor.retention].some(v => !v || v === "未知" || v === "unknown")
+    || processor.trainingPolicy === "unknown" || !processor.termsVersion)) return unavailable("处理方披露信息尚未完整，暂不能外发材料。", processor);
   const targets = await loadTargetsView(repository, actor, matterId);
   if (!targets.ok) return unavailable(targets.error.message, processor);
   const target = targets.view.targets.find(item => item.id === targetId);
@@ -140,10 +145,10 @@ export async function resolveGenerationRuntime(
     return { credential: credentials.get(credentialKey)!.credential, manifestHash: manifest.payloadManifestHash };
   };
   const prompts = await (dependencies.loadPrompts ?? (async () => (await import("./real-prompts.ts")).REAL_PIPELINE_PROMPTS))();
-  return { mode: "real", processor, unavailableReason: null,
+  return { mode: "real", processor, unavailableReason: null, devUndisclosed,
     engineOptions: {
       pipeline: { prompts, promptVersion: "v6-real-cn-um-2026-11-12", rulePackVersion: "cnipa-2026-01-01" },
-      limits: { maxInputTokens: 100_000, maxOutputTokens: 20_000, maxCostMinor: 100, maxUnknownCostCalls: 16, maxDurationSeconds: 1200 },
+      limits: { maxInputTokens: 100_000, maxOutputTokens: 20_000, maxCostMinor: 100, maxUnknownCostCalls: 48, maxDurationSeconds: 1200, maxStageRetries: 2 },
       execution: "provider", allowTestAdoption: false,
       provider: new RemoteGenerationProvider({ model: status.model, profileVersion: status.profileVersion, fetchImpl: dependencies.fetchImpl, beforeCall, onCancel: invalidate }),
       profileId: PROFILE_ID, profileVersion: status.profileVersion, consentId, config,

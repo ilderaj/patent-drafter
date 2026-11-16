@@ -10,7 +10,9 @@ export const generationStatusSchema = z.object({ available: z.boolean(), configu
   /** Upstream protocol and resolved endpoint; disclosed by the relay. */
   protocol: z.string().nullable().optional(), endpoint: z.string().nullable().optional(),
   /** True when the endpoint is http on 127.0.0.1/localhost and explicitly allowed for local verification. */
-  localLoopback: z.boolean().optional() });
+  localLoopback: z.boolean().optional(),
+  /** Development only: the relay allows calls although processor disclosure is unknown. */
+  devUndisclosed: z.boolean().optional() });
 export type GenerationStatus = z.infer<typeof generationStatusSchema>;
 export interface RemoteConsentBinding { credential: string; manifestHash: string }
 const consentCredentialSchema = z.object({ credential: z.string().min(1), expiresAt: z.string().datetime(), allowedStages: z.array(z.string().min(1)).min(1) });
@@ -50,7 +52,10 @@ const capabilities: ProviderCapabilities = Object.freeze({ structuredOutput: tru
  * reached the model service and that service answered with an error; its number (never its body)
  * is what separates "temporarily down" from "rejected the request / bad configuration".
  */
-function httpFailure(status: number, code?: string, upstreamStatus?: number): Error {
+function httpFailure(status: number, code?: string, upstreamStatus?: number, reason?: string): Error {
+  if (reason === "reasoning_only") {
+    return new ProviderError("模型只返回了推理过程，没有正文；请关闭推理或增大输出上限后重试。", "INVALID_SCHEMA");
+  }
   if (code === "PROVIDER_SCHEMA_INVALID") return new ProviderError("模型返回的结构不符合要求。", "INVALID_SCHEMA");
   if (code === "CONSENT_REQUIRED" && status === 409) {
     return Object.assign(new Error("处理方配置已变化，请重新确认外发清单。"), { code: "CONSENT_REQUIRED" });
@@ -119,16 +124,19 @@ export class RemoteGenerationProvider implements LLMProvider {
       if (!response.ok) {
         // Read only a recognized code; never include arbitrary response text in errors/logs.
         const body = await response.json().catch(() => null);
-        throw httpFailure(response.status, body?.error?.code, body?.error?.upstreamStatus);
+        const failure = httpFailure(response.status, body?.error?.code, body?.error?.upstreamStatus, body?.error?.reason);
+        // Kept for the stage retry policy and the operator-facing failure message.
+        if (body?.error?.upstreamStatus !== undefined) Object.assign(failure, { upstreamStatus: body.error.upstreamStatus });
+        throw failure;
       }
       const body = z.object({ content: z.string() }).safeParse(await response.json());
       if (!body.success) throw new ProviderError("模型返回的结构不符合要求。", "INVALID_SCHEMA");
       let value: unknown;
       try { value = JSON.parse(body.data.content); }
       catch { throw new ProviderError("模型没有返回有效的 JSON。", "INVALID_SCHEMA"); }
-      const checked = schema.safeParse(value);
-      if (!checked.success) throw new ProviderError("模型输出未通过阶段结构校验。", "INVALID_SCHEMA");
-      return checked.data as T;
+      // The pipeline normalizes near-miss values (enum aliases, ids, refs) before it validates;
+      // validating here would reject outputs the runner can repair. The runner remains the authority.
+      return value as T;
     } catch (error) {
       if (controller.signal.aborted) throw new ProviderError(timedOut ? "模型响应超时。" : "请求已取消。", timedOut ? "TIMEOUT" : "CANCELLED", timedOut);
       if (error instanceof ProviderError || (error instanceof Error && "code" in error)) throw error;

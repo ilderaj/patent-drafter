@@ -92,18 +92,21 @@ export class PipelineAdapterError extends Error {
   readonly code: string;
   readonly stage: PipelineStage;
   readonly providerCode?: string;
+  /** Upstream HTTP status when the provider reported one; kept for retry policy and diagnostics. */
+  readonly upstreamStatus?: number;
 
   constructor(
     stage: PipelineStage,
     code: string,
     message: string,
-    options: { cause?: unknown; providerCode?: string } = {},
+    options: { cause?: unknown; providerCode?: string; upstreamStatus?: number } = {},
   ) {
     super(message, { cause: options.cause });
     this.name = "PipelineAdapterError";
     this.code = code;
     this.stage = stage;
     this.providerCode = options.providerCode;
+    this.upstreamStatus = options.upstreamStatus;
   }
 }
 
@@ -236,11 +239,12 @@ function toAdapterError(value: unknown, stage: PipelineStage): PipelineAdapterEr
     seen.add(current);
     if (current instanceof PipelineAdapterError) return current;
     if (current instanceof ProviderError) {
+      const upstreamStatus = (current as ProviderError & { upstreamStatus?: unknown }).upstreamStatus;
       return new PipelineAdapterError(
         stage,
         providerErrorCode(current),
         `Provider failed during stage ${stage} (${providerErrorCode(current)}).`,
-        { cause: value, providerCode: current.code },
+        { cause: value, providerCode: current.code, ...(typeof upstreamStatus === "number" ? { upstreamStatus } : {}) },
       );
     }
     const coded = errorWithCode(current);

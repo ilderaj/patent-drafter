@@ -24,7 +24,8 @@ import {
   type GenerationRevisionView,
 } from "../generation/generation.ts";
 import { figureSetStatus, hasFigureReferences, readFigureLibrary } from "../sources/drawings.ts";
-import { technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
+import { readDraftDevUndisclosed } from "../ai/ai.ts";
+import { DEV_UNDISCLOSED_WARNING, technicalDetailLabel, userMessageFor } from "../../lib/user-messages.ts";
 import { migrateLegacyConfirmationLedger } from "../preview/preview.ts";
 import {
   ACTIVITY_METADATA_KEYS_BY_ACTION,
@@ -73,6 +74,8 @@ export interface ApprovalPanelState {
   /** "never_created" = the target has no figures and never bound any. */
   figureStatus: "present" | "never_created" | "missing";
   figureReferencesInDraft: boolean;
+  /** The draft consent for this target came from a dev-only undisclosed processor. */
+  devUndisclosed: boolean;
   figureAssetsAvailable: boolean;
   ledger: ApprovalLedger;
   confirmations: ConfirmationLedger;
@@ -490,6 +493,7 @@ export class ApprovalSession {
       const snapshot = snapshotFrom(aggregate, this.targetId);
       const snapshotCurrent = snapshot !== null && revision.revision.id === target.draftRevisionId;
       if (!snapshot) throw new ApprovalReadFailure("STALE_BINDING", "目标快照尚未绑定可批准的修订。");
+      const devUndisclosed = await readDraftDevUndisclosed(this.repository, this.actor, this.matterId, this.targetId);
       const figureStatus = figureSetStatus(figureRead.data, this.targetId);
       if (figureStatus === "missing") {
         throw new ApprovalReadFailure("MISSING_BYTES", "附图集记录缺失或已损坏；请到材料页重新添加附图后再批准。");
@@ -523,6 +527,7 @@ export class ApprovalSession {
         figureSet,
         figureStatus,
         figureReferencesInDraft: hasFigureReferences(revision.ast),
+        devUndisclosed,
         figureAssetsAvailable,
         ledger,
         confirmations,
@@ -774,6 +779,9 @@ export function ApprovalPanelView({ model, role, onRefresh, onCreate, onRevoke }
     <div className="section-h"><span>内部批准</span>
       <span className="sh-r"><button type="button" className="btn ghost sm" data-testid="approval-refresh" onClick={() => void onRefresh()}>刷新状态</button></span>
     </div>
+    {state.devUndisclosed ? <div className="callout warn" role="status" data-testid="approval-dev-undisclosed">
+      <b>{DEV_UNDISCLOSED_WARNING}</b>
+    </div> : null}
     <div className="callout warn"><b data-testid="approval-preparation-label">申请准备材料，非已提交文件。</b>仅记录团队内部放行决定，不生成签名凭证或递交回执。</div>
 
     {state.phase === "stale" ? <div className="notice" role="status" data-testid="approval-stale">
@@ -975,6 +983,7 @@ function initialState(matterId: string): ApprovalPanelState {
     figureSet: null,
   figureStatus: "never_created",
   figureReferencesInDraft: false,
+  devUndisclosed: false,
     figureAssetsAvailable: false,
     ledger: EMPTY_APPROVAL_LEDGER(matterId),
     confirmations: EMPTY_CONFIRMATION_LEDGER(matterId),

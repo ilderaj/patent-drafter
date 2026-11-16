@@ -13,6 +13,13 @@ export interface Env {
   MODEL_PROTOCOL?: string;
   /** Must be exactly "true" to allow http://127.0.0.1 or http://localhost endpoints (local verification). */
   MODEL_ALLOW_LOCAL_HTTP?: string;
+  /** Must be exactly "true" to ask OpenAI-compatible endpoints not to use reasoning. */
+  MODEL_DISABLE_REASONING?: string;
+  /**
+   * Development only: allow real calls when processor disclosure is unknown. Status marks
+   * devUndisclosed=true and callers must show the synthetic-material warning. Never set in production.
+   */
+  MODEL_ALLOW_UNDISCLOSED_DEV?: string;
   ACCESS_CODE?: string;
   SESSION_SECRET?: string;
   PROCESSOR_NAME?: string;
@@ -49,8 +56,8 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
     "x-content-type-options": "nosniff", ...headers,
   } });
 }
-function failure(code: string, status: number, upstreamStatus?: number): Response {
-  return json({ error: { code, ...(upstreamStatus === undefined ? {} : { upstreamStatus }) } }, status,
+function failure(code: string, status: number, upstreamStatus?: number, reason?: string): Response {
+  return json({ error: { code, ...(upstreamStatus === undefined ? {} : { upstreamStatus }), ...(reason === undefined ? {} : { reason }) } }, status,
     status === 429 ? { "retry-after": "60" } : {});
 }
 async function digest(value: string): Promise<string> {
@@ -111,9 +118,10 @@ async function configuration(env: Env) {
   const fingerprint = await digest(JSON.stringify({ protocol, model: env.MODEL_NAME ?? null, endpoint: env.MODEL_BASE_URL ?? null, localLoopback, processor }));
   // A loopback endpoint is the operator's own machine, not a vendor: disclosure cannot be verified,
   // so it is surfaced as localLoopback instead of being treated as an approved processor.
-  const available = configured && (disclosed || localLoopback);
+  const devUndisclosed = env.MODEL_ALLOW_UNDISCLOSED_DEV === "true";
+  const available = configured && (disclosed || localLoopback || devUndisclosed);
   return { configured, available, model: text(env.MODEL_NAME) ? env.MODEL_NAME : null,
-    protocol, endpoint: target?.url ?? null, localLoopback, processor,
+    protocol, endpoint: target?.url ?? null, localLoopback, devUndisclosed, processor,
     profileVersion: parseInt(fingerprint.slice(0, 12), 16) + 1,
     unavailableReason: !configured
       ? (protocol === null ? "不支持的模型协议（MODEL_PROTOCOL）。" : "真实起草服务尚未配置完整。")
@@ -261,30 +269,40 @@ function upstreamRequest(env: Env, target: UpstreamTarget, body: Record<string, 
   } else {
     headers.authorization = `Bearer ${env.MODEL_API_KEY}`;
     payload = { model: env.MODEL_NAME, stream: false, response_format: { type: "json_object" },
-      max_tokens: maxTokens, temperature, messages: [{ role: "user", content }] };
+      max_tokens: maxTokens, temperature, messages: [{ role: "user", content }],
+      ...(env.MODEL_DISABLE_REASONING === "true" ? { thinking: { type: "disabled" } } : {}) };
   }
   return { method: "POST", signal, redirect: "manual", headers, body: JSON.stringify(payload) };
 }
 
-/** Pull the assistant text out of each protocol's success shape. Returns null when there is none. */
-function extractContent(protocol: ModelProtocol, result: any): string | null { // eslint-disable-line @typescript-eslint/no-explicit-any
+/** Pull the assistant text out of each protocol's success shape; flag reasoning-only answers. */
+type Extracted = { content: string } | { reasoningOnly: true } | null;
+function extractContent(protocol: ModelProtocol, result: any): Extracted { // eslint-disable-line @typescript-eslint/no-explicit-any
   if (protocol === "openai-responses") {
-    if (typeof result?.output_text === "string" && result.output_text.trim()) return result.output_text;
+    if (typeof result?.output_text === "string" && result.output_text.trim()) return { content: result.output_text };
     if (Array.isArray(result?.output)) {
       const texts = result.output.flatMap((item: any) => Array.isArray(item?.content) // eslint-disable-line @typescript-eslint/no-explicit-any
         ? item.content.filter((part: any) => part?.type === "output_text" && typeof part.text === "string").map((part: any) => part.text) // eslint-disable-line @typescript-eslint/no-explicit-any
         : []);
-      if (texts.length > 0) return texts.join("\n");
+      if (texts.length > 0) return { content: texts.join("\n") };
+      const reasoning = result.output.some((item: any) => item?.type === "reasoning"); // eslint-disable-line @typescript-eslint/no-explicit-any
+      return reasoning ? { reasoningOnly: true } : null;
     }
     return null;
   }
   if (protocol === "anthropic-messages") {
     if (!Array.isArray(result?.content)) return null;
     const texts = result.content.filter((part: any) => part?.type === "text" && typeof part.text === "string").map((part: any) => part.text); // eslint-disable-line @typescript-eslint/no-explicit-any
-    return texts.length > 0 ? texts.join("\n") : null;
+    if (texts.length > 0) return { content: texts.join("\n") };
+    const reasoning = result.content.some((part: any) => part?.type === "thinking" || part?.type === "redacted_thinking"); // eslint-disable-line @typescript-eslint/no-explicit-any
+    return reasoning ? { reasoningOnly: true } : null;
   }
-  const content = result?.choices?.[0]?.message?.content;
-  return typeof content === "string" && content.trim() ? content : null;
+  const message = result?.choices?.[0]?.message;
+  const content = message?.content;
+  if (typeof content === "string" && content.trim()) return { content };
+  // Reasoning models may put all text in reasoning_content when the token budget is small.
+  if (typeof message?.reasoning_content === "string" && message.reasoning_content.trim()) return { reasoningOnly: true };
+  return null;
 }
 
 async function chat(request: Request, env: Env, deps: Deps): Promise<Response> {
@@ -324,9 +342,10 @@ async function chat(request: Request, env: Env, deps: Deps): Promise<Response> {
     }
     if (!upstream.ok) { await upstream.body?.cancel(); return failure("UPSTREAM_ERROR", upstream.status === 429 ? 429 : 502, upstream.status); }
     const result = JSON.parse(await boundedText(upstream.body, MAX_RESPONSE_BYTES));
-    const content = extractContent(target.protocol, result);
-    if (content === null) return failure("PROVIDER_SCHEMA_INVALID", 502);
-    return json({ content });
+    const extracted = extractContent(target.protocol, result);
+    if (extracted === null) return failure("PROVIDER_SCHEMA_INVALID", 502);
+    if ("reasoningOnly" in extracted) return failure("PROVIDER_SCHEMA_INVALID", 502, undefined, "reasoning_only");
+    return json({ content: extracted.content });
   } catch {
     return failure(controller.signal.aborted ? "PROVIDER_TIMEOUT" : "UPSTREAM_ERROR", controller.signal.aborted ? 504 : 502);
   } finally {

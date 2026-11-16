@@ -116,6 +116,8 @@ export interface ProviderProfileConfig {
   profiles: readonly ProviderProfile[];
   /** Set only by the status-backed runtime; synthetic/default configurations remain closed. */
   releaseGate?: "open" | "closed";
+  /** Development only: the relay explicitly reports undisclosed processing; never set in production. */
+  devUndisclosed?: boolean;
 }
 
 export const AI_RUNTIME = "local_web" as const;
@@ -519,7 +521,7 @@ export interface ConsentView {
   processorName: string;
   processingRegion: string;
   retentionPolicyVersion: string;
-  trainingPolicy: "no_training" | "allowed";
+  trainingPolicy: "no_training" | "allowed" | "unknown";
   termsVersion: string;
   createdAt: string;
   expiresAt: string | null;
@@ -854,6 +856,39 @@ function readSnapshotFacts(value: unknown, matterId: string, sourceVersion: numb
 // ---------------------------------------------------------------------------
 // Keys and storage helpers
 // ---------------------------------------------------------------------------
+
+/**
+ * True when the latest usable draft consent for this target was granted while
+ * the relay reported an undisclosed development processor. Delivery surfaces
+ * read this locally; they never infer it from a global build flag.
+ */
+export async function readDraftDevUndisclosed(
+  repository: LocalRepository,
+  actor: Actor,
+  matterId: string,
+  targetId: string,
+  options: { now?: () => string } = {},
+): Promise<boolean> {
+  let rows: readonly unknown[];
+  try {
+    rows = await repository.backend.transaction("readonly", async (tx) => tx.getAll(STORES.blobs));
+  } catch {
+    return false;
+  }
+  const now = (options.now ?? (() => new Date().toISOString()))();
+  const matching = rows
+    .map(asStoredConsent)
+    .filter((stored): stored is StoredConsent => stored !== null
+      && stored.tenantId === actor.tenantId
+      && stored.matterId === matterId)
+    .map((stored) => stored.consent)
+    .filter((consent) => consent.actorId === actor.userId
+      && consent.purpose === "draft"
+      && consent.scope.targetId === targetId
+      && (consent.expiresAt === null || consent.expiresAt > now))
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  return matching[0]?.devUndisclosed === true;
+}
 
 function consentKey(tenantId: string, matterId: string, consentId: string): string {
   return ["ai/consent", encodeURIComponent(tenantId), encodeURIComponent(matterId), consentId].join("/");
@@ -1277,7 +1312,7 @@ export async function loadAiView(
       const providerChanged =
         currentProfile === undefined ||
         !consentMatchesProfile(consent, currentProfile) ||
-        profileProblem(currentProfile) !== null ||
+        profileProblem(currentProfile, config.devUndisclosed === true) !== null ||
         !currentProfile.allowedPurposes.includes(consent.purpose);
       stale = providerChanged || current === null || !sameScope(consent.scope, current.scope);
       if (stale) staleConsentIds.push(consent.id);
@@ -1768,7 +1803,18 @@ async function grantRequestHash(matterId: string, input: NormalizedGrant): Promi
   );
 }
 
-function profileProblem(profile: ProviderProfile): AiError | null {
+function profileProblem(profile: ProviderProfile, devUndisclosed = false): AiError | null {
+  if (devUndisclosed) {
+    // Development-only path: the server already marks the process as undisclosed. Structural
+    // identity is still enforced, but the C12 disclosure rule is deferred to that visible flag.
+    if (profile.mode !== "platform" || !isText(profile.id) || !isText(profile.modelId)) {
+      return { code: "CAPABILITY_UNAVAILABLE", message: "开发验证处理方配置不完整。", resourceIds: [profile.id] };
+    }
+    if (profile.status !== "approved") {
+      return { code: "CAPABILITY_UNAVAILABLE", message: "处理方尚未批准，不能保存真实外发授权。", resourceIds: [profile.id] };
+    }
+    return null;
+  }
   const parsed = providerProfileSchema.safeParse(profile);
   if (!parsed.success) {
     const fields = [
@@ -2112,7 +2158,7 @@ export async function grantConsent(
         resourceIds: [normalized.data.providerProfileId],
       });
     }
-    const problem = profileProblem(profile);
+    const problem = profileProblem(profile, config.devUndisclosed === true);
     if (problem) return { ok: false, error: problem };
     if (!profile.allowedPurposes.includes(normalized.data.purpose)) {
       return failure("CAPABILITY_UNAVAILABLE", "该处理方没有声明这个用途。", {
@@ -2149,6 +2195,7 @@ export async function grantConsent(
       requestKey !== null
         ? await derivedId(`v6/ai/consent/${actor.tenantId}/${actor.userId}/${matterId}/${requestKey}`)
         : newId(options);
+    const devUndisclosed = config.devUndisclosed === true;
     const consent: Consent = {
       id: consentId,
       actorId: actor.userId,
@@ -2157,12 +2204,13 @@ export async function grantConsent(
       purpose: normalized.data.purpose,
       scope: normalized.data.scope,
       processorName: profile.processorName,
-      processingRegion: profile.processingRegion as string,
-      retentionPolicyVersion: profile.retentionPolicyVersion as string,
-      trainingPolicy: profile.trainingPolicy as "no_training" | "allowed",
-      termsVersion: profile.termsVersion as string,
+      processingRegion: (profile.processingRegion ?? "未知") as string,
+      retentionPolicyVersion: (profile.retentionPolicyVersion ?? "未知") as string,
+      trainingPolicy: profile.trainingPolicy as "no_training" | "allowed" | "unknown",
+      termsVersion: (profile.termsVersion ?? "未核实（开发验证）") as string,
       createdAt: now,
       expiresAt: normalized.data.expiresAt,
+      ...(devUndisclosed ? { devUndisclosed: true as const } : {}),
     };
     const parsedConsent = consentSchema.safeParse(consent);
     if (!parsedConsent.success) {
@@ -2407,7 +2455,7 @@ export async function validateConsentForUse(
       resourceIds: [stored.consent.id],
     });
   }
-  const problem = profileProblem(profile);
+  const problem = profileProblem(profile, config.devUndisclosed === true);
   if (problem) return { ok: false, error: problem };
   if (!consentMatchesProfile(stored.consent, profile)) {
     return failure("CONSENT_REQUIRED", "处理地区、保留、训练或条款已变化，需要新的外发授权。", {
