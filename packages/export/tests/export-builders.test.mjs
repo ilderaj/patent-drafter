@@ -4,12 +4,15 @@ import { unzipSync, strFromU8 } from "fflate";
 import { PDFDocument } from "pdf-lib";
 import {
   assembleExportArtifacts,
+  buildAbstractDocx,
+  buildBundleDocx,
   buildClaimsDocx,
   buildDocx,
   buildFiguresPdf,
   buildPatentPack,
   buildReviewPdf,
   buildReviewReportSpec,
+  buildSpecificationDocx,
   buildZip,
   exportFileNotes,
   exportedFileNames,
@@ -89,16 +92,23 @@ const fakePageRenderer = async () => [PNG_1PX];
 
 // ── 1. DOCX: real OOXML zip ─────────────────────────────────────────────
 {
+  const extractParagraphTexts = (xml) =>
+    [...xml.matchAll(/<w:p>[\s\S]*?<w:t[^>]*>([\s\S]*?)<\/w:t>[\s\S]*?<\/w:p>/g)].map((m) => m[1]);
+
   const docx = buildClaimsDocx(PROJECT);
   assert("docx starts with zip magic PK", docx[0] === 0x50 && docx[1] === 0x4b);
   const entries = unzipSync(docx);
   const names = Object.keys(entries).sort();
   assert(
-    "docx contains [Content_Types].xml / _rels/.rels / word/document.xml",
-    names.join(",") === "[Content_Types].xml,_rels/.rels,word/document.xml",
+    "docx contains OOXML core parts and footer relationship",
+    names.join(",") === "[Content_Types].xml,_rels/.rels,word/_rels/document.xml.rels,word/document.xml,word/footer1.xml",
     names.join(","),
   );
   const documentXml = str(entries["word/document.xml"]);
+  const contentTypesXml = str(entries["[Content_Types].xml"]);
+  const documentRelsXml = str(entries["word/_rels/document.xml.rels"]);
+  const footerXml = str(entries["word/footer1.xml"]);
+
   assert("document.xml contains claim 1 text", documentXml.includes("一种基于三模通讯的共享热水表"));
   assert(
     "document.xml escapes XML entities (& -> &amp;)",
@@ -109,9 +119,143 @@ const fakePageRenderer = async () => [PNG_1PX];
     documentXml.includes("&lt;试验&gt;") && !documentXml.includes("<试验>"),
   );
   assert("docx has no plain <w:body> nesting issue", documentXml.includes("<w:body>") && documentXml.includes("</w:body>"));
+  assert(
+    "document.xml declares xmlns:r and mounts default footerReference rIdFooter1",
+    documentXml.includes('xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"') &&
+      documentXml.includes('<w:footerReference w:type="default" r:id="rIdFooter1"/>'),
+  );
+  assert(
+    "word/_rels/document.xml.rels links rIdFooter1 to footer1.xml",
+    documentRelsXml.includes('Id="rIdFooter1"') &&
+      documentRelsXml.includes('Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer"') &&
+      documentRelsXml.includes('Target="footer1.xml"'),
+  );
+  assert(
+    "[Content_Types].xml registers /word/footer1.xml as OOXML footer",
+    contentTypesXml.includes(
+      'PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"',
+    ),
+  );
+  assert(
+    "word/footer1.xml contains centered PAGE field",
+    footerXml.includes('<w:jc w:val="center"/>') &&
+      footerXml.includes('<w:fldChar w:fldCharType="begin"/>') &&
+      footerXml.includes(" PAGE ") &&
+      footerXml.includes('<w:fldChar w:fldCharType="end"/>'),
+  );
+  assert(
+    "body paragraphs use 1.5x line spacing and 2-char Chinese first-line indent",
+    documentXml.includes('<w:spacing w:line="360" w:lineRule="auto"/>') &&
+      documentXml.includes('<w:ind w:firstLineChars="200" w:firstLine="480"/>') &&
+      documentXml.includes('<w:sz w:val="24"/>'),
+  );
 
   const empty = buildDocx([{ text: "", style: "body" }]);
-  assert("docx builder handles empty paragraph", unzipSync(empty)["word/document.xml"].length > 0);
+  const emptyXml = str(unzipSync(empty)["word/document.xml"]);
+  assert("docx builder handles empty paragraph without first-line indent", emptyXml.length > 0 && !emptyXml.includes("<w:ind "));
+
+  // Multi-paragraph splitting (direct buildDocx, claims, spec, abstract) and CNIPA spec formatting
+  const rawMulti = buildDocx([{ text: "第一行\n第二行\r\n第三行", style: "body" }]);
+  const rawMultiXml = str(unzipSync(rawMulti)["word/document.xml"]);
+  const rawMultiTexts = extractParagraphTexts(rawMultiXml);
+  assert(
+    "buildDocx splits embedded newlines into independent <w:p> without bare \\n in <w:t>",
+    rawMultiTexts.join("|") === "第一行|第二行|第三行" && ![...rawMultiXml.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)].some((m) => /[\r\n]/.test(m[1])),
+    rawMultiTexts.join("|"),
+  );
+
+  const MULTI_PROJECT = {
+    ...PROJECT,
+    claims: [
+      {
+        id: "mc1",
+        label: "权利要求 1",
+        text: "1、一种多段权利要求，包括：\n第一模块；\n第二模块。",
+        paragraphs: ["1、一种多段权利要求，包括：", "第一模块；", "第二模块。"],
+      },
+      {
+        id: "mc2",
+        label: "权利要求 2",
+        text: "2、根据权利要求1所述的装置，其特征在于：\n进一步包括第三模块。",
+      },
+    ],
+    specSections: [
+      {
+        id: "ms1",
+        title: "技术领域",
+        body: "[0001] 本发明涉及温控技术领域。",
+        paragraphs: ["[0001] 本发明涉及温控技术领域。"],
+      },
+      {
+        id: "ms2",
+        title: "背景技术",
+        body: "现有方案存在热滞后。\n并且难以动态补偿。",
+        paragraphs: ["现有方案存在热滞后。", "并且难以动态补偿。"],
+      },
+      {
+        id: "ms3",
+        title: "具体实施方式",
+        body: "实施例一描述传感器布局。\n实施例二描述控制策略。",
+      },
+    ],
+    abstractText: "摘要第一段。\n摘要第二段。",
+  };
+
+  const multiClaimsXml = str(unzipSync(buildClaimsDocx(MULTI_PROJECT))["word/document.xml"]);
+  const multiClaimTexts = extractParagraphTexts(multiClaimsXml).filter((t) => t.length > 0);
+  assert(
+    "claims docx splits multi-paragraph claims into independent <w:p> without bare \\n",
+    multiClaimTexts.includes("1、一种多段权利要求，包括：") &&
+      multiClaimTexts.includes("第一模块；") &&
+      multiClaimTexts.includes("第二模块。") &&
+      multiClaimTexts.includes("2、根据权利要求1所述的装置，其特征在于：") &&
+      multiClaimTexts.includes("进一步包括第三模块。") &&
+      ![...multiClaimsXml.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)].some((m) => /[\r\n]/.test(m[1])),
+    multiClaimTexts.join(" | "),
+  );
+
+  const specXml = str(unzipSync(buildSpecificationDocx(MULTI_PROJECT))["word/document.xml"]);
+  const specTexts = extractParagraphTexts(specXml).filter((t) => t.length > 0);
+  assert(
+    "specification docx includes title, invention name, and continuous [0001]-[0005] without double-numbering",
+    specTexts[0] === "说明书" &&
+      specTexts[1] === MULTI_PROJECT.name &&
+      specTexts.includes("[0001] 本发明涉及温控技术领域。") &&
+      !specXml.includes("[0001] [0001]") &&
+      specTexts.includes("[0002] 现有方案存在热滞后。") &&
+      specTexts.includes("[0003] 并且难以动态补偿。") &&
+      specTexts.includes("[0004] 实施例一描述传感器布局。") &&
+      specTexts.includes("[0005] 实施例二描述控制策略。") &&
+      ![...specXml.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)].some((m) => /[\r\n]/.test(m[1])),
+    specTexts.join(" | "),
+  );
+
+  const noticeText = "测试输出，仅用于验证流程，不能作为正式申请材料";
+  const noticedSpecXml = str(unzipSync(buildSpecificationDocx(MULTI_PROJECT, noticeText))["word/document.xml"]);
+  const noticedSpecTexts = extractParagraphTexts(noticedSpecXml).filter((t) => t.length > 0);
+  assert(
+    "specification docx with notice keeps notice as first paragraph before title and invention name",
+    noticedSpecTexts[0] === noticeText && noticedSpecTexts[1] === "说明书" && noticedSpecTexts[2] === MULTI_PROJECT.name,
+    noticedSpecTexts.slice(0, 4).join(" | "),
+  );
+
+  const bundleXml = str(unzipSync(buildBundleDocx(MULTI_PROJECT))["word/document.xml"]);
+  const bundleTexts = extractParagraphTexts(bundleXml).filter((t) => t.length > 0);
+  assert(
+    "bundle docx numbers specification paragraphs [0001]-[0005] and leaves claims unnumbered",
+    bundleTexts.includes("[0001] 本发明涉及温控技术领域。") &&
+      bundleTexts.includes("[0005] 实施例二描述控制策略。") &&
+      bundleTexts.includes("第一模块；") &&
+      !bundleXml.includes("[0001] 1、一种多段权利要求"),
+  );
+
+  const abstractXml = str(unzipSync(buildAbstractDocx(MULTI_PROJECT))["word/document.xml"]);
+  const abstractTexts = extractParagraphTexts(abstractXml).filter((t) => t.length > 0);
+  assert(
+    "abstract docx splits multi-paragraph text into independent <w:p>",
+    abstractTexts.join("|") === "说明书摘要|摘要第一段。|摘要第二段。",
+    abstractTexts.join("|"),
+  );
 }
 
 // ── 2. PDF: figures + review ────────────────────────────────────────────

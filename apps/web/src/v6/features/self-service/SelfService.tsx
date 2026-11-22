@@ -7,10 +7,19 @@ import { SelfGeneration } from "./SelfGeneration.tsx";
 import { readIntake, type IntakeView } from "../intake/intake.ts";
 import { loadTargetsView, type TargetView, type TargetsView } from "../targets/targets.ts";
 import { describeUploadRows, ingestFiles, type IngestFile } from "../sources/ingest.ts";
+import {
+  bindFigures,
+  loadFigurePanel,
+  syncUploadedImagesToLibrary,
+  type FigureError,
+  type FigurePanelView,
+} from "../sources/drawings.ts";
+import { Figures, appendAllUnboundEntries, unboundFigureRevision } from "../sources/Figures.tsx";
 import { Parse } from "../sources/Parse.tsx";
 import {
   initialUploadState,
   newFileId,
+  notifySourcesSettled,
   pendingForSave,
   rowsFromItems,
   uploadReducer,
@@ -119,11 +128,16 @@ export function SelfService({
   const questionParam = searchParams.get("q");
   const [state, setState] = useState<LoadState>({ phase: "loading" });
   const [parseRefresh, setParseRefresh] = useState(0);
+  const [figuresRefresh, setFiguresRefresh] = useState(0);
   // Bumped after a successful adoption so the wizard re-reads the target's head
   // revision without a full page reload; the guard then lets preview through.
   const [refreshToken, setRefreshToken] = useState(0);
   const [riskSheetOpen, setRiskSheetOpen] = useState(false);
   const refreshAfterAdoption = useCallback(() => setRefreshToken((value) => value + 1), []);
+  const refreshAfterFigures = useCallback(() => {
+    setFiguresRefresh((value) => value + 1);
+    setRefreshToken((value) => value + 1);
+  }, []);
   const targetIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -212,6 +226,14 @@ export function SelfService({
         />
         <Body><Pane width="wide">
           <div data-testid="self-preview-step">
+          <SelfFiguresCard
+            repository={repository}
+            actor={actor}
+            matterId={matterId}
+            targetId={data.target.id}
+            refreshToken={figuresRefresh}
+            onChanged={refreshAfterFigures}
+          />
           <ErrorBoundary area="预览" resetKey={`${matterId}/preview`}>
             <Preview
               repository={repository}
@@ -269,8 +291,17 @@ export function SelfService({
         />
         <Body><Pane width="narrow">
           <div data-testid="self-done-step">
-          <ErrorBoundary area="完成" resetKey={`${matterId}/done`}>
+          <SelfFiguresCard
+            repository={repository}
+            actor={actor}
+            matterId={matterId}
+            targetId={data.target.id}
+            refreshToken={figuresRefresh}
+            onChanged={refreshAfterFigures}
+          />
+          <ErrorBoundary area="完成" resetKey={`${matterId}/done/${figuresRefresh}`}>
             <DeliveryWorkspace
+              key={`${matterId}/${data.target.id}/${figuresRefresh}`}
               repository={repository}
               actor={actor}
               matterId={matterId}
@@ -322,9 +353,12 @@ export function SelfService({
                   repository={repository}
                   actor={actor}
                   matterId={matterId}
+                  targetId={data.target?.id ?? null}
                   intake={data.intake}
                   parseRefresh={parseRefresh}
+                  figuresRefresh={figuresRefresh}
                   onSaved={refreshParse}
+                  onFiguresChanged={refreshAfterFigures}
                   onQuestions={() => goToStep("questions", data.target?.id ?? null)}
                 />
               ) : null}
@@ -353,6 +387,14 @@ export function SelfService({
               ) : null}
               {step === "generate" && data.target ? (
                 <section className="gen-wrap" data-testid="self-generation">
+                  <SelfFiguresCard
+                    repository={repository}
+                    actor={actor}
+                    matterId={matterId}
+                    targetId={data.target.id}
+                    refreshToken={figuresRefresh}
+                    onChanged={refreshAfterFigures}
+                  />
                   <SelfGeneration
                     repository={repository}
                     actor={actor}
@@ -390,17 +432,23 @@ function UploadStep({
   repository,
   actor,
   matterId,
+  targetId,
   intake,
   parseRefresh,
+  figuresRefresh,
   onSaved,
+  onFiguresChanged,
   onQuestions,
 }: {
   repository: LocalRepository;
   actor: Actor;
   matterId: string;
+  targetId: string | null;
   intake: IntakeView;
   parseRefresh: number;
+  figuresRefresh: number;
   onSaved: () => void;
+  onFiguresChanged: () => void;
   onQuestions: () => void;
 }) {
   const [state, dispatch] = useReducer(uploadReducer, initialUploadState);
@@ -440,14 +488,29 @@ function UploadStep({
         },
       );
       dispatch({ type: "settle", outcomes });
+      if (
+        outcomes.some(
+          (outcome) =>
+            (outcome.status === "saved" || outcome.status === "duplicate") &&
+            (outcome.kind === "png" || outcome.kind === "jpeg"),
+        )
+      ) {
+        await syncUploadedImagesToLibrary(repository, actor, matterId).catch(() => null);
+      }
     } catch {
       dispatch({ type: "batch-error", message: "保存过程中发生意外错误；没有显示为已保存的文件都还没有存好。" });
     } finally {
       abortRef.current = null;
       dispatch({ type: "idle" });
+      notifySourcesSettled(matterId);
       onSaved();
     }
   }, [actor, busy, matterId, onSaved, repository, state]);
+
+  const continueToQuestions = useCallback(async () => {
+    await syncUploadedImagesToLibrary(repository, actor, matterId).catch(() => null);
+    onQuestions();
+  }, [actor, matterId, onQuestions, repository]);
 
   const answerWithoutDocuments = async () => {
     setNoDocumentNotice(null);
@@ -558,6 +621,14 @@ function UploadStep({
       </Callout>
 
       <div className="wiz-sec">
+        <SelfFiguresCard
+          repository={repository}
+          actor={actor}
+          matterId={matterId}
+          targetId={targetId}
+          refreshToken={parseRefresh + figuresRefresh}
+          onChanged={onFiguresChanged}
+        />
         <Parse repository={repository} actor={actor} matterId={matterId} refreshToken={parseRefresh} onAddDocuments={() => document.querySelector<HTMLInputElement>("[data-testid='upload-input']")?.click()} />
       </div>
 
@@ -578,7 +649,7 @@ function UploadStep({
             {busy ? "正在保存…" : `保存 ${pendingCount} 个文件`}
           </button>
         ) : (
-          <button type="button" className="btn primary lg" data-testid="upload-continue" disabled={busy} onClick={onQuestions}>
+          <button type="button" className="btn primary lg" data-testid="upload-continue" disabled={busy} onClick={() => void continueToQuestions()}>
             回答问题<Icon name="arrow" size="sm" />
           </button>
         )}
@@ -586,6 +657,132 @@ function UploadStep({
           <button type="button" className="btn ghost" data-testid="upload-cancel" onClick={() => abortRef.current?.abort()}>取消</button>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+function SelfFiguresCard({
+  repository,
+  actor,
+  matterId,
+  targetId,
+  refreshToken,
+  onChanged,
+}: {
+  repository: LocalRepository;
+  actor: Actor;
+  matterId: string;
+  targetId: string | null;
+  refreshToken: number;
+  onChanged: () => void;
+}) {
+  const [view, setView] = useState<FigurePanelView | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<FigureError | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [localReload, setLocalReload] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      await syncUploadedImagesToLibrary(repository, actor, matterId).catch(() => null);
+      const loaded = await loadFigurePanel(repository, actor, matterId, { targetId });
+      if (!cancelled) setView(loaded);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [repository, actor, matterId, targetId, refreshToken, localReload]);
+
+  if (!view || view.kind !== "library" || view.data.drawings.length === 0) return null;
+
+  const data = view.data;
+  const target = targetId !== null ? (data.targets.find((item) => item.id === targetId) ?? null) : null;
+  const current = targetId !== null ? (data.revisions.get(targetId) ?? null) : null;
+  const bindBase = current ?? (target !== null ? unboundFigureRevision(target) : null);
+  const boundIds = new Set(current?.entries.map((entry) => entry.drawingId).filter((id): id is string => id !== null) ?? []);
+  const unboundDrawings = data.drawings.filter((item) => !boundIds.has(item.drawing.id));
+  const boundCount = current?.entries.length ?? 0;
+
+  const bindAllUploaded = async () => {
+    if (busy || targetId === null || bindBase === null || unboundDrawings.length === 0) return;
+    setBusy(true);
+    setError(null);
+    const entries = appendAllUnboundEntries(
+      bindBase,
+      unboundDrawings.map((item) => item.drawing.id),
+      () => globalThis.crypto.randomUUID(),
+    );
+    const result = await bindFigures(repository, actor, matterId, {
+      targetId,
+      baseFigureRevisionId: bindBase.id,
+      entries,
+    });
+    setBusy(false);
+    if (!result.ok) {
+      setError(result.error);
+      setLocalReload((v) => v + 1);
+      return;
+    }
+    setLocalReload((v) => v + 1);
+    onChanged();
+  };
+
+  return (
+    <div style={{ marginBottom: 14 }} data-testid="self-figures-bridge">
+      <Callout tone="info" icon="img" testId="self-upload-figures-summary">
+        <div>
+          <b>已同步说明书附图库。</b>
+          {targetId === null ? (
+            <>本案附图库已有 {data.drawings.length} 张合规图片；选择申请路线后即可一键绑定为说明书附图。</>
+          ) : unboundDrawings.length > 0 ? (
+            <>本案附图库已有 {data.drawings.length} 张图片，当前目标图集已编入 {boundCount} 张，尚有 {unboundDrawings.length} 张未编入。</>
+          ) : (
+            <>本案附图库中的 {data.drawings.length} 张图片已编入当前目标图集（共 {boundCount} 张）。</>
+          )}
+        </div>
+        {error ? (
+          <p className="small" role="alert" data-testid="self-figures-bind-error">
+            绑定未完成：{error.message}（{error.code}）
+          </p>
+        ) : null}
+        <div className="rowgap" style={{ marginTop: 8 }}>
+          {targetId !== null && bindBase !== null && unboundDrawings.length > 0 ? (
+            <button
+              type="button"
+              className="btn btn-default btn-sm"
+              disabled={busy}
+              data-testid="self-bind-uploaded-figures"
+              onClick={() => void bindAllUploaded()}
+            >
+              {busy ? "正在绑定…" : `绑定已上传图片为说明书附图（${unboundDrawings.length} 张）`}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            data-testid="self-figures-manage-toggle"
+            onClick={() => setExpanded((value) => !value)}
+          >
+            {expanded ? "收起附图管理" : "管理附图"}
+          </button>
+        </div>
+      </Callout>
+      {expanded ? (
+        <div style={{ marginTop: 10 }}>
+          <Figures
+            repository={repository}
+            actor={actor}
+            matterId={matterId}
+            targetId={targetId}
+            refreshToken={refreshToken + localReload}
+            onSettled={() => {
+              setLocalReload((v) => v + 1);
+              onChanged();
+            }}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

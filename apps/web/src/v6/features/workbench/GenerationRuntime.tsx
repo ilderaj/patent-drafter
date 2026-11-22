@@ -27,6 +27,16 @@ export interface WorkbenchGenerationProps {
 const ATTENTION_JOB_STATES: ReadonlySet<string> = new Set(["queued", "running", "cancel_requested", "failed", "interrupted"]);
 
 /**
+ * Once a draft revision has been adopted, the outbound manifest necessarily
+ * changes (it names that revision). That alone is not a reason to interrupt a
+ * reviewer opening `/draft`: the consent sheet opens only when the user asks
+ * for it. Before the first adoption the disclosure is still proactive.
+ */
+export function hasAdoptedDraftRevision(runtime: GenerationRuntime | null | undefined): boolean {
+  return (runtime?.consent?.manifest?.draftRevisionIds.length ?? 0) > 0;
+}
+
+/**
  * The collapsible 「生成任务」 strip. Its expanded state is React state, never a
  * hard-coded `open` attribute: re-renders, the 15 s refresh and window focus
  * must not collapse it (the consent sheet lives inside it). It opens by itself
@@ -92,7 +102,7 @@ export function WorkbenchGeneration(props: WorkbenchGenerationProps) {
     return () => observer.disconnect();
   }, []);
   const attention = sheetOpen ? "sheet"
-    : runtime?.mode === "real" && runtime.consent.required ? "consent"
+    : runtime?.mode === "real" && runtime.consent.required && !hasAdoptedDraftRevision(runtime) ? "consent"
       : jobState !== null && ATTENTION_JOB_STATES.has(jobState) ? `job:${jobState}` : null;
   useEffect(() => {
     if (attention !== null) onAttentionRef.current?.();
@@ -117,8 +127,12 @@ export function WorkbenchGeneration(props: WorkbenchGenerationProps) {
       if (id !== operation.current) return;
       setRuntime(next);
       // Real drafting may not start before its exact outbound scope was confirmed;
-      // the sheet opens first so the disclosure is never skipped.
-      setSheetOpen(openSheet || (next.mode === "real" && next.consent.required));
+      // the sheet opens first so the disclosure is never skipped. With an adopted
+      // draft already in scope a passive refresh only updates the strip: the new
+      // manifestHash must not pop a modal over the draft being reviewed. An
+      // explicit request (`openSheet` from the controls or recoverConsent) still
+      // opens it.
+      setSheetOpen(openSheet || (next.mode === "real" && next.consent.required && !hasAdoptedDraftRevision(next)));
     } catch {
       if (id === operation.current) setError("无法读取起草服务状态，请重试。已保存的材料没有变化。");
     } finally {

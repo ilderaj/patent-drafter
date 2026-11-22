@@ -69,6 +69,16 @@ export interface DraftEditorEmptyStateProps {
   onManualWrite: () => void;
 }
 
+/**
+ * A title is still "not filled" when it is blank or the matter's default
+ * placeholder. Such a title must never be shown as the controlled input's
+ * value; it would be written back into the draft AST as literal text.
+ */
+export function isPlaceholderDraftTitle(value: string): boolean {
+  const trimmed = value.trim();
+  return trimmed === "" || trimmed === "未命名案件";
+}
+
 export function DraftEditorEmptyState(props: DraftEditorEmptyStateProps) {
   const canGenerate = typeof props.onGenerateDraft === "function";
   return <section className="card stack-3" data-testid="draft-editor" data-state="empty">
@@ -250,7 +260,7 @@ export class DraftEditorSession {
     const model: DraftEditorModel = {
       schemaVersion: "draft.v1",
       language: this.state.targetConfig?.language ?? "zh-CN",
-      title: this.state.matterTitle,
+      title: isPlaceholderDraftTitle(this.state.matterTitle) ? "" : this.state.matterTitle.trim(),
       claims: [],
       sections: SECTION_KINDS.map((kind) => ({ kind, present: true, paragraphs: [] })),
     };
@@ -568,6 +578,13 @@ export class DraftEditorSession {
       const inputStale = baseInputRef.sourceVersion !== currentInputRef.sourceVersion
         || baseInputRef.targetConfigVersion !== currentInputRef.targetConfigVersion
         || baseInputRef.figureRevisionId !== currentInputRef.figureRevisionId;
+      // A blank/default revision title may inherit the matter title once, at
+      // load; otherwise it becomes an honest `""` rather than the literal
+      // default text. The controlled input still binds only to the model title,
+      // so clearing it later never bounces back to a placeholder string.
+      if (model !== null && isPlaceholderDraftTitle(model.title)) {
+        model = { ...model, title: isPlaceholderDraftTitle(aggregate.matter.title) ? "" : aggregate.matter.title.trim() };
+      }
       const supportAst = model ? editorModelToDraftAst(model) : latest?.ast;
       this.setState({
         phase: "ready",
@@ -750,6 +767,18 @@ export interface DraftEditorProps {
 }
 
 /**
+ * Controlled draft-title input. Its value is always the real title state: a
+ * blank or default title renders as `""` so the user can clear the field and
+ * type a new name without the placeholder being written into the draft.
+ */
+export function DraftTitleField(props: { value: string; disabled: boolean; onChange: (value: string) => void }) {
+  const value = isPlaceholderDraftTitle(props.value) ? "" : props.value;
+  return <input className="doc-title" aria-label="稿件标题" data-testid="draft-title" value={value}
+    placeholder="（未填写发明名称）" disabled={props.disabled}
+    onChange={(event) => props.onChange(event.currentTarget.value)} />;
+}
+
+/**
  * Unified AST editor. The parent owns route registration and may connect the
  * preview/export callbacks; omitted callbacks emit revision-bound browser events.
  */
@@ -865,12 +894,6 @@ export function DraftEditor(props: DraftEditorProps) {
       sectionNumbers.set(paragraph.id, sectionParagraphIndex);
     }
   }
-  const titleValue = model.title.trim() !== "" && model.title.trim() !== "未命名案件"
-    ? model.title
-    : state.matterTitle.trim() !== "" && state.matterTitle.trim() !== "未命名案件"
-      ? state.matterTitle
-      : "（未填写发明名称）";
-
   return <section className="card stack-3 draft-paper" data-testid="draft-editor" data-state={state.phase === "error" ? "error" : state.inputStale ? "stale" : "ready"}>
     <span className="sr" data-testid="draft-revision">{state.baseRevisionId ? `修订 ${state.baseRevisionId.slice(0, 8)}` : "未保存的手工草稿"}</span>
     {state.inputStale ? <div className="notice" role="status" data-testid="draft-input-stale">
@@ -902,8 +925,8 @@ export function DraftEditor(props: DraftEditorProps) {
           <div className="doc-kicker">
             草稿 · {state.targetConfig?.language === "en-US" ? "英文准备稿" : "中文准备稿"} · {state.baseRevisionId ? state.baseRevisionId.slice(0, 8) : "未保存"}
           </div>
-          <input className="doc-title" aria-label="稿件标题" data-testid="draft-title" value={titleValue}
-            disabled={state.saving} onChange={(event) => update({ ...model, title: event.currentTarget.value })} />
+          <DraftTitleField value={model.title} disabled={state.saving}
+            onChange={(title) => update({ ...model, title })} />
           <div className="doc-meta">
             发明人：{state.targetConfig && state.targetConfig.inventorIds.length > 0 ? `${state.targetConfig.inventorIds.length} 位（待核实）` : "待补充"}
             <span className="dotsep" />点击段落可就地修改；确认按钮只作用于当前修订

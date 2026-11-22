@@ -23,12 +23,14 @@ import {
   figureErrorMessage,
   importDrawing,
   loadFigurePanel,
+  syncUploadedImagesToLibrary,
   type FigureEntryInput,
   type FigureError,
   type FigurePanelRevision,
   type FigurePanelView,
   type LibraryDrawing,
 } from "./drawings.ts";
+import { SOURCES_SETTLED_EVENT } from "./Upload.tsx";
 
 export interface FiguresProps {
   repository: LocalRepository;
@@ -74,6 +76,33 @@ export function appendEntry(
 }
 
 /**
+ * Append every unbound drawing id in order as consecutive figures after the
+ * existing entries, keeping existing figure ids, numbers and numerals intact.
+ */
+export function appendAllUnboundEntries(
+  current: FigurePanelRevision,
+  unboundDrawingIds: readonly string[],
+  newFigureId: () => string,
+): FigureEntryInput[] {
+  const entries = current.entries.map((entry) => ({ ...entry, numerals: copyNumerals(entry.numerals) }));
+  const boundIds = new Set(entries.map((entry) => entry.drawingId).filter((id): id is string => id !== null));
+  let nextNumber = entries.length + 1;
+  for (const drawingId of unboundDrawingIds) {
+    if (boundIds.has(drawingId)) continue;
+    boundIds.add(drawingId);
+    entries.push({
+      figureId: newFigureId(),
+      number: nextNumber,
+      title: `图${nextNumber}`,
+      drawingId,
+      numerals: [],
+    });
+    nextNumber += 1;
+  }
+  return entries;
+}
+
+/**
  * The entries after one figure is removed, renumbered 1..n in their order.
  * The remaining figures keep their numerals.
  */
@@ -112,6 +141,7 @@ export function Figures({
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<FigureError | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
   const alive = useRef(true);
 
   useEffect(() => {
@@ -122,8 +152,25 @@ export function Figures({
   }, []);
 
   useEffect(() => {
+    if (typeof globalThis.addEventListener !== "function") return;
+    const onSourcesSettled = (event: Event) => {
+      const detail = (event as CustomEvent<{ matterId?: string }>).detail;
+      if (!detail || detail.matterId === matterId) {
+        setReloadKey((key) => key + 1);
+      }
+    };
+    globalThis.addEventListener(SOURCES_SETTLED_EVENT, onSourcesSettled);
+    return () => {
+      globalThis.removeEventListener(SOURCES_SETTLED_EVENT, onSourcesSettled);
+    };
+  }, [matterId]);
+
+  useEffect(() => {
     let cancelled = false;
-    loadFigurePanel(repository, actor, matterId, { targetId, draftFigureRevisionId }).then(
+    (async () => {
+      await syncUploadedImagesToLibrary(repository, actor, matterId).catch(() => null);
+      return loadFigurePanel(repository, actor, matterId, { targetId, draftFigureRevisionId });
+    })().then(
       (view) => {
         if (!cancelled) setState({ phase: "ready", view });
       },
@@ -137,6 +184,48 @@ export function Figures({
       cancelled = true;
     };
   }, [repository, actor, matterId, targetId, draftFigureRevisionId, refreshToken, reloadKey]);
+
+  const loadedDrawings = state.phase === "ready" && "data" in state.view && state.view.data ? state.view.data.drawings : [];
+  const drawingsSignature = loadedDrawings.map((item) => `${item.drawing.id}:${item.asset.id}:${item.drawing.sha256}`).join("|");
+
+  useEffect(() => {
+    if (
+      typeof URL === "undefined" ||
+      typeof URL.createObjectURL !== "function" ||
+      typeof URL.revokeObjectURL !== "function" ||
+      loadedDrawings.length === 0
+    ) {
+      setThumbnails({});
+      return;
+    }
+    let cancelled = false;
+    const createdUrls: string[] = [];
+    void (async () => {
+      const next: Record<string, string> = {};
+      for (const item of loadedDrawings) {
+        if (cancelled) break;
+        const read = await repository.readBlob(actor, item.asset.id).catch(() => null);
+        if (cancelled || !read || !read.ok) continue;
+        const bytes = read.data.data.bytes;
+        const copy = new Uint8Array(bytes.byteLength);
+        copy.set(bytes);
+        const url = URL.createObjectURL(new Blob([copy], { type: item.drawing.mime }));
+        if (cancelled) {
+          URL.revokeObjectURL(url);
+          break;
+        }
+        createdUrls.push(url);
+        next[item.drawing.id] = url;
+      }
+      if (!cancelled) setThumbnails(next);
+    })();
+    return () => {
+      cancelled = true;
+      for (const url of createdUrls) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [repository, actor, drawingsSignature]);
 
   const settle = useCallback(
     (result: { ok: true } | { ok: false; error: FigureError }) => {
@@ -195,9 +284,13 @@ export function Figures({
       view={state.view}
       busy={busy}
       actionError={actionError}
+      thumbnails={thumbnails}
       onImport={onImport}
       onDelete={onDelete}
       onAppend={(current, drawingId) => bind(current, appendEntry(current, drawingId, globalThis.crypto.randomUUID()))}
+      onAppendAll={(current, drawingIds) =>
+        bind(current, appendAllUnboundEntries(current, drawingIds, () => globalThis.crypto.randomUUID()))
+      }
       onRemove={(current, figureId) => bind(current, removeEntry(current, figureId))}
       onReload={() => setReloadKey((key) => key + 1)}
     />
@@ -217,9 +310,12 @@ export interface FiguresPanelProps {
   view: FigurePanelView;
   busy: boolean;
   actionError?: FigureError | null;
+  /** Local Blob URLs derived from persisted drawing bytes, keyed by drawing id. */
+  thumbnails?: Readonly<Record<string, string>>;
   onImport: (file: File) => void;
   onDelete: (drawingId: string) => void;
   onAppend: (current: FigurePanelRevision, drawingId: string) => void;
+  onAppendAll?: (current: FigurePanelRevision, drawingIds: readonly string[]) => void;
   onRemove: (current: FigurePanelRevision, figureId: string) => void;
   onReload: () => void;
 }
@@ -232,9 +328,11 @@ export function FiguresPanel({
   view,
   busy,
   actionError = null,
+  thumbnails = {},
   onImport,
   onDelete,
   onAppend,
+  onAppendAll,
   onRemove,
   onReload,
 }: FiguresPanelProps) {
@@ -248,6 +346,7 @@ export function FiguresPanel({
   const bindBase = current ?? (target !== null ? unboundFigureRevision(target) : null);
   const gate = data && targetId ? data.gate : null;
   const bound = new Set(current?.entries.map((entry) => entry.drawingId).filter((id): id is string => id !== null) ?? []);
+  const unboundDrawings = (data?.drawings ?? []).filter((item) => !bound.has(item.drawing.id));
   const drawingsById = new Map((data?.drawings ?? []).map((item) => [item.drawing.id, item]));
 
   return (
@@ -292,20 +391,33 @@ export function FiguresPanel({
       ) : null}
 
       {data || view.kind === "empty" ? (
-        <label className="btn btn-outline btn-sm" data-testid="figures-import" aria-disabled={busy}>
-          导入附图
-          <input
-            type="file"
-            accept={ACCEPT}
-            hidden
-            disabled={busy}
-            onChange={(event) => {
-              const file = event.currentTarget.files?.[0];
-              event.currentTarget.value = "";
-              if (file) onImport(file);
-            }}
-          />
-        </label>
+        <div className="v6-upload-actions" style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+          <label className="btn btn-outline btn-sm" data-testid="figures-import" aria-disabled={busy}>
+            导入附图
+            <input
+              type="file"
+              accept={ACCEPT}
+              hidden
+              disabled={busy}
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0];
+                event.currentTarget.value = "";
+                if (file) onImport(file);
+              }}
+            />
+          </label>
+          {bindBase && unboundDrawings.length > 0 && onAppendAll ? (
+            <button
+              type="button"
+              className="btn btn-default btn-sm"
+              disabled={busy}
+              data-testid="figures-bind-all"
+              onClick={() => onAppendAll(bindBase, unboundDrawings.map((item) => item.drawing.id))}
+            >
+              一键按序绑定未入集附图（{unboundDrawings.length} 张）
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
       {view.kind === "empty" || (data !== null && data.drawings.length === 0) ? (
@@ -316,40 +428,61 @@ export function FiguresPanel({
 
       {data && data.drawings.length > 0 ? (
         <ul className="group v6-upload-rows" role="list" data-testid="figures-library">
-          {data.drawings.map((item) => (
-            <li key={item.drawing.id} className="filerow" data-testid={`figure-row-${item.drawing.id}`}>
-              <span className="file-ic" aria-hidden="true">
-                ▣
-              </span>
-              <div className="v6-upload-file">
-                <span className="file-name">{item.asset.originalName}</span>
-                <span className="field-hint" data-testid={`figure-detail-${item.drawing.id}`}>
-                  {drawingSummary(item)} · {item.drawing.sha256.slice(0, 12)}
-                </span>
-              </div>
-              {bound.has(item.drawing.id) ? <span className="badge badge-ok">已编入图集</span> : null}
-              {bindBase && !bound.has(item.drawing.id) ? (
+          {data.drawings.map((item) => {
+            const thumbUrl = thumbnails[item.drawing.id];
+            return (
+              <li key={item.drawing.id} className="filerow" data-testid={`figure-row-${item.drawing.id}`}>
+                {thumbUrl ? (
+                  <img
+                    className="v6-figure-thumb"
+                    src={thumbUrl}
+                    alt={item.asset.originalName}
+                    data-testid={`figure-thumb-${item.drawing.id}`}
+                    style={{
+                      width: 44,
+                      height: 44,
+                      objectFit: "contain",
+                      borderRadius: 6,
+                      border: "1px solid var(--line)",
+                      background: "var(--surface-2)",
+                      flex: "none",
+                    }}
+                  />
+                ) : (
+                  <span className="file-ic" aria-hidden="true">
+                    ▣
+                  </span>
+                )}
+                <div className="v6-upload-file">
+                  <span className="file-name">{item.asset.originalName}</span>
+                  <span className="field-hint" data-testid={`figure-detail-${item.drawing.id}`}>
+                    {drawingSummary(item)} · {item.drawing.sha256.slice(0, 12)}
+                  </span>
+                </div>
+                {bound.has(item.drawing.id) ? <span className="badge badge-ok">已编入图集</span> : null}
+                {bindBase && !bound.has(item.drawing.id) ? (
+                  <button
+                    type="button"
+                    className="btn btn-default btn-sm"
+                    disabled={busy}
+                    data-testid={`figure-append-${item.drawing.id}`}
+                    onClick={() => onAppend(bindBase, item.drawing.id)}
+                  >
+                    编入图集
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  className="btn btn-default btn-sm"
+                  className="btn btn-ghost btn-sm"
                   disabled={busy}
-                  data-testid={`figure-append-${item.drawing.id}`}
-                  onClick={() => onAppend(bindBase, item.drawing.id)}
+                  data-testid={`figure-delete-${item.drawing.id}`}
+                  onClick={() => onDelete(item.drawing.id)}
                 >
-                  编入图集
+                  删除
                 </button>
-              ) : null}
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                disabled={busy}
-                data-testid={`figure-delete-${item.drawing.id}`}
-                onClick={() => onDelete(item.drawing.id)}
-              >
-                删除
-              </button>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       ) : null}
 
@@ -380,8 +513,26 @@ export function FiguresPanel({
             <ol className="group v6-upload-rows" data-testid="figures-set-entries">
               {current.entries.map((entry) => {
                 const drawing = entry.drawingId === null ? null : (drawingsById.get(entry.drawingId) ?? null);
+                const thumbUrl = drawing ? thumbnails[drawing.drawing.id] : undefined;
                 return (
                   <li key={entry.figureId} className="filerow" data-testid={`figure-entry-${entry.number}`}>
+                    {thumbUrl ? (
+                      <img
+                        className="v6-figure-thumb"
+                        src={thumbUrl}
+                        alt={drawing!.asset.originalName}
+                        data-testid={`figure-entry-thumb-${entry.number}`}
+                        style={{
+                          width: 36,
+                          height: 36,
+                          objectFit: "contain",
+                          borderRadius: 6,
+                          border: "1px solid var(--line)",
+                          background: "var(--surface-2)",
+                          flex: "none",
+                        }}
+                      />
+                    ) : null}
                     <span className="file-name">
                       图{entry.number} {entry.title === `图${entry.number}` ? "" : entry.title}
                     </span>

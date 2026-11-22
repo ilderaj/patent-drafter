@@ -13,7 +13,7 @@
  * The passphrase is component memory only. It is never written to a URL, log,
  * evidence file, export row or the recovery package itself.
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { sha256Hex, type Actor, type LocalRepository } from "../../lib/repository.ts";
 import {
   commitRecoveryImport,
@@ -32,6 +32,8 @@ export interface RecoveryProps {
   actor: Actor;
   /** The matter whose recovery package is generated; null disables export. */
   sourceMatterId?: string | null;
+  /** Called after a recovery package creates a new local matter, so the host can refresh its matter list. */
+  onImported?: (matterId: string) => void;
   /** Import can be used without a source matter. */
   initialPassphrase?: string;
   now?: () => string;
@@ -44,21 +46,40 @@ interface ScreenError {
   message: string;
 }
 
-export function Recovery({ repository, actor, sourceMatterId = null, initialPassphrase = "", now }: RecoveryProps) {
+export function Recovery({ repository, actor, sourceMatterId = null, onImported, initialPassphrase = "", now }: RecoveryProps) {
   const [phase, setPhase] = useState<Phase>("empty");
   const [passphrase, setPassphrase] = useState(initialPassphrase);
   const [access, setAccess] = useState<RecoveryAccess>("local_unmetered");
   const [selectedBytes, setSelectedBytes] = useState<Uint8Array | null>(null);
   const [selectedName, setSelectedName] = useState<string | null>(null);
-  const [exported, setExported] = useState<{ name: string; bytes: number; sha256: string } | null>(null);
+  const [exported, setExported] = useState<{ name: string; bytes: Uint8Array; sha256: string } | null>(null);
   const [validation, setValidation] = useState<ValidatedRecovery | null>(null);
   const [persisted, setPersisted] = useState<RecoveryValidationView | null>(null);
   const [committedMatterId, setCommittedMatterId] = useState<string | null>(null);
   const [reviewed, setReviewed] = useState(false);
   const [error, setError] = useState<ScreenError | null>(null);
+  const downloadUrl = useRef<string | null>(null);
+  const lastSourceMatterId = useRef(sourceMatterId);
 
   const report: MigrationReport | null = persisted?.report ?? validation?.report ?? null;
   const busy = phase === "loading";
+
+  const releaseDownloadUrl = () => {
+    if (downloadUrl.current === null) return;
+    URL.revokeObjectURL(downloadUrl.current);
+    downloadUrl.current = null;
+  };
+
+  useEffect(() => releaseDownloadUrl, []);
+
+  // A package belongs to the matter it was generated from. Switching the
+  // export source must not leave an old package downloadable under the new row.
+  useEffect(() => {
+    if (lastSourceMatterId.current === sourceMatterId) return;
+    lastSourceMatterId.current = sourceMatterId;
+    releaseDownloadUrl();
+    setExported(null);
+  }, [sourceMatterId]);
 
   useEffect(() => {
     if (!validation && !persisted) return;
@@ -77,7 +98,8 @@ export function Recovery({ repository, actor, sourceMatterId = null, initialPass
       });
       const sha256 = await sha256Hex(bytes);
       const name = recoveryPackageFileName((now ?? (() => new Date().toISOString()))());
-      setExported({ name, bytes: bytes.byteLength, sha256 });
+      releaseDownloadUrl();
+      setExported({ name, bytes, sha256 });
       setSelectedBytes(bytes);
       setSelectedName(name);
       setValidation(null);
@@ -141,6 +163,7 @@ export function Recovery({ repository, actor, sourceMatterId = null, initialPass
       return;
     }
     setCommittedMatterId(result.data.matterId);
+    onImported?.(result.data.matterId);
     const refreshed = await readRecoveryValidation(repository, actor, validation.validationId);
     if (refreshed.ok) setPersisted(refreshed.data);
     setPhase("ready");
@@ -163,17 +186,20 @@ export function Recovery({ repository, actor, sourceMatterId = null, initialPass
   };
 
   const downloadGenerated = () => {
-    if (!selectedBytes || !exported) return;
-    const buffer = new ArrayBuffer(selectedBytes.byteLength);
-    new Uint8Array(buffer).set(selectedBytes);
+    if (!exported) return;
+    // The package bytes live with the export, not with the import file picker:
+    // choosing a file after generating must not change what this button saves.
+    releaseDownloadUrl();
+    const buffer = new ArrayBuffer(exported.bytes.byteLength);
+    new Uint8Array(buffer).set(exported.bytes);
     const url = URL.createObjectURL(new Blob([buffer], { type: "application/octet-stream" }));
+    downloadUrl.current = url;
     const anchor = document.createElement("a");
     anchor.href = url;
     anchor.download = exported.name;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    URL.revokeObjectURL(url);
   };
 
   if (phase === "loading") {
@@ -198,7 +224,7 @@ export function Recovery({ repository, actor, sourceMatterId = null, initialPass
       <details className="v6-tech-details"><summary>新案件 ID</summary><code>{committedMatterId}</code></details>
     </div> : null}
 
-    <section className="setsec" data-testid="recovery-export">
+    <section className="setsec" data-testid="recovery-export" data-source-matter-id={sourceMatterId ?? ""}>
       <h3>生成恢复包</h3>
       <div className="group">
         <div className="row"><div className="r-main"><div className="r-title">来源案件</div>
@@ -225,10 +251,12 @@ export function Recovery({ repository, actor, sourceMatterId = null, initialPass
             disabled={busy || !sourceMatterId || passphrase.trim().length === 0} onClick={() => void generate()}>
             生成加密恢复包
           </button>
-          {exported ? <button type="button" className="btn" data-testid="recovery-download" onClick={downloadGenerated}>下载 {exported.name}</button> : null}
+          {exported ? <button type="button" className="btn" data-testid="recovery-download" onClick={downloadGenerated}>
+            下载恢复包（{exported.name}）
+          </button> : null}
         </div>
         {exported ? <div className="row"><span className="small muted" data-testid="recovery-export-hash">
-          {exported.bytes} bytes · SHA-256 {exported.sha256.slice(0, 24)}…
+          {exported.bytes.byteLength} bytes · SHA-256 {exported.sha256.slice(0, 24)}…
         </span></div> : null}
       </div>
     </section>

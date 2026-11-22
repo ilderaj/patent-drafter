@@ -39,6 +39,11 @@ import {
   type PageExitEvidence,
   type SourceParseState,
 } from "./parse.ts";
+import { SOURCES_SETTLED_EVENT } from "./Upload.tsx";
+
+export function isImageParseRow(row: Pick<ParseRow, "mime">): boolean {
+  return row.mime === "image/png" || row.mime === "image/jpeg";
+}
 
 export interface ParseProps {
   repository: LocalRepository;
@@ -234,6 +239,21 @@ export function Parse({ repository, actor, matterId, refreshToken, onAddDocument
     void refresh();
     return () => { loadGeneration.current += 1; };
   }, [refresh, refreshToken, attempt]);
+
+  useEffect(() => {
+    if (typeof globalThis.addEventListener !== "function") return;
+    const onSourcesSettled = (event: Event) => {
+      const detail = (event as CustomEvent<{ matterId?: string }>).detail;
+      if (runningAsset.current !== null) return;
+      if (!detail || detail.matterId === matterId) {
+        reload();
+      }
+    };
+    globalThis.addEventListener(SOURCES_SETTLED_EVENT, onSourcesSettled);
+    return () => {
+      globalThis.removeEventListener(SOURCES_SETTLED_EVENT, onSourcesSettled);
+    };
+  }, [matterId, reload]);
 
   useEffect(() => () => { abortRef.current?.abort(); }, []);
 
@@ -583,6 +603,11 @@ export function ParsePanel({
                   {chunkSummary(row)}
                   {row.state === "parsed" || row.state === "partial" ? " · 已保存" : ""}
                 </span>
+                {isImageParseRow(row) ? (
+                  <span className="field-hint" data-testid={`parse-image-note-${row.assetId}`}>
+                    图片已可用于说明书附图库；图内文字 OCR 当前未开放，不影响作为说明书附图使用。
+                  </span>
+                ) : null}
                 {row.errorMessage && row.state !== "running" ? (
                   <span className="field-hint" data-testid={`parse-error-${row.assetId}`}>
                     {row.errorMessage}（{row.errorCode}）

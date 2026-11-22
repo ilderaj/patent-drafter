@@ -9,12 +9,14 @@ export interface ExportClaim {
   id?: string;
   label?: string;
   text: string;
+  paragraphs?: readonly string[];
 }
 
 export interface ExportSpecSection {
   id?: string;
   title: string;
   body: string;
+  paragraphs?: readonly string[];
 }
 
 export interface ExportAuditRow {

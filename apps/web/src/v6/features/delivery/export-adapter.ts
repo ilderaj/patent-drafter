@@ -673,18 +673,26 @@ function projectData(context: LoadedExportContext, route: ExportRoute): ExportPr
   const figureEntries = context.figures.current.get(context.snapshot.targetId)?.entries ?? [];
   const filesByFigure = new Map(context.figureAssets.map((item) => [item.figureId, item]));
   const abstractSection = ast.sections.find((section) => section.kind === "abstract");
-  const specSections = ast.sections.filter((section) => section.kind !== "abstract").map((section) => ({
-    title: sectionLabel(section.kind),
-    body: section.paragraphs.map((paragraph) => paragraph.text).join("\n"),
-  }));
+  const specSections = ast.sections.filter((section) => section.kind !== "abstract").map((section) => {
+    const paragraphs = section.paragraphs.map((paragraph) => paragraph.text);
+    return {
+      title: sectionLabel(section.kind),
+      body: paragraphs.join("\n"),
+      paragraphs,
+    };
+  });
   return {
     name: context.revision.revision.testOutput === true ? `${context.aggregate.matter.title}（测试输出，非正式申请稿）` : context.aggregate.matter.title,
     patentType: route,
-    claims: ast.claims.map((claim) => ({
-      id: claim.id,
-      label: `权利要求 ${claim.number}`,
-      text: claim.paragraphs.map((paragraph) => paragraph.text).join("\n"),
-    })),
+    claims: ast.claims.map((claim) => {
+      const paragraphs = claim.paragraphs.map((paragraph) => paragraph.text);
+      return {
+        id: claim.id,
+        label: `权利要求 ${claim.number}`,
+        text: paragraphs.join("\n"),
+        paragraphs,
+      };
+    }),
     specSections,
     abstractText: abstractSection?.paragraphs.map((paragraph) => paragraph.text).join("\n") ?? "",
     figures: figureEntries.map((entry) => {
