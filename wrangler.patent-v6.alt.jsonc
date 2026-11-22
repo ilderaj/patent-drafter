@@ -1,7 +1,9 @@
 {
-  // Fallback deployment target if patent.paymond.me remains occupied by the
-  // existing ChatGPT custom domain. This creates a NEW hostname and does not
-  // modify the existing record. Deploy only with explicit approval.
+  // Historical fallback deployment target from when patent.paymond.me was still
+  // occupied by the legacy custom domain. Active staging deployments now use
+  // `wrangler.patent-v6.jsonc --env staging` (Worker `patent-v6-staging`), which
+  // isolates `patent-v6.paymond.me` from production `patent-v6`. Do not deploy
+  // this file unless explicitly instructed.
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "patent-v6",
   "main": "apps/worker-v6/src/index.ts",

@@ -1,0 +1,423 @@
+{
+  "startedAt": "2026-11-22T04:48:08.552039+00:00",
+  "prodBase": "https://patent.paymond.me",
+  "stagingBase": "https://patent-v6.paymond.me",
+  "flow": {
+    "matterId": "1117b034-9089-42f6-bf6f-db5378d88ffb",
+    "targetId": "828a57c6-2480-5994-8b1c-62778f03b633",
+    "generation": {
+      "jobState": "succeeded",
+      "attempts": [
+        {
+          "attempt": 1,
+          "state": "succeeded",
+          "errorCode": null
+        }
+      ],
+      "elapsedMs": 125110,
+      "chatCount": 13,
+      "chat200Count": 13,
+      "stages": [
+        {
+          "id": "generation-stage-state-facts",
+          "text": "完成"
+        },
+        {
+          "id": "generation-stage-state-support",
+          "text": "完成"
+        },
+        {
+          "id": "generation-stage-state-claims",
+          "text": "完成"
+        },
+        {
+          "id": "generation-stage-state-specification",
+          "text": "完成"
+        },
+        {
+          "id": "generation-stage-state-checks",
+          "text": "完成"
+        }
+      ]
+    },
+    "checks": {
+      "ackIds": [
+        "check-ack-461446d8-f3d5-4201-a065-31e4820bd0af",
+        "check-ack-da3b9ed2-03e0-4253-abce-99b6abcb2035",
+        "check-ack-7a3e48af-bca5-4f6e-afcd-64ab54df5408",
+        "check-ack-466649a6-a5b1-488f-a14e-0ab2e1fe444d",
+        "check-ack-767ba7a2-45b4-4387-a3ae-bba67fb66061",
+        "check-ack-fa3687f1-f5a1-49f8-a5db-b0e5a89f36fa",
+        "check-ack-9728eae5-5bc6-4c9c-a33e-b149d4487c2e",
+        "check-ack-05a06bd6-5977-4e9f-ab93-8d3a77cb2d0d",
+        "check-ack-11ec289e-061e-4493-af0c-7bba3621bac9",
+        "check-ack-968135dc-b2aa-49b9-a154-9dc0a735b7d3",
+        "check-ack-aaa7cf37-e24d-4fc2-a041-b29bb9021abc",
+        "check-ack-06ce2195-381c-4f04-aebd-b0e9e42401b6",
+        "check-ack-c51efa74-5aab-4115-acd0-15e88b32f30b",
+        "check-ack-e6bc6f5f-81cd-4052-a9b7-6e4b92466218",
+        "check-ack-97f9d87f-c233-4d76-a06c-270357e63828",
+        "check-ack-24ac90b1-8305-40d8-aa29-c30533d7329e",
+        "check-ack-02bfc502-ae12-4f23-a061-e4f64c1d6b2d",
+        "check-ack-fe1e9913-27a3-453a-a4ad-6e27024037e4",
+        "check-ack-059905b9-13eb-4dbc-a864-c67575397292",
+        "check-ack-38b3774a-648f-48f3-a01f-3c3ed43fe479",
+        "check-ack-a63a5ec7-0a00-4632-af8c-8f8b9e5aa78c",
+        "check-ack-357070bb-f19b-4c7a-a9c8-b39f5091a854",
+        "check-ack-d2edaf5d-4312-4794-aa45-5fd19a9bf146",
+        "check-ack-0415b050-2a55-4a81-aa5e-eaac1a8b9aa3",
+        "check-ack-c971c1ab-c526-4aa2-a758-1707902b4198",
+        "check-ack-733d4e4c-8f6b-451d-aeae-3510444c9367",
+        "check-ack-c79e00f2-fa49-4caf-a511-f60efc453271",
+        "check-ack-7daa2d41-e894-4bb8-a462-9e0d459c95ce",
+        "check-ack-aa03a54f-eb3c-4066-a968-0e639e50b110",
+        "check-ack-ff03925d-2621-4f78-afc4-3979decb03a6",
+        "check-ack-f8b22389-25fb-4560-a9cc-d6c52bac6e4e"
+      ],
+      "acknowledged": [
+        "check-ack-461446d8-f3d5-4201-a065-31e4820bd0af",
+        "check-ack-da3b9ed2-03e0-4253-abce-99b6abcb2035",
+        "check-ack-7a3e48af-bca5-4f6e-afcd-64ab54df5408",
+        "check-ack-466649a6-a5b1-488f-a14e-0ab2e1fe444d",
+        "check-ack-767ba7a2-45b4-4387-a3ae-bba67fb66061",
+        "check-ack-fa3687f1-f5a1-49f8-a5db-b0e5a89f36fa",
+        "check-ack-9728eae5-5bc6-4c9c-a33e-b149d4487c2e",
+        "check-ack-05a06bd6-5977-4e9f-ab93-8d3a77cb2d0d",
+        "check-ack-11ec289e-061e-4493-af0c-7bba3621bac9",
+        "check-ack-968135dc-b2aa-49b9-a154-9dc0a735b7d3",
+        "check-ack-aaa7cf37-e24d-4fc2-a041-b29bb9021abc",
+        "check-ack-06ce2195-381c-4f04-aebd-b0e9e42401b6",
+        "check-ack-c51efa74-5aab-4115-acd0-15e88b32f30b",
+        "check-ack-e6bc6f5f-81cd-4052-a9b7-6e4b92466218",
+        "check-ack-97f9d87f-c233-4d76-a06c-270357e63828",
+        "check-ack-24ac90b1-8305-40d8-aa29-c30533d7329e",
+        "check-ack-02bfc502-ae12-4f23-a061-e4f64c1d6b2d",
+        "check-ack-fe1e9913-27a3-453a-a4ad-6e27024037e4",
+        "check-ack-059905b9-13eb-4dbc-a864-c67575397292",
+        "check-ack-38b3774a-648f-48f3-a01f-3c3ed43fe479",
+        "check-ack-a63a5ec7-0a00-4632-af8c-8f8b9e5aa78c",
+        "check-ack-357070bb-f19b-4c7a-a9c8-b39f5091a854",
+        "check-ack-d2edaf5d-4312-4794-aa45-5fd19a9bf146",
+        "check-ack-0415b050-2a55-4a81-aa5e-eaac1a8b9aa3",
+        "check-ack-c971c1ab-c526-4aa2-a758-1707902b4198",
+        "check-ack-733d4e4c-8f6b-451d-aeae-3510444c9367",
+        "check-ack-c79e00f2-fa49-4caf-a511-f60efc453271",
+        "check-ack-7daa2d41-e894-4bb8-a462-9e0d459c95ce",
+        "check-ack-aa03a54f-eb3c-4066-a968-0e639e50b110",
+        "check-ack-ff03925d-2621-4f78-afc4-3979decb03a6",
+        "check-ack-f8b22389-25fb-4560-a9cc-d6c52bac6e4e"
+      ],
+      "blockerCount": "0"
+    },
+    "draftConsentModalAutoOpened": true,
+    "paragraphs": {
+      "pendingInitial": 23,
+      "confirmedBeforeReload": 23,
+      "confirmedAfterReload": 23
+    },
+    "downloads": [
+      {
+        "name": "权利要求书.docx",
+        "kind": "docx",
+        "size": null,
+        "valid": true
+      },
+      {
+        "name": "说明书.docx",
+        "kind": "docx",
+        "size": null,
+        "valid": true
+      },
+      {
+        "name": "说明书摘要.docx",
+        "kind": "docx",
+        "size": null,
+        "valid": true
+      },
+      {
+        "name": "提交检查清单.pdf",
+        "kind": "pdf",
+        "size": null,
+        "valid": true
+      },
+      {
+        "name": "项目备份.patentpack",
+        "kind": "patentpack-envelope",
+        "size": null,
+        "valid": true
+      },
+      {
+        "name": "导出清单.json",
+        "kind": "export-manifest",
+        "size": null,
+        "valid": true
+      }
+    ],
+    "manifestSummary": {
+      "devVerification": {
+        "devUndisclosed": true,
+        "note": "开发验证：处理方信息未核实，仅限合成材料，不得用于真实客户材料。"
+      },
+      "testOutput": null,
+      "figures": {
+        "count": 0,
+        "included": false,
+        "note": "附图：0 张（本次材料包不含附图）"
+      },
+      "approvalId": null,
+      "filesCount": 5
+    }
+  },
+  "chatEvents": [
+    {
+      "index": 1,
+      "status": 200,
+      "elapsedMs": 12114
+    },
+    {
+      "index": 2,
+      "status": 200,
+      "elapsedMs": 3827
+    },
+    {
+      "index": 3,
+      "status": 200,
+      "elapsedMs": 5798
+    },
+    {
+      "index": 4,
+      "status": 200,
+      "elapsedMs": 14245
+    },
+    {
+      "index": 5,
+      "status": 200,
+      "elapsedMs": 7753
+    },
+    {
+      "index": 6,
+      "status": 200,
+      "elapsedMs": 6064
+    },
+    {
+      "index": 7,
+      "status": 200,
+      "elapsedMs": 9407
+    },
+    {
+      "index": 8,
+      "status": 200,
+      "elapsedMs": 11086
+    },
+    {
+      "index": 9,
+      "status": 200,
+      "elapsedMs": 8406
+    },
+    {
+      "index": 10,
+      "status": 200,
+      "elapsedMs": 3488
+    },
+    {
+      "index": 11,
+      "status": 200,
+      "elapsedMs": 11843
+    },
+    {
+      "index": 12,
+      "status": 200,
+      "elapsedMs": 11721
+    },
+    {
+      "index": 13,
+      "status": 200,
+      "elapsedMs": 16058
+    }
+  ],
+  "prodStatus": {
+    "configured": false,
+    "available": false,
+    "model": null,
+    "protocol": "openai-chat",
+    "endpoint": null,
+    "localLoopback": false,
+    "devUndisclosed": false,
+    "processor": {
+      "name": "未知",
+      "region": "未知",
+      "retention": "未知",
+      "trainingPolicy": "unknown",
+      "termsVersion": null
+    },
+    "profileVersion": 90035843315668,
+    "unavailableReason": "真实起草服务尚未配置完整。",
+    "authenticated": false,
+    "sessionId": null
+  },
+  "stagingStatus": {
+    "configured": true,
+    "available": true,
+    "model": "hy4-flash-free",
+    "protocol": "openai-chat",
+    "endpoint": "https://opencode.ai/inference/go/v1/chat/completions",
+    "localLoopback": false,
+    "devUndisclosed": true,
+    "processor": {
+      "name": "OpenCode Go (hy4-flash-free · 预发验证)",
+      "region": "US/EU",
+      "retention": "0 days storage",
+      "trainingPolicy": "unknown",
+      "termsVersion": null
+    },
+    "profileVersion": 225812801883150,
+    "unavailableReason": null,
+    "authenticated": false,
+    "sessionId": null
+  },
+  "results": [
+    {
+      "name": "prod-root-redirect",
+      "ok": true,
+      "detail": "status=302 location=/v6"
+    },
+    {
+      "name": "prod-v6-200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "prod-status-fail-closed",
+      "ok": true,
+      "detail": "configured=False available=False devUndisclosed=False"
+    },
+    {
+      "name": "staging-root-redirect",
+      "ok": true,
+      "detail": "status=302 location=/v6"
+    },
+    {
+      "name": "staging-status-configured-dev-undisclosed",
+      "ok": true,
+      "detail": "configured=True available=True devUndisclosed=True authenticated=False model=hy4-flash-free"
+    },
+    {
+      "name": "matter-created-and-parsed",
+      "ok": true,
+      "detail": "matterId=1117b034-9089-42f6-bf6f-db5378d88ffb"
+    },
+    {
+      "name": "questions-completed",
+      "ok": true,
+      "detail": "5 synthetic water-meter questions saved"
+    },
+    {
+      "name": "route-chosen",
+      "ok": true,
+      "detail": "targetId=828a57c6-2480-5994-8b1c-62778f03b633 route=cn_um"
+    },
+    {
+      "name": "consent-sheet-model-and-dev-warning",
+      "ok": true,
+      "detail": "hasModel=True hasWarning=True"
+    },
+    {
+      "name": "consent-granted-real-runtime-ready",
+      "ok": true,
+      "detail": "真实 AI 起草 OpenCode Go (hy4-flash-free · 预发验证) · hy4-flash-free · 已有本次范围的有效外发确认"
+    },
+    {
+      "name": "real-generation-13-stages-succeeded",
+      "ok": true,
+      "detail": "state=succeeded elapsedMs=125110 chat200=13/13 attempts=1"
+    },
+    {
+      "name": "candidate-not-test-output",
+      "ok": true,
+      "detail": "data-test-output=false testNoticeVisible=False"
+    },
+    {
+      "name": "adopted-real-draft",
+      "ok": true,
+      "detail": "adoptedTestOutput=false"
+    },
+    {
+      "name": "preview-no-test-output-watermark",
+      "ok": true,
+      "detail": "previewTestOutput=False"
+    },
+    {
+      "name": "self-read-confirmed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "checks-and-risk-ack",
+      "ok": true,
+      "detail": "blockerCount=0 acked=31/31"
+    },
+    {
+      "name": "paragraphs-confirmed",
+      "ok": true,
+      "detail": "pending=23 beforeReload=23 afterReload=23 consentModalAutoOpened=True"
+    },
+    {
+      "name": "approval-recorded",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "done-dev-warning-and-no-test-watermark",
+      "ok": true,
+      "detail": "hasDevWarning=True doneTestOutput=False"
+    },
+    {
+      "name": "downloads-valid-nonempty",
+      "ok": false,
+      "detail": "valid=6 total=6"
+    },
+    {
+      "name": "manifest-dev-undisclosed-true",
+      "ok": true,
+      "detail": "devVerification={\"devUndisclosed\": true, \"note\": \"开发验证：处理方信息未核实，仅限合成材料，不得用于真实客户材料。\"} testOutput=None"
+    },
+    {
+      "name": "checklist-pdf-valid-and-dev-warning",
+      "ok": false,
+      "detail": "pages=5 hasDevWarning=False textLen=4"
+    },
+    {
+      "name": "zero-pageerror-and-console-error",
+      "ok": true,
+      "detail": "pageerrors=0 consoleErrors=0"
+    }
+  ],
+  "failures": [
+    {
+      "name": "downloads-valid-nonempty",
+      "ok": false,
+      "detail": "valid=6 total=6"
+    },
+    {
+      "name": "checklist-pdf-valid-and-dev-warning",
+      "ok": false,
+      "detail": "pages=5 hasDevWarning=False textLen=4"
+    }
+  ],
+  "network": {
+    "appHost": "patent-v6.paymond.me",
+    "sameOriginRequestCount": 400,
+    "cloudflareInsightsRequests": [
+      {
+        "url": "https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092",
+        "count": 26,
+        "resourceType": "script",
+        "host": "static.cloudflareinsights.com"
+      }
+    ],
+    "externalRequests": []
+  },
+  "pageerrors": [],
+  "consoleErrors": [],
+  "downloadsCount": 6
+}
