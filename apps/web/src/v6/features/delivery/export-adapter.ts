@@ -668,8 +668,26 @@ function sectionLabel(kind: string): string {
   return labels[kind] ?? kind;
 }
 
+const PLACEHOLDER_EXPORT_TITLE = "未命名案件";
+
+/**
+ * Export documents must prefer the draft's own invention title. The matter
+ * title can still be the default placeholder ("未命名案件") when the user only
+ * filled the title in the draft editor, so a non-placeholder `ast.title` wins.
+ * Falls back to the matter title, then to the placeholder, so an export never
+ * loses its heading.
+ */
+export function resolveExportTitle(astTitle: string, matterTitle: string): string {
+  const draft = astTitle.trim();
+  if (draft !== "" && draft !== PLACEHOLDER_EXPORT_TITLE) return draft;
+  const matter = matterTitle.trim();
+  if (matter !== "" && matter !== PLACEHOLDER_EXPORT_TITLE) return matter;
+  return matter || PLACEHOLDER_EXPORT_TITLE;
+}
+
 function projectData(context: LoadedExportContext, route: ExportRoute): ExportProjectData {
   const { ast } = context.revision;
+  const baseName = resolveExportTitle(ast.title, context.aggregate.matter.title);
   const figureEntries = context.figures.current.get(context.snapshot.targetId)?.entries ?? [];
   const filesByFigure = new Map(context.figureAssets.map((item) => [item.figureId, item]));
   const abstractSection = ast.sections.find((section) => section.kind === "abstract");
@@ -682,7 +700,7 @@ function projectData(context: LoadedExportContext, route: ExportRoute): ExportPr
     };
   });
   return {
-    name: context.revision.revision.testOutput === true ? `${context.aggregate.matter.title}（测试输出，非正式申请稿）` : context.aggregate.matter.title,
+    name: context.revision.revision.testOutput === true ? `${baseName}（测试输出，非正式申请稿）` : baseName,
     patentType: route,
     claims: ast.claims.map((claim) => {
       const paragraphs = claim.paragraphs.map((paragraph) => paragraph.text);

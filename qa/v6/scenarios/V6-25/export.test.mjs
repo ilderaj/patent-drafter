@@ -89,7 +89,7 @@ test("V6-25-A01 / S08-A02: current local export downloads bytes matching its man
   assert.equal(pack.ok, true);
   const unpacked = await exportPackage.openPatentPack(pack.bytes, PASS_PHRASE);
   assert.equal(unpacked.schemaVersion, "patentpack.v1");
-  assert.equal(unpacked.snapshot.project.name, "合成测试案件");
+  assert.equal(unpacked.snapshot.project.name, "合成温控装置", "the draft invention title wins over the matter title");
   assert.equal(unpacked.manifest.schemaVersion, "export.v1");
   assert.equal(unpacked.manifest.searchState, "not_searched");
   assert.equal(unpacked.manifest.files.length, 5, "embedded manifest cannot include its own container; standalone manifest adds it");
@@ -630,4 +630,72 @@ test("professional export requires a live internal approval", async () => {
   assert.equal(created.ok, true, created.ok ? "" : JSON.stringify(created.error));
   assert.equal(created.record.manifest.packageKind, "internally_approved");
   assert.equal(created.record.manifest.approvalId, approval.approval.id);
+});
+
+test("resolveExportTitle prefers a non-placeholder draft title and falls back safely", () => {
+  const { resolveExportTitle } = exportAdapter;
+  assert.equal(resolveExportTitle("草稿优先发明名称", "正式案件名"), "草稿优先发明名称");
+  assert.equal(resolveExportTitle("  草稿优先发明名称  ", "正式案件名"), "草稿优先发明名称");
+  assert.equal(resolveExportTitle("", "正式案件名"), "正式案件名");
+  assert.equal(resolveExportTitle("未命名案件", "正式案件名"), "正式案件名");
+  assert.equal(resolveExportTitle("   ", "正式案件名"), "正式案件名");
+  assert.equal(resolveExportTitle("", "未命名案件"), "未命名案件");
+  assert.equal(resolveExportTitle("未命名案件", ""), "未命名案件");
+  assert.equal(resolveExportTitle("   ", "   "), "未命名案件");
+});
+
+test("export prefers a non-placeholder draft ast.title over the matter placeholder title", async () => {
+  const fixture = await v624.makeApprovalFixture();
+  await v624.addFullReadConfirmation(fixture);
+  const DRAFT_TITLE = "一种三模通讯远程抄表智能水表";
+  const PLACEHOLDER = "未命名案件";
+
+  const originalLoadMatter = fixture.repository.loadMatter;
+  fixture.repository.loadMatter = async function (actor, matterId) {
+    const loaded = await originalLoadMatter.call(this, actor, matterId);
+    if (!loaded.ok) return loaded;
+    return {
+      ...loaded,
+      data: {
+        ...loaded.data,
+        data: {
+          ...loaded.data.data,
+          matter: { ...loaded.data.data.matter, title: PLACEHOLDER },
+        },
+      },
+    };
+  };
+  const revisions = {
+    ...fixture.revisions,
+    async loadHeadRevision(matterId, targetId) {
+      const loaded = await fixture.revisions.loadHeadRevision(matterId, targetId);
+      if (!loaded.ok || loaded.data === null) return loaded;
+      return { ...loaded, data: { ...loaded.data, ast: { ...loaded.data.ast, title: DRAFT_TITLE } } };
+    },
+  };
+  let checklistSpec = null;
+  const session = new exportAdapter.ExportSession({
+    ...v624.approvalProps(fixture, { confirmationMode: "self_read", revisions }),
+    access: "local_unmetered",
+    route: "cn_invention",
+    passphrase: PASS_PHRASE,
+    now: () => v624.T0,
+    renderReport: async (spec) => { checklistSpec = spec; return [PNG_1PX]; },
+  });
+  await session.load();
+  const created = await session.createExport();
+  assert.equal(created.ok, true, created.ok ? "" : JSON.stringify(created.error));
+
+  const specFile = created.record.files.find((file) => file.name === "说明书.docx");
+  assert.ok(specFile, "the specification DOCX is exported");
+  const specBytes = await session.download(specFile.id);
+  assert.equal(specBytes.ok, true, specBytes.ok ? "" : JSON.stringify(specBytes.error));
+  const specXml = new TextDecoder().decode(unzipSync(specBytes.bytes)["word/document.xml"]);
+  assert.match(specXml, new RegExp(DRAFT_TITLE), "说明书.docx carries the draft invention title");
+  assert.doesNotMatch(specXml, new RegExp(PLACEHOLDER), "说明书.docx never leaks the matter placeholder title");
+
+  assert.ok(checklistSpec, "the checklist renderer received a real page spec");
+  const checklistText = JSON.stringify(checklistSpec);
+  assert.match(checklistText, new RegExp(DRAFT_TITLE), "checklist metadata carries the draft invention title");
+  assert.doesNotMatch(checklistText, new RegExp(PLACEHOLDER), "checklist metadata never leaks the matter placeholder title");
 });
