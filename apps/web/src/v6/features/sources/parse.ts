@@ -310,6 +310,8 @@ export interface ParseRow {
   sourceId: string;
   assetId: string;
   name: string;
+  /** Persisted asset MIME type when available (e.g. image/png, image/jpeg). */
+  mime?: string;
   /** R1/S02 display state; `interrupted` is the stale state. */
   state: SourceParseState["status"];
   jobId: string | null;
@@ -2183,6 +2185,7 @@ function buildRow(asset: AssetRecord, state: SourceParseState | undefined): Pars
     sourceId: source?.id ?? "",
     assetId: asset.id,
     name: asset.originalName,
+    mime: asset.mime,
     state: status,
     jobId: job?.id ?? null,
     jobState: job?.state ?? null,

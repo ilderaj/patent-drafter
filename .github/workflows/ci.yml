@@ -37,6 +37,9 @@ jobs:
       - name: Build the web app
         run: npm run build -w @patent/web
 
+      - name: Build the V6 root web app
+        run: npm run build:v6-root -w @patent/web
+
       # Require the installed browser: missing Chrome must fail, never skip tests.
       - name: Run all V6 scenarios
         env:
@@ -57,3 +60,6 @@ jobs:
 
       - name: Export builder tests
         run: npm test -w packages/export
+
+      - name: Worker V6 tests
+        run: npm test -w @patent/worker-v6

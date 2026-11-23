@@ -1,7 +1,8 @@
 // Shared Node-only harness for real headless Chrome/Chromium tests. Missing or
 // broken browsers fail with diagnostics; callers must never turn that into a skip.
 import { spawn } from "node:child_process";
-import { accessSync, constants, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { accessSync, constants, mkdtempSync, readFileSync } from "node:fs";
+import { rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 
@@ -162,6 +163,25 @@ async function waitForExit(child, timeoutMs) {
   });
 }
 
+/**
+ * Chrome's helper processes (storage/network/gpu) can keep writing into the
+ * disposable profile for a moment after the main process exits, so a Linux
+ * rmdir can race into ENOTEMPTY. Retry asynchronously, then give up quietly:
+ * leftover temp files must never fail an otherwise passing test.
+ */
+async function removeProfile(profile, { attempts = 10, delayMs = 150 } = {}) {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      await rm(profile, { recursive: true, force: true });
+      return;
+    } catch (error) {
+      if (!["ENOTEMPTY", "EBUSY", "EPERM"].includes(error?.code)) throw error;
+      if (attempt === attempts) return;
+      await pause(delayMs);
+    }
+  }
+}
+
 async function stopChrome(child, socket, profile) {
   try { socket?.close(); } catch { /* the peer may already have exited */ }
   if (child?.pid && child.exitCode === null && child.signalCode === null) {
@@ -172,7 +192,7 @@ async function stopChrome(child, socket, profile) {
       await waitForExit(child, 1500);
     }
   }
-  if (profile) rmSync(profile, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 });
+  if (profile) await removeProfile(profile);
 }
 
 async function connectPage(url, timeoutMs) {

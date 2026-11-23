@@ -1,6 +1,8 @@
 {
   // V6 app and same-origin model relay; independent of the legacy worker.
-  // Configure MODEL_API_KEY, ACCESS_CODE and SESSION_SECRET through deployment secrets.
+  // Production (top-level "patent-v6") stays fail-closed without MODEL_* vars.
+  // Staging ("--env staging" -> "patent-v6-staging") serves patent-v6.paymond.me with
+  // MODEL_API_KEY, ACCESS_CODE and SESSION_SECRET configured via deployment secrets.
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "patent-v6",
   "main": "apps/worker-v6/src/index.ts",
@@ -15,8 +17,32 @@
   "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "632acafdeea74f2ca9cc8a4fa22a4ead" }],
   "vars": { "RATE_LIMIT_PER_DAY": "60" },
   "routes": [
-    { "pattern": "patent.paymond.me", "custom_domain": true },
-    // Kept as the pre-release verification host.
-    { "pattern": "patent-v6.paymond.me", "custom_domain": true }
-  ]
+    { "pattern": "patent.paymond.me", "custom_domain": true }
+  ],
+  "env": {
+    "staging": {
+      "name": "patent-v6-staging",
+      "assets": {
+        "directory": "./apps/web/dist/v6",
+        "binding": "ASSETS",
+        "run_worker_first": ["/api/v6/*", "/"],
+        "not_found_handling": "single-page-application"
+      },
+      "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "632acafdeea74f2ca9cc8a4fa22a4ead" }],
+      "routes": [
+        { "pattern": "patent-v6.paymond.me", "custom_domain": true }
+      ],
+      "vars": {
+        "RATE_LIMIT_PER_DAY": "300",
+        "MODEL_BASE_URL": "https://opencode.ai/inference/go/v1",
+        "MODEL_NAME": "hy4-flash-free",
+        "MODEL_PROTOCOL": "openai-chat",
+        "MODEL_DISABLE_REASONING": "true",
+        "MODEL_ALLOW_UNDISCLOSED_DEV": "true",
+        "PROCESSOR_NAME": "OpenCode Go (hy4-flash-free · 预发验证)",
+        "PROCESSOR_REGION": "US/EU",
+        "PROCESSOR_RETENTION": "0 days storage"
+      }
+    }
+  }
 }

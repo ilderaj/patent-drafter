@@ -47,9 +47,14 @@ test('remote provider sends only same-origin cookie-authenticated requests and v
   assert.deepEqual(await provider.generateStructured(request,SCHEMA),{answer:'fixture'});
   assert.equal(init.credentials,'same-origin');assert.equal(init.cache,'no-store');
   assert.ok(JSON.parse(init.body).prompt.includes('"required":["answer"]'));
-  for(const content of ['not json','{"wrong":true}']){
-    const p=new RemoteGenerationProvider({model:STATUS.model,profileVersion:123,beforeCall:async()=>({credential:'fixture-proof',manifestHash:'a'.repeat(64)}),fetchImpl:async()=>json({content})});
+  {
+    const p=new RemoteGenerationProvider({model:STATUS.model,profileVersion:123,beforeCall:async()=>({credential:'fixture-proof',manifestHash:'a'.repeat(64)}),fetchImpl:async()=>json({content:'not json'})});
     await assert.rejects(p.generateStructured(request,SCHEMA),e=>e.code==='INVALID_SCHEMA');
+  }
+  // A parsed but non-conforming object is returned here; the pipeline runner normalizes and validates it.
+  {
+    const p=new RemoteGenerationProvider({model:STATUS.model,profileVersion:123,beforeCall:async()=>({credential:'fixture-proof',manifestHash:'a'.repeat(64)}),fetchImpl:async()=>json({content:'{"wrong":true}'})});
+    assert.deepEqual(await p.generateStructured(request,SCHEMA),{wrong:true});
   }
 });
 test('remote provider maps authorization, throttling and unavailability without leaking arbitrary body text',async()=>{

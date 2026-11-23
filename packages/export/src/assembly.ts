@@ -25,42 +25,100 @@ import {
   type ExportSelection,
 } from "./notes.ts";
 
+const SPEC_PARAGRAPH_NUMBER_RE = /^\[(\d{4})\]/;
+
 function blank(): DocxParagraph {
   return { text: "", style: "body" };
 }
 
+function splitParagraphs(text: string): string[] {
+  return text
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
+
+function resolveParagraphs(paragraphs: readonly string[] | undefined, fallback: string): string[] {
+  const source = paragraphs && paragraphs.length > 0 ? paragraphs : [fallback];
+  return source.flatMap((entry) => splitParagraphs(entry));
+}
+
+function formatSpecParagraph(text: string, seq: number): { text: string; nextSeq: number } {
+  const match = text.match(SPEC_PARAGRAPH_NUMBER_RE);
+  if (match) {
+    const existing = Number.parseInt(match[1], 10);
+    return { text, nextSeq: Math.max(seq + 1, existing + 1) };
+  }
+  const prefix = `[${String(seq).padStart(4, "0")}] `;
+  return { text: `${prefix}${text}`, nextSeq: seq + 1 };
+}
+
+function appendClaims(paras: DocxParagraph[], claims: readonly ExportClaim[]): void {
+  for (const c of claims) {
+    for (const line of resolveParagraphs(c.paragraphs, c.text)) {
+      paras.push({ text: line, style: "body" });
+    }
+    paras.push(blank());
+  }
+}
+
+function appendSpecSections(paras: DocxParagraph[], sections: readonly ExportSpecSection[]): void {
+  let seq = 1;
+  for (const s of sections) {
+    paras.push({ text: s.title, style: "heading" });
+    for (const line of resolveParagraphs(s.paragraphs, s.body)) {
+      const formatted = formatSpecParagraph(line, seq);
+      seq = formatted.nextSeq;
+      paras.push({ text: formatted.text, style: "body" });
+    }
+    paras.push(blank());
+  }
+}
+
+function appendAbstract(paras: DocxParagraph[], abstractText: string): void {
+  const lines = splitParagraphs(abstractText);
+  if (lines.length === 0) {
+    paras.push({ text: "（暂无摘要内容）", style: "body" });
+    return;
+  }
+  for (const line of lines) {
+    paras.push({ text: line, style: "body" });
+  }
+}
+
 export function buildClaimsDocx(d: ExportProjectData, notice?: string): Uint8Array {
   const paras: DocxParagraph[] = [{ text: "权利要求书", style: "title" }, blank()];
-  for (const c of d.claims) {
-    paras.push({ text: c.text, style: "body" }, blank());
-  }
+  appendClaims(paras, d.claims);
   return buildDocx(withNotice(notice, paras));
 }
 
 export function buildSpecificationDocx(d: ExportProjectData, notice?: string): Uint8Array {
-  const paras: DocxParagraph[] = [{ text: "说明书", style: "title" }, blank()];
-  for (const s of d.specSections) {
-    paras.push({ text: s.title, style: "heading" }, { text: s.body, style: "body" }, blank());
-  }
+  const paras: DocxParagraph[] = [{ text: "说明书", style: "title" }];
+  const title = (d.name ?? "").trim();
+  if (title) paras.push({ text: title, style: "title" });
+  paras.push(blank());
+  appendSpecSections(paras, d.specSections);
   return buildDocx(withNotice(notice, paras));
 }
 
 export function buildAbstractDocx(d: ExportProjectData, notice?: string): Uint8Array {
   const paras: DocxParagraph[] = [{ text: "说明书摘要", style: "title" }, blank()];
-  paras.push({ text: d.abstractText.trim() || "（暂无摘要内容）", style: "body" });
+  appendAbstract(paras, d.abstractText);
   return buildDocx(withNotice(notice, paras));
 }
 
 export function buildBundleDocx(d: ExportProjectData, notice?: string): Uint8Array {
-  const paras: DocxParagraph[] = [{ text: "专利申请文件草案合集", style: "title" }, blank()];
+  const paras: DocxParagraph[] = [{ text: "专利申请文件草案合集", style: "title" }];
+  const title = (d.name ?? "").trim();
+  if (title) paras.push({ text: title, style: "title" });
+  paras.push(blank());
   paras.push({ text: "第一部分 权利要求书", style: "heading" }, blank());
-  for (const c of d.claims) paras.push({ text: c.text, style: "body" }, blank());
+  appendClaims(paras, d.claims);
   paras.push({ text: "第二部分 说明书", style: "heading" }, blank());
-  for (const s of d.specSections) {
-    paras.push({ text: s.title, style: "heading" }, { text: s.body, style: "body" }, blank());
-  }
+  appendSpecSections(paras, d.specSections);
   paras.push({ text: "第三部分 说明书摘要", style: "heading" }, blank());
-  paras.push({ text: d.abstractText.trim() || "（暂无摘要内容）", style: "body" });
+  appendAbstract(paras, d.abstractText);
   return buildDocx(withNotice(notice, paras));
 }
 

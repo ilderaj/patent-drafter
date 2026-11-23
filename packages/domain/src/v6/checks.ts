@@ -1182,6 +1182,25 @@ function basicAstIssues(astValue: unknown): CheckAstIssue[] {
   for (let number = 1; number <= claims.length; number += 1) {
     if (!numbers.has(number)) issues.push({ path: "claims", reason: `权利要求编号缺少 ${number}。`, section: "claims" });
   }
+  const sectionKinds = new Set<string>();
+  for (const [index, sectionValue] of ast.sections.entries()) {
+    const section = asRecord(sectionValue);
+    const kind = section?.kind;
+    if (!section || !isSectionWithoutClaims(kind) || !Array.isArray(section.paragraphs) || sectionKinds.has(kind)) {
+      issues.push({ path: `sections.${index}`, reason: "章节结构无效、重复或编号不受支持。", section: isSectionWithoutClaims(kind) ? kind : null });
+      continue;
+    }
+    sectionKinds.add(kind);
+    for (const [paragraphIndex, paragraphValue] of section.paragraphs.entries()) {
+      const paragraph = asRecord(paragraphValue);
+      if (!paragraph || typeof paragraph.text !== "string" || !Array.isArray(paragraph.figureIds)) {
+        issues.push({ path: `sections.${index}.paragraphs.${paragraphIndex}`, reason: "章节段落结构无效。", section: kind });
+        continue;
+      }
+      registerNode(paragraph.id, `sections.${index}.paragraphs.${paragraphIndex}.id`, kind);
+      if (typeof paragraph.id === "string") paragraphs.add(paragraph.id);
+    }
+  }
   const numberById = new Map(claims.map((claim) => [String(claim.id), Number(claim.number)]));
   for (const [index, claim] of claims.entries()) {
     if (!Array.isArray(claim.dependsOn)) continue;
@@ -1200,25 +1219,6 @@ function basicAstIssues(astValue: unknown): CheckAstIssue[] {
           section: "claims",
         });
       }
-    }
-  }
-  const sectionKinds = new Set<string>();
-  for (const [index, sectionValue] of ast.sections.entries()) {
-    const section = asRecord(sectionValue);
-    const kind = section?.kind;
-    if (!section || !isSectionWithoutClaims(kind) || !Array.isArray(section.paragraphs) || sectionKinds.has(kind)) {
-      issues.push({ path: `sections.${index}`, reason: "章节结构无效、重复或编号不受支持。", section: isSectionWithoutClaims(kind) ? kind : null });
-      continue;
-    }
-    sectionKinds.add(kind);
-    for (const [paragraphIndex, paragraphValue] of section.paragraphs.entries()) {
-      const paragraph = asRecord(paragraphValue);
-      if (!paragraph || typeof paragraph.text !== "string" || !Array.isArray(paragraph.figureIds)) {
-        issues.push({ path: `sections.${index}.paragraphs.${paragraphIndex}`, reason: "章节段落结构无效。", section: kind });
-        continue;
-      }
-      registerNode(paragraph.id, `sections.${index}.paragraphs.${paragraphIndex}.id`, kind);
-      if (typeof paragraph.id === "string") paragraphs.add(paragraph.id);
     }
   }
   return issues;

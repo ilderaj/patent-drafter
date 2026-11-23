@@ -29,6 +29,18 @@ import {
   type IngestProgress,
   type UploadRow,
 } from "./ingest.ts";
+import { syncUploadedImagesToLibrary } from "./drawings.ts";
+
+export const SOURCES_SETTLED_EVENT = "v6:sources-settled";
+
+export function notifySourcesSettled(matterId: string): void {
+  if (typeof globalThis.dispatchEvent !== "function" || typeof CustomEvent !== "function") return;
+  try {
+    globalThis.dispatchEvent(new CustomEvent(SOURCES_SETTLED_EVENT, { detail: { matterId } }));
+  } catch {
+    // Non-browser runtimes without CustomEvent dispatch support ignore sibling refresh pings.
+  }
+}
 
 export interface UploadItem {
   /** Stable across retries; the row key. */
@@ -186,11 +198,23 @@ export function Upload({ repository, actor, matterId, onAnswerWithoutDocuments, 
         onProgress: (progress) => dispatch({ type: "progress", progress }),
       },
     )
-      .then((outcomes) => dispatch({ type: "settle", outcomes }))
+      .then(async (outcomes) => {
+        dispatch({ type: "settle", outcomes });
+        if (
+          outcomes.some(
+            (outcome) =>
+              (outcome.status === "saved" || outcome.status === "duplicate") &&
+              (outcome.kind === "png" || outcome.kind === "jpeg"),
+          )
+        ) {
+          await syncUploadedImagesToLibrary(repository, actor, matterId).catch(() => null);
+        }
+      })
       .catch(() => dispatch({ type: "batch-error", message: "保存过程中发生意外错误；没有显示为已保存的文件都还没有存好。" }))
       .finally(() => {
         abortRef.current = null;
         dispatch({ type: "idle" });
+        notifySourcesSettled(matterId);
         onSettled?.();
       });
   }, [actor, matterId, onSettled, repository, state]);

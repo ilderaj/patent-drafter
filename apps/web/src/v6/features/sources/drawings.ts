@@ -1160,11 +1160,107 @@ export async function readDrawingLibrary(
   return readDrawings(repository, actor, matterId);
 }
 
+function isDrawingEligibleAsset(asset: AssetRecord): boolean {
+  if (asset.purpose === "drawing") return true;
+  return asset.purpose === "source" && (asset.mime === "image/png" || asset.mime === "image/jpeg");
+}
+
+export interface SyncedDrawingsResult {
+  /** Uploaded image assets newly registered in the drawing library. */
+  added: readonly LibraryDrawing[];
+  /** Uploaded image assets already present in the drawing library (by asset id or sha256). */
+  skipped: readonly string[];
+  /** Uploaded image assets that could not be verified as valid PNG/JPEG drawings. */
+  rejected: readonly { assetId: string; code: FigureErrorCode; message: string }[];
+}
+
+/**
+ * Idempotently register already-ingested PNG/JPEG source assets of a matter into
+ * the drawing library (`drawings/`), reusing each existing `asset.id` without
+ * creating duplicate `AssetRecord`s or mutating the matter aggregate.
+ */
+export async function syncUploadedImagesToLibrary(
+  repository: LocalRepository,
+  actor: Actor,
+  matterId: string,
+): Promise<FigureResult<SyncedDrawingsResult>> {
+  const loaded = await repository.loadMatter(actor, matterId);
+  if (!loaded.ok) return storageFailure(loaded.error);
+  const existing = await readDrawings(repository, actor, matterId);
+  if (!existing.ok) return existing;
+
+  const existingAssetIds = new Set(existing.data.map((entry) => entry.drawing.assetId));
+  const existingHashes = new Set(
+    existing.data.filter((entry) => entry.asset.state === "available").map((entry) => entry.asset.sha256),
+  );
+  const candidates = loaded.data.data.assets.filter(
+    (asset) =>
+      asset.state === "available" &&
+      (asset.mime === "image/png" || asset.mime === "image/jpeg") &&
+      (asset.purpose === "source" || asset.purpose === "drawing"),
+  );
+
+  const added: LibraryDrawing[] = [];
+  const skipped: string[] = [];
+  const rejected: { assetId: string; code: FigureErrorCode; message: string }[] = [];
+
+  for (const asset of candidates) {
+    if (existingAssetIds.has(asset.id) || existingHashes.has(asset.sha256)) {
+      skipped.push(asset.id);
+      continue;
+    }
+    const blob = await repository.readBlob(actor, asset.id);
+    if (!blob.ok) {
+      const failure = storageFailure(blob.error);
+      if (!failure.ok) {
+        rejected.push({ assetId: asset.id, code: failure.error.code, message: failure.error.message });
+      }
+      continue;
+    }
+    const inspection = inspectDrawing(blob.data.data.bytes);
+    if (!inspection.ok) {
+      rejected.push({ assetId: asset.id, code: inspection.error.code, message: inspection.error.message });
+      continue;
+    }
+    if (inspection.image.mime !== asset.mime) {
+      rejected.push({
+        assetId: asset.id,
+        code: "MIME_MISMATCH",
+        message: figureErrorMessage("MIME_MISMATCH"),
+      });
+      continue;
+    }
+    const drawingId = await figureId(`synced-drawing/${matterId}/${asset.id}`);
+    const drawing: Drawing = {
+      id: drawingId,
+      matterId,
+      assetId: asset.id,
+      width: inspection.image.width,
+      height: inspection.image.height,
+      mime: inspection.image.mime,
+      sha256: asset.sha256,
+      derivedFromAssetId: null,
+    };
+    const parsed = drawingSchema.safeParse(drawing);
+    if (!parsed.success) {
+      rejected.push({ assetId: asset.id, code: "INVALID_INPUT", message: "附图记录不符合合同结构。" });
+      continue;
+    }
+    const wroteRow = await writeDrawingRow(repository, actor, matterId, parsed.data);
+    if (!wroteRow.ok) return wroteRow;
+    existingAssetIds.add(asset.id);
+    existingHashes.add(asset.sha256);
+    added.push({ drawing: parsed.data, asset });
+  }
+
+  return { ok: true, data: { added, skipped, rejected } };
+}
+
 async function readDrawings(repository: LocalRepository, actor: Actor, matterId: string): Promise<DrawingLibraryRead> {
   const loaded = await repository.loadMatter(actor, matterId);
   if (!loaded.ok) return storageFailure(loaded.error);
   const assets = new Map(
-    loaded.data.data.assets.filter((asset) => asset.purpose === "drawing").map((asset) => [asset.id, asset]),
+    loaded.data.data.assets.filter(isDrawingEligibleAsset).map((asset) => [asset.id, asset]),
   );
   let rows: readonly unknown[];
   try {
@@ -1997,7 +2093,7 @@ async function drawingBytesUsable(
   const row = await readDrawingRow(repository, actor, aggregate.matter.id, drawingId);
   if (!row.ok) return false;
   const asset = aggregate.assets.find((item) => item.id === row.data.drawing.assetId);
-  if (!asset || asset.purpose !== "drawing" || asset.state !== "available") return false;
+  if (!asset || !isDrawingEligibleAsset(asset) || asset.state !== "available") return false;
   if (asset.sha256 !== row.data.drawing.sha256) return false;
   try {
     const blob = await repository.backend.transaction("readonly", async (tx) => {

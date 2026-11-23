@@ -24,8 +24,8 @@ const exists = (selector) => evaluate(`!!document.querySelector(${JSON.stringify
 const rerender = async (times = 1) => {
   for (let i = 0; i < times; i++) { await evaluate("fixture.rerender(); true"); await pause(30); }
 };
-async function mount(mode, required, target = "synthetic-target") {
-  await evaluate(`fixture.reset(${JSON.stringify(mode)}, ${required}, ${JSON.stringify(target)}); true`);
+async function mount(mode, required, target = "synthetic-target", revisions = []) {
+  await evaluate(`fixture.reset(${JSON.stringify(mode)}, ${required}, ${JSON.stringify(target)}, ${JSON.stringify(revisions)}); true`);
   await waitFor(`!!document.querySelector('[data-testid="workbench-runtime-${mode === "real" ? (required ? "consent-required" : "real") : "test"}"]')`);
   await pause(80);
 }
@@ -45,17 +45,17 @@ before(async () => {
         {questionNo:3,key:'inventorIds',label:'发明人',answered:true,sent:false,characters:null,chunkId:null},
         {questionNo:4,key:'disclosure',label:'公开历史',answered:true,sent:false,characters:null,chunkId:null},
         {questionNo:5,key:'maturity',label:'成熟度',answered:true,sent:false,characters:null,chunkId:null}]};
-      const makeRuntime = (mode, required) => ({ mode, engineOptions:{execution: mode === 'real' ? 'provider' : 'test'},
+      const makeRuntime = (mode, required, revisions = []) => ({ mode, engineOptions:{execution: mode === 'real' ? 'provider' : 'test'},
         processor:{name:'合成处理方',region:'合成区域',retention:'合成保留',trainingPolicy:'no_training',termsVersion:'v1',model:'m'},
         unavailableReason: mode === 'test' ? '真实起草需要访问码。' : null,
-        consent:{required, manifest: mode === 'test' ? null : {files:[],factCount:2,chunkIds:['a1','a2'],draftRevisionIds:[],figureRevisionIds:[],answers},
+        consent:{required, manifest: mode === 'test' ? null : {files:[],factCount:2,chunkIds:['a1','a2'],draftRevisionIds: revisions,figureRevisionIds:[],answers},
           grant: async () => makeRuntime('real', false)} });
       const repository = {};
       let tick = 0, key = 0, target = 'synthetic-target', token = 0;
       const render = () => root.render(<MemoryRouter><WorkbenchGenerationStrip key={key} repository={repository} actor={{userId:'u',tenantId:'t'}}
         matterId='m' targetId={target} onAdopted={() => { tick++; }} revealToken={token} /></MemoryRouter>);
       window.fixture = {
-        reset(mode, required, nextTarget) { key++; token = 0; target = nextTarget; this.runtime = makeRuntime(mode, required); this.job = null; this.listeners = []; render(); },
+        reset(mode, required, nextTarget, revisions = []) { key++; token = 0; target = nextTarget; this.runtime = makeRuntime(mode, required, revisions); this.job = null; this.listeners = []; render(); },
         rerender() { tick++; render(); },
         retarget(nextTarget) { target = nextTarget; render(); },
         reveal() { token++; render(); },
@@ -135,6 +135,15 @@ it("re-consent opens the strip and the consent sheet survives re-renders without
   await pause(150);
   assert.equal(await isOpen(), true);
   assert.equal(await evaluate("document.querySelector('[role=dialog]') === window.__sheet"), true, "sheet node is the same: not unmounted and remounted");
+});
+
+it("an adopted draft does not pop the consent sheet on mount, but the explicit control still opens it", async () => {
+  await mount("real", true, "synthetic-target", ["rev-1"]);
+  assert.equal(await isOpen(), false, "a passive refresh does not open the strip over the draft");
+  assert.equal(await exists("[role=dialog]"), false, "the changed outbound manifest does not pop a modal");
+  await click("[data-testid=workbench-runtime-consent-open]");
+  await waitFor("!!document.querySelector('[role=dialog]')");
+  await waitFor(`${strip}.open === true`);
 });
 
 it("an access code being typed survives a refresh while the sheet is open", async () => {

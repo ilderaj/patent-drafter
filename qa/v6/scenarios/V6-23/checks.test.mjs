@@ -648,3 +648,28 @@ test("V6-23 main view does not expose revision UUIDs or rule-pack version", () =
   assert.match(footer, /修订：/);
   assert.match(footer, /规则包：/);
 });
+
+test("ast.invalid accepts claim feature supportParagraphIds referencing specification section paragraphs", () => {
+  const ast = makeAst();
+  ast.claims[0].features[0].supportParagraphIds = [ids.paragraph5, ids.paragraph7];
+  const validResult = checkModule.runChecks(makeInput({ ast, astValidation: astValidation(ast) }), EMPTY_PACK, T0);
+  assert.equal(
+    validResult.checkRun.findings.some((finding) => finding.ruleId === "ast.invalid"),
+    false,
+    "specification section paragraphs must satisfy supportParagraphIds",
+  );
+
+  const missingAst = makeAst();
+  missingAst.claims[0].features[0].supportParagraphIds = ["ffffffff-ffff-4fff-8fff-ffffffffffff"];
+  const invalidResult = checkModule.runChecks(
+    makeInput({ ast: missingAst, astValidation: { valid: true } }),
+    EMPTY_PACK,
+    T0,
+  );
+  assert.equal(
+    invalidResult.checkRun.findings.some((finding) => finding.ruleId === "ast.invalid"),
+    true,
+    "unknown supportParagraphIds must still report ast.invalid",
+  );
+});
+
